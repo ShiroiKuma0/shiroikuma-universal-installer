@@ -34,7 +34,7 @@ Goal: ship a "looks rich, doesn't bloat" set of actions that leverage existing i
 
 ---
 
-## v1.6.0 — Phase 2
+## v1.6.1 — Phase 2
 
 Add the rest of Tier 2 + power-user filters once Phase 1 ships and we see usage signal.
 

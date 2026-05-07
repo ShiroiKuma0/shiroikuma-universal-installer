@@ -92,7 +92,7 @@ class SyncViewModel(application: Application) : AndroidViewModel(application) {
                     successCount > 0 ->
                         Toast.makeText(app, "Added $successCount file(s) to Sync Folder", Toast.LENGTH_SHORT).show()
                     skippedCount > 0 ->
-                        Toast.makeText(app, "No supported package files selected (apk, apks, xapk, apkm, zip)", Toast.LENGTH_LONG).show()
+                        Toast.makeText(app, "No supported package files selected (apk, apk+, apks, xapk, apkm, zip)", Toast.LENGTH_LONG).show()
                     else ->
                         Toast.makeText(app, "Failed to copy files", Toast.LENGTH_SHORT).show()
                 }

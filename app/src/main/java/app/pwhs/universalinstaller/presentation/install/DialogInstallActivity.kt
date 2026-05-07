@@ -379,7 +379,7 @@ class DialogInstallActivity : ComponentActivity() {
         val isApkMime = mime == "application/vnd.android.package-archive"
         val splitProvider = when {
             isApkMime || ext == "apk" -> SingletonApkSequence(uri, context).toSplitPackage()
-            ext in setOf("apks", "xapk", "apkm", "zip") ->
+            ext in setOf("apks", "xapk", "apkm", "apk+", "zip") ->
                 ZippedApkSplits.getApksForUri(uri, context)
                     .validate()
                     .toSplitPackage()

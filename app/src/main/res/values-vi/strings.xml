@@ -22,7 +22,7 @@
     <string name="install_sessions_header">Sessions</string>
     <string name="install_history_header">Lịch sử</string>
     <string name="install_history_clear">Xóa</string>
-    <string name="install_unsupported_file">Tệp không được hỗ trợ. Vui lòng chọn tệp APK, APKS, XAPK hoặc APKM.</string>
+    <string name="install_unsupported_file">Tệp không được hỗ trợ. Vui lòng chọn tệp APK, APK+, APKS, XAPK hoặc APKM.</string>
     <string name="file_picker_parsing">Đang phân tích gói…</string>
     <string name="session_installed_success">Đã cài đặt thành công</string>
     <string name="session_installing_progress">Đang cài đặt %d%%…</string>
@@ -132,7 +132,7 @@
     <string name="onboarding_permission_granted">Đã cấp quyền</string>
     <string name="onboarding_grant_permission">Cấp Quyền</string>
     <string name="onboarding_page1_title">Cài đặt Bất kỳ Gói nào</string>
-    <string name="onboarding_page1_desc">Hỗ trợ các định dạng APK, APKS, XAPK và APKM. Cài đặt Split APKs một cách dễ dàng.</string>
+    <string name="onboarding_page1_desc">Hỗ trợ các định dạng APK, APK+, APKS, XAPK và APKM. Cài đặt Split APKs một cách dễ dàng.</string>
     <string name="onboarding_page2_title">Quản lý Ứng dụng của bạn</string>
     <string name="onboarding_page2_desc">Duyệt qua các ứng dụng đã cài đặt, gỡ cài đặt những ứng dụng không mong muốn và quản lý thiết bị của bạn một cách dễ dàng.</string>
     <string name="onboarding_page3_title">Cho phép Cài đặt</string>
@@ -227,7 +227,7 @@
     <string name="permissions_grant">Cấp</string>
     <string name="permissions_open_settings">Mở cài đặt</string>
     <string name="permission_install_title">Cài đặt ứng dụng không xác định</string>
-    <string name="permission_install_desc">Bắt buộc để cài đặt các gói APK, XAPK, APKS và APKM. Nếu không có quyền này, không có gì có thể được cài đặt.</string>
+    <string name="permission_install_desc">Bắt buộc để cài đặt các gói APK, APK+, XAPK, APKS và APKM. Nếu không có quyền này, không có gì có thể được cài đặt.</string>
     <string name="permission_storage_title">Truy cập tất cả các tệp</string>
     <string name="permission_storage_desc">Cho phép Tự động tìm quét thiết bị của bạn để tìm các gói và sao chép dữ liệu OBB trên Android 11+. Tùy chọn — Trình chọn duyệt vẫn hoạt động mà không cần quyền này.</string>
     <string name="permission_notifications_title">Thông báo</string>

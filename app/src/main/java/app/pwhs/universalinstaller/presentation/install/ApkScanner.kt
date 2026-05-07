@@ -46,8 +46,8 @@ data class FoundPackageFile(
 
 object ApkScanner {
 
-    private val SUPPORTED_EXTENSIONS = setOf("apk", "apks", "xapk", "apkm")
-    private val ARCHIVE_EXTENSIONS = setOf("apks", "xapk", "apkm")
+    private val SUPPORTED_EXTENSIONS = setOf("apk", "apks", "xapk", "apkm", "apk+")
+    private val ARCHIVE_EXTENSIONS = setOf("apks", "xapk", "apkm", "apk+")
 
     fun hasAllFilesAccess(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

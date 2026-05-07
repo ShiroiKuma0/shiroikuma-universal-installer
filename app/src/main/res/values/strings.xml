@@ -105,7 +105,7 @@
     <string name="install_sessions_header">Sessions</string>
     <string name="install_history_header">History</string>
     <string name="install_history_clear">Clear</string>
-    <string name="install_unsupported_file">Unsupported file. Please select an APK, APKS, XAPK, or APKM file.</string>
+    <string name="install_unsupported_file">Unsupported file. Please select an APK, APK+, APKS, XAPK, or APKM file.</string>
     <string name="install_no_splits_error">Couldn\'t parse the package. File may be corrupt, truncated, or not compatible with this device.</string>
     <string name="batch_install_title">Batch install</string>
     <string name="batch_install_summary">%1$d packages · %2$s selected</string>
@@ -147,7 +147,7 @@
     <string name="source_action_find_automatic">Find automatic</string>
     <string name="source_action_find_automatic_sub">Scan this device for installable packages</string>
     <string name="source_action_browse_packages">Browse packages</string>
-    <string name="source_action_browse_packages_sub" translatable="false">.APK · .XAPK · .APKS · .APKM</string>
+    <string name="source_action_browse_packages_sub" translatable="false">.APK · .APK+ · .XAPK · .APKS · .APKM</string>
     <string name="source_action_browse_all">Browse all files</string>
     <string name="source_action_browse_all_sub">Any file type — use at your own risk</string>
     <string name="source_download_header">Download from URL</string>
@@ -182,7 +182,7 @@
     <string name="permissions_grant">Grant</string>
     <string name="permissions_open_settings">Open settings</string>
     <string name="permission_install_title">Install unknown apps</string>
-    <string name="permission_install_desc">Required to install APK, XAPK, APKS and APKM packages. Without this, nothing can be installed.</string>
+    <string name="permission_install_desc">Required to install APK, APK+, XAPK, APKS and APKM packages. Without this, nothing can be installed.</string>
     <string name="permission_storage_title">All-files access</string>
     <string name="permission_storage_desc">Lets Find Automatic scan your device for packages and copy OBB data on Android 11+. Optional — Browse-picker still works without it.</string>
     <string name="permission_notifications_title">Notifications</string>
@@ -448,7 +448,7 @@
     <string name="onboarding_permission_granted">Permission granted</string>
     <string name="onboarding_grant_permission">Grant Permission</string>
     <string name="onboarding_page1_title">Install Any Package</string>
-    <string name="onboarding_page1_desc">Support APK, APKS, XAPK, and APKM formats. Install split APKs with ease.</string>
+    <string name="onboarding_page1_desc">Support APK, APK+, APKS, XAPK, and APKM formats. Install split APKs with ease.</string>
     <string name="onboarding_page2_title">Manage Your Apps</string>
     <string name="onboarding_page2_desc">Browse installed apps, uninstall unwanted ones, and manage your device effortlessly.</string>
     <string name="onboarding_page3_title">Allow Installation</string>

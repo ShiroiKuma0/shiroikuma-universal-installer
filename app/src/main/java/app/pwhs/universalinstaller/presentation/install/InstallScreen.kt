@@ -237,7 +237,7 @@ private fun InstallUi(
             val mimeType = context.contentResolver.getType(uri)?.lowercase()
             val displayName = context.contentResolver.getDisplayName(uri)
             val extension = displayName.substringAfterLast('.', "").lowercase()
-            val validExtensions = listOf("apk", "apks", "xapk", "apkm", "zip")
+            val validExtensions = listOf("apk", "apks", "xapk", "apkm", "apk+", "zip")
             val isApkMime = mimeType == "application/vnd.android.package-archive"
 
             if (strictPickerMode && !isApkMime && extension !in validExtensions) {
@@ -256,7 +256,7 @@ private fun InstallUi(
                     context
                 ).toSplitPackage()
 
-                extension in listOf("apks", "xapk", "apkm", "zip") -> ZippedApkSplits.getApksForUri(
+                extension in listOf("apks", "xapk", "apkm", "apk+", "zip") -> ZippedApkSplits.getApksForUri(
                     uri,
                     context
                 )
@@ -301,7 +301,7 @@ private fun InstallUi(
             val mimeType = context.contentResolver.getType(uri)?.lowercase()
             val displayName = context.contentResolver.getDisplayName(uri)
             val extension = displayName.substringAfterLast('.', "").lowercase()
-            val validExtensions = listOf("apk", "apks", "xapk", "apkm", "zip")
+            val validExtensions = listOf("apk", "apks", "xapk", "apkm", "apk+", "zip")
             val isApkMime = mimeType == "application/vnd.android.package-archive"
             if (!isApkMime && extension !in validExtensions) {
                 Toast.makeText(
@@ -313,7 +313,7 @@ private fun InstallUi(
             }
             val apks = when {
                 (isApkMime || extension == "apk") -> SingletonApkSequence(uri, context).toSplitPackage()
-                extension in listOf("apks", "xapk", "apkm", "zip") -> ZippedApkSplits.getApksForUri(uri, context)
+                extension in listOf("apks", "xapk", "apkm", "apk+", "zip") -> ZippedApkSplits.getApksForUri(uri, context)
                     .validate()
                     .toSplitPackage()
                     .filterCompatible(context)

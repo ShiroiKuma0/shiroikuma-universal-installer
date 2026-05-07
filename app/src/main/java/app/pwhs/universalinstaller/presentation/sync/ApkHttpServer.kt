@@ -78,6 +78,8 @@ class ApkHttpServer(
                 fileName.endsWith(".apk", true) -> "application/vnd.android.package-archive"
                 fileName.endsWith(".apks", true) -> "application/vnd.apks"
                 fileName.endsWith(".xapk", true) -> "application/vnd.xapk"
+                fileName.endsWith(".apkm", true) -> "application/vnd.apkm"
+                fileName.endsWith(".apk+", true) -> "application/vnd.apks" // Same as APKS
                 else -> "application/octet-stream"
             }
 
@@ -113,7 +115,8 @@ class ApkHttpServer(
     private fun serveDirectoryList(): Response {
         val files = baseDir.listFiles()?.filter {
             it.isFile && (it.name.endsWith(".apk", true) || it.name.endsWith(".apks", true) ||
-                    it.name.endsWith(".xapk", true) || it.name.endsWith(".apkm", true))
+                    it.name.endsWith(".xapk", true) || it.name.endsWith(".apkm", true) ||
+                    it.name.endsWith(".apk+", true))
         }?.sortedBy { it.name } ?: emptyList()
 
         val listHtml = if (files.isEmpty()) {

@@ -97,7 +97,8 @@
             android:taskAffinity=""
             android:theme="@style/Theme.UniversalInstaller.Dialog">
 
-            <!-- Splits + single APK by file extension -->
+            <!-- Concise intent filter for opening package files.
+                 Matches all files via pathPattern=".*" and validates extensions in code. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
@@ -108,84 +109,21 @@
                 <data android:scheme="content" />
                 <data android:scheme="file" />
                 <data android:host="*" />
-                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*" />
 
-                <data android:pathPattern=".*\\.apk" />
-                <data android:pathPattern=".*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apk" />
-
-                <data android:pathPattern=".*\\.apks" />
-                <data android:pathPattern=".*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apks" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apks" />
-
-                <data android:pathPattern=".*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apkm" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.apkm" />
-
-                <data android:pathPattern=".*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.xapk" />
-                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.xapk" />
-            </intent-filter>
-
-            <!-- MIME-only filter. Catches Chrome / download manager URIs whose path is a
-                 database id (no filename, so the pathPattern filter above can't match). -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.INSTALL_PACKAGE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="content" />
-                <data android:scheme="file" />
-                <data android:host="*" />
                 <data android:mimeType="application/vnd.android.package-archive" />
                 <data android:mimeType="application/vnd.apkm" />
                 <data android:mimeType="application/xapk-package-archive" />
                 <data android:mimeType="application/octet-stream" />
+                <data android:mimeType="*/*" />
             </intent-filter>
 
-            <!-- Share intents from file managers — single- and multi-file APK install. -->
+            <!-- Share intents from file managers — single- and multi-file APK install.
+                 SEND intents match on MIME type only. -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/vnd.android.package-archive" />
-                <data android:mimeType="application/vnd.apkm" />
-                <data android:mimeType="application/xapk-package-archive" />
-                <data android:mimeType="application/octet-stream" />
-                <data android:mimeType="application/zip" />
-            </intent-filter>
-            <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:mimeType="application/vnd.android.package-archive" />
@@ -193,6 +131,7 @@
                 <data android:mimeType="application/xapk-package-archive" />
                 <data android:mimeType="application/octet-stream" />
                 <data android:mimeType="application/zip" />
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
         <activity

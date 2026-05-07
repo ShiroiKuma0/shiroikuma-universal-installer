@@ -2,7 +2,7 @@
   <img src="fastlane/metadata/android/en-US/images/icon.png" width="128" height="128">
   <h1>Universal Installer</h1>
   <p><strong>Universal Installer</strong> is a modern Android package manager that handles what the default installer can't.</p>
-  <p>Install <strong>APK, APKS, XAPK, APKM</strong> (with split APKs and OBB files), download packages from URLs, manage installed apps, and silent-install via Shizuku — all in one Material 3 app.</p>
+  <p>Install <strong>APK, APK+, APKS, XAPK, APKM</strong> (with split APKs and OBB files), download packages from URLs, manage installed apps, and silent-install via Shizuku — all in one Material 3 app.</p>
   <br><br>
   <a href="https://github.com/pass-with-high-score/universal-installer/releases">
     <img src="https://img.shields.io/github/v/release/pass-with-high-score/universal-installer">
@@ -52,7 +52,7 @@
 
 ### Install
 
-* **Multi-format** — `.apk`, `.apks`, `.xapk`, `.apkm` with split APK handling (via [Ackpine](https://ackpine.solrudev.ru/))
+* **Multi-format** — `.apk`, `.apk+`, `.apks`, `.xapk`, `.apkm` with split APK handling (via [Ackpine](https://ackpine.solrudev.ru/))
 * **Merge split APKs** — Group multiple individual `.apk` files (e.g. from a manual split extraction) into a single installation session. Perfect for installing apps served as a collection of separate splits.
 * **Modern Android Support** — Fully compatible with **Android 14, 15, 16**, and ready for **Android 17**. Fixes common parsing errors (e.g. `aconfig_flags.pb`) found on newer system versions.
 * **Package preview** — App name, icon, version, package, size, min/target SDK, supported ABIs, languages, permissions, OBB count, split count — shown in a bottom sheet before you commit

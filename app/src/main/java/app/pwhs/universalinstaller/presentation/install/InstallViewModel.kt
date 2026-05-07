@@ -1103,7 +1103,7 @@ class InstallViewModel(
             }
 
             // VT doesn't know this file yet — upload. We stream the original URI; for bundles
-            // this is the whole .xapk/.apks/.apkm blob, which is what we hashed above.
+            // this is the whole .xapk/.apks/.apkm/.apk+ blob, which is what we hashed above.
             val tempFile = runCatching {
                 withContext(Dispatchers.IO) {
                     val f = File(context.cacheDir, "vt_upload_${System.currentTimeMillis()}")

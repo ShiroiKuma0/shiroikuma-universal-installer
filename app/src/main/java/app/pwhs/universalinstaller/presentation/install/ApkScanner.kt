@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
+import android.os.storage.StorageManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -84,14 +85,47 @@ object ApkScanner {
      * get the "Split" chip.
      */
     suspend fun scan(context: Context): List<FoundPackageFile> = withContext(Dispatchers.IO) {
-        val root = Environment.getExternalStorageDirectory() ?: return@withContext emptyList()
+        val roots = collectVolumeRoots(context)
+        if (roots.isEmpty()) return@withContext emptyList()
         val raw = mutableListOf<FoundPackageFile>()
-        scanRecursive(root, raw, depth = 0, maxDepth = 10)
+        for (root in roots) {
+            currentCoroutineContext().ensureActive()
+            scanRecursive(root, raw, depth = 0, maxDepth = 10)
+        }
         val pm = context.packageManager
         raw.map { file ->
             currentCoroutineContext().ensureActive()
             if (file.extension == "apk") enrichWithPackageInfo(pm, file) else file
         }.sortedByDescending { it.modifiedMillis }
+    }
+
+    /**
+     * Returns root directories for every readable mounted volume — primary emulated storage,
+     * SD cards, and (when the system mounts them as a regular volume) OTG drives. Falls back
+     * to the primary volume only on API 24–29 for non-primary volumes, since
+     * [android.os.storage.StorageVolume.getDirectory] is API 30+.
+     */
+    private fun collectVolumeRoots(context: Context): List<File> {
+        val out = LinkedHashSet<File>()
+        val sm = context.getSystemService(Context.STORAGE_SERVICE) as? StorageManager
+        if (sm != null) {
+            for (vol in sm.storageVolumes) {
+                val dir = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    vol.directory
+                } else if (vol.isPrimary) {
+                    Environment.getExternalStorageDirectory()
+                } else {
+                    null
+                }
+                if (dir != null && dir.exists() && dir.canRead()) out.add(dir)
+            }
+        }
+        if (out.isEmpty()) {
+            Environment.getExternalStorageDirectory()
+                ?.takeIf { it.exists() && it.canRead() }
+                ?.let { out.add(it) }
+        }
+        return out.toList()
     }
 
     private fun enrichWithPackageInfo(

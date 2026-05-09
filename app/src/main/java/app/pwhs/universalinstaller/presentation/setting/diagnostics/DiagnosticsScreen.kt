@@ -216,6 +216,13 @@ fun DiagnosticsScreen(modifier: Modifier = Modifier) {
                     }
                 },
                 actions = {
+                    IconButton(onClick = { throw RuntimeException("Test Crash - ${System.currentTimeMillis()}") }) {
+                        Icon(
+                            imageVector = Icons.Rounded.BugReport,
+                            contentDescription = "Test Crash",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
                     IconButton(onClick = ::shareReport) {
                         Icon(
                             imageVector = Icons.Rounded.Share,

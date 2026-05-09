@@ -92,8 +92,9 @@ private data class LogEntry(
 )
 
 private fun parseLogLine(line: String): LogEntry {
-    // Regex for: 05-09 15:30:12.123 1234 5678 W MyTag : My message
-    val regex = Regex("""^(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s+\d+\s+\d+\s([VDIWEF])\s+(.*?):\s(.*)$""")
+    // Regex for threadtime: 05-09 15:30:12.123  1234  5678 W MyTag   : My message
+    // Matches: [Date Time] [PID] [TID] [Level] [Tag]: [Message]
+    val regex = Regex("""^(\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}\.\d{3})\s+\d+\s+\d+\s([VDIWEF])\s+(.*?)\s*:\s(.*)$""")
     val match = regex.find(line)
 
     return if (match != null) {
@@ -113,6 +114,7 @@ private fun parseLogLine(line: String): LogEntry {
             raw = line
         )
     } else {
+        // Fallback for other formats or non-standard lines
         val level = when {
             line.contains(" E ") || line.contains(" F ") || line.startsWith("E/") -> LogLevel.ERROR
             line.contains(" W ") || line.startsWith("W/") -> LogLevel.WARN
@@ -121,7 +123,29 @@ private fun parseLogLine(line: String): LogEntry {
             line.contains(" V ") || line.startsWith("V/") -> LogLevel.VERBOSE
             else -> LogLevel.OTHER
         }
-        LogEntry("", level, "", line, line)
+        
+        // Try to see if it's a "simple" format: W/Tag(PID): Message
+        val simpleRegex = Regex("""^([VDIWEF])/(.*?)\(\s*\d+\): (.*)$""")
+        val simpleMatch = simpleRegex.find(line)
+        if (simpleMatch != null) {
+            val (levelChar, tag, message) = simpleMatch.destructured
+            LogEntry(
+                time = "",
+                level = when (levelChar) {
+                    "V" -> LogLevel.VERBOSE
+                    "D" -> LogLevel.DEBUG
+                    "I" -> LogLevel.INFO
+                    "W" -> LogLevel.WARN
+                    "E", "F" -> LogLevel.ERROR
+                    else -> LogLevel.OTHER
+                },
+                tag = tag.trim(),
+                message = message,
+                raw = line
+            )
+        } else {
+            LogEntry("", level, "", line, line)
+        }
     }
 }
 

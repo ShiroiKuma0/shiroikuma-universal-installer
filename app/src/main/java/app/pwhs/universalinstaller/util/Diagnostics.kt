@@ -15,7 +15,7 @@ object Diagnostics {
         return try {
             val pid = android.os.Process.myPid()
             val process = ProcessBuilder(
-                "logcat", "--pid=$pid", "-d", "-t", maxLines.toString()
+                "logcat", "-v", "threadtime", "--pid=$pid", "-d", "-t", maxLines.toString()
             )
                 .redirectErrorStream(true)
                 .start()

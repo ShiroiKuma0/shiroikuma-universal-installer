@@ -88,18 +88,32 @@ Pushing the tag triggers `.github/workflows/publish-release.yml`, which builds s
 
 ## Step 6 — Update release notes
 
-The workflow creates the release with empty notes. Wait for the release to exist, then attach the changelog as the body:
+The workflow creates the release with empty notes. Instead of waiting blindly, check how long the last successful build took to set a baseline:
+
+```bash
+# Check duration of the last successful run (approximate)
+gh run list --workflow=publish-release.yml --status=success --limit 1 --json startedAt,updatedAt
+```
+
+Wait for the release to exist, then attach the changelog as the body:
 
 ```bash
 # Wait for release to appear (workflow needs to run softprops/action-gh-release)
-until gh release view v<versionName> >/dev/null 2>&1; do sleep 20; done
+until gh release view v<versionName> >/dev/null 2>&1; do 
+  echo "Waiting for release... (usually takes ~3-5 mins)"
+  sleep 30
+done
 
 # Push changelog as release notes
 gh release edit v<versionName> \
   --notes-file fastlane/metadata/android/en-US/changelogs/<new-versionCode>.txt
 ```
 
-Use the Monitor tool's until-loop pattern for the wait — do NOT chain short sleeps. If the release still doesn't exist after ~10 minutes, check `gh run list --workflow=publish-release.yml` for failures and report back to the user instead of looping forever.
+Use the Monitor tool's until-loop pattern for the wait — do NOT chain short sleeps. If the release still doesn't exist after the estimated time, check the live logs:
+
+```bash
+gh run list --workflow=publish-release.yml --limit 1 --json status,url
+```
 
 After `gh release edit` succeeds, print the release URL (`gh release view v<versionName> --json url -q .url`) and stop.
 

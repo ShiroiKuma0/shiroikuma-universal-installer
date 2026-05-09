@@ -1,0 +1,5 @@
+- New diagnostics screen with Logcat-style view and full log levels
+- Enhanced VirusTotal integration with browser check fallback
+- Automated return to app after granting system permissions
+- Added support for .apk+ files
+- Enhanced device storage scanning for APK files

@@ -151,13 +151,18 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 InstallActivity::class.java
                             }
-                            startActivity(
-                                Intent(this@MainActivity, targetActivity).apply {
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                        Intent.FLAG_ACTIVITY_NO_ANIMATION
-                                },
-                            )
+                            val targetIntent = Intent(this@MainActivity, targetActivity).apply {
+                                action = incoming?.action
+                                data = incoming?.data
+                                type = incoming?.type
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                    Intent.FLAG_ACTIVITY_NO_ANIMATION
+                                // Copy all extras
+                                incoming?.extras?.let { putExtras(it) }
+                            }
+                            forwardIncomingUris(incoming, targetIntent)
+                            startActivity(targetIntent)
                             this@MainActivity.disableSceneTransition()
                             finish()
                             this@MainActivity.disableSceneTransition()

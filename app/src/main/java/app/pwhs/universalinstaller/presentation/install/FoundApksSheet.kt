@@ -66,11 +66,12 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.util.ApkFileIconData
+import app.pwhs.universalinstaller.util.PermissionMonitor
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import java.text.DateFormat
@@ -88,7 +89,14 @@ internal fun FoundApksSheet(
     onDeleteMany: (List<FoundPackageFile>) -> Unit,
 ) {
     if (scanState is ScanState.Idle) return
+    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    LifecycleResumeEffect(Unit) {
+        PermissionMonitor.stop()
+        onPauseOrDispose {}
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -100,7 +108,14 @@ internal fun FoundApksSheet(
             SheetHeader(scanState = scanState, onRescan = onRescan)
             Spacer(Modifier.height(16.dp))
             when (scanState) {
-                is ScanState.PermissionNeeded -> PermissionBody(onGrant = onGrantPermission)
+                is ScanState.PermissionNeeded -> PermissionBody(
+                    onGrant = {
+                        PermissionMonitor.start(context) {
+                            ApkScanner.hasAllFilesAccess(context)
+                        }
+                        onGrantPermission()
+                    }
+                )
                 is ScanState.Scanning -> ScanningBody()
                 is ScanState.Ready -> ResultsBody(
                     files = scanState.files,

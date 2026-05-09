@@ -133,7 +133,7 @@ private fun levelColor(level: LogLevel): Color {
         LogLevel.INFO -> Color(0xFF2BBAC5)
         LogLevel.WARN -> Color(0xFFFF9100)
         LogLevel.ERROR -> Color(0xFFFF5353)
-        LogLevel.OTHER -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f)
+        LogLevel.OTHER -> Color(0xFFEEEEEE)
     }
 }
 
@@ -199,7 +199,6 @@ fun DiagnosticsScreen(modifier: Modifier = Modifier) {
 
     Scaffold(
         modifier = modifier,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = {
@@ -465,7 +464,7 @@ private fun LogItem(entry: LogEntry) {
                 fontFamily = FontFamily.Monospace,
                 fontSize = 10.sp,
                 lineHeight = 13.sp,
-                color = if (entry.level == LogLevel.OTHER) MaterialTheme.colorScheme.onSurface else color
+                color = if (entry.level == LogLevel.OTHER) Color(0xFFEEEEEE) else color
             ),
             modifier = Modifier.weight(1f)
         )
@@ -497,15 +496,15 @@ private fun LogList(lines: List<String>, listState: LazyListState) {
                     .padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("TIME", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.width(66.dp))
+                Text("TIME", style = MaterialTheme.typography.labelSmall, color = Color(0xFFAAAAAA), modifier = Modifier.width(66.dp))
                 Spacer(Modifier.width(4.dp))
-                Text("L", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.width(10.dp))
+                Text("L", style = MaterialTheme.typography.labelSmall, color = Color(0xFFAAAAAA), modifier = Modifier.width(10.dp))
                 Spacer(Modifier.width(4.dp))
-                Text("TAG", style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.width(80.dp))
+                Text("TAG", style = MaterialTheme.typography.labelSmall, color = Color(0xFFAAAAAA), modifier = Modifier.width(80.dp))
                 Spacer(Modifier.width(4.dp))
-                Text("MESSAGE", style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                Text("MESSAGE", style = MaterialTheme.typography.labelSmall, color = Color(0xFFAAAAAA))
             }
-            HorizontalDivider(color = Color.DarkGray)
+            HorizontalDivider(color = Color(0xFF333333))
 
             LazyColumn(
                 state = listState,
@@ -571,7 +570,7 @@ private fun CrashContent(text: String, onClearRequest: () -> Unit) {
                                     line.startsWith("=") ->
                                         MaterialTheme.colorScheme.primary
                                     else ->
-                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                        Color(0xFFEEEEEE)
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                             )

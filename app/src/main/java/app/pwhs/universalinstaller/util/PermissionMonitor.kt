@@ -29,27 +29,33 @@ object PermissionMonitor {
         job?.cancel()
         job = CoroutineScope(Dispatchers.Main).launch {
             Timber.d("PermissionMonitor: Started polling")
-            // Give the user 1.5 seconds to reach the settings screen before we start checking
-            delay(1500)
+            // Reduced initial delay for better responsiveness
+            delay(500)
             
             var attempts = 0
-            // Poll every 500ms for up to 3 minutes (360 attempts)
-            while (attempts < 360) {
+            // Poll every 500ms for up to 5 minutes (600 attempts)
+            while (attempts < 600) {
                 if (check()) {
                     Timber.d("PermissionMonitor: Permission granted! Bringing app to front.")
-                    val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-                    launchIntent?.apply {
-                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }?.let {
-                        context.startActivity(it)
-                    }
+                    bringAppToFront(context)
                     break
                 }
                 delay(500)
                 attempts++
             }
             job = null
+        }
+    }
+
+    private fun bringAppToFront(context: Context) {
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        launchIntent?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+        }?.let {
+            context.startActivity(it)
         }
     }
 

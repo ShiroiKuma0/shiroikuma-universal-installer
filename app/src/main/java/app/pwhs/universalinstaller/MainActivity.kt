@@ -48,34 +48,14 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(LocaleHelper.wrap(newBase))
     }
 
-    /** True when the launch intent is a file-open action (VIEW / INSTALL / SEND). */
-    private fun isFileOpenIntent(intent: Intent?): Boolean {
-        return intent?.action in setOf(
-            Intent.ACTION_VIEW,
-            Intent.ACTION_INSTALL_PACKAGE,
-            Intent.ACTION_SEND,
-            Intent.ACTION_SEND_MULTIPLE,
-        ) && intent?.data?.scheme != "universalinstaller"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setupShortcuts()
 
-        // File-open intents (VIEW/SEND/INSTALL with content/file URIs) no longer hit
-        // MainActivity — they're routed straight to DialogInstallActivity via manifest
-        // intent filters, eliminating the launcher-activity flash that the old fast-path
-        // here couldn't fully suppress. Only `universalinstaller://` deep links (sync,
-        // uninstall) and text/plain shares (URL → download) still need the splash-skip
-        // path below.
-        val isTextShare = intent?.action == Intent.ACTION_SEND &&
-            intent?.type?.startsWith("text/") == true
-        val skipSplash = intent?.data?.scheme == "universalinstaller" || isTextShare
+        // Splash can be skipped for deep-links.
+        val isDeepLink = intent?.data?.scheme == "universalinstaller"
         setContent {
-            // `remember` caches the Flow across recompositions so `map {}` isn't re-invoked
-            // every frame (Detekt/Android Lint: "Flow operator functions should not be invoked
-            // within composition").
             val themeModeFlow = remember {
                 dataStore.data.map { prefs ->
                     val name = prefs[stringPreferencesKey("theme_mode")] ?: ThemeMode.System.name
@@ -90,8 +70,6 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.Dark -> true
             }
 
-            // Re-apply edge-to-edge whenever the effective theme flips so the status-bar /
-            // navigation-bar icon colors (light vs dark glyphs) match the new background.
             DisposableEffect(darkTheme) {
                 enableEdgeToEdge(
                     statusBarStyle = if (darkTheme) {
@@ -115,15 +93,7 @@ class MainActivity : ComponentActivity() {
             }
 
             var currentRoute by remember {
-                mutableStateOf(if (skipSplash) AppRoute.Main else AppRoute.Splash)
-            }
-
-            val intentScheme = intent?.data?.scheme
-
-            // Post the intent URI AFTER the composable tree is set up, so InstallScreen
-            // is already composed (when skipSplash == true) and can process it immediately.
-            LaunchedEffect(Unit) {
-                handleViewIntent(intent)
+                mutableStateOf(if (isDeepLink) AppRoute.Main else AppRoute.Splash)
             }
 
             UniversalInstallerTheme(darkTheme = darkTheme) {
@@ -137,11 +107,9 @@ class MainActivity : ComponentActivity() {
                     )
                     AppRoute.Main -> {
                         LaunchedEffect(Unit) {
-                            val incoming = intent
-                            val uri = incoming?.data
-                            // Only `universalinstaller://` deep-links land here now —
-                            // file-open intents are routed to DialogInstallActivity by
-                            // the manifest. Pick the destination by deep-link host.
+                            val uri = intent?.data
+                            // Handle internal deep-links (sync, uninstall).
+                            // Regular launches default to InstallActivity.
                             val targetActivity = if (uri?.scheme == "universalinstaller") {
                                 when (uri.host) {
                                     "sync" -> SyncActivity::class.java
@@ -151,18 +119,14 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 InstallActivity::class.java
                             }
-                            val targetIntent = Intent(this@MainActivity, targetActivity).apply {
-                                action = incoming?.action
-                                data = incoming?.data
-                                type = incoming?.type
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                    Intent.FLAG_ACTIVITY_NO_ANIMATION
-                                // Copy all extras
-                                incoming?.extras?.let { putExtras(it) }
-                            }
-                            forwardIncomingUris(incoming, targetIntent)
-                            startActivity(targetIntent)
+
+                            startActivity(
+                                Intent(this@MainActivity, targetActivity).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                        Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                        Intent.FLAG_ACTIVITY_NO_ANIMATION
+                                },
+                            )
                             this@MainActivity.disableSceneTransition()
                             finish()
                             this@MainActivity.disableSceneTransition()
@@ -200,107 +164,5 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleViewIntent(intent)
-    }
-
-    /**
-     * Re-grant any content URIs we received on [source] to [target] so the install activity's
-     * task can read them. Required because we launch [target] with `NEW_TASK | CLEAR_TASK` and
-     * `finish()` ourselves — the original grant only covered MainActivity's task.
-     *
-     * Single URI → `Intent.setData()`. Multiple URIs (`SEND_MULTIPLE`) → `ClipData`. In both
-     * cases we OR in `FLAG_GRANT_READ_URI_PERMISSION` so the system re-issues the grant.
-     */
-    private fun forwardIncomingUris(source: Intent?, target: Intent) {
-        if (source == null) return
-        val uris = collectGrantableUris(source)
-        if (uris.isEmpty()) return
-        if (uris.size == 1) {
-            target.data = uris.first()
-        } else {
-            val clip = ClipData.newRawUri("", uris.first())
-            for (i in 1 until uris.size) {
-                clip.addItem(ClipData.Item(uris[i]))
-            }
-            target.clipData = clip
-        }
-        target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-
-    @Suppress("DEPRECATION")
-    private fun collectGrantableUris(source: Intent): List<Uri> {
-        val out = mutableListOf<Uri>()
-        source.data?.takeIf { it.scheme == "content" || it.scheme == "file" }?.let(out::add)
-        when (source.action) {
-            Intent.ACTION_SEND ->
-                (source.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri)?.let(out::add)
-            Intent.ACTION_SEND_MULTIPLE ->
-                source.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
-                    ?.filterNotNull()
-                    ?.let(out::addAll)
-        }
-        return out.distinct()
-    }
-
-    /**
-     * Pick up VIEW / INSTALL_PACKAGE intents (Chrome downloads, file managers, Gmail,
-     * Telegram). The manifest filter accepts `application/octet-stream` to catch Chrome's
-     * download URIs — that means we can receive unrelated binaries too, so the install
-     * screen's existing extension check is the real gatekeeper; here we just hand off.
-     */
-    private fun handleViewIntent(intent: Intent?) {
-        if (intent == null) return
-        when (intent.action) {
-            Intent.ACTION_VIEW, Intent.ACTION_INSTALL_PACKAGE -> {
-                val uri: Uri = intent.data ?: return
-                if (uri.scheme == "universalinstaller") return
-                IntentHandoff.post(uri)
-            }
-            Intent.ACTION_SEND -> {
-                // text/plain share — typically an APK download link from a browser's
-                // share sheet. Extract the first http(s):// URL we find and hand it to
-                // InstallScreen's download flow.
-                if (intent.type?.startsWith("text/") == true) {
-                    val text = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
-                    extractHttpUrl(text)?.let { IntentHandoff.postDownloadUrl(it) }
-                    return
-                }
-                // Share single: either intent.data or EXTRA_STREAM.
-                val uri = intent.data ?: @Suppress("DEPRECATION")
-                    (intent.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri) ?: return
-                IntentHandoff.post(uri)
-            }
-            Intent.ACTION_SEND_MULTIPLE -> {
-                val uris = @Suppress("DEPRECATION")
-                    intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
-                        ?.filterNotNull()
-                        ?: return
-                when {
-                    uris.isEmpty() -> return
-                    uris.size == 1 -> IntentHandoff.post(uris.first())
-                    else -> IntentHandoff.postBatch(uris)
-                }
-            }
-        }
-    }
-
-    /**
-     * Pull the first http/https URL out of a shared text payload. Browsers usually send
-     * just the URL, but messaging apps (and "Copy link" → "Share text" flows) sometimes
-     * wrap it in surrounding text — so we scan rather than trust a clean string.
-     */
-    private fun extractHttpUrl(text: String): String? {
-        val trimmed = text.trim()
-        if (trimmed.startsWith("http://", ignoreCase = true) ||
-            trimmed.startsWith("https://", ignoreCase = true)
-        ) {
-            return trimmed.substringBefore(' ').substringBefore('\n')
-        }
-        val match = HTTP_URL_REGEX.find(trimmed) ?: return null
-        return match.value
-    }
-
-    private companion object {
-        private val HTTP_URL_REGEX = Regex("""https?://\S+""", RegexOption.IGNORE_CASE)
     }
 }

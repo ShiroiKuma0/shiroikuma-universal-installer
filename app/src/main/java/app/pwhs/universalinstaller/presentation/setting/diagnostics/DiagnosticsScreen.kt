@@ -92,14 +92,12 @@ private data class LogEntry(
 )
 
 private fun parseLogLine(line: String): LogEntry {
-    // Highly flexible regex for threadtime: [Date] [Time] [PID] [TID] [Level] [Tag] : [Message]
-    // Example: 05-09 15:30:12.123  1234  5678 W MyTag   : My message
-    // Note: Spacing can vary significantly between columns.
-    val regex = Regex("""^(\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+\d+\s+\d+\s+([VDIWEF])\s+(.*?)\s*:\s*(.*)$""")
-    val match = regex.find(line)
+    // Exact match for adb -v threadtime: 05-09 08:48:18.385   929   969 I HfLooper: message
+    val threadTimeRegex = Regex("""^(\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+)\s+([VDIWEF])\s+(.*?)\s*:\s*(.*)$""")
+    val match = threadTimeRegex.find(line.trim())
 
     return if (match != null) {
-        val (dateTime, levelChar, tag, message) = match.destructured
+        val (dateTime, pid, tid, levelChar, tag, message) = match.destructured
         LogEntry(
             time = dateTime.substringAfterLast(" ").trim(),
             level = when (levelChar) {
@@ -115,43 +113,20 @@ private fun parseLogLine(line: String): LogEntry {
             raw = line
         )
     } else {
-        // Fallback 1: Try to find any timestamp in the line
+        // Fallback: search for any HH:mm:ss.SSS
         val timeRegex = Regex("""(\d{2}:\d{2}:\d{2}\.\d{3})""")
-        val timeMatch = timeRegex.find(line)
-        val extractedTime = timeMatch?.value ?: ""
-
-        // Fallback 2: Simple format like W/Tag(PID): Message
-        val simpleRegex = Regex("""^([VDIWEF])/(.*?)\(\s*\d+\):\s*(.*)$""")
-        val simpleMatch = simpleRegex.find(line)
+        val extractedTime = timeRegex.find(line)?.value ?: ""
         
-        if (simpleMatch != null) {
-            val (levelChar, tag, message) = simpleMatch.destructured
-            LogEntry(
-                time = extractedTime,
-                level = when (levelChar) {
-                    "V" -> LogLevel.VERBOSE
-                    "D" -> LogLevel.DEBUG
-                    "I" -> LogLevel.INFO
-                    "W" -> LogLevel.WARN
-                    "E", "F" -> LogLevel.ERROR
-                    else -> LogLevel.OTHER
-                },
-                tag = tag.trim(),
-                message = message,
-                raw = line
-            )
-        } else {
-            // Fallback 3: Just detect level and keep the rest as message
-            val level = when {
-                line.contains(" E ") || line.contains(" F ") || line.contains("E/") -> LogLevel.ERROR
-                line.contains(" W ") || line.contains("W/") -> LogLevel.WARN
-                line.contains(" I ") || line.contains("I/") -> LogLevel.INFO
-                line.contains(" D ") || line.contains("D/") -> LogLevel.DEBUG
-                line.contains(" V ") || line.contains("V/") -> LogLevel.VERBOSE
-                else -> LogLevel.OTHER
-            }
-            LogEntry(extractedTime, level, "", line, line)
+        val level = when {
+            line.contains(" E ") || line.contains(" F ") || line.contains("E/") -> LogLevel.ERROR
+            line.contains(" W ") || line.contains("W/") -> LogLevel.WARN
+            line.contains(" I ") || line.contains("I/") -> LogLevel.INFO
+            line.contains(" D ") || line.contains("D/") -> LogLevel.DEBUG
+            line.contains(" V ") || line.contains("V/") -> LogLevel.VERBOSE
+            else -> LogLevel.OTHER
         }
+        
+        LogEntry(extractedTime, level, "", line, line)
     }
 }
 
@@ -445,9 +420,9 @@ private fun LogItem(entry: LogEntry) {
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontFamily = FontFamily.Monospace,
                     fontSize = 9.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                    color = Color(0xFFAAAAAA)
                 ),
-                modifier = Modifier.width(66.dp)
+                modifier = Modifier.width(80.dp)
             )
             Spacer(Modifier.width(4.dp))
         }
@@ -526,7 +501,7 @@ private fun LogList(lines: List<String>, listState: LazyListState) {
                     .padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("TIME", style = MaterialTheme.typography.labelSmall, color = Color(0xFFAAAAAA), modifier = Modifier.width(66.dp))
+                Text("TIME", style = MaterialTheme.typography.labelSmall, color = Color(0xFFAAAAAA), modifier = Modifier.width(80.dp))
                 Spacer(Modifier.width(4.dp))
                 Text("L", style = MaterialTheme.typography.labelSmall, color = Color(0xFFAAAAAA), modifier = Modifier.width(10.dp))
                 Spacer(Modifier.width(4.dp))

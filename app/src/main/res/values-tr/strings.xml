@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">Tüm kayıtlı kilitlenme günlükleri kalıcı olarak kaldırılacaktır.</string>
     <string name="diagnostics_clear">Temizle</string>
     <string name="diagnostics_cancel">İptal</string>
+    <string name="language_system_default">Sistem Varsayılanı</string>
+    <string name="installer_dialog_label">Paket Yükleyici</string>
+    <string name="uninstall_filter_reset">Sıfırla</string>
+    <string name="uninstall_search_open_cd">Ara</string>
+    <string name="uninstall_search_close_cd">Aramayı kapat</string>
+    <string name="uninstall_search_clear_cd">Aramayı temizle</string>
 </resources>

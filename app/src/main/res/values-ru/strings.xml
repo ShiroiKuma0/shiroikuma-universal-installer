@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">Все сохраненные логи ошибок будут удалены безвозвратно.</string>
     <string name="diagnostics_clear">Очистить</string>
     <string name="diagnostics_cancel">Отмена</string>
+    <string name="language_system_default">По умолчанию в системе</string>
+    <string name="installer_dialog_label">Установщик пакетов</string>
+    <string name="uninstall_filter_reset">Сбросить</string>
+    <string name="uninstall_search_open_cd">Поиск</string>
+    <string name="uninstall_search_close_cd">Закрыть поиск</string>
+    <string name="uninstall_search_clear_cd">Очистить поиск</string>
 </resources>

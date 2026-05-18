@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">Todos los registros de fallos guardados se eliminarán permanentemente.</string>
     <string name="diagnostics_clear">Borrar</string>
     <string name="diagnostics_cancel">Cancelar</string>
+    <string name="language_system_default">Predeterminado del sistema</string>
+    <string name="installer_dialog_label">Instalador de paquetes</string>
+    <string name="uninstall_filter_reset">Restablecer</string>
+    <string name="uninstall_search_open_cd">Buscar</string>
+    <string name="uninstall_search_close_cd">Cerrar búsqueda</string>
+    <string name="uninstall_search_clear_cd">Borrar búsqueda</string>
 </resources>

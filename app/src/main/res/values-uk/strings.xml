@@ -549,4 +549,5 @@
     <string name="uninstall_search_open_cd">Пошук</string>
     <string name="uninstall_search_close_cd">Закрити пошук</string>
     <string name="uninstall_search_clear_cd">Очистити пошук</string>
+    <string name="language_system_default">Стандартна системна</string>
 </resources>

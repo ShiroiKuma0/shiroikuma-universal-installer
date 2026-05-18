@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">保存されているすべてのクラッシュログが永久に削除されます。</string>
     <string name="diagnostics_clear">消去</string>
     <string name="diagnostics_cancel">キャンセル</string>
+    <string name="language_system_default">システムのデフォルト</string>
+    <string name="installer_dialog_label">パッケージインストーラー</string>
+    <string name="uninstall_filter_reset">リセット</string>
+    <string name="uninstall_search_open_cd">検索</string>
+    <string name="uninstall_search_close_cd">検索を閉じる</string>
+    <string name="uninstall_search_clear_cd">検索をクリア</string>
 </resources>

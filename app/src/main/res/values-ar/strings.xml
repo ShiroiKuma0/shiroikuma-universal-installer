@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">سيتم حذف جميع سجلات الأعطال المخزنة نهائيًا.</string>
     <string name="diagnostics_clear">مسح</string>
     <string name="diagnostics_cancel">إلغاء</string>
+    <string name="language_system_default">افتراضي النظام</string>
+    <string name="installer_dialog_label">مثبت الحزم</string>
+    <string name="uninstall_filter_reset">إعادة تعيين</string>
+    <string name="uninstall_search_open_cd">بحث</string>
+    <string name="uninstall_search_close_cd">إغلاق البحث</string>
+    <string name="uninstall_search_clear_cd">مسح البحث</string>
 </resources>

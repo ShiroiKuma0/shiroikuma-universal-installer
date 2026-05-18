@@ -549,4 +549,5 @@
     <string name="uninstall_search_open_cd">Cerca</string>
     <string name="uninstall_search_close_cd">Chiudi ricerca</string>
     <string name="uninstall_search_clear_cd">Cancella ricerca</string>
+    <string name="language_system_default">Predefinito di sistema</string>
 </resources>

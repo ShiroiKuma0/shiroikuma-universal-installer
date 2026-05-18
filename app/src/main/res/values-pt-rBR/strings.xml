@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">Todos os logs de erros persistidos serão removidos permanentemente.</string>
     <string name="diagnostics_clear">Limpar</string>
     <string name="diagnostics_cancel">Cancelar</string>
+    <string name="language_system_default">Padrão do sistema</string>
+    <string name="installer_dialog_label">Instalador de pacotes</string>
+    <string name="uninstall_filter_reset">Redefinir</string>
+    <string name="uninstall_search_open_cd">Pesquisar</string>
+    <string name="uninstall_search_close_cd">Fechar pesquisa</string>
+    <string name="uninstall_search_clear_cd">Limpar pesquisa</string>
 </resources>

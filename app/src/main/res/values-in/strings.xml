@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">Semua log kerusakan yang tersimpan akan dihapus secara permanen.</string>
     <string name="diagnostics_clear">Hapus</string>
     <string name="diagnostics_cancel">Batal</string>
+    <string name="language_system_default">Default Sistem</string>
+    <string name="installer_dialog_label">Penginstal Paket</string>
+    <string name="uninstall_filter_reset">Atur Ulang</string>
+    <string name="uninstall_search_open_cd">Cari</string>
+    <string name="uninstall_search_close_cd">Tutup pencarian</string>
+    <string name="uninstall_search_clear_cd">Bersihkan pencarian</string>
 </resources>

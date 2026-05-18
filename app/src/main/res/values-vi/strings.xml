@@ -545,4 +545,9 @@
     <string name="diagnostics_clear">Xóa</string>
     <string name="diagnostics_cancel">Hủy</string>
     <string name="installer_dialog_label">Trình cài đặt gói</string>
+    <string name="language_system_default">Mặc định hệ thống</string>
+    <string name="uninstall_filter_reset">Đặt lại</string>
+    <string name="uninstall_search_open_cd">Tìm kiếm</string>
+    <string name="uninstall_search_close_cd">Đóng tìm kiếm</string>
+    <string name="uninstall_search_clear_cd">Xóa tìm kiếm</string>
 </resources>

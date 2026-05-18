@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">所有持久化的崩溃日志将被永久删除。</string>
     <string name="diagnostics_clear">清除</string>
     <string name="diagnostics_cancel">取消</string>
+    <string name="language_system_default">系统默认</string>
+    <string name="installer_dialog_label">软件包安装程序</string>
+    <string name="uninstall_filter_reset">重置</string>
+    <string name="uninstall_search_open_cd">搜索</string>
+    <string name="uninstall_search_close_cd">关闭搜索</string>
+    <string name="uninstall_search_clear_cd">清除搜索</string>
 </resources>

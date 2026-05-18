@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">Tous les logs de plantage enregistrés seront définitivement supprimés.</string>
     <string name="diagnostics_clear">Effacer</string>
     <string name="diagnostics_cancel">Annuler</string>
+    <string name="language_system_default">Par défaut du système</string>
+    <string name="installer_dialog_label">Installateur de paquets</string>
+    <string name="uninstall_filter_reset">Réinitialiser</string>
+    <string name="uninstall_search_open_cd">Rechercher</string>
+    <string name="uninstall_search_close_cd">Fermer la recherche</string>
+    <string name="uninstall_search_clear_cd">Effacer la recherche</string>
 </resources>

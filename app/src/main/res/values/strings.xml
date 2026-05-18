@@ -378,6 +378,7 @@
     <string name="setting_language_title">Language</string>
     <string name="setting_language_subtitle">Change app language</string>
     <string name="language_screen_title">Language</string>
+    <string name="language_system_default">System Default</string>
     <string name="back_cd">Back</string>
     <string name="done_cd">Done</string>
     <string name="setting_section_about">About</string>

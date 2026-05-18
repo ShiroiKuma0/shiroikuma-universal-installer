@@ -548,4 +548,6 @@
     <string name="uninstall_search_open_cd">Αναζήτηση</string>
     <string name="uninstall_search_close_cd">Κλείσιμο αναζήτησης</string>
     <string name="uninstall_search_clear_cd">Εκκαθάριση αναζήτησης</string>
+    <string name="download_history_delete_confirm">Διαγραφή</string>
+    <string name="language_system_default">Προεπιλογή συστήματος</string>
 </resources>

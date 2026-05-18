@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">सभी सहेजे गए क्रैश लॉग स्थायी रूप से हटा दिए जाएंगे।</string>
     <string name="diagnostics_clear">साफ़ करें</string>
     <string name="diagnostics_cancel">रद्द करें</string>
+    <string name="language_system_default">सिस्टम डिफ़ॉल्ट</string>
+    <string name="installer_dialog_label">पैकेज इंस्टालर</string>
+    <string name="uninstall_filter_reset">रीसेट करें</string>
+    <string name="uninstall_search_open_cd">खोजें</string>
+    <string name="uninstall_search_close_cd">खوج बंद करें</string>
+    <string name="uninstall_search_clear_cd">खोज साफ़ करें</string>
 </resources>

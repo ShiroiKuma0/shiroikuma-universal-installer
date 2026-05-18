@@ -544,4 +544,10 @@
     <string name="diagnostics_clear_confirm_body">Alle gespeicherten Absturzprotokolle werden dauerhaft entfernt.</string>
     <string name="diagnostics_clear">Löschen</string>
     <string name="diagnostics_cancel">Abbrechen</string>
+    <string name="language_system_default">Systemstandard</string>
+    <string name="installer_dialog_label">Paketinstaller</string>
+    <string name="uninstall_filter_reset">Zurücksetzen</string>
+    <string name="uninstall_search_open_cd">Suche</string>
+    <string name="uninstall_search_close_cd">Suche schließen</string>
+    <string name="uninstall_search_clear_cd">Suche löschen</string>
 </resources>

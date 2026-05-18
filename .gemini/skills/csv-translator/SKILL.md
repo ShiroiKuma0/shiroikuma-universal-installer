@@ -1,6 +1,6 @@
 ---
 name: csv-translator
-description: Specialized skill for translating large CSV files. It follows a multi-step process of planning, counting lines, splitting large files into manageable chunks, translating chunks, and merging them back into a final result. Use when the user needs to translate a CSV file, especially large ones.
+description: Specialized skill for translating large CSV files. It follows a multi-step process of planning, counting lines, splitting large files into manageable chunks, translating chunks, merging, and finally importing translations into Android resource files. Use when the user needs to translate a CSV file, especially large ones.
 ---
 
 # CSV Translator Workflow
@@ -28,8 +28,13 @@ This skill provides a robust way to translate CSV files while managing context w
 - Once all chunks are translated, merge them back into a single final CSV file.
 - Use a script (e.g., `scripts/merge_csv.cjs`) to combine the files, ensuring only one header row exists.
 
-### 5. Validation
-- Verify the final CSV file structure and line count matches the original (plus/minus expected changes).
+### 5. Importing (Android Specific)
+- Use `scripts/import_translations.cjs` to automatically take the merged translations and update the project's `strings.xml` files.
+- Command: `node scripts/import_translations.cjs <merged_csv_path> <res_directory>`
+
+### 6. Validation
+- Verify the final CSV file structure and line count matches the original.
+- Run a build check (e.g., `./gradlew assembleDebug`) to ensure the imported strings don't break the build.
 
 ## Guardrails
 - **Preserve Structure:** Never change the number of columns or the meaning of specific fields (like IDs).

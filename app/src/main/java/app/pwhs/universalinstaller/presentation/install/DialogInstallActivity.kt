@@ -181,6 +181,7 @@ class DialogInstallActivity : ComponentActivity() {
             // dependency in this activity). Drives the Success-stage countdown.
             val prefs by context.dataStore.data.collectAsState(initial = null)
             val autoOpenAfterInstall = prefs?.get(PreferencesKeys.AUTO_OPEN_AFTER_INSTALL) ?: false
+            val autoConfirmExternalInstall = prefs?.get(PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL) ?: false
 
             // Tracks whether we've actually observed the captured session in the repository.
             // The session is added inside controller.install() AFTER createSession() suspends,
@@ -228,6 +229,13 @@ class DialogInstallActivity : ComponentActivity() {
                     pendingRisks = risks
                 } else {
                     proceedInstall()
+                }
+            }
+
+            // Auto-confirm logic for external intents
+            LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall) {
+                if (autoConfirmExternalInstall && uiState.dialogStage == DialogStage.Prepare) {
+                    handleInstallTap()
                 }
             }
 

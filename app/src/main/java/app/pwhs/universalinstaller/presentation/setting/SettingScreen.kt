@@ -97,6 +97,7 @@ fun SettingScreen(
         onSyncServerPortChanged = viewModel::setSyncServerPort,
         onBiometricLockInstallChanged = viewModel::setBiometricLockInstall,
         onBiometricLockUninstallChanged = viewModel::setBiometricLockUninstall,
+        onAutoConfirmExternalInstallChanged = viewModel::setAutoConfirmExternalInstall,
     )
 }
 
@@ -121,6 +122,7 @@ private fun SettingUi(
     onSyncServerPortChanged: (String) -> Unit = {},
     onBiometricLockInstallChanged: (Boolean) -> Unit = {},
     onBiometricLockUninstallChanged: (Boolean) -> Unit = {},
+    onAutoConfirmExternalInstallChanged: (Boolean) -> Unit = {},
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -265,6 +267,39 @@ private fun SettingUi(
                             Switch(
                                 checked = uiState.autoOpenAfterInstall,
                                 onCheckedChange = onAutoOpenAfterInstallChanged,
+                            )
+                        },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    )
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                stringResource(R.string.setting_auto_confirm_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        },
+                        supportingContent = {
+                            Text(
+                                text = stringResource(R.string.setting_auto_confirm_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Rounded.SettingsApplications,
+                                contentDescription = null,
+                                tint = if (uiState.autoConfirmExternalInstall)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                modifier = Modifier.size(24.dp),
+                            )
+                        },
+                        trailingContent = {
+                            Switch(
+                                checked = uiState.autoConfirmExternalInstall,
+                                onCheckedChange = onAutoConfirmExternalInstallChanged,
                             )
                         },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),

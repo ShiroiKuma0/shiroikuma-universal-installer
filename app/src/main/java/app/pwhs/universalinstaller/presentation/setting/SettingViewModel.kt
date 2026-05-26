@@ -83,6 +83,12 @@ object PreferencesKeys {
     val BIOMETRIC_LOCK_UNINSTALL = booleanPreferencesKey("biometric_lock_uninstall")
 
     /**
+     * Automatically start the installation when an APK is opened from an external intent
+     * (e.g. from a file manager or Obtainium) without showing the confirmation dialog.
+     */
+    val AUTO_CONFIRM_EXTERNAL_INSTALL = booleanPreferencesKey("auto_confirm_external_install")
+
+    /**
      * When true (default), external VIEW/SEND intents land in DialogInstallActivity instead
      * of the full InstallActivity — i.e. opening an APK from a file manager pops up a focused
      * dialog over the calling app rather than launching our full UI. Off → fall back to the
@@ -122,7 +128,7 @@ enum class ShizukuState {
 data class ShizukuOptions(
     val bypassLowTargetSdk: Boolean = false,
     val allowTest: Boolean = false,
-    val replaceExisting: Boolean = false,
+    val replaceExisting: Boolean = true,
     val requestDowngrade: Boolean = false,
     val grantAllPermissions: Boolean = false,
     val allUsers: Boolean = false,
@@ -137,7 +143,7 @@ const val DEFAULT_INSTALLER_PACKAGE_NAME = "com.android.vending"
 data class RootOptions(
     val bypassLowTargetSdk: Boolean = false,
     val allowTest: Boolean = false,
-    val replaceExisting: Boolean = false,
+    val replaceExisting: Boolean = true,
     val requestDowngrade: Boolean = false,
     val grantAllPermissions: Boolean = false,
     val allUsers: Boolean = false,
@@ -165,6 +171,7 @@ data class SettingUiState(
     val biometricLockInstall: Boolean = false,
     val biometricLockUninstall: Boolean = false,
     val dialogInstallMode: Boolean = true,
+    val autoConfirmExternalInstall: Boolean = false,
     /**
      * True when the device has at least one biometric or device-credential enrolled.
      * Used to greyly inform the user that the toggles will be no-ops until they
@@ -282,10 +289,12 @@ class SettingViewModel(
                 (prefs[PreferencesKeys.BIOMETRIC_LOCK_UNINSTALL] ?: false)
         },
         dataStore.data.map { prefs ->
-            // Pair the dialog-mode flag and auto-open-after-install flag — both are simple
-            // booleans and pairing them avoids pushing combine() to 15 vararg flows.
-            (prefs[PreferencesKeys.DIALOG_INSTALL_MODE] ?: true) to
-                (prefs[PreferencesKeys.AUTO_OPEN_AFTER_INSTALL] ?: false)
+            // Trio: dialog-mode, auto-open-after-install, and auto-confirm-external-install
+            Triple(
+                prefs[PreferencesKeys.DIALOG_INSTALL_MODE] ?: true,
+                prefs[PreferencesKeys.AUTO_OPEN_AFTER_INSTALL] ?: false,
+                prefs[PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL] ?: false
+            )
         },
     ) { flows ->
         val theme = flows[0] as ThemeMode
@@ -303,9 +312,10 @@ class SettingViewModel(
         @Suppress("UNCHECKED_CAST")
         val biometricFlags = flows[12] as Pair<Boolean, Boolean>
         @Suppress("UNCHECKED_CAST")
-        val dialogModeFlags = flows[13] as Pair<Boolean, Boolean>
-        val dialogMode = dialogModeFlags.first
-        val autoOpen = dialogModeFlags.second
+        val tripleFlags = flows[13] as Triple<Boolean, Boolean, Boolean>
+        val dialogMode = tripleFlags.first
+        val autoOpen = tripleFlags.second
+        val autoConfirm = tripleFlags.third
         val versionName = try {
             application.packageManager
                 .getPackageInfo(application.packageName, 0)
@@ -335,6 +345,7 @@ class SettingViewModel(
             biometricEnrolmentAvailable = app.pwhs.universalinstaller.util
                 .BiometricGate.canAuthenticate(application),
             dialogInstallMode = dialogMode,
+            autoConfirmExternalInstall = autoConfirm,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -550,6 +561,14 @@ class SettingViewModel(
         viewModelScope.launch {
             dataStore.edit { prefs ->
                 prefs[PreferencesKeys.AUTO_OPEN_AFTER_INSTALL] = enabled
+            }
+        }
+    }
+
+    fun setAutoConfirmExternalInstall(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { prefs ->
+                prefs[PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL] = enabled
             }
         }
     }

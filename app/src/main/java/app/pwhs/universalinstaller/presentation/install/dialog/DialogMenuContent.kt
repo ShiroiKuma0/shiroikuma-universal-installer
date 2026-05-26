@@ -9,6 +9,7 @@ import android.os.UserManager
 import android.text.format.Formatter
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.animation.animateContentSize
@@ -28,9 +29,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.scale
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ContentCopy
@@ -163,6 +166,51 @@ fun DialogMenuContent(
         }
     }
 
+    val onToggleReplaceExisting: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_REPLACE_EXISTING] = enabled
+                it[PreferencesKeys.ROOT_REPLACE_EXISTING] = enabled
+            }
+        }
+    }
+
+    val onToggleAllowTest: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_ALLOW_TEST] = enabled
+                it[PreferencesKeys.ROOT_ALLOW_TEST] = enabled
+            }
+        }
+    }
+
+    val onToggleRequestDowngrade: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE] = enabled
+                it[PreferencesKeys.ROOT_REQUEST_DOWNGRADE] = enabled
+            }
+        }
+    }
+
+    val onToggleGrantAllPermissions: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS] = enabled
+                it[PreferencesKeys.ROOT_GRANT_ALL_PERMISSIONS] = enabled
+            }
+        }
+    }
+
+    val onToggleBypassLowTargetSdk: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK] = enabled
+                it[PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK] = enabled
+            }
+        }
+    }
+
     // "Remember for this app" toggle — true when an override row exists for the
     // current package. Writing flips the row in/out of the INSTALLER_OVERRIDES map.
     val onSetRemember: (Boolean) -> Unit = { remember ->
@@ -285,10 +333,20 @@ fun DialogMenuContent(
                         spoofSource = spoofSource,
                         installerPkg = installerPkg,
                         rememberForThisApp = packageOverride != null,
+                        replaceExisting = prefs?.get(PreferencesKeys.SHIZUKU_REPLACE_EXISTING) ?: false,
+                        allowTest = prefs?.get(PreferencesKeys.SHIZUKU_ALLOW_TEST) ?: false,
+                        requestDowngrade = prefs?.get(PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE) ?: false,
+                        grantAllPermissions = prefs?.get(PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS) ?: false,
+                        bypassLowTargetSdk = prefs?.get(PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK) ?: false,
                         onToggleAllUsers = onToggleAllUsers,
                         onToggleSpoofSource = onToggleSpoofSource,
                         onChangeInstallerPkg = onChangeInstallerPkg,
                         onSetRemember = onSetRemember,
+                        onToggleReplaceExisting = onToggleReplaceExisting,
+                        onToggleAllowTest = onToggleAllowTest,
+                        onToggleRequestDowngrade = onToggleRequestDowngrade,
+                        onToggleGrantAllPermissions = onToggleGrantAllPermissions,
+                        onToggleBypassLowTargetSdk = onToggleBypassLowTargetSdk,
                     )
                 }
                 
@@ -549,10 +607,20 @@ private fun androidx.compose.foundation.lazy.LazyListScope.advancedTab(
     spoofSource: Boolean,
     installerPkg: String,
     rememberForThisApp: Boolean,
+    replaceExisting: Boolean,
+    allowTest: Boolean,
+    requestDowngrade: Boolean,
+    grantAllPermissions: Boolean,
+    bypassLowTargetSdk: Boolean,
     onToggleAllUsers: (Boolean) -> Unit,
     onToggleSpoofSource: (Boolean) -> Unit,
     onChangeInstallerPkg: (String) -> Unit,
     onSetRemember: (Boolean) -> Unit,
+    onToggleReplaceExisting: (Boolean) -> Unit,
+    onToggleAllowTest: (Boolean) -> Unit,
+    onToggleRequestDowngrade: (Boolean) -> Unit,
+    onToggleGrantAllPermissions: (Boolean) -> Unit,
+    onToggleBypassLowTargetSdk: (Boolean) -> Unit,
 ) {
     // 1. OBB Files
     if (apkInfo.obbFileNames.isNotEmpty() || attachedObbFiles.isNotEmpty()) {
@@ -722,6 +790,95 @@ private fun androidx.compose.foundation.lazy.LazyListScope.advancedTab(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 )
             }
+        )
+    }
+
+    // 4. Advanced Install Flags
+    item(key = "advanced_flags") {
+        var expanded by remember { mutableStateOf(false) }
+        MenuCard(
+            title = stringResource(R.string.manage_section_advanced),
+            description = stringResource(R.string.setting_shizuku_options_install_group),
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.AdminPanelSettings,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                )
+            },
+            expanded = expanded,
+            onClick = { expanded = !expanded },
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                AdvancedToggle(
+                    title = stringResource(R.string.dialog_menu_replace_existing),
+                    description = stringResource(R.string.dialog_menu_replace_existing_desc),
+                    checked = replaceExisting,
+                    onCheckedChange = onToggleReplaceExisting
+                )
+                AdvancedToggle(
+                    title = stringResource(R.string.dialog_menu_allow_test),
+                    description = stringResource(R.string.dialog_menu_allow_test_desc),
+                    checked = allowTest,
+                    onCheckedChange = onToggleAllowTest
+                )
+                AdvancedToggle(
+                    title = stringResource(R.string.dialog_menu_bypass_sdk),
+                    description = stringResource(R.string.dialog_menu_bypass_sdk_desc),
+                    checked = bypassLowTargetSdk,
+                    onCheckedChange = onToggleBypassLowTargetSdk
+                )
+                AdvancedToggle(
+                    title = stringResource(R.string.dialog_menu_request_downgrade),
+                    description = stringResource(R.string.dialog_menu_request_downgrade_desc),
+                    checked = requestDowngrade,
+                    onCheckedChange = onToggleRequestDowngrade
+                )
+                AdvancedToggle(
+                    title = stringResource(R.string.dialog_menu_grant_permissions),
+                    description = stringResource(R.string.dialog_menu_grant_permissions_desc),
+                    checked = grantAllPermissions,
+                    onCheckedChange = onToggleGrantAllPermissions
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AdvancedToggle(
+    title: String,
+    description: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            modifier = Modifier.scale(0.8f)
         )
     }
 }

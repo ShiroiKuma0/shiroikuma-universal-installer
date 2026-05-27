@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.presentation.manage
 
 import android.app.Application
+import android.net.Uri
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
@@ -101,7 +102,7 @@ sealed interface ExtractState {
     ) : ExtractState
     data class Done(
         val appName: String,
-        val file: java.io.File,
+        val uri: android.net.Uri,
         val mode: ExtractMode,
     ) : ExtractState
     data class Error(
@@ -241,27 +242,19 @@ class ManageViewModel(
         _extractState.value = ExtractState.Running(packageName, appName, 0L, 1L, mode)
         extractJob = viewModelScope.launch {
             val prefs = application.dataStore.data.first()
-            val customPath = prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH]
+            val customPathUri = prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH]
             val template = prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] ?: "{name}-{version}"
-
-            val effectiveOutputDir = if (mode == ExtractMode.Share) {
-                outputDir
-            } else if (!customPath.isNullOrBlank()) {
-                java.io.File(customPath).apply { mkdirs() }
-            } else {
-                outputDir
-            }
 
             val result = ApkExtractor.extract(
                 context = application,
                 packageName = packageName,
-                outputDir = effectiveOutputDir,
+                outputDirUri = if (mode == ExtractMode.Share) null else customPathUri,
                 filenameTemplate = template
             ) { bytes, total ->
                 _extractState.value = ExtractState.Running(packageName, appName, bytes, total, mode)
             }
             _extractState.value = when (result) {
-                is ApkExtractor.Result.Success -> ExtractState.Done(appName, result.file, mode)
+                is ApkExtractor.Result.Success -> ExtractState.Done(appName, result.uri, mode)
                 is ApkExtractor.Result.Failure -> ExtractState.Error(appName, result.message, mode)
             }
         }

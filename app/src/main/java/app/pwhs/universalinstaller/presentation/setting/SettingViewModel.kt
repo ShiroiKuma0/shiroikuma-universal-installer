@@ -355,6 +355,14 @@ class SettingViewModel(
 
     fun setExtractorOutputPath(path: String) {
         viewModelScope.launch {
+            if (path.startsWith("content://")) {
+                runCatching {
+                    application.contentResolver.takePersistableUriPermission(
+                        android.net.Uri.parse(path),
+                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                }
+            }
             dataStore.edit { prefs -> prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH] = path }
         }
     }

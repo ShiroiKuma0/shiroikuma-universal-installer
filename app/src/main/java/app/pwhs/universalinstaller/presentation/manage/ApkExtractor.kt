@@ -3,26 +3,21 @@ package app.pwhs.universalinstaller.presentation.manage
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 /**
- * Extracts an installed app's APK(s) to /sdcard/Download/UniversalInstaller/Extracted.
- *
- * - No splits → straight `.apk` copy.
- * - Splits → `.apks` zip (bundletool format) containing `base.apk` plus each split's original
- *   on-disk filename (e.g. `split_config.arm64_v8a.apk`). Verbatim names so ackpine's
- *   split-type detection (which keys off `splitName` in each split's manifest, not the
- *   filename) keeps working when the file is re-installed.
- *
- * Inner entries are written with [ZipEntry.STORED] — APK content is already compressed,
- * so DEFLATE wastes CPU for ~0% size gain and slows extraction by 5–10× on large apps.
+ * Extracts an installed app's APK(s).
  */
 object ApkExtractor {
 
@@ -30,19 +25,14 @@ object ApkExtractor {
     private const val COPY_BUFFER = 64 * 1024
 
     sealed interface Result {
-        data class Success(val file: File) : Result
+        data class Success(val uri: Uri) : Result
         data class Failure(val message: String) : Result
     }
 
-    /**
-     * [outputDir] defaults to the user-visible Download/UniversalInstaller/Extracted folder.
-     * Pass a cache directory (e.g. `cacheDir/share/`) when extracting for one-shot use like
-     * the Share action so the file doesn't pollute the user's Backups list.
-     */
     suspend fun extract(
         context: Context,
         packageName: String,
-        outputDir: File? = null,
+        outputDirUri: String? = null,
         filenameTemplate: String = "{name}-{version}",
         onProgress: (bytesCopied: Long, totalBytes: Long) -> Unit = { _, _ -> },
     ): Result = withContext(Dispatchers.IO) {
@@ -77,10 +67,21 @@ object ApkExtractor {
         } catch (_: Exception) { null } ?: ""
 
         val appName = appInfo.loadLabel(pm).toString()
-        val effectiveOutputDir = (outputDir ?: File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            SUBFOLDER,
-        )).apply { mkdirs() }
+        
+        val outputDir: DocumentFile = if (!outputDirUri.isNullOrBlank()) {
+            DocumentFile.fromTreeUri(context, Uri.parse(outputDirUri))
+                ?: return@withContext Result.Failure("Invalid output directory URI")
+        } else {
+            val defaultPath = File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                SUBFOLDER,
+            ).apply { mkdirs() }
+            DocumentFile.fromFile(defaultPath)
+        }
+
+        if (!outputDir.exists() || !outputDir.isDirectory) {
+            return@withContext Result.Failure("Output directory does not exist or is not a directory")
+        }
 
         val resolvedName = resolveTemplate(
             template = filenameTemplate,
@@ -89,36 +90,38 @@ object ApkExtractor {
             pkg = packageName,
         )
         val targetExt = if (splitDirs.isEmpty()) "apk" else "apks"
-        val target = File(
-            effectiveOutputDir,
-            uniqueName(effectiveOutputDir, "$resolvedName.$targetExt"),
-        )
+        val mimeType = if (splitDirs.isEmpty()) "application/vnd.android.package-archive" else "application/zip"
+        
+        val finalFileName = uniqueName(outputDir, "$resolvedName.$targetExt")
+        val targetFile = outputDir.createFile(mimeType, finalFileName)
+            ?: return@withContext Result.Failure("Could not create target file")
 
         val totalBytes = baseApk.length() + splitDirs.sumOf { it.length() }
 
         return@withContext try {
             if (splitDirs.isEmpty()) {
-                copyFile(baseApk, target, totalBytes, 0L, onProgress)
+                copyFile(context, baseApk, targetFile, totalBytes, 0L, onProgress)
             } else {
-                writeSplitBundle(baseApk, splitDirs, target, totalBytes, onProgress)
+                writeSplitBundle(context, baseApk, splitDirs, targetFile, totalBytes, onProgress)
             }
-            Result.Success(target)
+            Result.Success(targetFile.uri)
         } catch (t: Throwable) {
-            runCatching { target.delete() }
+            targetFile.delete()
             Result.Failure(t.message ?: t::class.java.simpleName)
         }
     }
 
     private fun copyFile(
+        context: Context,
         source: File,
-        target: File,
+        target: DocumentFile,
         totalBytes: Long,
         startOffset: Long,
         onProgress: (Long, Long) -> Unit,
     ) {
         var copied = startOffset
         source.inputStream().use { input ->
-            target.outputStream().use { output ->
+            context.contentResolver.openOutputStream(target.uri)?.use { output ->
                 val buf = ByteArray(COPY_BUFFER)
                 while (true) {
                     val read = input.read(buf)
@@ -127,22 +130,24 @@ object ApkExtractor {
                     copied += read
                     onProgress(copied, totalBytes)
                 }
-            }
+            } ?: throw IllegalStateException("Could not open output stream")
         }
     }
 
     private fun writeSplitBundle(
+        context: Context,
         baseApk: File,
         splits: List<File>,
-        target: File,
+        target: DocumentFile,
         totalBytes: Long,
         onProgress: (Long, Long) -> Unit,
     ) {
         var copied = 0L
-        ZipOutputStream(target.outputStream().buffered()).use { zip ->
+        val os = context.contentResolver.openOutputStream(target.uri) 
+            ?: throw IllegalStateException("Could not open output stream")
+            
+        ZipOutputStream(os.buffered()).use { zip ->
             zip.setLevel(0)
-            // Base APK keeps a stable canonical name so the split-installer can find it
-            // even if the platform ever stops naming the base "base.apk" on disk.
             copied += addStoredEntry(zip, baseApk, "base.apk") { delta ->
                 onProgress(copied + delta, totalBytes)
             }
@@ -154,11 +159,6 @@ object ApkExtractor {
         }
     }
 
-    /**
-     * Writes [source] into [zip] under [entryName] using STORED (no compression). STORED
-     * requires size + crc up front, so we make one streaming pass to compute crc, then a
-     * second pass to write the data — still O(n) and far cheaper than DEFLATE's CPU.
-     */
     private fun addStoredEntry(
         zip: ZipOutputStream,
         source: File,
@@ -198,9 +198,6 @@ object ApkExtractor {
     }
 
     private fun sanitize(name: String): String {
-        // Strip path separators, control chars, and characters that break common file managers.
-        // Keep unicode letters/digits — Android file systems accept them and users often see
-        // localized app names.
         val cleaned = name.map { c ->
             when {
                 c.isLetterOrDigit() -> c
@@ -225,13 +222,13 @@ object ApkExtractor {
         return sanitize(resolved)
     }
 
-    private fun uniqueName(dir: File, desired: String): String {
-        if (!File(dir, desired).exists()) return desired
+    private fun uniqueName(dir: DocumentFile, desired: String): String {
+        if (dir.findFile(desired) == null) return desired
         val dot = desired.lastIndexOf('.')
         val stem = if (dot > 0) desired.take(dot) else desired
         val ext = if (dot > 0) desired.substring(dot) else ""
         var i = 1
-        while (File(dir, "$stem ($i)$ext").exists()) i++
+        while (dir.findFile("$stem ($i)$ext") != null) i++
         return "$stem ($i)$ext"
     }
 

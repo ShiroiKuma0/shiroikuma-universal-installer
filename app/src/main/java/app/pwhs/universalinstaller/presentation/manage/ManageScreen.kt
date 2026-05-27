@@ -2,6 +2,7 @@ package app.pwhs.universalinstaller.presentation.manage
 
 
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -120,6 +121,7 @@ import coil3.compose.SubcomposeAsyncImageContent
 import coil3.request.ImageRequest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import app.pwhs.universalinstaller.util.extension.getDisplayName
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -355,17 +357,22 @@ private fun UninstallUi(
     LaunchedEffect(uiState.extractState) {
         when (val s = uiState.extractState) {
             is ExtractState.Done -> {
+                val fileName = if (s.uri.scheme == "file") {
+                    java.io.File(s.uri.path!!).name
+                } else {
+                    context.contentResolver.getDisplayName(s.uri)
+                }
                 when (s.mode) {
                     ExtractMode.Backup -> {
                         val res = snackbarHostState.showSnackbar(
-                            message = resource.getString(R.string.extract_done, s.file.name),
+                            message = resource.getString(R.string.extract_done, fileName),
                             actionLabel = resource.getString(R.string.extract_done_action_open),
                             withDismissAction = true,
                         )
                         if (res == SnackbarResult.ActionPerformed) onOpenBackups()
                     }
                     ExtractMode.Share -> {
-                        val launched = launchShareIntent(context, s.file, s.appName)
+                        val launched = launchShareIntent(context, s.uri, s.appName)
                         if (!launched) {
                             snackbarHostState.showSnackbar(
                                 message = resource.getString(
@@ -378,8 +385,7 @@ private fun UninstallUi(
                     }
                 }
                 onDismissExtractResult()
-            }
-            is ExtractState.Error -> {
+            }            is ExtractState.Error -> {
                 val msg = when (s.mode) {
                     ExtractMode.Share ->
                         resource.getString(R.string.manage_action_share_failed, s.message)
@@ -1751,26 +1757,27 @@ private fun openAppInfoSettings(context: android.content.Context, packageName: S
 }
 
 /**
- * Wraps the cache-extracted APK in a FileProvider URI and fires a SEND chooser. Returns
- * false when no chooser-capable Activity is available so the caller can show feedback.
+ * Wraps the cache-extracted APK in a FileProvider URI (if it's a file) or uses the SAF URI
+ * directly, then fires a SEND chooser. Returns false when no chooser-capable Activity is
+ * available so the caller can show feedback.
  */
 private fun launchShareIntent(
     context: android.content.Context,
-    file: java.io.File,
+    uri: android.net.Uri,
     appName: String,
 ): Boolean {
-    val uri = androidx.core.content.FileProvider.getUriForFile(
-        context,
-        "${app.pwhs.universalinstaller.BuildConfig.APPLICATION_ID}.fileprovider",
-        file,
-    )
+    val shareUri = if (uri.scheme == "file") {
+        androidx.core.content.FileProvider.getUriForFile(
+            context,
+            "${app.pwhs.universalinstaller.BuildConfig.APPLICATION_ID}.fileprovider",
+            java.io.File(uri.path!!),
+        )
+    } else {
+        uri
+    }
     val send = Intent(Intent.ACTION_SEND).apply {
-        // Most file managers and chat apps accept the canonical APK MIME — picky targets
-        // (e.g. Telegram on some Android versions) sometimes need octet-stream too, but
-        // that's a hostile UX trade-off (more apps in the chooser that can't actually
-        // handle APKs). Keep it strict.
         type = "application/vnd.android.package-archive"
-        putExtra(Intent.EXTRA_STREAM, uri)
+        putExtra(Intent.EXTRA_STREAM, shareUri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     val chooser = Intent.createChooser(

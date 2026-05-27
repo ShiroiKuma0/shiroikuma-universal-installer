@@ -6,14 +6,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
@@ -31,11 +35,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -43,56 +46,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
 import app.pwhs.universalinstaller.util.LocaleHelper
-
-
-
-
-data class AppLanguage(val tag: String, val nativeName: String)
-
-private val SUPPORTED_LANGUAGES = listOf(
-    AppLanguage("en", "🇺🇸 English"),
-    AppLanguage("ar", "🇸🇦 العربية"),
-    AppLanguage("de", "🇩🇪 Deutsch"),
-    AppLanguage("el", "🇬🇷 Ελληνικά"),
-    AppLanguage("es", "🇪🇸 Español"),
-    AppLanguage("fr", "🇫🇷 Français"),
-    AppLanguage("hi", "🇮🇳 हिन्दी"),
-    AppLanguage("in", "🇮🇩 Bahasa Indonesia"),
-    AppLanguage("it", "🇮🇹 Italiano"),
-    AppLanguage("ja", "🇯🇵 日本語"),
-    AppLanguage("ko", "🇰🇷 한국어"),
-    AppLanguage("pt-BR", "🇧🇷 Português (Brasil)"),
-    AppLanguage("ru", "🇷🇺 Русский"),
-    AppLanguage("tr", "🇹🇷 Türkçe"),
-    AppLanguage("uk", "🇺🇦 Українська"),
-    AppLanguage("vi", "🇻🇳 Tiếng Việt"),
-    AppLanguage("zh", "🇨🇳 中文"),
-)
-
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LanguageScreen(
-    modifier: Modifier = Modifier,
+    viewModel: SettingViewModel = koinViewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val initial = remember { LocaleHelper.getStoredLanguage(context) }
-    var selected by rememberSaveable { mutableStateOf(initial) }
 
     LanguageUi(
-        modifier = modifier,
-        selected = selected,
-        onSelected = { selected = it },
-        onBack = { val a = context as? android.app.Activity; a?.finish() },
+        selected = uiState.selectedLanguage,
+        onSelected = viewModel::setLanguage,
+        onBack = { (context as? Activity)?.finish() },
         onDone = {
-            if (selected != initial) {
-                LocaleHelper.setAppLanguage(context, selected)
-                // On API < 33 we recreate manually; on API 33+ LocaleManager does it for us.
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                    (context as? Activity)?.recreate()
-                }
-            }
-            val a = context as? android.app.Activity; a?.finish()
+            (context as? Activity)?.recreate()
+            (context as? Activity)?.finish()
         },
     )
 }
@@ -107,6 +78,30 @@ private fun LanguageUi(
     onDone: () -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    val languages = remember {
+        listOf(
+            "" to "System Default",
+            "en" to "English",
+            "ar" to "العربية",
+            "de" to "Deutsch",
+            "el" to "Ελληνικά",
+            "es" to "Español",
+            "fr" to "Français",
+            "hi" to "हिन्दी",
+            "in" to "Indonesia",
+            "it" to "Italiano",
+            "ja" to "日本語",
+            "ko" to "한국어",
+            "pt-rBR" to "Português (Brasil)",
+            "ru" to "Русский",
+            "tr" to "Türkçe",
+            "uk" to "Українська",
+            "vi" to "Tiếng Việt",
+            "zh" to "中文",
+        )
+    }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -146,10 +141,13 @@ private fun LanguageUi(
         },
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                bottom = innerPadding.calculateBottomPadding() + navBarPadding + 16.dp
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
@@ -161,37 +159,40 @@ private fun LanguageUi(
                     ),
                 ) {
                     Column(modifier = Modifier.padding(vertical = 4.dp)) {
-                        LanguageRow(
-                            name = stringResource(R.string.language_system_default),
-                            selected = selected == "",
-                            onClick = { onSelected("") },
-                        )
-                        SUPPORTED_LANGUAGES.forEach { lang ->
-                            LanguageRow(
-                                name = lang.nativeName,
-                                selected = selected == lang.tag,
-                                onClick = { onSelected(lang.tag) },
+                        languages.forEach { (code, name) ->
+                            LanguageItem(
+                                name = name,
+                                selected = selected == code,
+                                onClick = { onSelected(code) },
                             )
                         }
                     }
                 }
             }
-            item {
-                Spacer(modifier = Modifier.height(50.dp))
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                item {
+                    Text(
+                        text = "You can also change language per-app in System Settings.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun LanguageRow(
+private fun LanguageItem(
     name: String,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
     ListItem(
         headlineContent = {
-            Text(name, style = MaterialTheme.typography.bodyLarge)
+            Text(text = name, style = MaterialTheme.typography.bodyLarge)
         },
         trailingContent = {
             RadioButton(

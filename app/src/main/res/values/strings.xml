@@ -610,6 +610,7 @@
     <string name="profile_delete_confirm_msg">This will also remove any automatic mappings for this profile.</string>
     <string name="profile_save">Save</string>
     <string name="profile_delete">Delete</string>
+    <string name="edit">Edit</string>
     <string name="install_profile_picker_label">Installer Profile</string>
     <string name="install_profile_none">None (Use global settings)</string>
     <string name="install_profile_smart_pick_enabled">Smart Pick: Applied \&quot;%s\&quot; profile</string>

@@ -195,6 +195,10 @@ fun DialogPrepareContent(
             OutlinedButton(
                 onClick = onMenu,
                 modifier = Modifier.weight(1f),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Menu,

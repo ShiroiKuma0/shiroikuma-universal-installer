@@ -285,9 +285,10 @@ class DialogInstallActivity : ComponentActivity() {
                             .pointerInput(Unit) {
                                 detectTapGestures(onTap = { /* consume clicks */ })
                             },
-                        shape = MaterialTheme.shapes.extraLarge, // 28dp
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.8f),
+                        shape = AlertDialogDefaults.shape,
+                        color = AlertDialogDefaults.containerColor,
                         tonalElevation = AlertDialogDefaults.TonalElevation,
+                        shadowElevation = 12.dp,
                     ) {
                         val params = generateDialogParams(
                             uiState = uiState,

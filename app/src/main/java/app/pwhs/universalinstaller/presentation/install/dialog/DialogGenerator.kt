@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.ui.res.stringResource
+import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.install.AttachedObb
 import app.pwhs.universalinstaller.presentation.install.DialogStage
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
@@ -128,6 +130,9 @@ fun generateDialogParams(
             } else {
                 DialogParams(
                     title = DialogInnerParams("menu_title") {
+                        Text(text = stringResource(R.string.dialog_menu_title))
+                    },
+                    subtitle = DialogInnerParams("menu_subtitle") {
                         Text(
                             text = info.appName.ifBlank { info.packageName },
                             maxLines = 1,

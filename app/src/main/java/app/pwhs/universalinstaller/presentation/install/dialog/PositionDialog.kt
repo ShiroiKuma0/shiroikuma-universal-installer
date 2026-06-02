@@ -13,6 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -38,7 +39,7 @@ fun PositionDialog(
         centerIcon?.let { icon ->
             Box(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
                 icon()
@@ -47,10 +48,10 @@ fun PositionDialog(
 
         centerTitle?.let { title ->
             CompositionLocalProvider(LocalContentColor provides titleContentColor) {
-                ProvideTextStyle(MaterialTheme.typography.headlineSmall) {
+                ProvideTextStyle(MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)) {
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .padding(horizontal = 16.dp, vertical = 2.dp)
                             .align(Alignment.CenterHorizontally)
                     ) {
                         title()
@@ -61,10 +62,10 @@ fun PositionDialog(
 
         centerSubtitle?.let { subtitle ->
             CompositionLocalProvider(LocalContentColor provides textContentColor) {
-                ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
+                ProvideTextStyle(MaterialTheme.typography.bodySmall) {
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .padding(horizontal = 16.dp, vertical = 0.dp)
                             .align(Alignment.CenterHorizontally)
                     ) {
                         subtitle()
@@ -78,7 +79,7 @@ fun PositionDialog(
                 ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
                     Box(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
                             .align(Alignment.CenterHorizontally)
                     ) {
                         text()
@@ -103,7 +104,7 @@ fun PositionDialog(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 0.dp)
+                            .padding(horizontal = 24.dp, vertical = 0.dp)
                     ) {
                         button()
                     }

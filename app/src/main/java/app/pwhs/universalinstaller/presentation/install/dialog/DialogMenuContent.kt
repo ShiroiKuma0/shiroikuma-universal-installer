@@ -279,7 +279,7 @@ fun DialogMenuContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp), // Reduced vertical padding
+            .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // ── Tabs ──
@@ -375,6 +375,10 @@ fun DialogMenuContent(
             OutlinedButton(
                 onClick = onBack,
                 modifier = Modifier.weight(1f),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,

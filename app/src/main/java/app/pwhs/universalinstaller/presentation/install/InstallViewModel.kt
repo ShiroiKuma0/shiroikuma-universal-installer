@@ -29,6 +29,7 @@ import app.pwhs.universalinstaller.presentation.install.controller.BaseInstallCo
 import app.pwhs.universalinstaller.presentation.install.controller.DefaultInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuInstallController
+import app.pwhs.universalinstaller.presentation.install.controller.ManualInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import androidx.datastore.preferences.core.edit
 import androidx.work.ExistingWorkPolicy
@@ -79,6 +80,7 @@ class InstallViewModel(
 
     private val defaultController = DefaultInstallController(application, packageInstaller, sessionDataRepository, historyDao)
     private val shizukuController = ShizukuInstallController(application, packageInstaller, sessionDataRepository, historyDao)
+    private val manualController = ManualInstallController(application, packageInstaller, sessionDataRepository, historyDao)
 
     // Null on the store flavor — activeController() silently skips the Root branch there.
     private val rootController: BaseInstallController? = backendFactory.createRootController(
@@ -404,6 +406,7 @@ class InstallViewModel(
         _attachedObbFiles.value = emptyList()
 
         viewModelScope.launch {
+            val prefs = try { application.dataStore.data.first() } catch (_: Exception) { null }
             val iconPath = cacheIcon(apkInfo)
             val deleteAfterInstall = readDeleteApkPref()
             val sessionData = SessionData(
@@ -429,25 +432,47 @@ class InstallViewModel(
             // pendingApkInfo has already been cleared, so the callback below only sees these.
             val pkgForTarget = apkInfo?.packageName.orEmpty()
             val nameForTarget = apkInfo?.appName.orEmpty().ifBlank { fn }
-            activeController().install(
-                uris = uris,
-                sessionData = sessionData,
-                scope = viewModelScope,
-                context = application,
-                originalUri = originalUri,
-                deleteAfterInstall = deleteAfterInstall,
-                onSuccess = onSuccess,
-                onSessionCreated = if (trackDialogTarget) {
-                    { realSessionId ->
-                        _dialogTarget.value = DialogTarget(
-                            sessionId = realSessionId,
-                            packageName = pkgForTarget,
-                            appName = nameForTarget,
-                            iconPath = iconPath,
-                        )
-                    }
-                } else null,
-            )
+            val controller = activeController()
+            val targetedUserId = prefs?.get(PreferencesKeys.INSTALL_USER_ID)
+            
+            if (controller is ManualInstallController && targetedUserId != null) {
+                controller.installTargeted(
+                    uris = uris,
+                    sessionData = sessionData,
+                    userId = targetedUserId,
+                    scope = viewModelScope,
+                    onSessionCreated = if (trackDialogTarget) {
+                        { realSessionId: UUID ->
+                            _dialogTarget.value = DialogTarget(
+                                sessionId = realSessionId,
+                                packageName = pkgForTarget,
+                                appName = nameForTarget,
+                                iconPath = iconPath,
+                            )
+                        }
+                    } else null
+                )
+            } else {
+                controller.install(
+                    uris = uris,
+                    sessionData = sessionData,
+                    scope = viewModelScope,
+                    context = application,
+                    originalUri = originalUri,
+                    deleteAfterInstall = deleteAfterInstall,
+                    onSuccess = onSuccess,
+                    onSessionCreated = if (trackDialogTarget) {
+                        { realSessionId: UUID ->
+                            _dialogTarget.value = DialogTarget(
+                                sessionId = realSessionId,
+                                packageName = pkgForTarget,
+                                appName = nameForTarget,
+                                iconPath = iconPath,
+                            )
+                        }
+                    } else null,
+                )
+            }
         }
     }
 
@@ -1321,7 +1346,11 @@ class InstallViewModel(
         val spoofRoot = prefs?.get(PreferencesKeys.ROOT_SET_INSTALL_SOURCE) ?: false
         val targetedUser = prefs?.get<Int>(PreferencesKeys.INSTALL_USER_ID) != null
 
-        if ((useRoot || spoofRoot || targetedUser) && rootController != null) {
+        if (targetedUser) {
+            return manualController
+        }
+
+        if ((useRoot || spoofRoot) && rootController != null) {
             // Verify root is still granted. If it's UNKNOWN (no shell yet) or was 
             // previously DENIED, try an active request. This ensures the install 
             // actually uses the root controller if possible.
@@ -1784,7 +1813,7 @@ class InstallViewModel(
         val libsBest = entries
             .filter { it.type == SplitType.Libs }
             .minByOrNull { abiPriority[it.name.lowercase()] ?: Int.MAX_VALUE }
-            ?.uri
+            ?.name
 
         // Density: closest dpi to the device's actual densityDpi. Names parse as "${dpi}dpi".
         val deviceDpi = context.resources.displayMetrics.densityDpi
@@ -1794,7 +1823,7 @@ class InstallViewModel(
                 val dpi = it.name.removeSuffix("dpi").toIntOrNull() ?: Int.MAX_VALUE
                 kotlin.math.abs(dpi - deviceDpi)
             }
-            ?.uri
+            ?.name
 
         // Locale: include splits whose displayed language matches any of the user's preferred
         // locales. We match against the top-priority locale's display language (English form
@@ -1811,8 +1840,8 @@ class InstallViewModel(
             val e = entries[i]
             val keep = when (e.type) {
                 SplitType.Base, SplitType.Feature, SplitType.Other -> true
-                SplitType.Libs -> e.uri == libsBest
-                SplitType.ScreenDensity -> e.uri == densityBest
+                SplitType.Libs -> e.name.equals(libsBest, ignoreCase = true)
+                SplitType.ScreenDensity -> e.name.equals(densityBest, ignoreCase = true)
                 SplitType.Locale -> e.name.lowercase() in userLangs
             }
             if (e.selected != keep) entries[i] = e.copy(selected = keep)

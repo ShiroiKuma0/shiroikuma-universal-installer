@@ -3,19 +3,27 @@ package app.pwhs.universalinstaller.presentation.install.controller
 import android.app.Application
 import android.net.Uri
 import app.pwhs.universalinstaller.data.local.InstallHistoryDao
+import app.pwhs.universalinstaller.domain.model.SessionData
 import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
-import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.universalinstaller.presentation.install.InstallErrorHelper
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.solrudev.ackpine.installer.InstallFailure
 import ru.solrudev.ackpine.installer.PackageInstaller
+import ru.solrudev.ackpine.resources.ResolvableString
+import ru.solrudev.ackpine.session.Progress
 import ru.solrudev.ackpine.session.ProgressSession
+import ru.solrudev.ackpine.session.Session
+import timber.log.Timber
 import java.util.UUID
 
 /**
- * A controller that handles targeted user installs manually.
+ * A controller that handles targeted user installs manually using hidden APIs.
+ * This bypasses Ackpine's standard flow to support specific User IDs (e.g. Work Profiles).
  */
 class ManualInstallController(
     private val application: Application,
@@ -29,19 +37,50 @@ class ManualInstallController(
         name: String,
         packageName: String,
     ): ProgressSession<InstallFailure> {
-        // This won't be called if we override install()
-        throw UnsupportedOperationException("Use install() with userId")
+        // This is not used as we override the main install() method.
+        throw UnsupportedOperationException("ManualInstallController uses targetedInstall instead")
     }
 
     fun installTargeted(
         uris: List<Uri>,
-        name: String,
+        sessionData: SessionData,
         userId: Int,
         scope: CoroutineScope,
+        onSessionCreated: ((UUID) -> Unit)? = null,
     ) {
-        // We'll simulate a session ID to keep the UI happy
         val sessionId = UUID.randomUUID()
-        // ... implementation that uses ManualTargetedInstaller ...
-        // and updates sessionDataRepository
+        val data = sessionData.copy(id = sessionId)
+        
+        scope.launch {
+            sessionDataRepository.addSessionData(data)
+            onSessionCreated?.invoke(sessionId)
+            
+            val result = ManualTargetedInstaller.install(
+                context = application,
+                uris = uris,
+                userId = userId,
+                onProgress = { progressValue ->
+                    // Progress is 0.0 to 1.0
+                    val progress = Progress((progressValue * 100).toInt(), 100)
+                    sessionDataRepository.updateSessionProgress(sessionId, progress)
+                }
+            )
+
+            result.fold(
+                onSuccess = {
+                    sessionDataRepository.updateSessionProgress(sessionId, Progress(100, 100))
+                    // Wait a bit to show 100%
+                    kotlinx.coroutines.delay(500)
+                    saveHistory(data, success = true)
+                    sessionDataRepository.removeSessionData(sessionId)
+                },
+                onFailure = { e ->
+                    Timber.e(e, "Manual targeted install failed")
+                    val errorMsg = ResolvableString.raw(e.message ?: "Installation failed")
+                    saveHistory(data, success = false, errorMessage = e.message)
+                    sessionDataRepository.setError(sessionId, errorMsg)
+                }
+            )
+        }
     }
 }

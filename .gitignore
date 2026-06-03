@@ -14,6 +14,8 @@
 .cxx
 local.properties
 .kotlin
+.gemini/
+docs/github_report_*.md
 
 # Fastlane
 fastlane/report.xml

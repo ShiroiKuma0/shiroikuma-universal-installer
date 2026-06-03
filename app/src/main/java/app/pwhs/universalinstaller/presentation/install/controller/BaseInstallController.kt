@@ -169,7 +169,7 @@ abstract class BaseInstallController(
         }
     }
 
-    private suspend fun saveHistory(
+    protected suspend fun saveHistory(
         sessionData: SessionData?,
         success: Boolean,
         errorMessage: String? = null,

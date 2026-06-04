@@ -15,6 +15,7 @@ import app.pwhs.universalinstaller.presentation.manage.permissions.AppPermission
 import app.pwhs.universalinstaller.presentation.install.InstallProgressNotifier
 import app.pwhs.universalinstaller.presentation.install.InstallViewModel
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
+import app.pwhs.universalinstaller.presentation.setting.ui.InstallerUiViewModel
 import app.pwhs.universalinstaller.presentation.sync.SyncViewModel
 import app.pwhs.universalinstaller.presentation.manage.ManageViewModel
 import app.pwhs.universalinstaller.presentation.manage.logs.UninstallLogsViewModel
@@ -98,6 +99,7 @@ val appModule = module {
     viewModelOf(::BackupsViewModel)
     viewModelOf(::AppPermissionsViewModel)
     viewModelOf(::SettingViewModel)
+    viewModelOf(::InstallerUiViewModel)
     viewModelOf(::UninstallLogsViewModel)
     viewModelOf(::DownloadHistoryViewModel)
     viewModelOf(::SyncViewModel)

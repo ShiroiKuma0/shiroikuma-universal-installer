@@ -54,6 +54,7 @@ import app.pwhs.universalinstaller.domain.model.SplitType
 import app.pwhs.universalinstaller.presentation.install.AttachedObb
 import app.pwhs.universalinstaller.presentation.install.InstallTargetPicker
 import app.pwhs.universalinstaller.presentation.install.rememberDeviceUserProfiles
+import app.pwhs.universalinstaller.ui.theme.technicalFontFamily
 
 @Composable
 fun sectionCardBorder() = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
@@ -180,6 +181,7 @@ fun InfoRow(label: String, value: String) {
             text = value,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium,
+            fontFamily = technicalFontFamily(),
             modifier = Modifier.weight(0.6f),
             textAlign = TextAlign.End,
         )

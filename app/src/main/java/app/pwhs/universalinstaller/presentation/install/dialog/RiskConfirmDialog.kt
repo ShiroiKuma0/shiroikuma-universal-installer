@@ -52,12 +52,6 @@ import kotlinx.coroutines.launch
  * informational states (CLEAN, SCANNING, NOT_FOUND, etc.) don't trigger this gate.
  */
 sealed interface InstallRisk {
-    /** The APK's versionCode is lower than the installed package's. */
-    data class Downgrade(
-        val installedVersionName: String,
-        val newVersionName: String,
-    ) : InstallRisk
-
     /**
      * The installed app is signed with a different key. Unlike the others this one cannot be
      * accepted and pushed through — Android will refuse the install until the old copy is gone.
@@ -86,13 +80,12 @@ fun isDowngrade(apkInfo: ApkInfo): Boolean {
 }
 
 fun detectInstallRisks(apkInfo: ApkInfo, strictVirusTotal: Boolean = false): List<InstallRisk> {
+    // A downgrade is NOT a data-loss risk here: installs go through ackpine with
+    // INSTALL_REQUEST_DOWNGRADE (Shizuku/Root), which downgrades the package in place and preserves
+    // its data — nothing in the install path uninstalls or runs `pm clear`. The downgrade is already
+    // surfaced neutrally (the "⚠ Downgrade" subtitle, the chip, and the red Downgrade button), so it
+    // no longer gates behind this scary confirmation. Only genuine risks (VirusTotal verdicts) do.
     val risks = mutableListOf<InstallRisk>()
-    if (isDowngrade(apkInfo)) {
-        risks += InstallRisk.Downgrade(
-            installedVersionName = apkInfo.installedVersionName.orEmpty().ifBlank { "?" },
-            newVersionName = apkInfo.versionName.ifBlank { "?" },
-        )
-    }
     // Only `true` counts. `null` means the check couldn't run and must not raise an alarm.
     if (apkInfo.signatureMismatch == true) {
         risks += InstallRisk.SignatureMismatch(apkInfo.packageName)
@@ -196,8 +189,6 @@ private fun RiskCard(
 ) {
     val severe = risk is InstallRisk.VtMalicious
     val (icon: ImageVector, line: String) = when (risk) {
-        is InstallRisk.Downgrade -> Icons.Rounded.Warning to
-            stringResource(R.string.dialog_risk_downgrade, risk.installedVersionName, risk.newVersionName)
         is InstallRisk.SignatureMismatch -> Icons.Rounded.Key to
             stringResource(R.string.dialog_risk_signature_mismatch)
         is InstallRisk.VtMalicious -> Icons.Rounded.Security to
@@ -294,9 +285,9 @@ private fun RiskAction(
             actionIcon = Icons.AutoMirrored.Rounded.OpenInNew
             onClick = { report(risk.sha256) }
         }
-        // Downgrade is consented to right here and carried into the session; unscanned has no
-        // action beyond running the scan, which the install screen already offers.
-        is InstallRisk.Downgrade, InstallRisk.VtUnscanned -> return
+        // Unscanned has no action beyond running the scan, which the install screen already
+        // offers. (Downgrade is not a risk in this fork — see detectInstallRisks.)
+        InstallRisk.VtUnscanned -> return
     }
 
     Spacer(modifier = Modifier.height(4.dp))

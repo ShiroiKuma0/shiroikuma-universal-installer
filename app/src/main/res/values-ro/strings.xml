@@ -530,7 +530,6 @@
     <string name="dialog_risk_title_severe">Acest APK pare periculos</string>
     <string name="dialog_risk_proceed_warn">Instalează oricum</string>
     <string name="dialog_risk_proceed_severe">Instalează pe propriul risc</string>
-    <string name="dialog_risk_downgrade">Downgrade: %1$s → %2$s. Datele aplicației existente pot fi șterse.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d motor(oare) au marcat acest fișier ca fiind rău intenționat.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d motor(oare) au marcat acest fișier ca fiind suspect.</string>
     <string name="dialog_risk_footer">Continuă doar dacă ai încredere în sursa acestui fișier.</string>

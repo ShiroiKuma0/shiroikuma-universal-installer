@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">Bu APK tehlikeli görünüyor</string>
     <string name="dialog_risk_proceed_warn">Yine de yükle</string>
     <string name="dialog_risk_proceed_severe">Riski kabul ederek yükle</string>
-    <string name="dialog_risk_downgrade">Eski sürüme düşürme: %1$s → %2$s. Mevcut uygulama verileri silinebilir.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d motor bu dosyayı kötü amaçlı olarak işaretledi.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d motor bu dosyayı şüpheli olarak işaretledi.</string>
     <string name="dialog_risk_footer">Sadece bu dosyanın kaynağına güveniyorsanız devam edin.</string>

@@ -2,6 +2,8 @@ package app.pwhs.universalinstaller.presentation.composable
 
 import android.app.Activity
 import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.InstallMobile
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -26,6 +29,7 @@ import app.pwhs.core.R as CoreR
 import app.pwhs.universalinstaller.presentation.install.InstallActivity
 import app.pwhs.universalinstaller.presentation.manage.ManageActivity
 import app.pwhs.universalinstaller.presentation.setting.SettingActivity
+import app.pwhs.universalinstaller.presentation.setting.ui.InstallerUiActivity
 import app.pwhs.universalinstaller.util.extension.disableSceneTransition
 
 enum class BottomBarItem(
@@ -55,6 +59,7 @@ enum class BottomBarItem(
     );
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BottomBar(
     currentTab: BottomBarItem,
@@ -87,19 +92,32 @@ fun BottomBar(
     NavigationBar {
         destinations.forEach { destination ->
             val isSelected = currentTab == destination
+            val navigate = {
+                if (!isSelected && destination.activityClass != null) {
+                    val intent = Intent(context, destination.activityClass).apply {
+                        flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    }
+                    context.startActivity(intent)
+                    (context as? Activity)?.disableSceneTransition()
+                }
+            }
             NavigationBarItem(
                 selected = isSelected,
                 colors = itemColors,
-                onClick = {
-                    if (!isSelected && destination.activityClass != null) {
-                        val intent = Intent(context, destination.activityClass).apply {
-                            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NO_ANIMATION
-                        }
-                        context.startActivity(intent)
-                        (context as? Activity)?.disableSceneTransition()
-                    }
-                },
+                onClick = navigate,
                 icon = {
+                    // Long-pressing the Settings cog jumps straight to the 白い熊 Installer UI page.
+                    val iconModifier = if (destination == BottomBarItem.Settings) {
+                        Modifier.combinedClickable(
+                            onClick = navigate,
+                            onLongClick = {
+                                context.startActivity(Intent(context, InstallerUiActivity::class.java))
+                                (context as? Activity)?.disableSceneTransition()
+                            },
+                        )
+                    } else {
+                        Modifier
+                    }
                     if (destination == BottomBarItem.Updates && updateCount > 0) {
                         BadgedBox(
                             badge = {
@@ -111,12 +129,14 @@ fun BottomBar(
                             Icon(
                                 imageVector = destination.icon,
                                 contentDescription = stringResource(destination.label),
+                                modifier = iconModifier,
                             )
                         }
                     } else {
                         Icon(
                             imageVector = destination.icon,
                             contentDescription = stringResource(destination.label),
+                            modifier = iconModifier,
                         )
                     }
                 },

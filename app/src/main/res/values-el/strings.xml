@@ -484,7 +484,6 @@
     <string name="dialog_risk_title_severe">Αυτό το APK φαίνεται επικίνδυνο</string>
     <string name="dialog_risk_proceed_warn">Εγκατάσταση ούτως ή άλλως</string>
     <string name="dialog_risk_proceed_severe">Εγκατάσταση με δική μου ευθύνη</string>
-    <string name="dialog_risk_downgrade">Υποβάθμιση έκδοσης: %1$s → %2$s. Τα υπάρχοντα δεδομένα της εφαρμογής ενδέχεται να διαγραφούν.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d μηχανή(ές) επισήμαναν αυτό το αρχείο ως κακόβουλο.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d μηχανή(ές) επισήμαναν αυτό το αρχείο ως ύποπτο.</string>
     <string name="dialog_risk_footer">Συνεχίστε μόνο εάν εμπιστεύεστε την πηγή αυτού του αρχείου.</string>

@@ -570,7 +570,6 @@
   <string name="dialog_risk_title_severe">Este APK parece perigoso</string>
   <string name="dialog_risk_proceed_warn">Instalar mesmo assim</string>
   <string name="dialog_risk_proceed_severe">Instalar por minha conta e risco</string>
-  <string name="dialog_risk_downgrade">Downgrade: %1$s → %2$s. Os dados do app existente podem ser apagados.</string>
   <string name="dialog_risk_vt_malicious">VirusTotal: %1$d mecanismo(s) sinalizou(aram) este arquivo como malicioso.</string>
   <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d mecanismo(s) sinalizou(aram) este arquivo como suspeito.</string>
   <string name="dialog_risk_footer">Prossiga apenas se você confiar na fonte deste arquivo.</string>

@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">此 APK 存在风险</string>
     <string name="dialog_risk_proceed_warn">仍要安装</string>
     <string name="dialog_risk_proceed_severe">承担风险并安装</string>
-    <string name="dialog_risk_downgrade">降级：%1$s → %2$s。现有的应用数据可能会被清除。</string>
     <string name="dialog_risk_vt_malicious">VirusTotal：%1$d 个引擎将此文件标记为恶意软件。</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal：%1$d 个引擎将此文件标记为可疑文件。</string>
     <string name="dialog_risk_footer">仅当您信任此文件的来源时才继续操作。</string>

@@ -70,6 +70,7 @@ import app.pwhs.universalinstaller.presentation.install.components.VirusTotalCar
 import app.pwhs.universalinstaller.presentation.install.components.VtStatusChip
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogKeepApkOption
 import app.pwhs.universalinstaller.presentation.setting.SettingActivity
+import app.pwhs.universalinstaller.ui.theme.technicalFontFamily
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -164,6 +165,7 @@ internal fun ApkInfoContent(
                     text = apkInfo.packageName,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontFamily = technicalFontFamily(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )

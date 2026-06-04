@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">يبدو هذا الـ APK خطيرًا</string>
     <string name="dialog_risk_proceed_warn">التثبيت على أي حال</string>
     <string name="dialog_risk_proceed_severe">التثبيت على مسؤوليتي الخاصة</string>
-    <string name="dialog_risk_downgrade">إرجاع للإصدار الأقدم: %1$s → %2$s. قد يتم مسح بيانات التطبيق الحالية.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: صنف(ت) %1$d محرك(محركات) هذا الملف على أنه ضار.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: صنف(ت) %1$d محرك(محركات) هذا الملف على أنه مشبوه.</string>
     <string name="dialog_risk_footer">استمر فقط إذا كنت تثق في مصدر هذا الملف.</string>

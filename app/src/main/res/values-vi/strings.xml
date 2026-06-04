@@ -464,7 +464,6 @@
     <string name="dialog_risk_title_severe">APK này có vẻ nguy hiểm</string>
     <string name="dialog_risk_proceed_warn">Vẫn cài đặt</string>
     <string name="dialog_risk_proceed_severe">Cài đặt và tự chịu rủi ro</string>
-    <string name="dialog_risk_downgrade">Hạ cấp: %1$s → %2$s. Dữ liệu ứng dụng hiện tại có thể bị xóa.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d công cụ đánh dấu tệp này là độc hại.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d công cụ đánh dấu tệp này là đáng ngờ.</string>
     <string name="dialog_risk_footer">Chỉ tiếp tục nếu bạn tin tưởng nguồn của tệp này.</string>

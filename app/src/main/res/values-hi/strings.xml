@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">यह APK खतरनाक लगता है</string>
     <string name="dialog_risk_proceed_warn">वैसे भी इंस्टॉल करें</string>
     <string name="dialog_risk_proceed_severe">अपने जोखिम पर इंस्टॉल करें</string>
-    <string name="dialog_risk_downgrade">डाउनग्रेड: %1$s → %2$s. मौजूदा ऐप डेटा मिटाया जा सकता है।</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d इंजन(इंजनों) ने इस फ़ाइल को दुर्भावनापूर्ण के रूप में फ़्लैग किया है।</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d इंजन(इंजनों) ने इस फ़ाइल को संदिग्ध के रूप में फ़्लैग किया है।</string>
     <string name="dialog_risk_footer">तभी आगे बढ़ें जब आपको इस फ़ाइल के स्रोत पर भरोसा हो।</string>

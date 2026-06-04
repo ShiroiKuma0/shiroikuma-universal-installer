@@ -485,7 +485,6 @@
     <string name="dialog_risk_title_severe">Цей APK виглядає небезпечним</string>
     <string name="dialog_risk_proceed_warn">Все одно встановити</string>
     <string name="dialog_risk_proceed_severe">Встановити на власний ризик</string>
-    <string name="dialog_risk_downgrade">Зниження версії: %1$s → %2$s. Існуючі дані додатка можуть бути видалені.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d рушій(їв) позначили цей файл як шкідливий.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d рушій(їв) позначили цей файл як підозрілий.</string>
     <string name="dialog_risk_footer">Продовжуйте, лише якщо ви довіряєте джерелу цього файлу.</string>

@@ -34,12 +34,6 @@ import app.pwhs.universalinstaller.domain.model.VtStatus
  * informational states (CLEAN, SCANNING, NOT_FOUND, etc.) don't trigger this gate.
  */
 sealed interface InstallRisk {
-    /** The APK's versionCode is lower than the installed package's. */
-    data class Downgrade(
-        val installedVersionName: String,
-        val newVersionName: String,
-    ) : InstallRisk
-
     /** VirusTotal flagged the APK as malicious — N engines reported a threat. */
     data class VtMalicious(val engineCount: Int) : InstallRisk
 
@@ -48,14 +42,12 @@ sealed interface InstallRisk {
 }
 
 fun detectInstallRisks(apkInfo: ApkInfo): List<InstallRisk> {
+    // A downgrade is NOT a data-loss risk here: installs go through ackpine with
+    // INSTALL_REQUEST_DOWNGRADE (Shizuku/Root), which downgrades the package in place and preserves
+    // its data — nothing in the install path uninstalls or runs `pm clear`. The downgrade is already
+    // surfaced neutrally (the "⚠ Downgrade" subtitle, the chip, and the red Downgrade button), so it
+    // no longer gates behind this scary confirmation. Only genuine risks (VirusTotal verdicts) do.
     val risks = mutableListOf<InstallRisk>()
-    val installedCode = apkInfo.installedVersionCode
-    if (installedCode != null && installedCode > 0 && apkInfo.versionCode < installedCode) {
-        risks += InstallRisk.Downgrade(
-            installedVersionName = apkInfo.installedVersionName.orEmpty().ifBlank { "?" },
-            newVersionName = apkInfo.versionName.ifBlank { "?" },
-        )
-    }
     when (apkInfo.vtResult?.status) {
         VtStatus.MALICIOUS -> risks += InstallRisk.VtMalicious(apkInfo.vtResult.malicious)
         VtStatus.SUSPICIOUS -> risks += InstallRisk.VtSuspicious(apkInfo.vtResult.suspicious)
@@ -122,8 +114,6 @@ fun RiskConfirmDialog(
 @Composable
 private fun RiskRow(risk: InstallRisk) {
     val (icon: ImageVector, line: String) = when (risk) {
-        is InstallRisk.Downgrade -> Icons.Rounded.Warning to
-            stringResource(R.string.dialog_risk_downgrade, risk.installedVersionName, risk.newVersionName)
         is InstallRisk.VtMalicious -> Icons.Rounded.Security to
             stringResource(R.string.dialog_risk_vt_malicious, risk.engineCount)
         is InstallRisk.VtSuspicious -> Icons.Rounded.Warning to

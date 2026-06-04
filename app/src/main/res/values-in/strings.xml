@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">APK ini terlihat berbahaya</string>
     <string name="dialog_risk_proceed_warn">Tetap instal</string>
     <string name="dialog_risk_proceed_severe">Instal dengan risiko ditanggung sendiri</string>
-    <string name="dialog_risk_downgrade">Turunkan versi: %1$s → %2$s. Data aplikasi yang ada mungkin dihapus.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d mesin menandai file ini sebagai berbahaya.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d mesin menandai file ini sebagai mencurigakan.</string>
     <string name="dialog_risk_footer">Lanjutkan hanya jika Anda memercayai sumber file ini.</string>

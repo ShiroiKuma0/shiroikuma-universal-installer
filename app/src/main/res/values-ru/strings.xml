@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">Этот APK выглядит опасным</string>
     <string name="dialog_risk_proceed_warn">Все равно установить</string>
     <string name="dialog_risk_proceed_severe">Установить на свой страх и риск</string>
-    <string name="dialog_risk_downgrade">Понижение версии: %1$s → %2$s. Существующие данные приложения могут быть удалены.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d движок(ов) пометили этот файл как вредоносный.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d движок(ов) пометили этот файл как подозрительный.</string>
     <string name="dialog_risk_footer">Продолжайте только если доверяете источнику этого файла.</string>

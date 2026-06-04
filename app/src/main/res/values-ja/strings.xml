@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">この APK は危険である可能性があります</string>
     <string name="dialog_risk_proceed_warn">とにかくインストール</string>
     <string name="dialog_risk_proceed_severe">自己責任でインストール</string>
-    <string name="dialog_risk_downgrade">ダウングレード: %1$s → %2$s。既存のアプリデータが消去される可能性があります。</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d つのエンジンがこのファイルを悪意のあるものとしてフラグ付けしました。</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d つのエンジンがこのファイルを疑わしいものとしてフラグ付けしました。</string>
     <string name="dialog_risk_footer">このファイルの提供元を信頼する場合にのみ続行してください。</string>

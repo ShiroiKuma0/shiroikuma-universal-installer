@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">이 APK는 위험해 보입니다</string>
     <string name="dialog_risk_proceed_warn">무시하고 설치</string>
     <string name="dialog_risk_proceed_severe">위험을 감수하고 설치</string>
-    <string name="dialog_risk_downgrade">다운그레이드: %1$s → %2$s. 기존 앱 데이터가 삭제될 수 있습니다.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d개의 엔진이 이 파일을 악성으로 플래그 지정했습니다.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d개의 엔진이 이 파일을 의심스러운 것으로 플래그 지정했습니다.</string>
     <string name="dialog_risk_footer">이 파일의 출처를 신뢰하는 경우에만 계속하세요.</string>

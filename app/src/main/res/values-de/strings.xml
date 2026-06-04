@@ -450,7 +450,6 @@
     <string name="dialog_risk_title_severe">Diese APK sieht gefährlich aus</string>
     <string name="dialog_risk_proceed_warn">Trotzdem installieren</string>
     <string name="dialog_risk_proceed_severe">Auf eigenes Risiko installieren</string>
-    <string name="dialog_risk_downgrade">Downgrade: %1$s → %2$s. Vorhandene App-Daten können gelöscht werden.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d Engine(s) hat/haben diese Datei als bösartig eingestuft.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d Engine(s) hat/haben diese Datei als verdächtig eingestuft.</string>
     <string name="dialog_risk_footer">Fahren Sie nur fort</string>

@@ -104,6 +104,7 @@ import app.pwhs.universalinstaller.domain.model.VtEngineResult
 import app.pwhs.universalinstaller.domain.model.VtResult
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
+import app.pwhs.universalinstaller.ui.theme.technicalFontFamily
 
 /**
  * How much of the screen the scrollable detail area may take, following the shape `FoundApksSheet`
@@ -214,6 +215,7 @@ internal fun ApkInfoContent(
                 text = apkInfo.packageName,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontFamily = technicalFontFamily(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -1019,7 +1021,7 @@ internal fun InfoChip(label: String, leadingIcon: @Composable (() -> Unit)? = nu
 internal fun InfoRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(0.4f))
-        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, modifier = Modifier.weight(0.6f), textAlign = TextAlign.End)
+        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, fontFamily = technicalFontFamily(), modifier = Modifier.weight(0.6f), textAlign = TextAlign.End)
     }
 }
 

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Badge
+import androidx.compose.material.icons.rounded.Brush
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
@@ -333,6 +334,7 @@ private fun SettingUi(
             )
             val interfaceLabels = listOf(
                 "interface",
+                stringResource(R.string.shiroikuma_ui_title),
                 stringResource(R.string.theme_screen_title),
                 stringResource(R.string.setting_language_title),
             )

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Brush
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material3.HorizontalDivider
@@ -31,6 +32,26 @@ internal fun LazyListScope.InterfaceSection(
 ) {
     if (matchesQuery(q, interfaceLabels)) item {
         SettingsSection(title = stringResource(R.string.setting_section_interface), icon = Icons.Rounded.Palette) {
+            SearchableItem(q, stringResource(R.string.shiroikuma_ui_title), stringResource(R.string.shiroikuma_ui_subtitle)) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.shiroikuma_ui_title)) },
+                    supportingContent = {
+                        Text(
+                            text = stringResource(R.string.shiroikuma_ui_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    leadingContent = { Icon(Icons.Rounded.Brush, null, tint = MaterialTheme.colorScheme.primary) },
+                    modifier = Modifier.clickable {
+                        context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.ui.InstallerUiActivity::class.java))
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                )
+            }
+            if (q.isBlank()) {
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+            }
             SearchableItem(q, stringResource(R.string.theme_screen_title), "interface theme") {
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.theme_screen_title)) },

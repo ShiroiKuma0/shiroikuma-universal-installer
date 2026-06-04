@@ -689,4 +689,40 @@
     <string name="manage_action_check_vt_sub">Scan the installed APK</string>
     <string name="manage_action_installer_source">Installed by %1$s</string>
     <string name="manage_action_installer_source_sub">Sideloaded / Unknown source</string>
+
+    <!-- 白い熊 Installer UI page -->
+    <string name="shiroikuma_ui_title">白い熊 Installer UI</string>
+    <string name="shiroikuma_ui_subtitle">Fonts, colors &amp; shape for this fork</string>
+    <string name="ui_section_typeface">Typeface</string>
+    <string name="ui_section_color">Color</string>
+    <string name="ui_section_shape">Shape</string>
+    <string name="theme_font">Font</string>
+    <string name="theme_weight">Weight</string>
+    <string name="theme_size">Text size</string>
+    <string name="theme_add_font">Add font…</string>
+    <string name="font_system_default">System default</string>
+    <string name="font_monospace">Monospace</string>
+    <string name="font_invalid">Please pick a .ttf or .otf font file</string>
+    <string name="font_sample_text" translatable="false">AaIiMmOoQqWw 012 白い熊相撲道 áÁčČďĎéÉěĚíÍňŇóÓřŘšŠťŤúÚůŮýÝžŽ</string>
+    <string name="font_weight_default">Default</string>
+    <string name="font_weight_thin">Thin (100)</string>
+    <string name="font_weight_light">Light (300)</string>
+    <string name="font_weight_regular">Regular (400)</string>
+    <string name="font_weight_medium">Medium (500)</string>
+    <string name="font_weight_semibold">SemiBold (600)</string>
+    <string name="font_weight_bold">Bold (700)</string>
+    <string name="font_weight_black">Black (900)</string>
+    <string name="ui_mono_technical_title">Monospace for technical text</string>
+    <string name="ui_mono_technical_subtitle">Show package names, versions and hashes in a monospaced font</string>
+    <string name="ui_accent_color">Accent color</string>
+    <string name="ui_accent_custom">Custom…</string>
+    <string name="ui_accent_reset">Reset to default accent</string>
+    <string name="ui_corner_roundness">Corner roundness</string>
+    <string name="ui_open_theme">Theme &amp; dark mode</string>
+    <string name="ui_open_theme_sub">Light / dark, dynamic color, AMOLED</string>
+    <string name="ui_color_picker_title">Pick a color</string>
+    <string name="ui_hue">Hue</string>
+    <string name="ui_saturation">Saturation</string>
+    <string name="ui_brightness">Brightness</string>
+    <string name="ui_hex">Hex</string>
 </resources>

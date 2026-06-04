@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Badge
+import androidx.compose.material.icons.rounded.Brush
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Fingerprint
@@ -238,6 +239,7 @@ private fun SettingUi(
             )
             val interfaceLabels = listOf(
                 "interface",
+                stringResource(R.string.shiroikuma_ui_title),
                 stringResource(R.string.theme_screen_title),
                 stringResource(R.string.setting_language_title),
             )
@@ -529,6 +531,26 @@ private fun SettingUi(
                 // ── Interface Section ────────────────────────
                 if (matchesQuery(q, interfaceLabels)) item {
                     SettingsSection(title = stringResource(R.string.setting_section_interface), icon = Icons.Rounded.Palette) {
+                        SearchableItem(q, stringResource(R.string.shiroikuma_ui_title), stringResource(R.string.shiroikuma_ui_subtitle)) {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.shiroikuma_ui_title)) },
+                                supportingContent = {
+                                    Text(
+                                        text = stringResource(R.string.shiroikuma_ui_subtitle),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                },
+                                leadingContent = { Icon(Icons.Rounded.Brush, null, tint = MaterialTheme.colorScheme.primary) },
+                                modifier = Modifier.clickable {
+                                    context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.ui.InstallerUiActivity::class.java))
+                                },
+                                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                            )
+                        }
+                        if (q.isBlank()) {
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                        }
                         SearchableItem(q, stringResource(R.string.theme_screen_title), "interface theme") {
                             ListItem(
                                 headlineContent = { Text(stringResource(R.string.theme_screen_title)) },

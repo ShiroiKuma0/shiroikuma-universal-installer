@@ -1,6 +1,8 @@
 *.iml
 .gradle
 /local.properties
+# Fork signing credentials — never commit (see CLAUDE.md → Signing).
+/key.properties
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml

@@ -27,9 +27,11 @@ import app.pwhs.core.domain.ThemeMode
 import app.pwhs.core.presentation.onboarding.OnboardingScreen
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.presentation.splash.SplashActivity
+import app.pwhs.universalinstaller.base.toAppThemeState
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
+import app.pwhs.universalinstaller.ui.theme.composeFontFamily
 import app.pwhs.universalinstaller.util.LocaleHelper
-import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.compose.ui.text.font.FontWeight
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import androidx.core.content.pm.ShortcutInfoCompat
@@ -66,15 +68,16 @@ class MainActivity : ComponentActivity() {
         val showOnboarding = !isDeepLink &&
             intent?.getBooleanExtra(SplashActivity.EXTRA_SHOW_ONBOARDING, false) == true
         setContent {
-            val themeModeFlow = remember {
-                dataStore.data.map { prefs ->
-                    val name = prefs[stringPreferencesKey("theme_mode")] ?: ThemeMode.System.name
-                    ThemeMode.entries.find { it.name == name } ?: ThemeMode.System
-                }
+            val initialState = remember {
+                kotlinx.coroutines.runBlocking { dataStore.data.first().toAppThemeState() }
             }
-            val themeMode by themeModeFlow.collectAsState(initial = ThemeMode.System)
+            val themeStateFlow = remember { dataStore.data.map { it.toAppThemeState() } }
+            val themeState by themeStateFlow.collectAsState(initial = initialState)
+            val customFontFamily = remember(themeState.fontFamily) {
+                composeFontFamily(this@MainActivity, themeState.fontFamily)
+            }
 
-            val darkTheme = when (themeMode) {
+            val darkTheme = when (themeState.mode) {
                 ThemeMode.System -> isSystemInDarkTheme()
                 ThemeMode.Light -> false
                 ThemeMode.Dark -> true
@@ -106,7 +109,18 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(if (showOnboarding) AppRoute.Onboarding else AppRoute.Main)
             }
 
-            UniversalInstallerTheme(darkTheme = darkTheme) {
+            UniversalInstallerTheme(
+                darkTheme = darkTheme,
+                dynamicColor = themeState.dynamicColor,
+                amoledMode = themeState.amoledMode,
+                fontFamily = customFontFamily,
+                fontWeight = themeState.fontWeight.takeIf { it in 100..1000 }?.let { FontWeight(it) },
+                fontScale = themeState.fontScale,
+                accentColor = themeState.accentColor.takeIf { it != 0 }
+                    ?.let { androidx.compose.ui.graphics.Color(it) },
+                cornerScale = themeState.cornerScale,
+                monoTechnical = themeState.monoTechnical,
+            ) {
                 when (currentRoute) {
                     AppRoute.Onboarding -> OnboardingScreen(
                         onFinish = { currentRoute = AppRoute.Main },

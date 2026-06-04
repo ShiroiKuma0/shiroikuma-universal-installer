@@ -18,6 +18,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import app.pwhs.core.domain.AppThemePreset
@@ -191,6 +193,10 @@ data class ExtendedColors(
 
 val LocalExtendedColors = staticCompositionLocalOf { ExtendedColors() }
 
+// True when the user enabled "monospace for technical text" on the 白い熊 Installer UI page;
+// read by [technicalFontFamily] at the package-name / version / hash text slots.
+val LocalMonoTechnical = staticCompositionLocalOf { false }
+
 private val LightExtendedColors = ExtendedColors(
     warning = WarningLight,
     onWarning = Color(0xFFFFFFFF),
@@ -211,6 +217,13 @@ fun UniversalInstallerTheme(
     dynamicColor: Boolean = false,
     amoledMode: Boolean = false,
     themePreset: AppThemePreset = AppThemePreset.Orange,
+    // 白い熊 Installer UI customizations (see the InstallerUi page). Defaults reproduce stock theming.
+    fontFamily: FontFamily? = null,
+    fontWeight: FontWeight? = null,
+    fontScale: Float = 1f,
+    accentColor: Color? = null,
+    cornerScale: Float = 1f,
+    monoTechnical: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -235,6 +248,9 @@ fun UniversalInstallerTheme(
         } else {
             baseScheme
         }
+    }.let { scheme ->
+        // A user-chosen accent overrides the primary group last, on top of static/dynamic/AMOLED.
+        if (accentColor != null) scheme.withAccent(accentColor, darkTheme) else scheme
     }
 
     val extendedColors = if (darkTheme) DarkExtendedColors else LightExtendedColors
@@ -248,12 +264,13 @@ fun UniversalInstallerTheme(
 
     CompositionLocalProvider(
         LocalExtendedColors provides extendedColors,
+        LocalMonoTechnical provides monoTechnical,
         LocalDensity provides customDensity
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = Typography,
-            shapes = ExpressiveShapes,
+            typography = buildAppTypography(Typography, fontFamily, fontWeight, fontScale),
+            shapes = appShapes(cornerScale),
             content = content
         )
     }

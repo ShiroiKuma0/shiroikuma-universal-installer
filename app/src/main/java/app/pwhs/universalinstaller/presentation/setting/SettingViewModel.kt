@@ -8,6 +8,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
@@ -137,6 +138,20 @@ object PreferencesKeys {
     // Installer Profiles
     val INSTALLER_PROFILES = stringPreferencesKey("installer_profiles")
     val APP_PROFILE_MAPPING = stringPreferencesKey("app_profile_mapping")
+
+    // ── 白い熊 Installer UI — look & feel (see presentation/setting/ui) ──────────────────
+    /** "" = system default, "@monospace" = monospace, else an imported .ttf/.otf filename. */
+    val UI_FONT_FAMILY = stringPreferencesKey("ui_font_family")
+    /** 0 = family default, else 100–900 (see FontWeightOption). */
+    val UI_FONT_WEIGHT = intPreferencesKey("ui_font_weight")
+    /** Text-size multiplier applied to every Material text style; 1.0 = default. */
+    val UI_FONT_SCALE = floatPreferencesKey("ui_font_scale")
+    /** Force a monospaced font for technical text (package names, versions, hashes). */
+    val UI_MONO_TECHNICAL = booleanPreferencesKey("ui_mono_technical")
+    /** ARGB accent override; 0 / absent = use the scheme's own primary. */
+    val UI_ACCENT_COLOR = intPreferencesKey("ui_accent_color")
+    /** Corner-radius multiplier for the app's shapes; 1.0 = default. */
+    val UI_CORNER_SCALE = floatPreferencesKey("ui_corner_scale")
 }
 
 data class SyncOptions(

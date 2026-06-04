@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Universal Installer</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="txt_install">Instalează</string>
     <string name="txt_manage">Gestionează</string>
     <string name="txt_setting">Setări</string>

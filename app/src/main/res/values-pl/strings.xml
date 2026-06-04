@@ -539,7 +539,6 @@
     <string name="dialog_risk_title_severe">Ten plik APK wygląda na niebezpieczny</string>
     <string name="dialog_risk_proceed_warn">Zainstaluj mimo to</string>
     <string name="dialog_risk_proceed_severe">Zainstaluj na własne ryzyko</string>
-    <string name="dialog_risk_downgrade">Starsza wersja: %1$s → %2$s. Istniejące dane aplikacji mogą zostać usunięte.</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$d silnik(ów) oznaczyło ten plik jako złośliwy.</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$d silnik(ów) oznaczyło ten plik jako podejrzany.</string>
     <string name="dialog_risk_vt_unscanned">Skanowanie VirusTotal nie zostało zakończone</string>

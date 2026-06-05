@@ -47,6 +47,9 @@ import app.pwhs.universalinstaller.presentation.install.DialogStage
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
 import app.pwhs.universalinstaller.presentation.install.InstallUiState
 import app.pwhs.universalinstaller.presentation.install.InstallViewModel
+import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
+import app.pwhs.universalinstaller.ui.theme.ThemedSurface
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
 import app.pwhs.universalinstaller.util.SystemIntentInstaller
 import app.pwhs.universalinstaller.util.WindowBlurEffect
@@ -167,6 +170,7 @@ fun DialogInstallContent(
         amoledMode = amoledMode,
         themePreset = themePreset,
     ) {
+        ThemedSurface(AppSurface.Dialog) {
         val configuration = LocalConfiguration.current
         val screenHeight = configuration.screenHeightDp.dp
         val maxDialogHeight = screenHeight * 0.8f
@@ -226,6 +230,7 @@ fun DialogInstallContent(
                         },
                     shape = if (isSheet) FLOATING_SHEET_SHAPE else AlertDialogDefaults.shape,
                     color = if (isSheet) BottomSheetDefaults.ContainerColor else AlertDialogDefaults.containerColor,
+                    border = LocalSurfaceBorder.current,
                     tonalElevation = if (isSheet) BottomSheetDefaults.Elevation else AlertDialogDefaults.TonalElevation,
                     shadowElevation = if (isSheet) 0.dp else 12.dp,
                 ) {
@@ -305,6 +310,7 @@ fun DialogInstallContent(
                     }
                 }
             }
+        }
         }
     }
 }

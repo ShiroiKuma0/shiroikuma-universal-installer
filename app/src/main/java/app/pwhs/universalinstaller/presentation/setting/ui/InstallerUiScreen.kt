@@ -22,9 +22,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RoundedCorner
 import androidx.compose.material.icons.rounded.TextFields
+import androidx.compose.material.icons.rounded.WebAsset
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,6 +63,7 @@ import app.pwhs.universalinstaller.presentation.composable.ColorPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.ColorSwatch
 import app.pwhs.universalinstaller.presentation.composable.FontPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
+import app.pwhs.universalinstaller.ui.theme.AppSurface
 import app.pwhs.universalinstaller.ui.theme.FontWeightOption
 import app.pwhs.universalinstaller.ui.theme.composeFontFamily
 import app.pwhs.universalinstaller.ui.theme.fontDisplayName
@@ -78,6 +81,9 @@ fun InstallerUiScreen(
     viewModel: InstallerUiViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+    val dialogTheme by viewModel.dialogTheme.collectAsState()
+    val mainTheme by viewModel.mainTheme.collectAsState()
+    val recents by viewModel.recentColors.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -87,17 +93,26 @@ fun InstallerUiScreen(
     var showColorPicker by remember { mutableStateOf(false) }
 
     val invalidFontMessage = stringResource(R.string.font_invalid)
+    // Where a just-imported font should be applied (global / surface / per-button). Set before launching.
+    var pendingFontApply by remember { mutableStateOf<((String) -> Unit)?>(null) }
     val pickFontLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
+        val apply = pendingFontApply
+        pendingFontApply = null
         if (uri != null) {
             val name = context.importFont(uri)
             if (name != null) {
-                viewModel.setFontFamily(name)
+                (apply ?: { viewModel.setFontFamily(it) }).invoke(name)
             } else {
                 scope.launch { snackbarHostState.showSnackbar(invalidFontMessage) }
             }
         }
+    }
+    // Open the system file picker and apply the imported font via [apply]. Shared by every font picker.
+    val requestFontImport: ((String) -> Unit) -> Unit = { apply ->
+        pendingFontApply = apply
+        pickFontLauncher.launch(arrayOf("*/*"))
     }
 
     Scaffold(
@@ -160,7 +175,7 @@ fun InstallerUiScreen(
 
                     SubHeader(stringResource(R.string.theme_weight))
                     FlowRow(
-                        modifier = Modifier.padding(start = 28.dp, end = 16.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(start = 72.dp, end = 16.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         FontWeightOption.entries.forEach { option ->
@@ -207,7 +222,7 @@ fun InstallerUiScreen(
                 SettingsSection(title = stringResource(R.string.ui_section_color), icon = Icons.Rounded.Palette) {
                     SubHeader(stringResource(R.string.ui_accent_color))
                     FlowRow(
-                        modifier = Modifier.padding(start = 28.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(start = 72.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
@@ -251,13 +266,39 @@ fun InstallerUiScreen(
                     // Live preview — uses the global shapes, which re-theme as the slider moves.
                     Card(
                         modifier = Modifier
-                            .padding(start = 28.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
+                            .padding(start = 72.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = MaterialTheme.shapes.large,
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                     ) {}
                 }
+            }
+
+            // ── Per-surface overrides: install dialog & main page ───────
+            item {
+                SurfaceThemeSection(
+                    title = stringResource(R.string.ui_section_dialog),
+                    icon = Icons.Rounded.WebAsset,
+                    theme = dialogTheme,
+                    onChange = { viewModel.setSurfaceTheme(AppSurface.Dialog, it) },
+                    recents = recents,
+                    onRecordRecent = viewModel::recordRecentColor,
+                    onRequestFontImport = requestFontImport,
+                    showBorder = true,
+                    showButtons = true,
+                )
+            }
+            item {
+                SurfaceThemeSection(
+                    title = stringResource(R.string.ui_section_main),
+                    icon = Icons.Rounded.Home,
+                    theme = mainTheme,
+                    onChange = { viewModel.setSurfaceTheme(AppSurface.Main, it) },
+                    recents = recents,
+                    onRecordRecent = viewModel::recordRecentColor,
+                    onRequestFontImport = requestFontImport,
+                )
             }
 
             // ── Link to the stock Theme screen ──────────────────────────
@@ -287,7 +328,7 @@ fun InstallerUiScreen(
             onDismiss = { showFontPicker = false },
             onAddFont = {
                 showFontPicker = false
-                pickFontLauncher.launch(arrayOf("*/*"))
+                requestFontImport { viewModel.setFontFamily(it) }
             },
             onPick = { fileName ->
                 showFontPicker = false
@@ -300,10 +341,12 @@ fun InstallerUiScreen(
         val initial = if (state.accentColor != 0) Color(state.accentColor) else MaterialTheme.colorScheme.primary
         ColorPickerDialog(
             initial = initial,
+            recents = recents,
             onDismiss = { showColorPicker = false },
             onPick = { picked ->
                 showColorPicker = false
                 viewModel.setAccentColor(picked.toArgbInt())
+                viewModel.recordRecentColor(picked.toArgbInt())
             },
         )
     }
@@ -317,7 +360,7 @@ private fun SubHeader(text: String) {
         text = text,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 20.dp, top = 12.dp, bottom = 2.dp),
+        modifier = Modifier.padding(start = 36.dp, top = 12.dp, bottom = 2.dp),
     )
 }
 
@@ -330,7 +373,7 @@ private fun IndentRow(
         modifier = Modifier
             .fillMaxWidth()
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
-            .padding(start = 28.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = 72.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         content = content,
     )
@@ -344,7 +387,7 @@ private fun SliderRow(
     valueLabel: String,
     onChange: (Float) -> Unit,
 ) {
-    Column(Modifier.padding(start = 28.dp, end = 16.dp, bottom = 8.dp)) {
+    Column(Modifier.padding(start = 72.dp, end = 16.dp, bottom = 8.dp)) {
         Text(valueLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Slider(value = value, onValueChange = onChange, valueRange = valueRange, steps = steps)
     }

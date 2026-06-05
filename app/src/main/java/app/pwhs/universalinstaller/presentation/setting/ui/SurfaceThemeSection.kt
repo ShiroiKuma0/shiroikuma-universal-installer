@@ -126,6 +126,7 @@ fun SurfaceThemeSection(
     onRecordRecent: (Int) -> Unit,
     onRequestFontImport: ((String) -> Unit) -> Unit,
     showBorder: Boolean = false,
+    showProgress: Boolean = false,
     showButtons: Boolean = false,
     showTexts: Boolean = false,
 ) {
@@ -152,6 +153,25 @@ fun SurfaceThemeSection(
                 colorEdit = ColorEdit(theme.borderColor) { onChange(theme.copy(borderColor = it)) }
             }
             WidthSlider(L2, theme.borderWidth) { onChange(theme.copy(borderWidth = it)) }
+        }
+
+        if (showProgress) {
+            SubHeader(stringResource(R.string.ui_section_progress))
+            Text(
+                text = stringResource(R.string.ui_progress_hint),
+                style = MaterialTheme.typography.bodySmall,
+                fontStyle = FontStyle.Italic,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
+            )
+            ColorRow(L2, stringResource(R.string.ui_progress_color), theme.progressColor) {
+                colorEdit = ColorEdit(theme.progressColor) { onChange(theme.copy(progressColor = it)) }
+            }
+            WidthSlider(
+                L2, theme.progressThickness,
+                labelRes = R.string.ui_progress_thickness,
+                valueRange = 1f..16f, steps = 14, nullValue = 4f,
+            ) { onChange(theme.copy(progressThickness = it)) }
         }
 
         if (showButtons) {
@@ -370,11 +390,19 @@ private fun WeightChips(indent: Int, weight: Int?, onChange: (Int?) -> Unit) {
 }
 
 @Composable
-private fun WidthSlider(indent: Int, value: Float?, onChange: (Float?) -> Unit) {
+private fun WidthSlider(
+    indent: Int,
+    value: Float?,
+    @StringRes labelRes: Int = R.string.ui_border_width,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..6f,
+    steps: Int = 11,
+    nullValue: Float = 0f,
+    onChange: (Float?) -> Unit,
+) {
     Column(Modifier.padding(start = indent.dp, end = 16.dp, bottom = 8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = value?.let { "${stringResource(R.string.ui_border_width)} — ${"%.1f".format(it)} dp" }
+                text = value?.let { "${stringResource(labelRes)} — ${"%.1f".format(it)} dp" }
                     ?: stringResource(R.string.ui_inherit),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -384,7 +412,7 @@ private fun WidthSlider(indent: Int, value: Float?, onChange: (Float?) -> Unit) 
                 TextButton(onClick = { onChange(null) }) { Text(stringResource(R.string.ui_inherit)) }
             }
         }
-        Slider(value = value ?: 0f, onValueChange = { onChange(it) }, valueRange = 0f..6f, steps = 11)
+        Slider(value = value ?: nullValue, onValueChange = { onChange(it) }, valueRange = valueRange, steps = steps)
     }
 }
 

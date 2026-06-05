@@ -58,6 +58,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.ThemedSurface
 import app.pwhs.universalinstaller.data.local.InstallHistoryEntity
 import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
 import app.pwhs.universalinstaller.presentation.composable.SessionCard
@@ -153,6 +155,7 @@ fun InstallScreen(
         )
     }
 
+    ThemedSurface(AppSurface.Main) {
     InstallUi(
         modifier = modifier,
         uiState = uiState,
@@ -238,6 +241,7 @@ fun InstallScreen(
         onToggleAllUsers = viewModel::setAllUsers,
         onSelectUserId = viewModel::setUserId,
     )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

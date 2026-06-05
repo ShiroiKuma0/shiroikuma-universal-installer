@@ -47,9 +47,10 @@ flavor, **not** the Play `store` flavor). Identity: app id `shiroikuma.universal
 
 1. **Note the output filename.** Read the current version and build number from `gradle.properties`:
    - `grep -E 'VERSION_NAME|VERSION_CODE|BUILD_NUMBER' gradle.properties`
-   - The APK will be `shiroikuma-universalinstaller_<VERSION_NAME>+<BUILD_NUMBER>.apk`, using the
+   - The APK will be `shiroikuma-universal-installer_<VERSION_NAME>+<BUILD_NUMBER>.apk`, using the
      `BUILD_NUMBER` value **before** the build (the task bumps it afterward), e.g.
-     `shiroikuma-universalinstaller_1.8.2+1.apk`.
+     `shiroikuma-universal-installer_1.8.2+1.apk`. (All files produced by this fork — the APK and any
+     in-app exports — use the hyphenated `shiroikuma-universal-installer_` prefix.)
    - versionCode for that build = `VERSION_CODE * 10000 + BUILD_NUMBER` (e.g. `16*10000+1 = 160001`).
 
 2. **Build** (needs JDK 21 — the default `java` on this machine is JDK 11, and the non-interactive shell

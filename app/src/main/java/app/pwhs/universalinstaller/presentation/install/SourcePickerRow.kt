@@ -55,6 +55,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalResources
 import androidx.core.content.getSystemService
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 enum class SourceTab { Local, Download }
 
@@ -150,6 +152,7 @@ private fun SourceTabPill(
             onClick = onClick,
             modifier = modifier.heightIn(min = 52.dp),
             shape = RoundedCornerShape(26.dp),
+            border = LocalSurfaceBorder.current,
             colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -157,20 +160,21 @@ private fun SourceTabPill(
         ) {
             Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
             Spacer(Modifier.size(8.dp))
-            Text(label, style = MaterialTheme.typography.titleMedium)
+            Text(label, style = dialogTextStyle("tab", MaterialTheme.typography.titleMedium))
         }
     } else {
         OutlinedButton(
             onClick = onClick,
             modifier = modifier.heightIn(min = 52.dp),
             shape = RoundedCornerShape(26.dp),
+            border = LocalSurfaceBorder.current ?: ButtonDefaults.outlinedButtonBorder(enabled = true),
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
         ) {
             Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
             Spacer(Modifier.size(8.dp))
-            Text(label, style = MaterialTheme.typography.titleMedium)
+            Text(label, style = dialogTextStyle("tab", MaterialTheme.typography.titleMedium))
         }
     }
 }
@@ -263,6 +267,7 @@ private fun LocalSourceAction(
             .defaultMinSize(minHeight = 64.dp),
         enabled = enabled,
         shape = RoundedCornerShape(16.dp),
+        border = LocalSurfaceBorder.current ?: ButtonDefaults.outlinedButtonBorder(enabled = enabled),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             horizontal = 16.dp, vertical = 12.dp,
         ),
@@ -284,13 +289,11 @@ private fun LocalSourceAction(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    style = dialogTextStyle("option_title", MaterialTheme.typography.titleSmall, MaterialTheme.colorScheme.onSurface),
                 )
                 Text(
                     text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = dialogTextStyle("option_desc", MaterialTheme.typography.bodySmall, MaterialTheme.colorScheme.onSurfaceVariant),
                 )
             }
             Icon(

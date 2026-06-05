@@ -772,7 +772,8 @@
     <string name="ui_txt_color">Text color</string>
     <string name="ui_txt_app_label">App label</string>
     <string name="ui_txt_package_name">Package name</string>
-    <string name="ui_txt_version">Version</string>
+    <string name="ui_txt_version">Version (new / incoming)</string>
+    <string name="ui_txt_version_old">Version (old / installed)</string>
     <string name="ui_txt_file_size">File size</string>
     <string name="ui_txt_chip">Chips</string>
     <string name="ui_txt_status_title">Status title</string>
@@ -786,4 +787,15 @@
     <string name="ui_txt_option_title">Option title</string>
     <string name="ui_txt_option_desc">Option description</string>
     <string name="ui_txt_permission">Permission</string>
+    <string name="ui_group_main_page">Main page</string>
+    <string name="ui_txt_storage_label">Storage label</string>
+    <string name="ui_txt_storage_value">Storage value (free / total)</string>
+    <string name="ui_role_top_icon">Top bar icons</string>
+    <string name="ui_section_bottom_bar">Bottom navigation bar</string>
+    <string name="ui_bottom_bar_container">Bar background</string>
+    <string name="ui_bottom_bar_selected_icon">Selected icon</string>
+    <string name="ui_bottom_bar_selected_text">Selected text</string>
+    <string name="ui_bottom_bar_indicator">Selected indicator</string>
+    <string name="ui_bottom_bar_unselected_icon">Unselected icon</string>
+    <string name="ui_bottom_bar_unselected_text">Unselected text</string>
 </resources>

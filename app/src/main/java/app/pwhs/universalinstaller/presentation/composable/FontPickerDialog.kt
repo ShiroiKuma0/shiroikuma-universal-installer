@@ -33,6 +33,8 @@ fun FontPickerDialog(
     onDismiss: () -> Unit,
     onAddFont: () -> Unit,
     onPick: (fileName: String) -> Unit,
+    // When non-null, an "Inherit (global)" row is shown first (used by per-surface overrides).
+    onInherit: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val options = remember { context.availableFontOptions() }
@@ -54,6 +56,17 @@ fun FontPickerDialog(
                         .heightIn(max = 420.dp)
                         .verticalScroll(rememberScrollState()),
                 ) {
+                    if (onInherit != null) {
+                        Text(
+                            text = stringResource(R.string.ui_inherit),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onInherit() }
+                                .padding(horizontal = 24.dp, vertical = 14.dp),
+                        )
+                    }
                     options.forEach { option ->
                         Text(
                             text = option.displayName,

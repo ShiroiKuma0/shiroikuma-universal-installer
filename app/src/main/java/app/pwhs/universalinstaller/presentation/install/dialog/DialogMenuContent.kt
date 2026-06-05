@@ -96,6 +96,7 @@ import androidx.datastore.preferences.core.edit
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.DialogActionButton
 import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.SplitEntry
 import app.pwhs.universalinstaller.domain.model.SplitType
@@ -328,8 +329,11 @@ fun DialogMenuContent(
                     text = {
                         Text(
                             text = title,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = dialogTextStyle(
+                                "tab",
+                                MaterialTheme.typography.labelLarge,
+                                if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
                             maxLines = 1,
                             softWrap = false,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis

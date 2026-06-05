@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 @Composable
 fun InstallTargetPicker(
@@ -136,14 +137,11 @@ private fun TargetOptionRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = dialogTextStyle("option_title", MaterialTheme.typography.bodyMedium.copy(fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal), MaterialTheme.colorScheme.onSurface),
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = dialogTextStyle("option_desc", MaterialTheme.typography.labelSmall, MaterialTheme.colorScheme.onSurfaceVariant),
             )
         }
     }

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 @Composable
 internal fun MenuCard(
@@ -54,22 +55,19 @@ internal fun MenuCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = title,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            style = dialogTextStyle("section_title", MaterialTheme.typography.titleSmall, MaterialTheme.colorScheme.onSurface),
                         )
                         if (badge != null) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = badge,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
+                                style = dialogTextStyle("section_title", MaterialTheme.typography.labelSmall, MaterialTheme.colorScheme.primary),
                             )
                         }
                     }
                     Text(
                         text = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = descriptionColor,
+                        style = dialogTextStyle("section_desc", MaterialTheme.typography.bodySmall, descriptionColor),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )

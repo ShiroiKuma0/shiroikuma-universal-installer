@@ -18,7 +18,7 @@ val forkVersionCode = project.property("VERSION_CODE").toString().toInt() * 1000
         project.property("BUILD_NUMBER").toString().toInt()
 
 base {
-    archivesName = "shiroikuma-universalinstaller_${forkVersionName}"
+    archivesName = "shiroikuma-universal-installer_${forkVersionName}"
 }
 
 android {
@@ -104,7 +104,7 @@ tasks.register("buildFork") {
     description = "Build the release APK, copy it to ~/tmp, and bump BUILD_NUMBER for next time."
     dependsOn("assembleRelease")
     doLast {
-        val apkName = "shiroikuma-universalinstaller_${forkVersionName}.apk"
+        val apkName = "shiroikuma-universal-installer_${forkVersionName}.apk"
         val outputDir = layout.buildDirectory.dir("outputs/apk/release").get().asFile
         val targetDir = File(System.getProperty("user.home"), "tmp")
         targetDir.mkdirs()

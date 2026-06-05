@@ -33,6 +33,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.presentation.install.dialog.components.DetailRow
 import app.pwhs.universalinstaller.presentation.install.dialog.components.MenuCard
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 internal fun androidx.compose.foundation.lazy.LazyListScope.infoTab(
     apkInfo: ApkInfo,
@@ -109,9 +110,7 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.infoTab(
                     apkInfo.supportedAbis.forEach { abi ->
                         Text(
                             text = abi,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = dialogTextStyle("detail_value", MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), MaterialTheme.colorScheme.onSurfaceVariant),
                         )
                     }
                 }
@@ -141,9 +140,7 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.infoTab(
                 ) {
                     Text(
                         text = apkInfo.sha256,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = dialogTextStyle("detail_value", MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), MaterialTheme.colorScheme.onSurfaceVariant),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedButton(

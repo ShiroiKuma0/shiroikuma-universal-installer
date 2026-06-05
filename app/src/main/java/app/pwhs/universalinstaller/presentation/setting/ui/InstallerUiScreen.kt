@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Home
@@ -83,6 +84,7 @@ fun InstallerUiScreen(
     val state by viewModel.uiState.collectAsState()
     val dialogTheme by viewModel.dialogTheme.collectAsState()
     val mainTheme by viewModel.mainTheme.collectAsState()
+    val bottomBarTheme by viewModel.bottomBarTheme.collectAsState()
     val recents by viewModel.recentColors.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -175,7 +177,7 @@ fun InstallerUiScreen(
 
                     SubHeader(stringResource(R.string.theme_weight))
                     FlowRow(
-                        modifier = Modifier.padding(start = 72.dp, end = 16.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(start = 108.dp, end = 16.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         FontWeightOption.entries.forEach { option ->
@@ -222,7 +224,7 @@ fun InstallerUiScreen(
                 SettingsSection(title = stringResource(R.string.ui_section_color), icon = Icons.Rounded.Palette) {
                     SubHeader(stringResource(R.string.ui_accent_color))
                     FlowRow(
-                        modifier = Modifier.padding(start = 72.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(start = 108.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
@@ -266,7 +268,7 @@ fun InstallerUiScreen(
                     // Live preview — uses the global shapes, which re-theme as the slider moves.
                     Card(
                         modifier = Modifier
-                            .padding(start = 72.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
+                            .padding(start = 108.dp, end = 16.dp, top = 4.dp, bottom = 16.dp)
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = MaterialTheme.shapes.large,
@@ -285,6 +287,7 @@ fun InstallerUiScreen(
                     recents = recents,
                     onRecordRecent = viewModel::recordRecentColor,
                     onRequestFontImport = requestFontImport,
+                    surface = AppSurface.Dialog,
                     showBorder = true,
                     showProgress = true,
                     showButtons = true,
@@ -300,6 +303,20 @@ fun InstallerUiScreen(
                     recents = recents,
                     onRecordRecent = viewModel::recordRecentColor,
                     onRequestFontImport = requestFontImport,
+                    surface = AppSurface.Main,
+                    showBorder = true,
+                    showProgress = true,
+                    showTexts = true,
+                )
+            }
+            item {
+                BottomBarThemeSection(
+                    title = stringResource(R.string.ui_section_bottom_bar),
+                    icon = Icons.Rounded.Apps,
+                    theme = bottomBarTheme,
+                    onChange = { viewModel.setBottomBarTheme(it) },
+                    recents = recents,
+                    onRecordRecent = viewModel::recordRecentColor,
                 )
             }
 
@@ -362,7 +379,7 @@ private fun SubHeader(text: String) {
         text = text,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 36.dp, top = 12.dp, bottom = 2.dp),
+        modifier = Modifier.padding(start = 72.dp, top = 12.dp, bottom = 2.dp),
     )
 }
 
@@ -375,7 +392,7 @@ private fun IndentRow(
         modifier = Modifier
             .fillMaxWidth()
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
-            .padding(start = 72.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = 108.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         content = content,
     )
@@ -389,7 +406,7 @@ private fun SliderRow(
     valueLabel: String,
     onChange: (Float) -> Unit,
 ) {
-    Column(Modifier.padding(start = 72.dp, end = 16.dp, bottom = 8.dp)) {
+    Column(Modifier.padding(start = 108.dp, end = 16.dp, bottom = 8.dp)) {
         Text(valueLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Slider(value = value, onValueChange = onChange, valueRange = valueRange, steps = steps)
     }

@@ -44,6 +44,8 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.ColorPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.FontPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
+import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.BottomBarTheme
 import app.pwhs.universalinstaller.ui.theme.ButtonStyle
 import app.pwhs.universalinstaller.ui.theme.TextStyleOverride
 import app.pwhs.universalinstaller.ui.theme.FontWeightOption
@@ -53,15 +55,17 @@ import app.pwhs.universalinstaller.ui.theme.fontDisplayName
 import kotlin.math.roundToInt
 
 // Indent levels (dp): section header (0) → sub-header (1) → item (2) → per-button control (3).
-private const val L1 = 36
-private const val L2 = 72
-private const val L3 = 108
+// Deeply indented so the hierarchy reads clearly: sub-headers sit where items used to, and so on.
+private const val L1 = 72
+private const val L2 = 108
+private const val L3 = 144
 
 /** One overridable colour role on a surface, with friendly label and get/set on a [SurfaceTheme]. */
 private enum class ColorSlot(
     @StringRes val labelRes: Int,
     val get: (SurfaceTheme) -> Int?,
     val set: (SurfaceTheme, Int?) -> SurfaceTheme,
+    val mainOnly: Boolean = false,
 ) {
     Accent(R.string.ui_role_accent, { it.accent }, { t, v -> t.copy(accent = v) }),
     TitleText(R.string.ui_role_title, { it.titleText }, { t, v -> t.copy(titleText = v) }),
@@ -71,6 +75,7 @@ private enum class ColorSlot(
     Danger(R.string.ui_role_danger, { it.danger }, { t, v -> t.copy(danger = v) }),
     Success(R.string.ui_role_success, { it.success }, { t, v -> t.copy(success = v) }),
     Highlight(R.string.ui_role_highlight, { it.highlight }, { t, v -> t.copy(highlight = v) }),
+    TopIcon(R.string.ui_role_top_icon, { it.topIconColor }, { t, v -> t.copy(topIconColor = v) }, mainOnly = true),
 }
 
 /** A dialog button that can be styled individually: friendly label, storage key (slot), and the dialog
@@ -88,23 +93,36 @@ private enum class ButtonSlot(@StringRes val labelRes: Int, val key: String, @St
 
 /** A dialog text category that can be styled individually: friendly label, storage key, and the area
  *  it appears in (used to group the selector chips). */
-private enum class TextCat(@StringRes val labelRes: Int, val key: String, @StringRes val groupRes: Int) {
-    AppLabel(R.string.ui_txt_app_label, "app_label", R.string.ui_stage_prepare),
-    PackageName(R.string.ui_txt_package_name, "package_name", R.string.ui_stage_prepare),
-    Version(R.string.ui_txt_version, "version", R.string.ui_stage_prepare),
-    FileSize(R.string.ui_txt_file_size, "file_size", R.string.ui_stage_prepare),
-    Chip(R.string.ui_txt_chip, "chip", R.string.ui_stage_prepare),
-    StatusTitle(R.string.ui_txt_status_title, "status_title", R.string.ui_group_status),
-    StatusMessage(R.string.ui_txt_status_message, "status_message", R.string.ui_group_status),
-    MenuHeading(R.string.ui_txt_menu_heading, "menu_heading", R.string.ui_stage_options),
-    Tab(R.string.ui_txt_tab, "tab", R.string.ui_stage_options),
-    SectionTitle(R.string.ui_txt_section_title, "section_title", R.string.ui_stage_options),
-    SectionDesc(R.string.ui_txt_section_desc, "section_desc", R.string.ui_stage_options),
-    DetailLabel(R.string.ui_txt_detail_label, "detail_label", R.string.ui_stage_options),
-    DetailValue(R.string.ui_txt_detail_value, "detail_value", R.string.ui_stage_options),
-    OptionTitle(R.string.ui_txt_option_title, "option_title", R.string.ui_stage_options),
-    OptionDesc(R.string.ui_txt_option_desc, "option_desc", R.string.ui_stage_options),
-    Permission(R.string.ui_txt_permission, "permission", R.string.ui_stage_options),
+private enum class TextCat(
+    @StringRes val labelRes: Int,
+    val key: String,
+    @StringRes val groupRes: Int,
+    val surface: AppSurface,
+) {
+    AppLabel(R.string.ui_txt_app_label, "app_label", R.string.ui_stage_prepare, AppSurface.Dialog),
+    PackageName(R.string.ui_txt_package_name, "package_name", R.string.ui_stage_prepare, AppSurface.Dialog),
+    Version(R.string.ui_txt_version, "version", R.string.ui_stage_prepare, AppSurface.Dialog),
+    VersionOld(R.string.ui_txt_version_old, "version_old", R.string.ui_stage_prepare, AppSurface.Dialog),
+    FileSize(R.string.ui_txt_file_size, "file_size", R.string.ui_stage_prepare, AppSurface.Dialog),
+    Chip(R.string.ui_txt_chip, "chip", R.string.ui_stage_prepare, AppSurface.Dialog),
+    StatusTitle(R.string.ui_txt_status_title, "status_title", R.string.ui_group_status, AppSurface.Dialog),
+    StatusMessage(R.string.ui_txt_status_message, "status_message", R.string.ui_group_status, AppSurface.Dialog),
+    MenuHeading(R.string.ui_txt_menu_heading, "menu_heading", R.string.ui_stage_options, AppSurface.Dialog),
+    Tab(R.string.ui_txt_tab, "tab", R.string.ui_stage_options, AppSurface.Dialog),
+    SectionTitle(R.string.ui_txt_section_title, "section_title", R.string.ui_stage_options, AppSurface.Dialog),
+    SectionDesc(R.string.ui_txt_section_desc, "section_desc", R.string.ui_stage_options, AppSurface.Dialog),
+    DetailLabel(R.string.ui_txt_detail_label, "detail_label", R.string.ui_stage_options, AppSurface.Dialog),
+    DetailValue(R.string.ui_txt_detail_value, "detail_value", R.string.ui_stage_options, AppSurface.Dialog),
+    OptionTitle(R.string.ui_txt_option_title, "option_title", R.string.ui_stage_options, AppSurface.Dialog),
+    OptionDesc(R.string.ui_txt_option_desc, "option_desc", R.string.ui_stage_options, AppSurface.Dialog),
+    Permission(R.string.ui_txt_permission, "permission", R.string.ui_stage_options, AppSurface.Dialog),
+
+    // Main page (Install Package screen)
+    StorageLabel(R.string.ui_txt_storage_label, "storage_label", R.string.ui_group_main_page, AppSurface.Main),
+    StorageValue(R.string.ui_txt_storage_value, "storage_value", R.string.ui_group_main_page, AppSurface.Main),
+    MainTab(R.string.ui_txt_tab, "tab", R.string.ui_group_main_page, AppSurface.Main),
+    MainOptionTitle(R.string.ui_txt_option_title, "option_title", R.string.ui_group_main_page, AppSurface.Main),
+    MainOptionDesc(R.string.ui_txt_option_desc, "option_desc", R.string.ui_group_main_page, AppSurface.Main),
 }
 
 // Pending edits drive a single shared picker dialog (used by every colour/font row in the section).
@@ -125,6 +143,7 @@ fun SurfaceThemeSection(
     recents: List<Int>,
     onRecordRecent: (Int) -> Unit,
     onRequestFontImport: ((String) -> Unit) -> Unit,
+    surface: AppSurface,
     showBorder: Boolean = false,
     showProgress: Boolean = false,
     showButtons: Boolean = false,
@@ -133,7 +152,7 @@ fun SurfaceThemeSection(
     var colorEdit by remember { mutableStateOf<ColorEdit?>(null) }
     var fontEdit by remember { mutableStateOf<FontEdit?>(null) }
     var selectedButton by remember { mutableStateOf(ButtonSlot.Menu) }
-    var selectedText by remember { mutableStateOf(TextCat.AppLabel) }
+    var selectedText by remember(surface) { mutableStateOf(TextCat.entries.first { it.surface == surface }) }
 
     SettingsSection(title = title, icon = icon) {
         SubHeader(stringResource(R.string.ui_section_color))
@@ -141,6 +160,7 @@ fun SurfaceThemeSection(
         // per category — so the broad Title/Secondary roles are hidden here to avoid redundancy.
         ColorSlot.entries
             .filterNot { showTexts && (it == ColorSlot.TitleText || it == ColorSlot.SecondaryText) }
+            .filter { !it.mainOnly || surface == AppSurface.Main }
             .forEach { slot ->
                 ColorRow(L2, stringResource(slot.labelRes), slot.get(theme)) {
                     colorEdit = ColorEdit(slot.get(theme)) { onChange(slot.set(theme, it)) }
@@ -247,8 +267,8 @@ fun SurfaceThemeSection(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
             )
-            // Chips grouped by the area each text appears in.
-            TextCat.entries.groupBy { it.groupRes }.forEach { (groupRes, cats) ->
+            // Chips grouped by the area each text appears in (only this surface's categories).
+            TextCat.entries.filter { it.surface == surface }.groupBy { it.groupRes }.forEach { (groupRes, cats) ->
                 Text(
                     text = stringResource(groupRes),
                     style = MaterialTheme.typography.labelMedium,
@@ -337,6 +357,63 @@ fun SurfaceThemeSection(
             },
             onPick = { fileName -> edit.onSet(fileName); fontEdit = null },
             onInherit = { edit.onSet(null); fontEdit = null },
+        )
+    }
+}
+
+/**
+ * Settings card for the app-wide bottom navigation bar: six colour rows (container, selected/unselected
+ * icon & text, indicator) each with an "inherit default" option, plus a reset.
+ */
+@Composable
+fun BottomBarThemeSection(
+    title: String,
+    icon: ImageVector,
+    theme: BottomBarTheme,
+    onChange: (BottomBarTheme) -> Unit,
+    recents: List<Int>,
+    onRecordRecent: (Int) -> Unit,
+) {
+    var colorEdit by remember { mutableStateOf<ColorEdit?>(null) }
+    SettingsSection(title = title, icon = icon) {
+        ColorRow(L2, stringResource(R.string.ui_bottom_bar_container), theme.container) {
+            colorEdit = ColorEdit(theme.container) { onChange(theme.copy(container = it)) }
+        }
+        ColorRow(L2, stringResource(R.string.ui_bottom_bar_selected_icon), theme.selectedIcon) {
+            colorEdit = ColorEdit(theme.selectedIcon) { onChange(theme.copy(selectedIcon = it)) }
+        }
+        ColorRow(L2, stringResource(R.string.ui_bottom_bar_selected_text), theme.selectedText) {
+            colorEdit = ColorEdit(theme.selectedText) { onChange(theme.copy(selectedText = it)) }
+        }
+        ColorRow(L2, stringResource(R.string.ui_bottom_bar_indicator), theme.indicator) {
+            colorEdit = ColorEdit(theme.indicator) { onChange(theme.copy(indicator = it)) }
+        }
+        ColorRow(L2, stringResource(R.string.ui_bottom_bar_unselected_icon), theme.unselectedIcon) {
+            colorEdit = ColorEdit(theme.unselectedIcon) { onChange(theme.copy(unselectedIcon = it)) }
+        }
+        ColorRow(L2, stringResource(R.string.ui_bottom_bar_unselected_text), theme.unselectedText) {
+            colorEdit = ColorEdit(theme.unselectedText) { onChange(theme.copy(unselectedText = it)) }
+        }
+        HorizontalDivider(Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onChange(BottomBarTheme()) }
+                .padding(start = L1.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Rounded.Replay, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 12.dp).size(20.dp))
+            Text(stringResource(R.string.ui_reset_section), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+        }
+    }
+    colorEdit?.let { edit ->
+        val initial = edit.current?.let { Color(it) } ?: MaterialTheme.colorScheme.primary
+        ColorPickerDialog(
+            initial = initial,
+            recents = recents,
+            onInherit = { edit.onSet(null); colorEdit = null },
+            onPick = { c -> edit.onSet(c.toArgb()); onRecordRecent(c.toArgb()); colorEdit = null },
+            onDismiss = { colorEdit = null },
         )
     }
 }

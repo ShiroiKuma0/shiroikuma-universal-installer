@@ -120,7 +120,7 @@ fun DialogPrepareContent(
                     ) {
                         Text(
                             text = installedVersionName ?: "?",
-                            style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
+                            style = dialogTextStyle("version_old", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
                         )
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowForward,

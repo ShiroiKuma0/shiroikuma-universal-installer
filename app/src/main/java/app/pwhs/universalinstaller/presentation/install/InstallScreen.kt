@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.LocalTopIconColor
 import app.pwhs.universalinstaller.ui.theme.ThemedSurface
 import app.pwhs.universalinstaller.data.local.InstallHistoryEntity
 import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
@@ -732,6 +733,8 @@ private fun InstallUi(
                 },
                 actions = {
                     val isSyncRunning = uiState.syncState == app.pwhs.universalinstaller.presentation.sync.SyncState.RUNNING
+                    // Main surface override for the top-bar icons; falls back to default content colour.
+                    val topIconTint = LocalTopIconColor.current ?: LocalContentColor.current
 
                     if (WearApkSender.isAvailable) {
                         IconButton(
@@ -744,6 +747,7 @@ private fun InstallUi(
                             Icon(
                                 imageVector = Icons.Rounded.Watch,
                                 contentDescription = stringResource(R.string.watch_send_title),
+                                tint = topIconTint,
                             )
                         }
                     }
@@ -758,13 +762,14 @@ private fun InstallUi(
                         Icon(
                             imageVector = Icons.Rounded.WifiTethering,
                             contentDescription = stringResource(R.string.setting_section_sync),
-                            tint = if (isSyncRunning) MaterialTheme.colorScheme.primary else LocalContentColor.current
+                            tint = if (isSyncRunning) MaterialTheme.colorScheme.primary else topIconTint
                         )
                     }
                     IconButton(onClick = { showPermissions = true }) {
                         Icon(
                             imageVector = Icons.Rounded.Shield,
                             contentDescription = stringResource(R.string.permissions_menu_cd),
+                            tint = topIconTint,
                         )
                     }
                 },

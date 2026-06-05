@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.RoundedCorner
+import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material.icons.rounded.WebAsset
 import androidx.compose.material3.Card
@@ -115,6 +116,25 @@ fun InstallerUiScreen(
     val requestFontImport: ((String) -> Unit) -> Unit = { apply ->
         pendingFontApply = apply
         pickFontLauncher.launch(arrayOf("*/*"))
+    }
+
+    // UI-config export / import (one JSON file carrying the UI prefs + imported fonts).
+    val exportedMsg = stringResource(R.string.ui_backup_exported)
+    val importedMsg = stringResource(R.string.ui_backup_imported)
+    val backupFailedMsg = stringResource(R.string.ui_backup_failed)
+    val exportConfigLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) viewModel.exportUiConfig(uri) { ok ->
+            scope.launch { snackbarHostState.showSnackbar(if (ok) exportedMsg else backupFailedMsg) }
+        }
+    }
+    val importConfigLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) viewModel.importUiConfig(uri) { ok ->
+            scope.launch { snackbarHostState.showSnackbar(if (ok) importedMsg else backupFailedMsg) }
+        }
     }
 
     Scaffold(
@@ -318,6 +338,34 @@ fun InstallerUiScreen(
                     recents = recents,
                     onRecordRecent = viewModel::recordRecentColor,
                 )
+            }
+            item {
+                SettingsSection(title = stringResource(R.string.ui_backup_section), icon = Icons.Rounded.SettingsBackupRestore) {
+                    IndentRow(onClick = {
+                        val stamp = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US)
+                            .format(java.util.Date())
+                        exportConfigLauncher.launch("shiroikuma-universal-installer_ui-config_$stamp.json")
+                    }) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.ui_backup_export), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                stringResource(R.string.ui_backup_export_sub),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    IndentRow(onClick = { importConfigLauncher.launch(arrayOf("*/*")) }) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.ui_backup_import), style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                stringResource(R.string.ui_backup_import_sub),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
             }
 
             // ── Link to the stock Theme screen ──────────────────────────

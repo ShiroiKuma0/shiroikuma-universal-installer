@@ -69,7 +69,7 @@ all exceed the previous line's (`160001`, …), keeping upgrades monotonic.
    | Installed app ID | `shiroikuma.universalinstaller` | `gradle.properties` → `APP_ID` (applied as `applicationId`) |
    | Code namespace (UNCHANGED) | `app.pwhs.universalinstaller` | `app/build.gradle.kts` → `namespace` |
    | App launcher label | `白い熊 Universal installer` | `app_name` in `values/strings.xml` **and** `values-ro/strings.xml` (both `translatable="false"`) |
-   | Fork version logic | `forkVersionName` / `forkVersionCode`, `base { archivesName = "shiroikuma-universalinstaller_…" }`, `buildFork` task | `app/build.gradle.kts` |
+   | Fork version logic | `forkVersionName` / `forkVersionCode`, `base { archivesName = "shiroikuma-universal-installer_…" }`, `buildFork` task | `app/build.gradle.kts` |
    | Upstream version pins | `VERSION_NAME`/`VERSION_CODE` = new upstream; `BUILD_NUMBER=1` | `gradle.properties` |
    | We build the **`full`** flavor | task `:app:buildFork` → `assembleFullRelease` | `app/build.gradle.kts` |
    | Signing | reads gitignored `key.properties` → `shiroikuma-universalinstaller.jks` | `app/build.gradle.kts` (unchanged from upstream) |

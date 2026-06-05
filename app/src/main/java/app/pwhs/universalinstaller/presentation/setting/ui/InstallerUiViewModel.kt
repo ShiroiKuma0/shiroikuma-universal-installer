@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.dataStore
 import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.BottomBarTheme
+import app.pwhs.universalinstaller.ui.theme.BottomBarThemeStore
 import app.pwhs.universalinstaller.ui.theme.SurfaceTheme
 import app.pwhs.universalinstaller.ui.theme.SurfaceThemeStore
 import kotlinx.coroutines.flow.SharingStarted
@@ -52,6 +54,14 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
 
     fun setSurfaceTheme(surface: AppSurface, theme: SurfaceTheme) =
         edit { it[SurfaceThemeStore.key(surface)] = SurfaceThemeStore.serialize(theme) }
+
+    // App-wide bottom navigation bar theme.
+    val bottomBarTheme: StateFlow<BottomBarTheme> = application.dataStore.data
+        .map { BottomBarThemeStore.from(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BottomBarTheme())
+
+    fun setBottomBarTheme(theme: BottomBarTheme) =
+        edit { it[PreferencesKeys.UI_BOTTOM_BAR_THEME] = BottomBarThemeStore.serialize(theme) }
 
     // Recently-picked colours (most-recent first, deduped, capped) — shown as one-touch picker hotpicks.
     val recentColors: StateFlow<List<Int>> = application.dataStore.data

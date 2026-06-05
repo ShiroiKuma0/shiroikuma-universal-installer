@@ -152,6 +152,11 @@ object PreferencesKeys {
     val UI_ACCENT_COLOR = intPreferencesKey("ui_accent_color")
     /** Corner-radius multiplier for the app's shapes; 1.0 = default. */
     val UI_CORNER_SCALE = floatPreferencesKey("ui_corner_scale")
+    /** Per-surface theme overrides (JSON SurfaceTheme); empty = inherit the global theme. */
+    val UI_DIALOG_THEME = stringPreferencesKey("ui_dialog_theme")
+    val UI_MAIN_THEME = stringPreferencesKey("ui_main_theme")
+    /** Recently-picked colours (comma-separated ARGB ints, most-recent first) shown as picker hotpicks. */
+    val UI_RECENT_COLORS = stringPreferencesKey("ui_recent_colors")
 }
 
 data class SyncOptions(

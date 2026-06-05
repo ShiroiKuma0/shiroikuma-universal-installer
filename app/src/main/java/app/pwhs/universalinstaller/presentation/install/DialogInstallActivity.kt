@@ -78,6 +78,9 @@ import app.pwhs.universalinstaller.presentation.install.dialog.DialogPrepareCont
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogSuccessContent
 import app.pwhs.universalinstaller.presentation.install.dialog.InstallRisk
 import app.pwhs.universalinstaller.presentation.install.dialog.RiskConfirmDialog
+import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
+import app.pwhs.universalinstaller.ui.theme.ThemedSurface
 import app.pwhs.universalinstaller.presentation.install.dialog.detectInstallRisks
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
 import app.pwhs.universalinstaller.util.LocaleHelper
@@ -328,6 +331,7 @@ class DialogInstallActivity : ComponentActivity() {
                 amoledMode = amoledMode,
                 themePreset = themePreset
             ) {
+                ThemedSurface(AppSurface.Dialog) {
                 val configuration = LocalConfiguration.current
                 val screenHeight = configuration.screenHeightDp.dp
                 val maxDialogHeight = screenHeight * 0.8f
@@ -377,6 +381,7 @@ class DialogInstallActivity : ComponentActivity() {
                             },
                         shape = AlertDialogDefaults.shape,
                         color = AlertDialogDefaults.containerColor,
+                        border = LocalSurfaceBorder.current,
                         tonalElevation = AlertDialogDefaults.TonalElevation,
                         shadowElevation = 12.dp,
                     ) {
@@ -441,6 +446,7 @@ class DialogInstallActivity : ComponentActivity() {
                             centerButton = dialogInnerWidget(params.buttons)
                         )
                     }
+                }
                 }
             }
         }

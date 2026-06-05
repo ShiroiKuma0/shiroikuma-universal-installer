@@ -43,6 +43,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
+import app.pwhs.universalinstaller.ui.theme.DialogActionButton
+import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -191,13 +193,11 @@ fun DialogPrepareContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             // Menu button
-            OutlinedButton(
+            DialogActionButton(
+                slot = "menu",
+                kind = DialogButtonKind.Outlined,
                 onClick = onMenu,
                 modifier = Modifier.weight(1f),
-                border = androidx.compose.foundation.BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary
-                )
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Menu,
@@ -213,17 +213,13 @@ fun DialogPrepareContent(
             }
 
             // Install/Update/Downgrade button
-            Button(
+            DialogActionButton(
+                slot = "install",
+                kind = DialogButtonKind.Filled,
                 onClick = onInstall,
                 modifier = Modifier.weight(1f),
-                colors = if (isDowngrade) {
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                    )
-                } else {
-                    ButtonDefaults.buttonColors()
-                },
+                defaultContainer = if (isDowngrade) MaterialTheme.colorScheme.error else null,
+                defaultContent = if (isDowngrade) MaterialTheme.colorScheme.onError else null,
             ) {
                 Text(
                     text = when {
@@ -239,13 +235,11 @@ fun DialogPrepareContent(
 
         // Cancel
         Spacer(modifier = Modifier.height(4.dp))
-        OutlinedButton(
+        DialogActionButton(
+            slot = "cancel",
+            kind = DialogButtonKind.Tonal,
             onClick = onCancel,
             modifier = Modifier.fillMaxWidth(),
-            border = androidx.compose.foundation.BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-            ),
         ) {
             Text(stringResource(R.string.dialog_cancel_btn))
         }

@@ -93,6 +93,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.DialogActionButton
+import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.SplitEntry
 import app.pwhs.universalinstaller.domain.model.SplitType
@@ -346,13 +348,11 @@ fun DialogMenuContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            OutlinedButton(
+            DialogActionButton(
+                slot = "back",
+                kind = DialogButtonKind.Outlined,
                 onClick = onBack,
                 modifier = Modifier.weight(1f),
-                border = androidx.compose.foundation.BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary
-                )
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
@@ -367,7 +367,9 @@ fun DialogMenuContent(
                 )
             }
 
-            Button(
+            DialogActionButton(
+                slot = "install",
+                kind = DialogButtonKind.Filled,
                 onClick = onInstall,
                 modifier = Modifier.weight(1f),
             ) {

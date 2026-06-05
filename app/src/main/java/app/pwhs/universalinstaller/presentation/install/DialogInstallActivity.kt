@@ -94,6 +94,9 @@ import app.pwhs.universalinstaller.presentation.install.dialog.DialogPrepareCont
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogSuccessContent
 import app.pwhs.universalinstaller.presentation.install.dialog.InstallRisk
 import app.pwhs.universalinstaller.presentation.install.dialog.RiskConfirmDialog
+import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
+import app.pwhs.universalinstaller.ui.theme.ThemedSurface
 import app.pwhs.universalinstaller.presentation.install.dialog.detectInstallRisks
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
 import app.pwhs.universalinstaller.util.SystemIntentInstaller
@@ -619,6 +622,7 @@ class DialogInstallActivity : ComponentActivity() {
                 amoledMode = amoledMode,
                 themePreset = themePreset
             ) {
+                ThemedSurface(AppSurface.Dialog) {
                 val configuration = LocalConfiguration.current
                 val screenHeight = configuration.screenHeightDp.dp
                 val maxDialogHeight = screenHeight * 0.8f
@@ -694,6 +698,7 @@ class DialogInstallActivity : ComponentActivity() {
                         // the bottom without this still reads as a dialog.
                         shape = if (isSheet) FLOATING_SHEET_SHAPE else AlertDialogDefaults.shape,
                         color = if (isSheet) BottomSheetDefaults.ContainerColor else AlertDialogDefaults.containerColor,
+                        border = LocalSurfaceBorder.current,
                         tonalElevation = if (isSheet) BottomSheetDefaults.Elevation else AlertDialogDefaults.TonalElevation,
                         shadowElevation = if (isSheet) 0.dp else 12.dp,
                     ) {
@@ -789,6 +794,7 @@ class DialogInstallActivity : ComponentActivity() {
                       }
                     }
                   }
+                }
                 }
             }
         }

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 @Composable
 internal fun DetailRow(label: String, value: String) {
@@ -20,14 +21,11 @@ internal fun DetailRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = dialogTextStyle("detail_label", MaterialTheme.typography.bodySmall, MaterialTheme.colorScheme.onSurfaceVariant),
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
+            style = dialogTextStyle("detail_value", MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), MaterialTheme.colorScheme.onSurface),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 16.dp),

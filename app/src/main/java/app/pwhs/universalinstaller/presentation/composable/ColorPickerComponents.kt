@@ -2,11 +2,15 @@ package app.pwhs.universalinstaller.presentation.composable
 
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,7 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,6 +37,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import kotlin.math.roundToInt
 
 /** Curated accent seeds shown as swatches on the 白い熊 Installer UI page. */
 val AccentPalette: List<Color> = listOf(
@@ -52,50 +57,80 @@ val AccentPalette: List<Color> = listOf(
     Color(0xFF546E7A), // blue-grey
 )
 
-private fun Color.toHex(): String = String.format("#%06X", 0xFFFFFF and toArgb())
+private fun Color.toHex(): String = String.format("#%08X", toArgb())
 
-/** HSV + hex color picker. [onPick] returns the chosen color (caller stores its ARGB int). */
+/**
+ * RGB + T (alpha) + hex colour picker. The "T" slider is the alpha channel: 0 = fully transparent,
+ * 255 = fully opaque. [onPick] returns the chosen colour (caller stores its ARGB int, alpha included).
+ *
+ * [recents] (most-recent first) and the curated palette are shown as one-touch hotpicks above the
+ * sliders — tapping one immediately picks it. [onInherit], when non-null, adds an "Inherit (global)"
+ * action (used by per-surface overrides).
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ColorPickerDialog(
     initial: Color,
     onDismiss: () -> Unit,
     onPick: (Color) -> Unit,
+    recents: List<Int> = emptyList(),
+    onInherit: (() -> Unit)? = null,
 ) {
-    val hsv = remember(initial) { FloatArray(3).also { AndroidColor.colorToHSV(initial.toArgb(), it) } }
-    var hue by remember { mutableFloatStateOf(hsv[0]) }
-    var sat by remember { mutableFloatStateOf(hsv[1]) }
-    var value by remember { mutableFloatStateOf(hsv[2]) }
+    val argb0 = remember(initial) { initial.toArgb() }
+    var r by remember { mutableIntStateOf((argb0 shr 16) and 0xFF) }
+    var g by remember { mutableIntStateOf((argb0 shr 8) and 0xFF) }
+    var b by remember { mutableIntStateOf(argb0 and 0xFF) }
+    var a by remember { mutableIntStateOf((argb0 shr 24) and 0xFF) }
 
-    val current = Color.hsv(hue, sat.coerceIn(0f, 1f), value.coerceIn(0f, 1f))
+    val current = Color(red = r, green = g, blue = b, alpha = a)
     var hexText by remember { mutableStateOf(current.toHex()) }
 
-    // Slider moves → refresh the hex field to the normalized value.
-    LaunchedEffect(hue, sat, value) { hexText = current.toHex() }
+    // Slider moves → refresh the hex field.
+    LaunchedEffect(r, g, b, a) { hexText = current.toHex() }
+
+    // Recently-used first, then the curated palette; deduped. One touch picks immediately.
+    val hotpicks = remember(recents) {
+        (recents + AccentPalette.map { it.toArgb() }).distinct().take(18)
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.ui_color_picker_title)) },
         text = {
             Column {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    hotpicks.forEach { argb ->
+                        ColorSwatch(color = Color(argb), selected = false, onClick = { onPick(Color(argb)) })
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+                // Preview over a solid backdrop so the alpha channel is visible.
                 Box(
                     Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .clip(MaterialTheme.shapes.medium)
-                        .background(current),
-                )
+                        .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                ) {
+                    Box(Modifier.fillMaxSize().background(current))
+                }
                 Spacer(Modifier.height(16.dp))
-                LabeledSlider(stringResource(R.string.ui_hue), hue, 0f..360f) { hue = it }
-                LabeledSlider(stringResource(R.string.ui_saturation), sat, 0f..1f) { sat = it }
-                LabeledSlider(stringResource(R.string.ui_brightness), value, 0f..1f) { value = it }
+                LabeledSlider(stringResource(R.string.ui_channel_r), r.toFloat(), 0f..255f) { r = it.roundToInt() }
+                LabeledSlider(stringResource(R.string.ui_channel_g), g.toFloat(), 0f..255f) { g = it.roundToInt() }
+                LabeledSlider(stringResource(R.string.ui_channel_b), b.toFloat(), 0f..255f) { b = it.roundToInt() }
+                LabeledSlider(stringResource(R.string.ui_channel_t), a.toFloat(), 0f..255f) { a = it.roundToInt() }
                 OutlinedTextField(
                     value = hexText,
                     onValueChange = { text ->
                         hexText = text
                         runCatching { AndroidColor.parseColor(text.trim()) }.getOrNull()?.let { parsed ->
-                            val out = FloatArray(3)
-                            AndroidColor.colorToHSV(parsed, out)
-                            hue = out[0]; sat = out[1]; value = out[2]
+                            a = (parsed shr 24) and 0xFF
+                            r = (parsed shr 16) and 0xFF
+                            g = (parsed shr 8) and 0xFF
+                            b = parsed and 0xFF
                         }
                     },
                     label = { Text(stringResource(R.string.ui_hex)) },
@@ -105,7 +140,14 @@ fun ColorPickerDialog(
             }
         },
         confirmButton = { TextButton(onClick = { onPick(current) }) { Text(stringResource(android.R.string.ok)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+        dismissButton = {
+            Row {
+                if (onInherit != null) {
+                    TextButton(onClick = onInherit) { Text(stringResource(R.string.ui_inherit)) }
+                }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            }
+        },
     )
 }
 
@@ -144,7 +186,8 @@ fun ColorSwatch(
         modifier = modifier
             .size(if (selected) 40.dp else 36.dp)
             .clip(CircleShape)
-            .background(color),
+            .background(color)
+            .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         if (selected) {

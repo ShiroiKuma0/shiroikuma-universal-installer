@@ -7,6 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.universalinstaller.ui.theme.AppSurface
+import app.pwhs.universalinstaller.ui.theme.SurfaceTheme
+import app.pwhs.universalinstaller.ui.theme.SurfaceThemeStore
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -37,6 +40,33 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
             )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InstallerUiState())
+
+    // Per-surface overrides (install dialog / main page).
+    val dialogTheme: StateFlow<SurfaceTheme> = surfaceFlow(AppSurface.Dialog)
+    val mainTheme: StateFlow<SurfaceTheme> = surfaceFlow(AppSurface.Main)
+
+    private fun surfaceFlow(surface: AppSurface): StateFlow<SurfaceTheme> =
+        application.dataStore.data
+            .map { SurfaceThemeStore.from(it, surface) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SurfaceTheme())
+
+    fun setSurfaceTheme(surface: AppSurface, theme: SurfaceTheme) =
+        edit { it[SurfaceThemeStore.key(surface)] = SurfaceThemeStore.serialize(theme) }
+
+    // Recently-picked colours (most-recent first, deduped, capped) — shown as one-touch picker hotpicks.
+    val recentColors: StateFlow<List<Int>> = application.dataStore.data
+        .map { prefs ->
+            (prefs[PreferencesKeys.UI_RECENT_COLORS] ?: "")
+                .split(",").mapNotNull { it.trim().toIntOrNull() }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun recordRecentColor(argb: Int) = edit { prefs ->
+        val current = (prefs[PreferencesKeys.UI_RECENT_COLORS] ?: "")
+            .split(",").mapNotNull { it.trim().toIntOrNull() }
+        val updated = (listOf(argb) + current).distinct().take(12)
+        prefs[PreferencesKeys.UI_RECENT_COLORS] = updated.joinToString(",")
+    }
 
     fun setFontFamily(value: String) = edit { it[PreferencesKeys.UI_FONT_FAMILY] = value }
     fun setFontWeight(value: Int) = edit { it[PreferencesKeys.UI_FONT_WEIGHT] = value }

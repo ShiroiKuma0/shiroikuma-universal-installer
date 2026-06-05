@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 @Composable
 internal fun AdvancedToggle(
@@ -32,13 +33,11 @@ internal fun AdvancedToggle(
         Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                style = dialogTextStyle("option_title", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurface),
             )
             Text(
                 text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = dialogTextStyle("option_desc", MaterialTheme.typography.bodySmall, MaterialTheme.colorScheme.onSurfaceVariant),
             )
         }
         Switch(

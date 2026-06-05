@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 data class DialogTabItem(
     val title: String,
@@ -118,9 +119,14 @@ fun DialogMenuTabRow(
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = tab.title,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                            color = animatedFg,
+                            // Fork: the "tab" text category of the 白い熊 Installer UI page.
+                            style = dialogTextStyle(
+                                "tab",
+                                MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+                                ),
+                                animatedFg,
+                            ),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

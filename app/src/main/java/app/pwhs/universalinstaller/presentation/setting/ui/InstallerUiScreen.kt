@@ -287,6 +287,7 @@ fun InstallerUiScreen(
                     onRequestFontImport = requestFontImport,
                     showBorder = true,
                     showButtons = true,
+                    showTexts = true,
                 )
             }
             item {

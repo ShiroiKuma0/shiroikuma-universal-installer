@@ -55,6 +55,8 @@ data class SurfaceTheme(
     val fontScale: Float? = null,    // null/1f = inherit size
     // Per-button overrides (install dialog only), keyed by button slot (menu/install/cancel/…).
     val buttons: Map<String, ButtonStyle> = emptyMap(),
+    // Per-text-category overrides (install dialog only), keyed by category (app_label/version/…).
+    val texts: Map<String, TextStyleOverride> = emptyMap(),
 ) {
     val hasColorOverride: Boolean
         get() = accent != null || titleText != null || secondaryText != null || card != null ||
@@ -62,7 +64,8 @@ data class SurfaceTheme(
 
     val hasAnyOverride: Boolean
         get() = hasColorOverride || borderColor != null || borderWidth != null ||
-            fontFamily != null || fontWeight != null || fontScale != null || buttons.isNotEmpty()
+            fontFamily != null || fontWeight != null || fontScale != null ||
+            buttons.isNotEmpty() || texts.isNotEmpty()
 }
 
 /** Per-button style override; any null field inherits the button's default. */
@@ -75,6 +78,15 @@ data class ButtonStyle(
     val fontFamily: String? = null,
     val fontWeight: Int? = null,
     val fontScale: Float? = null,  // text-size multiplier; null = inherit
+)
+
+/** Per-text-category override (colour + font); any null field inherits the element's default. */
+@Serializable
+data class TextStyleOverride(
+    val color: Int? = null,
+    val fontFamily: String? = null,
+    val fontWeight: Int? = null,
+    val fontScale: Float? = null,
 )
 
 object SurfaceThemeStore {
@@ -167,6 +179,7 @@ fun ThemedSurface(surface: AppSurface, content: @Composable () -> Unit) {
     CompositionLocalProvider(
         LocalSurfaceBorder provides border,
         LocalDialogButtonStyles provides theme.buttons,
+        LocalDialogTextStyles provides theme.texts,
     ) {
         MaterialTheme(
             colorScheme = scheme,

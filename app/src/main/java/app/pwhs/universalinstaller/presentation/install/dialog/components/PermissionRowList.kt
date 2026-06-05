@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.install.PermissionEntry
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 @Composable
 internal fun PermissionRowList(
@@ -67,18 +68,18 @@ internal fun PermissionRowList(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = entry.label,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = if (entry.isDangerous) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (entry.isDangerous) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurface,
+                        style = dialogTextStyle(
+                            "permission",
+                            MaterialTheme.typography.bodySmall.copy(fontWeight = if (entry.isDangerous) FontWeight.SemiBold else FontWeight.Normal),
+                            if (entry.isDangerous) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     if (entry.prefix.isNotEmpty()) {
                         Text(
                             text = entry.prefix,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            style = dialogTextStyle("permission", MaterialTheme.typography.labelSmall, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -97,7 +98,7 @@ internal fun PermissionRowList(
                     } else {
                         stringResource(R.string.dialog_menu_show_more, entries.size - collapsedCount)
                     },
-                    style = MaterialTheme.typography.labelMedium,
+                    style = dialogTextStyle("permission", MaterialTheme.typography.labelMedium),
                 )
             }
         }

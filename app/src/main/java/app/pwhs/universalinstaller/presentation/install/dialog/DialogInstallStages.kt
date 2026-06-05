@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.DialogActionButton
 import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
+import app.pwhs.universalinstaller.ui.theme.LocalDialogProgressStyle
 import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
 import kotlinx.coroutines.launch
@@ -112,30 +114,7 @@ fun DialogInstallingContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        if (progressFraction != null) {
-            val animatedProgress by animateFloatAsState(
-                targetValue = progressFraction.coerceIn(0f, 1f),
-                animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
-                label = "InstallProgress",
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                LinearProgressIndicator(
-                    progress = { animatedProgress },
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "${(animatedProgress * 100).toInt()}%",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        } else {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-        }
+        InstallProgressBar(progressFraction)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -147,6 +126,44 @@ fun DialogInstallingContent(
         ) {
             Text(stringResource(R.string.dialog_installing_background))
         }
+    }
+}
+
+/**
+ * The install progress line, honouring the dialog's per-surface progress override (colour + thickness)
+ * from [LocalDialogProgressStyle]. A null [progressFraction] renders the indeterminate variant. A null
+ * override field inherits the Material default (accent/primary colour, 4 dp track).
+ */
+@Composable
+private fun InstallProgressBar(progressFraction: Float?) {
+    val style = LocalDialogProgressStyle.current
+    val color = style.color?.let { Color(it) } ?: MaterialTheme.colorScheme.primary
+    val thickness: Modifier = if (style.thickness != null) Modifier.height(style.thickness.dp) else Modifier
+
+    if (progressFraction != null) {
+        val animatedProgress by animateFloatAsState(
+            targetValue = progressFraction.coerceIn(0f, 1f),
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
+            label = "InstallProgress",
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            LinearProgressIndicator(
+                progress = { animatedProgress },
+                color = color,
+                modifier = Modifier.weight(1f).then(thickness),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${(animatedProgress * 100).toInt()}%",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    } else {
+        LinearProgressIndicator(color = color, modifier = Modifier.fillMaxWidth().then(thickness))
     }
 }
 

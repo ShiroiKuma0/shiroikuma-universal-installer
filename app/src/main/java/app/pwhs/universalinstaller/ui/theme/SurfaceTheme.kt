@@ -50,6 +50,8 @@ data class SurfaceTheme(
     val highlight: Int? = null,      // -> primaryContainer
     val borderColor: Int? = null,    // dialog card border colour
     val borderWidth: Float? = null,  // dialog card border width in dp; null/0 = no border
+    val progressColor: Int? = null,       // install-dialog progress line colour; null = accent/primary
+    val progressThickness: Float? = null, // install-dialog progress line thickness in dp; null = default
     val fontFamily: String? = null,  // null = inherit; "" = system; "@monospace"; else imported filename
     val fontWeight: Int? = null,     // null = inherit; else 100..900
     val fontScale: Float? = null,    // null/1f = inherit size
@@ -64,6 +66,7 @@ data class SurfaceTheme(
 
     val hasAnyOverride: Boolean
         get() = hasColorOverride || borderColor != null || borderWidth != null ||
+            progressColor != null || progressThickness != null ||
             fontFamily != null || fontWeight != null || fontScale != null ||
             buttons.isNotEmpty() || texts.isNotEmpty()
 }
@@ -180,6 +183,7 @@ fun ThemedSurface(surface: AppSurface, content: @Composable () -> Unit) {
         LocalSurfaceBorder provides border,
         LocalDialogButtonStyles provides theme.buttons,
         LocalDialogTextStyles provides theme.texts,
+        LocalDialogProgressStyle provides DialogProgressStyle(theme.progressColor, theme.progressThickness),
     ) {
         MaterialTheme(
             colorScheme = scheme,

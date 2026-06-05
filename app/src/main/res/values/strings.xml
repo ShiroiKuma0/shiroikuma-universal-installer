@@ -744,6 +744,10 @@
     <string name="ui_role_border">Border</string>
     <string name="ui_border_color">Border color</string>
     <string name="ui_border_width">Width</string>
+    <string name="ui_section_progress">Progress line</string>
+    <string name="ui_progress_hint">Style the install progress bar shown while installing.</string>
+    <string name="ui_progress_color">Progress color</string>
+    <string name="ui_progress_thickness">Thickness</string>
     <string name="ui_section_buttons">Buttons</string>
     <string name="ui_btn_bg">Background</string>
     <string name="ui_btn_content">Text &amp; icon</string>

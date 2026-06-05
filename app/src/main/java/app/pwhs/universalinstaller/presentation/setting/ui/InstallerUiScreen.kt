@@ -286,6 +286,7 @@ fun InstallerUiScreen(
                     onRecordRecent = viewModel::recordRecentColor,
                     onRequestFontImport = requestFontImport,
                     showBorder = true,
+                    showProgress = true,
                     showButtons = true,
                     showTexts = true,
                 )

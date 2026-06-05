@@ -762,4 +762,24 @@
     <string name="ui_stage_installing">While installing</string>
     <string name="ui_stage_success">After success</string>
     <string name="ui_stage_failed">After failure</string>
+    <string name="ui_group_status">Installing / success / failed</string>
+    <string name="ui_section_texts">Texts</string>
+    <string name="ui_texts_hint">Tap a text below to style its color, font, weight and size.</string>
+    <string name="ui_txt_color">Text color</string>
+    <string name="ui_txt_app_label">App label</string>
+    <string name="ui_txt_package_name">Package name</string>
+    <string name="ui_txt_version">Version</string>
+    <string name="ui_txt_file_size">File size</string>
+    <string name="ui_txt_chip">Chips</string>
+    <string name="ui_txt_status_title">Status title</string>
+    <string name="ui_txt_status_message">Status message</string>
+    <string name="ui_txt_menu_heading">Menu heading</string>
+    <string name="ui_txt_tab">Tabs</string>
+    <string name="ui_txt_section_title">Section title</string>
+    <string name="ui_txt_section_desc">Section description</string>
+    <string name="ui_txt_detail_label">Detail label</string>
+    <string name="ui_txt_detail_value">Detail value</string>
+    <string name="ui_txt_option_title">Option title</string>
+    <string name="ui_txt_option_desc">Option description</string>
+    <string name="ui_txt_permission">Permission</string>
 </resources>

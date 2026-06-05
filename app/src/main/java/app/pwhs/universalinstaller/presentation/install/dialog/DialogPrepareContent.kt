@@ -45,6 +45,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.ui.theme.DialogActionButton
 import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -82,8 +83,7 @@ fun DialogPrepareContent(
                             installedVersionName ?: "?",
                             newVersion,
                         ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error,
+                        style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.error),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -94,8 +94,7 @@ fun DialogPrepareContent(
                     ) {
                         Text(
                             text = installedVersionName ?: "?",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
                         )
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
@@ -107,17 +106,14 @@ fun DialogPrepareContent(
                         )
                         Text(
                             text = newVersion,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium,
+                            style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), MaterialTheme.colorScheme.primary),
                         )
                     }
                 }
                 else -> {
                     Text(
                         text = "${newVersion} (${apkInfo.versionCode})",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -130,8 +126,7 @@ fun DialogPrepareContent(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = sizeText,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = dialogTextStyle("file_size", MaterialTheme.typography.bodySmall, MaterialTheme.colorScheme.onSurfaceVariant),
             )
         }
 
@@ -149,7 +144,7 @@ fun DialogPrepareContent(
                 if (isDowngrade) {
                     AssistChip(
                         onClick = {},
-                        label = { Text(stringResource(R.string.dialog_chip_downgrade)) },
+                        label = { Text(stringResource(R.string.dialog_chip_downgrade), style = dialogTextStyle("chip", MaterialTheme.typography.labelLarge)) },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Rounded.Warning,
@@ -169,7 +164,7 @@ fun DialogPrepareContent(
                     AssistChip(
                         onClick = {},
                         label = {
-                            Text(stringResource(R.string.dialog_chip_split_apk))
+                            Text(stringResource(R.string.dialog_chip_split_apk), style = dialogTextStyle("chip", MaterialTheme.typography.labelLarge))
                         },
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -178,7 +173,7 @@ fun DialogPrepareContent(
                     AssistChip(
                         onClick = {},
                         label = {
-                            Text(stringResource(R.string.dialog_chip_has_obb))
+                            Text(stringResource(R.string.dialog_chip_has_obb), style = dialogTextStyle("chip", MaterialTheme.typography.labelLarge))
                         },
                     )
                 }

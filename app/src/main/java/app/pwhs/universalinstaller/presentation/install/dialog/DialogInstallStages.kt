@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.DialogActionButton
 import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
 import kotlinx.coroutines.launch
 
@@ -97,7 +98,7 @@ fun DialogInstallingContent(
 
         Text(
             text = target.appName.ifBlank { target.packageName },
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            style = dialogTextStyle("status_title", MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -106,8 +107,7 @@ fun DialogInstallingContent(
 
         Text(
             text = stringResource(R.string.dialog_installing_text),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = dialogTextStyle("status_message", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -144,10 +144,6 @@ fun DialogInstallingContent(
             kind = DialogButtonKind.Outlined,
             onClick = onBackground,
             modifier = Modifier.fillMaxWidth(),
-            border = androidx.compose.foundation.BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.primary,
-            ),
         ) {
             Text(stringResource(R.string.dialog_installing_background))
         }
@@ -217,15 +213,14 @@ fun DialogSuccessContent(
 
         Text(
             text = stringResource(R.string.dialog_success_title),
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            style = dialogTextStyle("status_title", MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)),
         )
 
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
             text = target.appName.ifBlank { target.packageName },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = dialogTextStyle("status_message", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -306,7 +301,7 @@ fun DialogFailedContent(
 
         Text(
             text = stringResource(R.string.dialog_failed_title),
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            style = dialogTextStyle("status_title", MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)),
             textAlign = TextAlign.Center,
         )
 
@@ -314,8 +309,7 @@ fun DialogFailedContent(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = target.appName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = dialogTextStyle("status_message", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -331,8 +325,7 @@ fun DialogFailedContent(
             ) {
                 Text(
                     text = errorMessage,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = dialogTextStyle("status_message", MaterialTheme.typography.bodySmall, MaterialTheme.colorScheme.onSurfaceVariant),
                 )
             }
 

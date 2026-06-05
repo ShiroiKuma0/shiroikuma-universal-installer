@@ -95,6 +95,7 @@ import androidx.datastore.preferences.core.edit
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.DialogActionButton
 import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.SplitEntry
 import app.pwhs.universalinstaller.domain.model.SplitType
@@ -279,8 +280,11 @@ fun DialogMenuContent(
                     text = {
                         Text(
                             text = title,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = dialogTextStyle(
+                                "tab",
+                                MaterialTheme.typography.labelLarge,
+                                if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
                             maxLines = 1,
                             softWrap = false,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
@@ -458,9 +462,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.infoTab(
                     apkInfo.supportedAbis.forEach { abi ->
                         Text(
                             text = abi,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = dialogTextStyle("detail_value", MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), MaterialTheme.colorScheme.onSurfaceVariant),
                         )
                     }
                 }
@@ -490,9 +492,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.infoTab(
                 ) {
                     Text(
                         text = apkInfo.sha256,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = dialogTextStyle("detail_value", MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace), MaterialTheme.colorScheme.onSurfaceVariant),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedButton(
@@ -894,13 +894,11 @@ private fun AdvancedToggle(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                style = dialogTextStyle("option_title", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurface)
             )
             Text(
                 text = description,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = dialogTextStyle("option_desc", MaterialTheme.typography.labelSmall, MaterialTheme.colorScheme.onSurfaceVariant)
             )
         }
         Switch(
@@ -923,14 +921,11 @@ private fun DetailRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = dialogTextStyle("detail_label", MaterialTheme.typography.bodySmall, MaterialTheme.colorScheme.onSurfaceVariant),
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurface,
+            style = dialogTextStyle("detail_value", MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), MaterialTheme.colorScheme.onSurface),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 16.dp),
@@ -972,22 +967,19 @@ private fun MenuCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = title,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurface,
+                            style = dialogTextStyle("section_title", MaterialTheme.typography.titleSmall, MaterialTheme.colorScheme.onSurface),
                         )
                         if (badge != null) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = badge,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
+                                style = dialogTextStyle("section_title", MaterialTheme.typography.labelSmall, MaterialTheme.colorScheme.primary),
                             )
                         }
                     }
                     Text(
                         text = description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = descriptionColor,
+                        style = dialogTextStyle("section_desc", MaterialTheme.typography.bodySmall, descriptionColor),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -1049,18 +1041,18 @@ private fun PermissionRowList(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = entry.label,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = if (entry.isDangerous) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (entry.isDangerous) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurface,
+                        style = dialogTextStyle(
+                            "permission",
+                            MaterialTheme.typography.bodySmall.copy(fontWeight = if (entry.isDangerous) FontWeight.SemiBold else FontWeight.Normal),
+                            if (entry.isDangerous) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                        ),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     if (entry.prefix.isNotEmpty()) {
                         Text(
                             text = entry.prefix,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            style = dialogTextStyle("permission", MaterialTheme.typography.labelSmall, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -1079,7 +1071,7 @@ private fun PermissionRowList(
                     } else {
                         stringResource(R.string.dialog_menu_show_more, entries.size - collapsedCount)
                     },
-                    style = MaterialTheme.typography.labelMedium,
+                    style = dialogTextStyle("permission", MaterialTheme.typography.labelMedium),
                 )
             }
         }

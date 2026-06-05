@@ -33,6 +33,8 @@ import app.pwhs.universalinstaller.presentation.install.AttachedObb
 import app.pwhs.universalinstaller.presentation.install.DialogStage
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
 import app.pwhs.universalinstaller.presentation.install.InstallUiState
+import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun generateDialogParams(
@@ -107,6 +109,7 @@ fun generateDialogParams(
                     title = DialogInnerParams("title_${info.packageName}") {
                         Text(
                             text = info.appName.ifBlank { info.packageName },
+                            style = dialogTextStyle("app_label", MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)),
                             maxLines = 1,
                             modifier = Modifier.basicMarquee()
                         )
@@ -114,6 +117,7 @@ fun generateDialogParams(
                     subtitle = DialogInnerParams("subtitle_${info.packageName}") {
                         Text(
                             text = info.packageName,
+                            style = dialogTextStyle("package_name", MaterialTheme.typography.bodySmall),
                             maxLines = 1,
                             modifier = Modifier.basicMarquee()
                         )
@@ -140,11 +144,15 @@ fun generateDialogParams(
             } else {
                 DialogParams(
                     title = DialogInnerParams("menu_title") {
-                        Text(text = stringResource(R.string.dialog_menu_title))
+                        Text(
+                            text = stringResource(R.string.dialog_menu_title),
+                            style = dialogTextStyle("menu_heading", MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)),
+                        )
                     },
                     subtitle = DialogInnerParams("menu_subtitle") {
                         Text(
                             text = info.appName.ifBlank { info.packageName },
+                            style = dialogTextStyle("menu_heading", MaterialTheme.typography.bodySmall),
                             maxLines = 1,
                             modifier = Modifier.basicMarquee()
                         )

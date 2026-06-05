@@ -45,6 +45,7 @@ import app.pwhs.universalinstaller.presentation.composable.ColorPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.FontPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.ui.theme.ButtonStyle
+import app.pwhs.universalinstaller.ui.theme.TextStyleOverride
 import app.pwhs.universalinstaller.ui.theme.FontWeightOption
 import app.pwhs.universalinstaller.ui.theme.SurfaceTheme
 import app.pwhs.universalinstaller.ui.theme.composeFontFamily
@@ -85,6 +86,27 @@ private enum class ButtonSlot(@StringRes val labelRes: Int, val key: String, @St
     Close(R.string.ui_btn_close, "close", R.string.ui_stage_failed),
 }
 
+/** A dialog text category that can be styled individually: friendly label, storage key, and the area
+ *  it appears in (used to group the selector chips). */
+private enum class TextCat(@StringRes val labelRes: Int, val key: String, @StringRes val groupRes: Int) {
+    AppLabel(R.string.ui_txt_app_label, "app_label", R.string.ui_stage_prepare),
+    PackageName(R.string.ui_txt_package_name, "package_name", R.string.ui_stage_prepare),
+    Version(R.string.ui_txt_version, "version", R.string.ui_stage_prepare),
+    FileSize(R.string.ui_txt_file_size, "file_size", R.string.ui_stage_prepare),
+    Chip(R.string.ui_txt_chip, "chip", R.string.ui_stage_prepare),
+    StatusTitle(R.string.ui_txt_status_title, "status_title", R.string.ui_group_status),
+    StatusMessage(R.string.ui_txt_status_message, "status_message", R.string.ui_group_status),
+    MenuHeading(R.string.ui_txt_menu_heading, "menu_heading", R.string.ui_stage_options),
+    Tab(R.string.ui_txt_tab, "tab", R.string.ui_stage_options),
+    SectionTitle(R.string.ui_txt_section_title, "section_title", R.string.ui_stage_options),
+    SectionDesc(R.string.ui_txt_section_desc, "section_desc", R.string.ui_stage_options),
+    DetailLabel(R.string.ui_txt_detail_label, "detail_label", R.string.ui_stage_options),
+    DetailValue(R.string.ui_txt_detail_value, "detail_value", R.string.ui_stage_options),
+    OptionTitle(R.string.ui_txt_option_title, "option_title", R.string.ui_stage_options),
+    OptionDesc(R.string.ui_txt_option_desc, "option_desc", R.string.ui_stage_options),
+    Permission(R.string.ui_txt_permission, "permission", R.string.ui_stage_options),
+}
+
 // Pending edits drive a single shared picker dialog (used by every colour/font row in the section).
 private class ColorEdit(val current: Int?, val onSet: (Int?) -> Unit)
 private class FontEdit(val current: String?, val onSet: (String?) -> Unit)
@@ -105,18 +127,24 @@ fun SurfaceThemeSection(
     onRequestFontImport: ((String) -> Unit) -> Unit,
     showBorder: Boolean = false,
     showButtons: Boolean = false,
+    showTexts: Boolean = false,
 ) {
     var colorEdit by remember { mutableStateOf<ColorEdit?>(null) }
     var fontEdit by remember { mutableStateOf<FontEdit?>(null) }
     var selectedButton by remember { mutableStateOf(ButtonSlot.Menu) }
+    var selectedText by remember { mutableStateOf(TextCat.AppLabel) }
 
     SettingsSection(title = title, icon = icon) {
         SubHeader(stringResource(R.string.ui_section_color))
-        ColorSlot.entries.forEach { slot ->
-            ColorRow(L2, stringResource(slot.labelRes), slot.get(theme)) {
-                colorEdit = ColorEdit(slot.get(theme)) { onChange(slot.set(theme, it)) }
+        // When per-text categories are available (the dialog), title/secondary text colours are set there,
+        // per category — so the broad Title/Secondary roles are hidden here to avoid redundancy.
+        ColorSlot.entries
+            .filterNot { showTexts && (it == ColorSlot.TitleText || it == ColorSlot.SecondaryText) }
+            .forEach { slot ->
+                ColorRow(L2, stringResource(slot.labelRes), slot.get(theme)) {
+                    colorEdit = ColorEdit(slot.get(theme)) { onChange(slot.set(theme, it)) }
+                }
             }
-        }
 
         if (showBorder) {
             SubHeader(stringResource(R.string.ui_role_border))
@@ -187,6 +215,61 @@ fun SurfaceThemeSection(
             WeightChips(L3, bs.fontWeight) { upd(bs.copy(fontWeight = it)) }
             FieldLabel(L3, stringResource(R.string.theme_size))
             ScaleSlider(L3, bs.fontScale) { upd(bs.copy(fontScale = it)) }
+        }
+
+        if (showTexts) {
+            HorizontalDivider(Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+            SubHeader(stringResource(R.string.ui_section_texts))
+            Text(
+                text = stringResource(R.string.ui_texts_hint),
+                style = MaterialTheme.typography.bodySmall,
+                fontStyle = FontStyle.Italic,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
+            )
+            // Chips grouped by the area each text appears in.
+            TextCat.entries.groupBy { it.groupRes }.forEach { (groupRes, cats) ->
+                Text(
+                    text = stringResource(groupRes),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = L2.dp, top = 8.dp, bottom = 2.dp),
+                )
+                FlowRow(
+                    modifier = Modifier.padding(start = L2.dp, end = 16.dp, bottom = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    cats.forEach { c ->
+                        FilterChip(
+                            selected = selectedText == c,
+                            onClick = { selectedText = c },
+                            label = { Text(stringResource(c.labelRes)) },
+                        )
+                    }
+                }
+            }
+            Text(
+                text = stringResource(R.string.ui_btn_editing, stringResource(selectedText.labelRes)),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = L2.dp, top = 12.dp, bottom = 2.dp),
+            )
+            val tkey = selectedText.key
+            val ts = theme.texts[tkey] ?: TextStyleOverride()
+            fun updT(next: TextStyleOverride) {
+                val map = theme.texts.toMutableMap()
+                if (next == TextStyleOverride()) map.remove(tkey) else map[tkey] = next
+                onChange(theme.copy(texts = map))
+            }
+            ColorRow(L3, stringResource(R.string.ui_txt_color), ts.color) {
+                colorEdit = ColorEdit(ts.color) { updT(ts.copy(color = it)) }
+            }
+            FieldLabel(L3, stringResource(R.string.theme_font))
+            FontRow(L3, ts.fontFamily) { fontEdit = FontEdit(ts.fontFamily) { updT(ts.copy(fontFamily = it)) } }
+            FieldLabel(L3, stringResource(R.string.theme_weight))
+            WeightChips(L3, ts.fontWeight) { updT(ts.copy(fontWeight = it)) }
+            FieldLabel(L3, stringResource(R.string.theme_size))
+            ScaleSlider(L3, ts.fontScale) { updT(ts.copy(fontScale = it)) }
         }
 
         HorizontalDivider(Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)

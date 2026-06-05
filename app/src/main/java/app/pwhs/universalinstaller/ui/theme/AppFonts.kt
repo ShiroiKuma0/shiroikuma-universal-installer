@@ -82,6 +82,10 @@ fun composeFontFamily(context: Context, fileName: String): FontFamily? = when {
     }
 }
 
+/** Drop the cached [FontFamily] objects so font files written after startup (e.g. by a config
+ *  import) are reloaded from disk on next use. */
+fun invalidateFontCache() = familyCache.clear()
+
 /** Monospace family when "monospace for technical text" is on, else null (inherit). */
 @Composable
 fun technicalFontFamily(): FontFamily? =

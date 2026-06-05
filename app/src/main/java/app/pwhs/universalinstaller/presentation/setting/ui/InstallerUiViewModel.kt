@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.presentation.setting.ui
 
 import android.app.Application
+import android.net.Uri
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
@@ -12,11 +13,13 @@ import app.pwhs.universalinstaller.ui.theme.BottomBarTheme
 import app.pwhs.universalinstaller.ui.theme.BottomBarThemeStore
 import app.pwhs.universalinstaller.ui.theme.SurfaceTheme
 import app.pwhs.universalinstaller.ui.theme.SurfaceThemeStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class InstallerUiState(
     val fontFamily: String = "",
@@ -62,6 +65,43 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
 
     fun setBottomBarTheme(theme: BottomBarTheme) =
         edit { it[PreferencesKeys.UI_BOTTOM_BAR_THEME] = BottomBarThemeStore.serialize(theme) }
+
+    // ── Export / import of the UI configuration (prefs + imported fonts) ──
+    /** Write the UI config to [uri]; [onResult] reports success. */
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    fun exportUiConfig(uri: Uri, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                try {
+                    val json = UiConfigBackup.export(application)
+                    application.contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
+                        ?: return@withContext false
+                    true
+                } catch (e: Exception) {
+                    false
+                }
+            }
+            onResult(ok)
+        }
+    }
+
+    /** Restore a UI config from [uri]; the theme picks up the new values via DataStore. */
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    fun importUiConfig(uri: Uri, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                try {
+                    val content = application.contentResolver.openInputStream(uri)?.use {
+                        it.readBytes().decodeToString()
+                    } ?: return@withContext false
+                    UiConfigBackup.import(application, content)
+                } catch (e: Exception) {
+                    false
+                }
+            }
+            onResult(ok)
+        }
+    }
 
     // Recently-picked colours (most-recent first, deduped, capped) — shown as one-touch picker hotpicks.
     val recentColors: StateFlow<List<Int>> = application.dataStore.data

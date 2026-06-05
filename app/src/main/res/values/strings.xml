@@ -798,4 +798,12 @@
     <string name="ui_bottom_bar_indicator">Selected indicator</string>
     <string name="ui_bottom_bar_unselected_icon">Unselected icon</string>
     <string name="ui_bottom_bar_unselected_text">Unselected text</string>
+    <string name="ui_backup_section">Backup &amp; restore</string>
+    <string name="ui_backup_export">Export UI config</string>
+    <string name="ui_backup_export_sub">Save fonts, colours and layout to a file</string>
+    <string name="ui_backup_import">Import UI config</string>
+    <string name="ui_backup_import_sub">Restore from a previously exported file</string>
+    <string name="ui_backup_exported">UI config exported</string>
+    <string name="ui_backup_imported">UI config imported</string>
+    <string name="ui_backup_failed">Backup failed — check the file and try again</string>
 </resources>

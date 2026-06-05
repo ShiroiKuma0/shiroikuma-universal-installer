@@ -45,6 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.DialogActionButton
+import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
 import kotlinx.coroutines.launch
 
@@ -138,7 +140,9 @@ fun DialogInstallingContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        OutlinedButton(
+        DialogActionButton(
+            slot = "background",
+            kind = DialogButtonKind.Outlined,
             onClick = onBackground,
             modifier = Modifier.fillMaxWidth(),
             border = androidx.compose.foundation.BorderStroke(
@@ -344,7 +348,9 @@ fun DialogSuccessContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            OutlinedButton(
+            DialogActionButton(
+                slot = "done",
+                kind = DialogButtonKind.Outlined,
                 onClick = { onDone(keepApk) },
                 modifier = Modifier.weight(1f),
                 border = androidx.compose.foundation.BorderStroke(
@@ -356,7 +362,9 @@ fun DialogSuccessContent(
             }
 
             if (canOpen) {
-                Button(
+                DialogActionButton(
+                    slot = "open",
+                    kind = DialogButtonKind.Filled,
                     onClick = { onOpen(keepApk) },
                     modifier = Modifier.weight(1f),
                 ) {
@@ -474,13 +482,11 @@ fun DialogFailedContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                androidx.compose.material3.OutlinedButton(
+                DialogActionButton(
+                    slot = "close",
+                    kind = DialogButtonKind.Outlined,
                     onClick = onClose,
                     modifier = Modifier.weight(1f),
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                    ),
                 ) {
                     Text(stringResource(R.string.dialog_failed_close))
                 }
@@ -492,7 +498,9 @@ fun DialogFailedContent(
                 }
             }
         } else {
-            Button(
+            DialogActionButton(
+                slot = "close",
+                kind = DialogButtonKind.Filled,
                 onClick = onClose,
                 modifier = Modifier.fillMaxWidth(),
             ) {

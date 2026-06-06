@@ -119,10 +119,21 @@ fun DialogInstallingContent(
                 animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
                 label = "InstallProgress",
             )
-            LinearProgressIndicator(
-                progress = { animatedProgress },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-            )
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                LinearProgressIndicator(
+                    progress = { animatedProgress },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "${(animatedProgress * 100).toInt()}%",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         } else {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
@@ -132,6 +143,10 @@ fun DialogInstallingContent(
         OutlinedButton(
             onClick = onBackground,
             modifier = Modifier.fillMaxWidth(),
+            border = androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+            ),
         ) {
             Text(stringResource(R.string.dialog_installing_background))
         }

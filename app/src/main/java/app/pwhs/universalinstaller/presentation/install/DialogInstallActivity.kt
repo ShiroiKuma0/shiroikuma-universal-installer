@@ -1,12 +1,17 @@
 package app.pwhs.universalinstaller.presentation.install
 
+import android.Manifest
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -81,6 +86,7 @@ import app.pwhs.universalinstaller.presentation.install.dialog.PositionDialog
 import app.pwhs.universalinstaller.presentation.install.dialog.dialogInnerWidget
 import app.pwhs.universalinstaller.presentation.install.dialog.generateDialogParams
 import app.pwhs.universalinstaller.presentation.install.dialog.LoadingContent
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.solrudev.ackpine.splits.ApkSplits.validate
 import ru.solrudev.ackpine.splits.SplitPackage.Companion.toSplitPackage
@@ -111,6 +117,22 @@ import timber.log.Timber
 class DialogInstallActivity : ComponentActivity() {
 
     private val viewModel: InstallViewModel by viewModel()
+    private val installNotifier: InstallProgressNotifier by inject()
+
+    // POST_NOTIFICATIONS gates the background-install notification on Android 13+. We ask
+    // on first open of the dialog (not at Background-tap time) so the user has already
+    // decided before they need the notification.
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* result handled at notification post time via canPost() */ }
+
+    private fun maybeRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val granted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!granted) notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
 
     /** Track whether system took us to a confirmation activity. */
     private var wentToSystemConfirm = false
@@ -122,6 +144,7 @@ class DialogInstallActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        maybeRequestNotificationPermission()
 
         val incomingUris = collectIncomingUris(intent)
         if (incomingUris.isEmpty()) {
@@ -245,6 +268,31 @@ class DialogInstallActivity : ComponentActivity() {
                 }
             }
 
+            // Any dismiss path (Background button, Cancel, outside-tap, back press) while an
+            // install is in flight must hand the session off to the process-scoped notifier so
+            // the install doesn't continue silently. dialogTarget is set the moment the install
+            // is fired, so its presence is the marker.
+            val handoffInstall = {
+                val t = dialogTarget
+                val stage = uiState.dialogStage
+                if (t != null && (stage is DialogStage.Installing || stage is DialogStage.None)) {
+                    installNotifier.track(
+                        sessionId = t.sessionId,
+                        packageName = t.packageName,
+                        appName = t.appName,
+                        iconPath = t.iconPath,
+                    )
+                }
+            }
+
+            BackHandler {
+                handoffInstall()
+                viewModel.dismissPendingInstall()
+                viewModel.dialogClose()
+                viewModel.clearDialogTarget()
+                finish()
+            }
+
             UniversalInstallerTheme {
                 val configuration = LocalConfiguration.current
                 val screenHeight = configuration.screenHeightDp.dp
@@ -269,6 +317,7 @@ class DialogInstallActivity : ComponentActivity() {
                         .fillMaxSize()
                         .pointerInput(Unit) {
                             detectTapGestures(onTap = {
+                                handoffInstall()
                                 viewModel.dismissPendingInstall()
                                 viewModel.dialogClose()
                                 viewModel.clearDialogTarget()
@@ -296,6 +345,7 @@ class DialogInstallActivity : ComponentActivity() {
                             autoOpenAfterInstall = autoOpenAfterInstall,
                             onInstall = handleInstallTap,
                             onCancel = {
+                                handoffInstall()
                                 viewModel.dismissPendingInstall()
                                 viewModel.dialogClose()
                                 viewModel.clearDialogTarget()
@@ -310,9 +360,7 @@ class DialogInstallActivity : ComponentActivity() {
                             onToggleSplit = viewModel::toggleSplit,
                             onAttachObb = { obbPickerLauncher.launch(arrayOf("*/*")) },
                             onBackground = {
-                                // Dialog dismisses; install continues in the background, tracked by
-                                // the system notification. Clear the target so a subsequent open
-                                // doesn't replay Success/Failed for an already-finished session.
+                                handoffInstall()
                                 viewModel.dialogClose()
                                 viewModel.clearDialogTarget()
                                 finish()

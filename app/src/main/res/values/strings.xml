@@ -239,6 +239,13 @@
     <string name="vt_notif_uploading">Uploading to VirusTotal (%d%%)</string>
     <string name="vt_notif_queued">Queued on VirusTotal</string>
     <string name="vt_notif_analyzing">VirusTotal analyzing</string>
+    <string name="install_notif_channel_name">Install progress</string>
+    <string name="install_notif_channel_description">Shows install progress and results for apps installed in the background</string>
+    <string name="install_notif_progress_title_single">Installing %1$s</string>
+    <string name="install_notif_progress_title_multi">Installing %1$d apps</string>
+    <string name="install_notif_progress_text">%1$d%%</string>
+    <string name="install_notif_result_success_title">Installed</string>
+    <string name="install_notif_result_failed_title">Install failed</string>
     <string name="vt_notif_result_clean">VirusTotal: clean</string>
     <string name="vt_notif_result_malicious">VirusTotal: threats detected</string>
     <string name="vt_notif_result_suspicious">VirusTotal: suspicious</string>

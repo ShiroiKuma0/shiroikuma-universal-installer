@@ -12,6 +12,7 @@ import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
 import app.pwhs.universalinstaller.presentation.download.DownloadHistoryViewModel
 import app.pwhs.universalinstaller.presentation.manage.BackupsViewModel
 import app.pwhs.universalinstaller.presentation.manage.permissions.AppPermissionsViewModel
+import app.pwhs.universalinstaller.presentation.install.InstallProgressNotifier
 import app.pwhs.universalinstaller.presentation.install.InstallViewModel
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
 import app.pwhs.universalinstaller.presentation.sync.SyncViewModel
@@ -23,15 +24,25 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import ru.solrudev.ackpine.installer.PackageInstaller
 import ru.solrudev.ackpine.uninstaller.PackageUninstaller
 import timber.log.Timber
 
 val appModule = module {
+    // Process-scoped coroutine scope for work that must outlive any single activity/VM —
+    // e.g. installs that the user backgrounded from DialogInstallActivity. SupervisorJob so
+    // one failed install doesn't poison the scope.
+    single<CoroutineScope>(qualifier = org.koin.core.qualifier.named("appScope")) {
+        CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    }
     single { PackageInstaller.getInstance(get()) }
     single { PackageUninstaller.getInstance(get()) }
     factory { (handle: SavedStateHandle) -> SessionDataRepositoryImpl(handle) }
@@ -75,8 +86,14 @@ val appModule = module {
     single { VirusTotalService(get()) }
     single { VirusTotalNotifier(get()) }
     single { PackageDownloadService(get()) }
+    single { InstallProgressNotifier(get(), get(), get()) }
 
-    viewModelOf(::InstallViewModel)
+    viewModel {
+        InstallViewModel(
+            get(), get(), get(), get(), get(), get(), get(), get(), get(),
+            get(qualifier = org.koin.core.qualifier.named("appScope")),
+        )
+    }
     viewModelOf(::ManageViewModel)
     viewModelOf(::BackupsViewModel)
     viewModelOf(::AppPermissionsViewModel)

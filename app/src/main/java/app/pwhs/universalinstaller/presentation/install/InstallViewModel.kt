@@ -77,6 +77,7 @@ class InstallViewModel(
     private val historyDao: InstallHistoryDao,
     private val downloadHistoryDao: app.pwhs.universalinstaller.data.local.DownloadHistoryDao,
     private val backendFactory: InstallerBackendFactory,
+    private val appScope: kotlinx.coroutines.CoroutineScope,
 ) : ViewModel() {
 
     private val defaultController = DefaultInstallController(application, packageInstaller, sessionDataRepository, historyDao)
@@ -400,7 +401,7 @@ class InstallViewModel(
                     uris = uris,
                     sessionData = sessionData,
                     userId = targetedUserId,
-                    scope = viewModelScope,
+                    scope = if (trackDialogTarget) appScope else viewModelScope,
                     onSessionCreated = if (trackDialogTarget) {
                         { realSessionId: UUID ->
                             _dialogTarget.value = DialogTarget(
@@ -419,7 +420,7 @@ class InstallViewModel(
                 controller.install(
                     uris = uris,
                     sessionData = sessionData,
-                    scope = viewModelScope,
+                    scope = if (trackDialogTarget) appScope else viewModelScope,
                     context = application,
                     originalUri = originalUri,
                     deleteAfterInstall = deleteAfterInstall,

@@ -28,7 +28,6 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -234,9 +233,13 @@ fun DialogPrepareContent(
 
         // Cancel
         Spacer(modifier = Modifier.height(4.dp))
-        FilledTonalButton(
+        OutlinedButton(
             onClick = onCancel,
             modifier = Modifier.fillMaxWidth(),
+            border = androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.primary,
+            ),
         ) {
             Text(stringResource(R.string.dialog_cancel_btn))
         }

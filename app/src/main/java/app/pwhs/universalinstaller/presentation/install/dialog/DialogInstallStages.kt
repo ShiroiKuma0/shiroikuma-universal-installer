@@ -2,8 +2,11 @@ package app.pwhs.universalinstaller.presentation.install.dialog
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,11 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -37,7 +40,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +55,8 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.DialogActionButton
 import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
 import app.pwhs.universalinstaller.ui.theme.LocalDialogProgressStyle
+import app.pwhs.universalinstaller.ui.theme.LocalDialogSuccessStyle
+import app.pwhs.universalinstaller.ui.theme.SuccessBadge
 import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
 import kotlinx.coroutines.launch
@@ -214,17 +223,51 @@ fun DialogSuccessContent(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(
-            imageVector = Icons.Rounded.CheckCircle,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
+        // Success badge: a coloured ring (default yellow) around a black inner disc, with a coloured
+        // tick (default yellow) drawn on top. Colour and thickness of both the ring and the tick are
+        // themable per install dialog. The ring is a filled circle whose visible width is the gap to
+        // the inner disc, so the inner disc shrinks by twice the ring thickness.
+        val successStyle = LocalDialogSuccessStyle.current
+        val circleColor = successStyle.circle?.let { Color(it) } ?: SuccessBadge.DefaultColor
+        val tickColor = successStyle.tick?.let { Color(it) } ?: SuccessBadge.DefaultColor
+        val circleThickness = successStyle.circleThickness ?: SuccessBadge.DefaultCircleThickness
+        val tickThickness = successStyle.tickThickness ?: SuccessBadge.DefaultTickThickness
+        Box(
             modifier = Modifier
                 .size(64.dp)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                },
-        )
+                }
+                .clip(CircleShape)
+                .background(circleColor),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp - circleThickness.dp * 2)
+                    .clip(CircleShape)
+                    .background(SuccessBadge.Background),
+                contentAlignment = Alignment.Center,
+            ) {
+                Canvas(modifier = Modifier.size(32.dp)) {
+                    val path = Path().apply {
+                        moveTo(size.width * 0.20f, size.height * 0.52f)
+                        lineTo(size.width * 0.42f, size.height * 0.73f)
+                        lineTo(size.width * 0.80f, size.height * 0.28f)
+                    }
+                    drawPath(
+                        path = path,
+                        color = tickColor,
+                        style = Stroke(
+                            width = tickThickness.dp.toPx(),
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round,
+                        ),
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 

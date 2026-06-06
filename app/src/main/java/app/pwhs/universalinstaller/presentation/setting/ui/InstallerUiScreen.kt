@@ -310,6 +310,7 @@ fun InstallerUiScreen(
                     surface = AppSurface.Dialog,
                     showBorder = true,
                     showProgress = true,
+                    showSuccess = true,
                     showButtons = true,
                     showTexts = true,
                 )

@@ -1,16 +1,24 @@
 ---
 name: build-apk
-description: Build the signed full release APK of 白い熊's Universal Installer fork (app id shiroikuma.universalinstaller, label "白い熊 Universal installer") via the buildFork Gradle task, then always ask whether to push it to the connected phone via adb. Always build first without asking for permission to build — the ONLY question you ever ask is the adb-push question afterward. Use whenever the user asks to build the app, build the APK, make a release build, or build and push to the phone.
+description: Build the signed full release APK of 白い熊's Universal Installer fork (app id shiroikuma.universalinstaller, label "白い熊 Universal installer") via the buildFork Gradle task, then always ask whether to push it to the connected phone via adb. Always build first without asking for permission to build — the ONLY question you ever ask is the adb-push question afterward. Use whenever the user asks to build the app, build the APK, make a release build, or build and push to the phone — AND proactively, on your own, after you finish any code change in this repo: as soon as a change is complete and compiles, build it and then ask about the adb push, without waiting to be told to build.
 ---
 
 # Build the full release APK and optionally push to phone
 
-> **Never ask whether to build — just build.** When this skill applies (the user
-> asked to build, or you've made changes that are ready to test), run the build
-> immediately. Do **not** ask "shall I build?" / "want me to run buildFork?" — that
-> question is wrong. The **only** question in this whole flow is the `AskUserQuestion`
-> about the `adb push`, asked **after** a successful build. So: always build, *then*
-> ask about the push.
+> **Build after every change — proactively, without being asked.** Finishing a
+> code change in this repo is *itself* the trigger for this skill: as soon as you've
+> completed a coherent, compilable unit of work (you implemented or fixed something
+> and it's ready to test), run the build immediately, then ask about the `adb push`.
+> 白い熊 has opted into this as the standing workflow — do **not** wait to be told
+> "build it", and do **not** ask "shall I build?" / "want me to run buildFork?" That
+> question is always wrong. The **only** question in this whole flow is the
+> `AskUserQuestion` about the `adb push`, asked **after** a successful build. So: on
+> any change → always build, *then* ask about the push.
+>
+> (Sole exceptions, where you should not auto-build: edits that can't change the
+> built app — docs/comments-only, `.claude/` skill or settings files, changelog or
+> metadata text — and work-in-progress you've explicitly flagged as not yet ready.
+> When unsure whether a change is "done", finish it, then build.)
 
 > **The push destination is ALWAYS `/sdcard/tmp/`.** Every `adb push` of the APK
 > goes to `/sdcard/tmp/<apk name>` — **never** `/sdcard/Download/` or anywhere

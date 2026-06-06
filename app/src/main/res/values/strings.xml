@@ -239,6 +239,7 @@
     <string name="vt_notif_uploading">Uploading to VirusTotal (%d%%)</string>
     <string name="vt_notif_queued">Queued on VirusTotal</string>
     <string name="vt_notif_analyzing">VirusTotal analyzing</string>
+    <string name="install_targeted_no_backend">To install into a specific profile, enable Shizuku or Root in Settings</string>
     <string name="install_notif_channel_name">Install progress</string>
     <string name="install_notif_channel_description">Shows install progress and results for apps installed in the background</string>
     <string name="install_notif_progress_title_single">Installing %1$s</string>

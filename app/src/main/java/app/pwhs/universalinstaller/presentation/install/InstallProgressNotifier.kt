@@ -18,15 +18,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import ru.solrudev.ackpine.installer.PackageInstaller
-import ru.solrudev.ackpine.installer.getSession
-import ru.solrudev.ackpine.resources.ResolvableString
-import ru.solrudev.ackpine.session.Session
-import ru.solrudev.ackpine.session.progress
-import ru.solrudev.ackpine.session.state
 import timber.log.Timber
 import java.io.File
 import java.util.UUID
@@ -35,22 +30,32 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Posts and updates a persistent notification for installs that the user backgrounded
- * from [DialogInstallActivity]. Lives at the process scope, independent of any
- * activity/VM scope so the install can complete (and be reported) after the dialog
- * activity is destroyed.
+ * from [DialogInstallActivity]. Lives at process scope, independent of any activity/VM
+ * scope so the install can complete (and be reported) after the dialog activity is
+ * destroyed.
  *
- * - One progress notification (NOTIF_ID_PROGRESS), updated as sessions move. When
- *   multiple sessions are active, the text rolls up to "Đang cài N ứng dụng" with the
- *   most recent app's icon as the avatar.
- * - One result notification per completed install (auto-incrementing id), shown after
- *   Success/Failed, so the user can see what finished even after dismissing the
- *   progress notification.
- * - Tapping any notification reopens [DialogInstallActivity] with the session id as
- *   an extra so it can restore the Installing/Success/Failed state.
+ * Observes [SessionDataRepository] (process-wide singleton) — that's the source of
+ * truth both ackpine-backed controllers and [controller.ManualInstallController]
+ * (targeted-user installs) push to, so this single observer covers all install paths.
+ * Doesn't try to talk to ackpine's session API directly because manual targeted
+ * installs use UUIDs that ackpine has never seen.
+ *
+ * Mapping:
+ *  - session present in repo, error blank → Installing (update progress notif)
+ *  - session present, error non-blank   → Failed  (result notif + untrack)
+ *  - session removed from repo          → Succeeded (result notif + untrack)
+ *    (User-cancels also remove without setting error; we surface them as success,
+ *    since the dialog already showed the cancel — no separate state preserved here.)
+ *
+ * Notifications:
+ *  - One progress notification (NOTIF_ID_PROGRESS) rolls all tracked installs into
+ *    a single entry; multi-install case shows count + average progress.
+ *  - One result notification per completed install (auto-incrementing id), with
+ *    BigTextStyle so the failure reason is readable.
  */
 class InstallProgressNotifier(
     private val context: Context,
-    private val packageInstaller: PackageInstaller,
+    @Suppress("unused") private val packageInstaller: ru.solrudev.ackpine.installer.PackageInstaller,
     private val sessionDataRepository: SessionDataRepository,
 ) {
     private data class TrackedInstall(
@@ -60,12 +65,13 @@ class InstallProgressNotifier(
         val iconPath: String?,
         var progress: Int = 0,
         var indeterminate: Boolean = true,
-        var watcher: Job? = null,
+        var sawInList: Boolean = false,
     )
 
     private val tracked = ConcurrentHashMap<UUID, TrackedInstall>()
     private val nm = NotificationManagerCompat.from(context)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var observerJob: Job? = null
 
     init {
         ensureChannel()
@@ -73,83 +79,72 @@ class InstallProgressNotifier(
 
     fun track(sessionId: UUID, packageName: String, appName: String, iconPath: String?) {
         if (tracked.containsKey(sessionId)) return
-        val entry = TrackedInstall(sessionId, packageName, appName, iconPath)
-        tracked[sessionId] = entry
-        entry.watcher = scope.launch {
-            val session = packageInstaller.getSession(sessionId)
-            if (session == null) {
-                Timber.w("InstallProgressNotifier: session $sessionId not found at track time")
-                tracked.remove(sessionId)
-                refreshProgressNotification()
-                return@launch
-            }
-            session.progress
-                .onEach { p ->
-                    val pct = if (p.max > 0) (p.progress * 100 / p.max).coerceIn(0, 100) else 0
-                    entry.progress = pct
-                    entry.indeterminate = p.max <= 0
-                    // Keep the repo in sync so a reopened dialog sees real progress —
-                    // the controller's own awaitSession watcher died with the VM scope.
-                    sessionDataRepository.updateSessionProgress(sessionId, p)
-                    refreshProgressNotification()
-                }
-                .launchIn(this)
-            session.state
-                .onEach { state ->
-                    when (state) {
-                        is Session.State.Succeeded -> {
-                            // Remove from repo so a reopened dialog reads this as Success.
-                            sessionDataRepository.removeSessionData(sessionId)
-                            finishTracked(entry, success = true, errorText = null)
-                        }
-                        is Session.State.Failed<*> -> {
-                            val failure = state.failure
-                            val msg = if (failure is ru.solrudev.ackpine.installer.InstallFailure) {
-                                val info = InstallErrorHelper.getErrorInfo(context, failure)
-                                info.title
-                            } else {
-                                runCatching { failure.toString() }.getOrNull() ?: "Install failed"
-                            }
-                            sessionDataRepository.setError(sessionId, ResolvableString.raw(msg))
-                            finishTracked(entry, success = false, errorText = msg)
-                        }
-                        Session.State.Cancelled -> {
-                            // Treat as a quiet failure — surface in the result notif so the user
-                            // knows the install didn't complete. Don't push an error string to
-                            // the repo (the dialog already treats Cancelled as user-initiated).
-                            sessionDataRepository.removeSessionData(sessionId)
-                            finishTracked(
-                                entry,
-                                success = false,
-                                errorText = context.getString(R.string.install_error_cancelled_title),
-                            )
-                        }
-                        else -> Unit // Pending/Active/Awaiting/Committed handled by progress flow
-                    }
-                }
-                .launchIn(this)
-        }
+        tracked[sessionId] = TrackedInstall(sessionId, packageName, appName, iconPath)
+        ensureObserverRunning()
         refreshProgressNotification()
     }
 
     fun untrack(sessionId: UUID) {
-        val entry = tracked.remove(sessionId) ?: return
-        entry.watcher?.cancel()
+        if (tracked.remove(sessionId) == null) return
         if (tracked.isEmpty()) {
             nm.cancel(NOTIF_ID_PROGRESS)
+            observerJob?.cancel()
+            observerJob = null
         } else {
             refreshProgressNotification()
         }
     }
 
+    /**
+     * Single observer multiplexed across all tracked sessions. Started lazily on the
+     * first [track] call and cancelled when the last one untracks, so we don't burn
+     * a coroutine when nothing is in flight.
+     */
+    private fun ensureObserverRunning() {
+        if (observerJob?.isActive == true) return
+        observerJob = scope.launch {
+            combine(
+                sessionDataRepository.sessions,
+                sessionDataRepository.sessionsProgress,
+            ) { sessions, progress -> sessions to progress }
+                .onEach { (sessions, progressList) ->
+                    val snapshot = tracked.values.toList()
+                    for (entry in snapshot) {
+                        val sd = sessions.find { it.id == entry.sessionId }
+                        if (sd != null) {
+                            entry.sawInList = true
+                            val sp = progressList.find { it.id == entry.sessionId }
+                            if (sp != null && sp.progressMax > 0) {
+                                entry.progress = (sp.currentProgress * 100 / sp.progressMax)
+                                    .coerceIn(0, 100)
+                                entry.indeterminate = false
+                            }
+                            val errMsg = sd.error.resolve(context)
+                            if (errMsg.isNotBlank()) {
+                                finishTracked(entry, success = false, errorText = errMsg)
+                            }
+                        } else if (entry.sawInList) {
+                            // Was in the repo, now gone — controller removed it on success
+                            // (or user cancelled, which we collapse into success).
+                            finishTracked(entry, success = true, errorText = null)
+                        }
+                        // If !sawInList AND not in list yet, the install hasn't been registered
+                        // by the controller yet (it's a brief window between dialog dismiss and
+                        // controller.install() suspending past addSessionData). Keep waiting.
+                    }
+                    refreshProgressNotification()
+                }
+                .launchIn(this)
+        }
+    }
+
     private fun finishTracked(entry: TrackedInstall, success: Boolean, errorText: String?) {
-        tracked.remove(entry.sessionId)
-        entry.watcher?.cancel()
+        if (tracked.remove(entry.sessionId) == null) return
         postResultNotification(entry, success, errorText)
         if (tracked.isEmpty()) {
             nm.cancel(NOTIF_ID_PROGRESS)
-        } else {
-            refreshProgressNotification()
+            observerJob?.cancel()
+            observerJob = null
         }
     }
 
@@ -161,7 +156,7 @@ class InstallProgressNotifier(
             return
         }
         val newest = active.last()
-        val (title, text, max, prog, indet) = if (active.size == 1) {
+        val args = if (active.size == 1) {
             val a = active.first()
             ProgressArgs(
                 title = context.getString(R.string.install_notif_progress_title_single, a.appName.ifBlank { a.packageName }),
@@ -182,15 +177,15 @@ class InstallProgressNotifier(
         }
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.logo_no_gradient)
-            .setContentTitle(title)
-            .setContentText(text)
+            .setContentTitle(args.title)
+            .setContentText(args.text)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
             .setSilent(true)
-            .setProgress(max, prog, indet)
-            .setContentIntent(buildOpenDialogIntent(newest.sessionId))
+            .setProgress(args.max, args.progress, args.indeterminate)
+            .setContentIntent(buildOpenAppIntent(newest.sessionId))
         loadIconBitmap(newest.iconPath)?.let { builder.setLargeIcon(it) }
         nm.notify(NOTIF_ID_PROGRESS, builder.build())
     }
@@ -217,7 +212,7 @@ class InstallProgressNotifier(
         nm.notify(nextResultId(), builder.build())
     }
 
-    private fun buildOpenDialogIntent(sessionId: UUID): PendingIntent {
+    private fun buildOpenAppIntent(sessionId: UUID): PendingIntent {
         // Reopen the full install screen — it already shows the session list with progress
         // for every active install. Restoring the dialog state from a sessionId alone is
         // tricky (no URI to re-parse), so we route to InstallActivity instead.
@@ -233,7 +228,7 @@ class InstallProgressNotifier(
     }
 
     private fun buildResultIntent(entry: TrackedInstall, success: Boolean): PendingIntent {
-        // On Success, try to launch the installed app directly. Fall back to reopening the dialog.
+        // On Success, try to launch the installed app directly. Fall back to reopening the app.
         if (success && entry.packageName.isNotBlank()) {
             val launch = runCatching { context.packageManager.getLaunchIntentForPackage(entry.packageName) }
                 .getOrNull()
@@ -247,7 +242,7 @@ class InstallProgressNotifier(
                 )
             }
         }
-        return buildOpenDialogIntent(entry.sessionId)
+        return buildOpenAppIntent(entry.sessionId)
     }
 
     private fun loadIconBitmap(iconPath: String?): android.graphics.Bitmap? {

@@ -87,6 +87,19 @@ interface InstallerBackendFactory {
     ): Result<String>
 
     /**
+     * Install [uris] into [userId] via libsu — `pm install-create --user N` →
+     * `pm install-write …` → `pm install-commit`. Used when the user picked a
+     * specific work profile and Shizuku isn't available.
+     * Store flavor returns failure.
+     */
+    suspend fun installTargetedViaRoot(
+        context: android.content.Context,
+        uris: List<android.net.Uri>,
+        userId: Int,
+        onProgress: (Float) -> Unit = {},
+    ): Result<Unit>
+
+    /**
      * Toggles preferred-activity registration via libsu RootService so [component] becomes
      * the default APK installer. lock=false clears our own preferred activities, restoring
      * the chooser. Store flavor returns failure — Shizuku path is handled separately by

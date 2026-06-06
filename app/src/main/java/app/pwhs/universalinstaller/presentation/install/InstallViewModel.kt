@@ -82,7 +82,7 @@ class InstallViewModel(
 
     private val defaultController = DefaultInstallController(application, packageInstaller, sessionDataRepository, historyDao)
     private val shizukuController = ShizukuInstallController(application, packageInstaller, sessionDataRepository, historyDao)
-    private val manualController = ManualInstallController(application, packageInstaller, sessionDataRepository, historyDao)
+    private val manualController = ManualInstallController(application, packageInstaller, sessionDataRepository, historyDao, backendFactory)
 
     // Null on the store flavor — activeController() silently skips the Root branch there.
     private val rootController: BaseInstallController? = backendFactory.createRootController(
@@ -393,14 +393,33 @@ class InstallViewModel(
             val nameForTarget = apkInfo?.appName.orEmpty().ifBlank { fn }
             val controller = activeController(currentProfileId)
             
-            // Resolve targeted user from profile or global prefs
+            // Resolve targeted user from profile or global prefs. A non-null value means the
+            // user picked a specific work profile / secondary user from the dialog or settings,
+            // and we have to bypass ackpine (which only exposes an "all users" toggle) via
+            // ManualInstallController. Pick whichever privileged backend is actually ready —
+            // the previous code hard-pinned this to Shizuku, which silently failed on Root-only
+            // devices (issue #46). Note: if the user has a Profile with a preferredBackend but
+            // ALSO a targetUserId, targetUserId wins here — preserving the user's selection
+            // beats their backend preference, since the picked user can't be honored any other
+            // way (issue #44).
             val targetedUserId = profile?.targetUserId ?: prefs?.get(PreferencesKeys.INSTALL_USER_ID)
-            
-            if (controller is ManualInstallController && targetedUserId != null) {
-                controller.installTargeted(
+
+            if (targetedUserId != null) {
+                val targetedBackend = resolveTargetedBackend(profile?.preferredBackend)
+                if (targetedBackend == null) {
+                    Timber.w("Targeted install requested for user $targetedUserId but no privileged backend is ready")
+                    android.widget.Toast.makeText(
+                        application,
+                        application.getString(R.string.install_targeted_no_backend),
+                        android.widget.Toast.LENGTH_LONG,
+                    ).show()
+                    return@launch
+                }
+                manualController.installTargeted(
                     uris = uris,
                     sessionData = sessionData,
                     userId = targetedUserId,
+                    backend = targetedBackend,
                     scope = if (trackDialogTarget) appScope else viewModelScope,
                     onSessionCreated = if (trackDialogTarget) {
                         { realSessionId: UUID ->
@@ -411,7 +430,7 @@ class InstallViewModel(
                                 iconPath = iconPath,
                             )
                         }
-                    } else null
+                    } else null,
                 )
             } else {
                 // Apply profile settings (flags, spoofing) to the controller temporarily
@@ -1378,11 +1397,12 @@ class InstallViewModel(
             }
         }
 
-        // Targeted user wins over global backend if no profile override
-        val targetedUser = profile?.targetUserId ?: prefs?.get(PreferencesKeys.INSTALL_USER_ID)
-        if (targetedUser != null) {
-            return manualController
-        }
+        // Targeted-user installs are handled in confirmInstall via ManualInstallController +
+        // resolveTargetedBackend(), not here — that path needs to probe Shizuku/Root readiness
+        // and surface a UI error if neither is available, which activeController can't do.
+        // We still return a normal controller here so the rest of the code (split picker,
+        // applyProfileToController) has something to work against if confirmInstall later
+        // falls back.
 
         // Global preferences fallback
         val useRoot = prefs?.get(PreferencesKeys.USE_ROOT) ?: false
@@ -1414,6 +1434,33 @@ class InstallViewModel(
             Timber.w("Shizuku prioritized but not ready — falling back to default installer")
         }
         return defaultController
+    }
+
+    /**
+     * Decide which privileged backend should drive a per-user-targeted install. Honors the
+     * caller's preference if it's actually ready; otherwise falls back to whichever path is
+     * available. Returns null when neither is reachable — caller surfaces an error.
+     */
+    private suspend fun resolveTargetedBackend(
+        preferred: String? = null,
+    ): ManualInstallController.TargetedBackend? {
+        val shizukuReady = isShizukuReadyForInstall()
+        val rootReady = if (rootController != null) {
+            val state = backendFactory.probeRootState()
+            state == RootState.READY
+        } else false
+
+        // Explicit preference wins if the requested backend is actually usable.
+        when (preferred) {
+            "Shizuku" -> if (shizukuReady) return ManualInstallController.TargetedBackend.SHIZUKU
+            "Root" -> if (rootReady) return ManualInstallController.TargetedBackend.ROOT
+        }
+        // Fallback chain: Shizuku first (broader device support), then Root.
+        return when {
+            shizukuReady -> ManualInstallController.TargetedBackend.SHIZUKU
+            rootReady -> ManualInstallController.TargetedBackend.ROOT
+            else -> null
+        }
     }
 
     // Mirrors the root probe: verify Shizuku is actually usable before handing the install

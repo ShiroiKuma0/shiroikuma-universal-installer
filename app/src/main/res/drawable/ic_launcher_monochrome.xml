@@ -1,13 +1,21 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="512dp"
     android:height="512dp"
     android:viewportWidth="512"
     android:viewportHeight="512">
-    <path
-        android:fillColor="#ffffff"
-        android:pathData="M280.43,154.88H232.85C225.84,154.88 220.16,158.57 220.16,163.13V257.99C220.16,262.55 225.84,266.24 232.85,266.24H280.43C287.44,266.24 293.12,262.55 293.12,257.99V163.13C293.12,158.57 287.44,154.88 280.43,154.88Z" />
-    <path
-        android:fillColor="#ffffff"
-        android:pathData="M196.93,250.88C190.04,250.88 186.37,259.01 190.93,264.17L250,331.12C253.19,334.73 258.81,334.73 262,331.12L321.07,264.17C325.63,259.01 321.96,250.88 315.07,250.88H196.93Z" />
+  <!-- Monochrome (themed icon): same arrow + tray outline; the system tints it. -->
+  <path
+      android:pathData="M212,92 L300,92 L300,214 L372,214 L256,298 L140,214 L212,214 Z"
+      android:fillColor="#00000000"
+      android:strokeColor="#000000"
+      android:strokeWidth="16"
+      android:strokeLineJoin="round"
+      android:strokeLineCap="round" />
+  <path
+      android:pathData="M116,328 L116,382 Q116,426 160,426 L352,426 Q396,426 396,382 L396,328"
+      android:fillColor="#00000000"
+      android:strokeColor="#000000"
+      android:strokeWidth="16"
+      android:strokeLineJoin="round"
+      android:strokeLineCap="round" />
 </vector>

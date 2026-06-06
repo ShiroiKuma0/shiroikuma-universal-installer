@@ -146,6 +146,7 @@ fun SurfaceThemeSection(
     surface: AppSurface,
     showBorder: Boolean = false,
     showProgress: Boolean = false,
+    showSuccess: Boolean = false,
     showButtons: Boolean = false,
     showTexts: Boolean = false,
 ) {
@@ -192,6 +193,33 @@ fun SurfaceThemeSection(
                 labelRes = R.string.ui_progress_thickness,
                 valueRange = 1f..16f, steps = 14, nullValue = 4f,
             ) { onChange(theme.copy(progressThickness = it)) }
+        }
+
+        if (showSuccess) {
+            SubHeader(stringResource(R.string.ui_section_success))
+            Text(
+                text = stringResource(R.string.ui_success_hint),
+                style = MaterialTheme.typography.bodySmall,
+                fontStyle = FontStyle.Italic,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
+            )
+            ColorRow(L2, stringResource(R.string.ui_success_circle), theme.successCircle) {
+                colorEdit = ColorEdit(theme.successCircle) { onChange(theme.copy(successCircle = it)) }
+            }
+            WidthSlider(
+                L2, theme.successCircleThickness,
+                labelRes = R.string.ui_success_circle_thickness,
+                valueRange = 0.5f..8f, steps = 14, nullValue = 3f,
+            ) { onChange(theme.copy(successCircleThickness = it)) }
+            ColorRow(L2, stringResource(R.string.ui_success_tick), theme.successTick) {
+                colorEdit = ColorEdit(theme.successTick) { onChange(theme.copy(successTick = it)) }
+            }
+            WidthSlider(
+                L2, theme.successTickThickness,
+                labelRes = R.string.ui_success_tick_thickness,
+                valueRange = 1f..10f, steps = 17, nullValue = 4f,
+            ) { onChange(theme.copy(successTickThickness = it)) }
         }
 
         if (showButtons) {

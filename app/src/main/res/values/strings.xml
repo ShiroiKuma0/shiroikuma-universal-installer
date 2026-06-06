@@ -748,6 +748,12 @@
     <string name="ui_progress_hint">Style the install progress bar shown while installing.</string>
     <string name="ui_progress_color">Progress color</string>
     <string name="ui_progress_thickness">Thickness</string>
+    <string name="ui_section_success">Success badge</string>
+    <string name="ui_success_hint">Style the badge shown after a successful install.</string>
+    <string name="ui_success_circle">Circle color</string>
+    <string name="ui_success_circle_thickness">Circle thickness</string>
+    <string name="ui_success_tick">Tick color</string>
+    <string name="ui_success_tick_thickness">Tick thickness</string>
     <string name="ui_section_buttons">Buttons</string>
     <string name="ui_btn_bg">Background</string>
     <string name="ui_btn_content">Text &amp; icon</string>

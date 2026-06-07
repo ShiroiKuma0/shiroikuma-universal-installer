@@ -93,8 +93,17 @@ object ApkExtractor {
         val mimeType = if (splitDirs.isEmpty()) "application/vnd.android.package-archive" else "application/zip"
         
         val finalFileName = uniqueName(outputDir, "$resolvedName.$targetExt")
-        val targetFile = outputDir.createFile(mimeType, finalFileName)
+        // Both RawDocumentFile (the default Downloads path) and the SAF providers append a
+        // MIME-derived extension to whatever display name we pass — ".apk" for the package
+        // MIME, ".zip" for zip. Passing our already-suffixed name doubled it
+        // ("App.apk" → "App.apk.apk", "App.apks" → "App.apks.zip"). So we create with the
+        // bare stem (provider appends one clean extension) and then rename to the exact name
+        // we want; renameTo writes the literal name with no further mangling.
+        val targetFile = outputDir.createFile(mimeType, finalFileName.substringBeforeLast('.'))
             ?: return@withContext Result.Failure("Could not create target file")
+        if (targetFile.name != finalFileName) {
+            runCatching { targetFile.renameTo(finalFileName) }
+        }
 
         val totalBytes = baseApk.length() + splitDirs.sumOf { it.length() }
 

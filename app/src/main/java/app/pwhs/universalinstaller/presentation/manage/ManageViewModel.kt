@@ -358,6 +358,81 @@ class ManageViewModel(
         _privilegedActionResult.value = null
     }
 
+    // ── Batch privileged actions (selection mode) ───────────────────────────
+    //
+    // Force-stop / disable / clear-data over the whole selection. Unlike the single-app
+    // entry points above, these resolve the privileged executor exactly ONCE (so a
+    // select-all batch can't trigger repeated su prompts mid-loop), skip our own package
+    // silently (select-all includes us), and emit a single summary snackbar instead of
+    // letting N results clobber each other. System-vs-user doesn't matter here — `pm`/`am`
+    // shell commands treat them the same — so there's no system-app prompt.
+
+    fun disableSelected() = runPrivilegedBatch(
+        actionLabelRes = R.string.manage_batch_action_disable,
+        reloadAfter = true, // enabled flag changes → row needs a refresh
+    ) { executor, pkg ->
+        when (executor) {
+            PrivilegedExecutor.Root -> backendFactory.setEnabledViaRoot(pkg, false)
+            PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.setEnabled(pkg, false)
+        }
+    }
+
+    fun forceStopSelected() = runPrivilegedBatch(
+        actionLabelRes = R.string.manage_batch_action_force_stop,
+        reloadAfter = false,
+    ) { executor, pkg ->
+        when (executor) {
+            PrivilegedExecutor.Root -> backendFactory.forceStopViaRoot(pkg)
+            PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.forceStop(pkg)
+        }
+    }
+
+    fun clearDataSelected() = runPrivilegedBatch(
+        actionLabelRes = R.string.manage_batch_action_clear_data,
+        reloadAfter = false,
+    ) { executor, pkg ->
+        when (executor) {
+            PrivilegedExecutor.Root -> backendFactory.clearAppDataViaRoot(pkg)
+            PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.clearAppData(pkg)
+        }
+    }
+
+    private fun runPrivilegedBatch(
+        actionLabelRes: Int,
+        reloadAfter: Boolean,
+        op: suspend (PrivilegedExecutor, String) -> Result<*>,
+    ) {
+        val packages = _selectedPackages.value.toList()
+        if (packages.isEmpty()) return
+        _selectedPackages.value = emptySet()
+        viewModelScope.launch {
+            val executor = resolvePrivilegedExecutor()
+            if (executor == null) {
+                _privilegedActionResult.value = PrivilegedActionResult.Failure(
+                    application.getString(R.string.manage_privileged_unavailable)
+                )
+                return@launch
+            }
+            var success = 0
+            var failed = 0
+            for (pkg in packages) {
+                if (pkg == application.packageName) continue // never act on ourselves
+                if (op(executor, pkg).isSuccess) success++ else failed++
+            }
+            if (reloadAfter) loadInstalledApps()
+            val label = application.getString(actionLabelRes)
+            _privilegedActionResult.value = if (failed == 0) {
+                PrivilegedActionResult.Success(
+                    application.getString(R.string.manage_batch_result_success, label, success)
+                )
+            } else {
+                PrivilegedActionResult.Failure(
+                    application.getString(R.string.manage_batch_result_partial, label, success, failed)
+                )
+            }
+        }
+    }
+
     /**
      * Lazy storage-stats lookup. Cheap when the user holds Usage Access (single binder
      * call), so we run it only when the action sheet opens — not when the list loads,

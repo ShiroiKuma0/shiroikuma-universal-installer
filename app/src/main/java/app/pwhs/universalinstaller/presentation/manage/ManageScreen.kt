@@ -53,12 +53,17 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.SelectAll
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Store
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -109,6 +114,7 @@ import androidx.core.net.toUri
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.InstalledApp
 import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
+import app.pwhs.universalinstaller.presentation.composable.ShimmerBox
 import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
 import app.pwhs.universalinstaller.presentation.manage.logs.UninstallLogsActivity
@@ -153,6 +159,9 @@ fun ManageScreen(
         onClearSelection = viewModel::clearSelection,
         onToggleSelectAll = viewModel::toggleSelectAll,
         onUninstallSelected = viewModel::uninstallSelected,
+        onForceStopSelected = viewModel::forceStopSelected,
+        onDisableSelected = viewModel::disableSelected,
+        onClearDataSelected = viewModel::clearDataSelected,
         onOpenLogs = {
             context.startActivity(Intent(context, UninstallLogsActivity::class.java))
         },
@@ -201,6 +210,9 @@ private fun UninstallUi(
     onClearSelection: () -> Unit = {},
     onToggleSelectAll: () -> Unit = {},
     onUninstallSelected: () -> Unit = {},
+    onForceStopSelected: () -> Unit = {},
+    onDisableSelected: () -> Unit = {},
+    onClearDataSelected: () -> Unit = {},
     onOpenLogs: () -> Unit = {},
     onOpenBackups: () -> Unit = {},
     onRefresh: () -> Unit = {},
@@ -401,6 +413,9 @@ private fun UninstallUi(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var showFilterSheet by remember { mutableStateOf(false) }
     var showBatchConfirm by remember { mutableStateOf(false) }
+    // Selection-mode overflow menu (privileged batch actions) + its destructive confirm.
+    var showBatchMenu by remember { mutableStateOf(false) }
+    var showBatchClearDataConfirm by remember { mutableStateOf(false) }
     // Search bar visibility — toggled by the top-bar search button. Saved across config
     // changes so a rotation doesn't snap the user out of search. We auto-open it when the
     // VM still holds a query (e.g. process re-creation while searching).
@@ -462,6 +477,38 @@ private fun UninstallUi(
         )
     }
 
+    if (showBatchClearDataConfirm) {
+        val count = uiState.selectedPackages.size
+        AlertDialog(
+            onDismissRequest = { showBatchClearDataConfirm = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    showBatchClearDataConfirm = false
+                    onClearDataSelected()
+                }) {
+                    Text(
+                        stringResource(R.string.manage_batch_action_clear_data),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBatchClearDataConfirm = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            title = { Text(stringResource(R.string.manage_batch_clear_data_confirm_title, count)) },
+            text = { Text(stringResource(R.string.manage_batch_clear_data_confirm_text)) },
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.DeleteSweep,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            },
+        )
+    }
+
     uiState.systemAppPrompt?.let { prompt ->
         SystemAppDialog(
             prompt = prompt,
@@ -511,6 +558,46 @@ private fun UninstallUi(
                                 contentDescription = stringResource(R.string.uninstall_selected_action),
                                 tint = MaterialTheme.colorScheme.error,
                             )
+                        }
+                        // Privileged batch ops live in an overflow menu — only meaningful
+                        // when Root/Shizuku is ready, so we hide the whole affordance
+                        // otherwise rather than offer rows that always fail.
+                        if (uiState.privilegedReady) {
+                            IconButton(onClick = { showBatchMenu = true }) {
+                                Icon(
+                                    Icons.Rounded.MoreVert,
+                                    contentDescription = stringResource(R.string.more_actions_cd),
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = showBatchMenu,
+                                onDismissRequest = { showBatchMenu = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.manage_batch_action_force_stop)) },
+                                    leadingIcon = { Icon(Icons.Rounded.Stop, contentDescription = null) },
+                                    onClick = {
+                                        showBatchMenu = false
+                                        onForceStopSelected()
+                                    },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.manage_batch_action_disable)) },
+                                    leadingIcon = { Icon(Icons.Rounded.Block, contentDescription = null) },
+                                    onClick = {
+                                        showBatchMenu = false
+                                        onDisableSelected()
+                                    },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.manage_batch_action_clear_data)) },
+                                    leadingIcon = { Icon(Icons.Rounded.DeleteSweep, contentDescription = null) },
+                                    onClick = {
+                                        showBatchMenu = false
+                                        showBatchClearDataConfirm = true
+                                    },
+                                )
+                            }
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -711,21 +798,31 @@ private fun UninstallUi(
 
             when {
                 uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+                    ManageSkeleton()
                 }
 
                 uiState.filteredApps.isEmpty() -> {
+                    // When the empty list is the result of a search/filter (not a genuinely
+                    // empty device), offer a one-tap way out. resetFilters() deliberately
+                    // leaves the query alone, so the action clears BOTH or it'd be a no-op
+                    // for the common search-miss case.
+                    val filtersActive = uiState.searchQuery.isNotBlank() ||
+                        uiState.appFilter != setOf(AppFilter.User) ||
+                        uiState.sortBy != UninstallSortBy.Name ||
+                        uiState.groupBy != GroupBy.None
                     EmptyStateView(
                         icon = Icons.Rounded.SearchOff,
                         title = stringResource(R.string.uninstall_no_apps_found),
                         subtitle = if (uiState.searchQuery.isNotBlank())
                             stringResource(R.string.uninstall_no_match, uiState.searchQuery)
                         else stringResource(R.string.uninstall_no_user_apps),
+                        actionLabel = if (filtersActive) stringResource(R.string.uninstall_clear_filters) else null,
+                        onAction = if (filtersActive) {
+                            {
+                                onSearchQueryChanged("")
+                                onResetFilters()
+                            }
+                        } else null,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 32.dp)
@@ -979,6 +1076,56 @@ private fun SortChip(
         } else null,
         colors = FilterChipDefaults.filterChipColors(),
     )
+}
+
+/**
+ * Loading placeholder for the app list — six shimmer rows that mirror [AppCard]'s
+ * layout (48dp icon + two text lines) so the swap to real content doesn't jump.
+ */
+@Composable
+private fun ManageSkeleton() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        repeat(6) {
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    ShimmerBox(
+                        modifier = Modifier.size(48.dp),
+                        shape = MaterialTheme.shapes.medium,
+                    )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ShimmerBox(
+                            modifier = Modifier.fillMaxWidth(0.55f).height(16.dp),
+                            shape = RoundedCornerShape(6.dp),
+                        )
+                        ShimmerBox(
+                            modifier = Modifier.fillMaxWidth(0.8f).height(12.dp),
+                            shape = RoundedCornerShape(6.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -39,27 +39,33 @@ visible polish; build green on debug.
 The largest UX gap. Today Manage is a single-tap-per-app list — cleanup workflows
 require 20+ trips through bottom sheets.
 
-- [ ] **2.1 Multi-select mode**
-  - Long-press an app row → enter selection mode. Top app bar changes to show
-    `N selected` + Cancel + select-all. Tapping rows toggles selection. Back
-    press exits selection.
-  - State lives in `ManageViewModel` as `selectedPackages: StateFlow<Set<String>>`.
-- [ ] **2.2 Batch operations**
-  - Floating action bar (or trailing top-bar menu) in selection mode with:
-    Uninstall · Disable · Force-stop · Clear data.
-  - Each runs sequentially via existing `BatchUninstall`-style helper or a new
-    `BatchManageOp` coroutine. Reuse the existing batch-uninstall notification
-    channel for progress.
-- [ ] **2.3 Usage stats column**
-  - `PACKAGE_USAGE_STATS` is already declared. Query `UsageStatsManager` at load
-    time and surface `lastTimeUsed` on each row as `"Unused 60d"` / `"3h ago"`.
-  - Add sort option `By last used` to existing sort menu.
-- [ ] **2.4 LazyColumn stable keys**
-  - `items(apps, key = { it.packageName })` everywhere a list of `AppInfo` is
-    rendered. Today there's no key → wrong-identity flashes during scroll.
-- [ ] **2.5 Skeleton + empty states**
-  - Loading: 6 shimmer placeholder rows (reuse a small `ShimmerBox` composable).
-  - Empty after filter: illustration + "Clear filters" button.
+Most of this turned out to be already built — the gaps were batch ops beyond
+uninstall, the skeleton, and the clear-filters action.
+
+- [x] **2.1 Multi-select mode** — already implemented (long-press →
+    `combinedClickable`, `selectedPackages` StateFlow, "N selected" top bar,
+    select-all, Close to exit). No changes needed.
+- [x] **2.2 Batch operations**
+  - Batch uninstall was already wired. Added batch **Force-stop · Disable ·
+    Clear data** via a single `runPrivilegedBatch` helper (resolves the
+    privileged executor once, skips our own package, reloads once, emits one
+    summary snackbar). Surfaced in a selection-mode overflow menu, shown only
+    when Root/Shizuku is ready. Batch clear-data gets a destructive confirm.
+  - Deviation from plan: used a summary snackbar (via `PrivilegedActionResult`)
+    rather than the uninstall notification channel — these `pm`/`am` shell ops
+    are near-instant, unlike uninstall sessions, so per-item progress isn't
+    warranted and the notifier's wording is uninstall-specific.
+- [x] **2.3 Usage stats column** — already implemented (`queryLastUsedMap` at
+    load, `lastUsedAt` rendered per row, `LastUsed` sort chip, 7-day usage chart
+    in the action sheet). No changes needed.
+- [x] **2.4 LazyColumn stable keys** — already present
+    (`items(..., key = { it.packageName })` + `animateItem()`). No changes.
+- [x] **2.5 Skeleton + empty states**
+  - Loading now shows 6 shimmer rows mirroring `AppCard` (extracted `ShimmerBox`
+    to `presentation/composable/` and shared it with the dialog skeleton).
+  - Empty-after-filter gains a "Clear filters" button — clears BOTH search and
+    filters (resetFilters alone leaves the query, which would no-op the common
+    search-miss case).
 
 **Acceptance:** can multi-select 10 apps and uninstall in one flow; sort by
 last-used reflects real usage; no list scroll jank.

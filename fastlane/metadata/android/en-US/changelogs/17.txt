@@ -1,0 +1,7 @@
+- Synchronized Search UI/UX between Setting and Manage screens.
+- Unified 'Store' and 'Full' flavors into a single distribution.
+- Improved 'Install Mode' picker (Shizuku/Root/Default).
+- Added batch privileged operations in App Manager.
+- Improved VirusTotal scan feedback.
+- Numerous UI/UX refinements and fluid animations.
+- Fixed targeted-user installs and background progress reliability.

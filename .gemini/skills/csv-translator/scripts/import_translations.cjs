@@ -1,6 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
+function escapeAndroidString(val) {
+    if (!val) return '';
+    return val
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"');
+}
+
 function importTranslations(csvPath, resDir) {
     const content = fs.readFileSync(csvPath, 'utf8');
     const lines = content.split('\n');
@@ -65,11 +75,11 @@ function importTranslations(csvPath, resDir) {
         }
 
         items.forEach(item => {
-            const escapedValue = item.value.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const escapedValue = escapeAndroidString(item.value);
             const entry = `    <string name="${item.name}">${escapedValue}</string>`;
             
             // If entry already exists, replace it; otherwise, insert before </resources>
-            const regex = new RegExp(`    <string name="${item.name}">.*</string>`);
+            const regex = new RegExp(`    <string name="${item.name}">[\\s\\S]*?</string>`);
             if (regex.test(fileContent)) {
                 fileContent = fileContent.replace(regex, entry);
             } else {

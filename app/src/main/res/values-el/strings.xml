@@ -428,7 +428,6 @@
     <string name="theme_dynamic_color_subtitle">Χρήση χρωμάτων ταπετσαρίας συστήματος για τόνους εφαρμογής (απαιτείται Android 12+)</string>
     <string name="theme_amoled_mode_title">AMOLED Μαύρο</string>
     <string name="theme_amoled_mode_subtitle">Χρήση κατάμαυρου φόντου στη σκοτεινή λειτουργία</string>
-    <string name="dialog_loading_text">Ανάλυση πακέτου…</string>
     <string name="dialog_install_btn">Εγκατάσταση</string>
     <string name="dialog_update_btn">Ενημέρωση</string>
     <string name="dialog_downgrade_btn">Υποβάθμιση έκδοσης</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">Πρόγραμμα εγκατάστασης συστήματος (εμφανίζει παράθυρο επιβεβαίωσης)</string>
     <string name="setting_show_download_tab_title">Εμφάνιση καρτέλας λήψης</string>
     <string name="setting_show_download_tab_subtitle">Εμφάνιση της καρτέλας Λήψη στην κύρια οθόνη για απομακρυσμένες εγκαταστάσεις APK</string>
+    <string name="manage_batch_action_force_stop">Αναγκαστική διακοπή</string>
+    <string name="manage_batch_action_disable">Απενεργοποίηση</string>
+    <string name="manage_batch_action_clear_data">Εκκαθάριση δεδομένων</string>
+    <string name="manage_batch_result_success">%1$s: %2$d εφαρμογές</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d ολοκληρώθηκαν, %3$d απέτυχαν</string>
+    <string name="manage_batch_clear_data_confirm_title">Εκκαθάριση δεδομένων για %1$d εφαρμογές;</string>
+    <string name="manage_batch_clear_data_confirm_text">Αυτό διαγράφει οριστικά όλα τα δεδομένα και τις ρυθμίσεις για τις επιλεγμένες εφαρμογές. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+    <string name="more_actions_cd">Περισσότερες ενέργειες</string>
+    <string name="apk_info_vt_queued">Σε ουρά στο VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Ανάλυση στο VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Το αρχείο είναι πολύ μεγάλο για το VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Αυτή η εφαρμογή δεν ζητά δικαιώματα</string>
+    <string name="apk_info_vt_error">Η σάρωση απέτυχε — πατήστε για επανάληψη</string>
+    <string name="setting_biometric_install_enabled">Η εγκατάσταση θα απαιτεί πλέον βιομετρικό έλεγχο ταυτότητας</string>
+    <string name="setting_biometric_install_disabled">Η εγκατάσταση δεν απαιτεί πλέον βιομετρικό έλεγχο ταυτότητας</string>
+    <string name="setting_biometric_uninstall_enabled">Η απεγκατάσταση θα απαιτεί πλέον βιομετρικό έλεγχο ταυτότητας</string>
+    <string name="setting_biometric_uninstall_disabled">Η απεγκατάσταση δεν απαιτεί πλέον βιομετρικό έλεγχο ταυτότητας</string>
+    <string name="dialog_failed_copy_error">Αντιγραφή σφάλματος</string>
+    <string name="dialog_failed_copied">Το σφάλμα αντιγράφηκε στο πρόχειρο</string>
+    <string name="uninstall_clear_filters">Εκκαθάριση φίλτρων</string>
+    <string name="setting_search_hint">Αναζήτηση ρυθμίσεων</string>
+    <string name="setting_search_clear">Εκκαθάριση αναζήτησης</string>
+    <string name="setting_search_no_results">Δεν βρέθηκαν ρυθμίσεις</string>
+    <string name="setting_search_no_results_sub">Τίποτα δεν ταιριάζει με \%s\</string>
 </resources>

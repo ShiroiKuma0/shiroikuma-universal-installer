@@ -464,7 +464,6 @@
     <string name="theme_dynamic_color_subtitle">Folosește culorile tapetului sistemului pentru accentele aplicației (necesită Android 12+)</string>
     <string name="theme_amoled_mode_title">Negru AMOLED</string>
     <string name="theme_amoled_mode_subtitle">Folosește fundal negru pur în modul întunecat</string>
-    <string name="dialog_loading_text">Se analizează pachetul…</string>
     <string name="dialog_install_btn">Instalează</string>
     <string name="dialog_update_btn">Actualizează</string>
     <string name="dialog_downgrade_btn">Downgrade</string>
@@ -577,4 +576,28 @@
     <string name="setting_install_mode_default_sub">Instalator de sistem (afișează dialog de confirmare)</string>
     <string name="setting_show_download_tab_title">Afișează fila de descărcare</string>
     <string name="setting_show_download_tab_subtitle">Afișează fila de descărcare pe ecranul principal pentru instalări APK la distanță</string>
+    <string name="manage_batch_action_force_stop">Oprire forțată</string>
+    <string name="manage_batch_action_disable">Dezactivează</string>
+    <string name="manage_batch_action_clear_data">Șterge datele</string>
+    <string name="manage_batch_result_success">%1$s: %2$d aplicații</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d finalizate, %3$d eșuate</string>
+    <string name="manage_batch_clear_data_confirm_title">Ștergeți datele pentru %1$d aplicații?</string>
+    <string name="manage_batch_clear_data_confirm_text">Această acțiune șterge definitiv toate datele și setările pentru aplicațiile selectate. Această acțiune nu poate fi anulată.</string>
+    <string name="more_actions_cd">Mai multe acțiuni</string>
+    <string name="apk_info_vt_queued">În coadă pe VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Se analizează pe VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Fișier prea mare pentru VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Această aplicație nu solicită nicio permisiune</string>
+    <string name="apk_info_vt_error">Scanare eșuată — atinge pentru reîncercare</string>
+    <string name="setting_biometric_install_enabled">Instalarea va necesita acum autentificare biometrică</string>
+    <string name="setting_biometric_install_disabled">Instalarea nu mai necesită autentificare biometrică</string>
+    <string name="setting_biometric_uninstall_enabled">Dezinstalarea va necesita acum autentificare biometrică</string>
+    <string name="setting_biometric_uninstall_disabled">Dezinstalarea nu mai necesită autentificare biometrică</string>
+    <string name="dialog_failed_copy_error">Copiază eroarea</string>
+    <string name="dialog_failed_copied">Eroare copiată în clipboard</string>
+    <string name="uninstall_clear_filters">Șterge filtrele</string>
+    <string name="setting_search_hint">Căutare setări</string>
+    <string name="setting_search_clear">Șterge căutarea</string>
+    <string name="setting_search_no_results">Nu s-au găsit setări</string>
+    <string name="setting_search_no_results_sub">Niciun rezultat pentru \%s\</string>
 </resources>

@@ -394,7 +394,6 @@
     <string name="found_chip_older">पुराना</string>
     <string name="setting_auto_open_title">इंस्टॉल के बाद ऐप खोलें</string>
     <string name="setting_auto_open_subtitle">सफलता स्क्रीन से इंस्टॉल किए गए ऐप को लॉन्च करें — 3-सेकंड की रद्द करने योग्य उलटी गिनती के साथ</string>
-    <string name="dialog_loading_text">पैकेज का विश्लेषण किया जा रहा है…</string>
     <string name="dialog_install_btn">इंस्टॉल करें</string>
     <string name="dialog_update_btn">अपडेट करें</string>
     <string name="dialog_downgrade_btn">डाउनग्रेड करें</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">सिस्टम इंस्टॉलर (पुष्टि संवाद दिखाता है)</string>
     <string name="setting_show_download_tab_title">डाउनलोड टैब दिखाएं</string>
     <string name="setting_show_download_tab_subtitle">रिमोट APK इंस्टॉलेशन के लिए मुख्य स्क्रीन पर डाउनलोड टैब दिखाएं</string>
+    <string name="manage_batch_action_force_stop">जबरन रोकें</string>
+    <string name="manage_batch_action_disable">अक्षम करें</string>
+    <string name="manage_batch_action_clear_data">डेटा साफ़ करें</string>
+    <string name="manage_batch_result_success">%1$s: %2$d ऐप्स</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d पूर्ण, %3$d विफल</string>
+    <string name="manage_batch_clear_data_confirm_title">%1$d ऐप्स के लिए डेटा साफ़ करें?</string>
+    <string name="manage_batch_clear_data_confirm_text">यह चयनित ऐप्स के लिए सभी डेटा और सेटिंग्स को स्थायी रूप से मिटा देता है। इसे वापस नहीं लिया जा सकता।</string>
+    <string name="more_actions_cd">अधिक क्रियाएं</string>
+    <string name="apk_info_vt_queued">VirusTotal पर कतारबद्ध…</string>
+    <string name="apk_info_vt_analyzing">VirusTotal पर विश्लेषण किया जा रहा है…</string>
+    <string name="apk_info_vt_too_large">VirusTotal के लिए फ़ाइल बहुत बड़ी है (%s)</string>
+    <string name="apk_info_permissions_empty">यह ऐप कोई अनुमति नहीं मांगता है</string>
+    <string name="apk_info_vt_error">स्कैन विफल रहा — पुनः प्रयास करने के लिए टैप करें</string>
+    <string name="setting_biometric_install_enabled">इंस्टॉल करने के लिए अब बायोमेट्रिक प्रमाणीकरण की आवश्यकता होगी</string>
+    <string name="setting_biometric_install_disabled">इंस्टॉल करने के लिए अब बायोमेट्रिक प्रमाणीकरण की आवश्यकता नहीं है</string>
+    <string name="setting_biometric_uninstall_enabled">अनइंस्टॉल करने के लिए अब बायोमेट्रिक प्रमाणीकरण की आवश्यकता होगी</string>
+    <string name="setting_biometric_uninstall_disabled">अनइंस्टॉल करने के लिए अब बायोमेट्रिक प्रमाणीकरण की आवश्यकता नहीं है</string>
+    <string name="dialog_failed_copy_error">त्रुटi कॉपी करें</string>
+    <string name="dialog_failed_copied">त्रुटि क्लिपबोर्ड पर कॉपी की गई</string>
+    <string name="uninstall_clear_filters">फ़िल्टर साफ़ करें</string>
+    <string name="setting_search_hint">सेटिंग्स खोजें</string>
+    <string name="setting_search_clear">खoz साफ़ करें</string>
+    <string name="setting_search_no_results">कोई सेटिंग नहीं मिली</string>
+    <string name="setting_search_no_results_sub">\%s\ से कुछ भी मेल नहीं खाता</string>
 </resources>

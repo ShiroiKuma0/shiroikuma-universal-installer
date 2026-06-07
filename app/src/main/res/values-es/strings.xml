@@ -394,7 +394,6 @@
     <string name="found_chip_older">Más antiguo</string>
     <string name="setting_auto_open_title">Abrir aplicación después de instalar</string>
     <string name="setting_auto_open_subtitle">Iniciar la aplicación instalada desde la pantalla de éxito — con una cuenta regresiva cancelable de 3 segundos</string>
-    <string name="dialog_loading_text">Analizando paquete…</string>
     <string name="dialog_install_btn">Instalar</string>
     <string name="dialog_update_btn">Actualizar</string>
     <string name="dialog_downgrade_btn">Downgrade</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">Instalador del sistema (muestra cuadro de diálogo de confirmación)</string>
     <string name="setting_show_download_tab_title">Mostrar pestaña de descargas</string>
     <string name="setting_show_download_tab_subtitle">Mostrar la pestaña de descargas en la pantalla principal para instalaciones remotas de APK</string>
+    <string name="manage_batch_action_force_stop">Forzar detención</string>
+    <string name="manage_batch_action_disable">Inhabilitar</string>
+    <string name="manage_batch_action_clear_data">Borrar datos</string>
+    <string name="manage_batch_result_success">%1$s: %2$d aplicaciones</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d completadas, %3$d fallidas</string>
+    <string name="manage_batch_clear_data_confirm_title">¿Borrar datos de %1$d aplicaciones?</string>
+    <string name="manage_batch_clear_data_confirm_text">Esto borrará permanentemente todos los datos y ajustes de las aplicaciones seleccionadas. Esta acción no se puede deshacer.</string>
+    <string name="more_actions_cd">Más acciones</string>
+    <string name="apk_info_vt_queued">En cola en VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Analizando en VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Archivo demasiado grande para VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Esta aplicación no solicita permisos</string>
+    <string name="apk_info_vt_error">Error en el escaneo: toca para reintentar</string>
+    <string name="setting_biometric_install_enabled">La instalación ahora requerirá autenticación biométrica</string>
+    <string name="setting_biometric_install_disabled">La instalación ya no requiere autenticación biométrica</string>
+    <string name="setting_biometric_uninstall_enabled">La desinstalación ahora requerirá autenticación biométrica</string>
+    <string name="setting_biometric_uninstall_disabled">La desinstalación ya no requiere autenticación biométrica</string>
+    <string name="dialog_failed_copy_error">Copiar error</string>
+    <string name="dialog_failed_copied">Error copiado al portapapeles</string>
+    <string name="uninstall_clear_filters">Limpiar filtros</string>
+    <string name="setting_search_hint">Buscar ajustes</string>
+    <string name="setting_search_clear">Limpiar búsqueda</string>
+    <string name="setting_search_no_results">No se encontraron ajustes</string>
+    <string name="setting_search_no_results_sub">Nada coincide con \%s\</string>
 </resources>

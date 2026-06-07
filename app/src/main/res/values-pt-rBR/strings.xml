@@ -394,7 +394,6 @@
     <string name="found_chip_older">Mais antigo</string>
     <string name="setting_auto_open_title">Abrir o app após a instalação</string>
     <string name="setting_auto_open_subtitle">Iniciar o app instalado a partir da tela de sucesso — com uma contagem regressiva cancelável de 3 segundos</string>
-    <string name="dialog_loading_text">Analisando o pacote…</string>
     <string name="dialog_install_btn">Instalar</string>
     <string name="dialog_update_btn">Atualizar</string>
     <string name="dialog_downgrade_btn">Fazer downgrade</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">Instalador do sistema (mostra caixa de diálogo de confirmação)</string>
     <string name="setting_show_download_tab_title">Mostrar Aba de Download</string>
     <string name="setting_show_download_tab_subtitle">Mostra a aba de Download na tela principal para instalações remotas de APK</string>
+    <string name="manage_batch_action_force_stop">Forçar parada</string>
+    <string name="manage_batch_action_disable">Desativar</string>
+    <string name="manage_batch_action_clear_data">Limpar dados</string>
+    <string name="manage_batch_result_success">%1$s: %2$d apps</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d concluídos, %3$d falharam</string>
+    <string name="manage_batch_clear_data_confirm_title">Limpar dados de %1$d apps?</string>
+    <string name="manage_batch_clear_data_confirm_text">Isso apaga permanentemente todos os dados e configurações dos apps selecionados. Esta ação não pode ser desfeita.</string>
+    <string name="more_actions_cd">Mais ações</string>
+    <string name="apk_info_vt_queued">Na fila do VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Analisando no VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Arquivo muito grande para o VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Este app não solicita permissões</string>
+    <string name="apk_info_vt_error">Falha na verificação — toque para tentar novamente</string>
+    <string name="setting_biometric_install_enabled">A instalação agora exigirá autenticação biométrica</string>
+    <string name="setting_biometric_install_disabled">A instalação não exige mais autenticação biométrica</string>
+    <string name="setting_biometric_uninstall_enabled">A desinstalação agora exigirá autenticação biométrica</string>
+    <string name="setting_biometric_uninstall_disabled">A desinstalação não exige mais autenticação biométrica</string>
+    <string name="dialog_failed_copy_error">Copiar erro</string>
+    <string name="dialog_failed_copied">Erro copiado para a área de transferência</string>
+    <string name="uninstall_clear_filters">Limpar filtros</string>
+    <string name="setting_search_hint">Pesquisar configurações</string>
+    <string name="setting_search_clear">Limpar pesquisa</string>
+    <string name="setting_search_no_results">Nenhuma configuração encontrada</string>
+    <string name="setting_search_no_results_sub">Nada corresponde a \%s\</string>
 </resources>

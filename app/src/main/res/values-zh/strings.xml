@@ -394,7 +394,6 @@
     <string name="found_chip_older">旧版本</string>
     <string name="setting_auto_open_title">安装后打开应用</string>
     <string name="setting_auto_open_subtitle">在安装成功界面自动启动已安装的应用 — 带有可取消的 3 秒倒计时</string>
-    <string name="dialog_loading_text">正在解析安装包…</string>
     <string name="dialog_install_btn">安装</string>
     <string name="dialog_update_btn">更新</string>
     <string name="dialog_downgrade_btn">降级</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">系统安装程序（显示确认对话框）</string>
     <string name="setting_show_download_tab_title">显示下载选项卡</string>
     <string name="setting_show_download_tab_subtitle">在主屏幕上显示远程 APK 安装的下载选项卡</string>
+    <string name="manage_batch_action_force_stop">强制停止</string>
+    <string name="manage_batch_action_disable">禁用</string>
+    <string name="manage_batch_action_clear_data">清除数据</string>
+    <string name="manage_batch_result_success">%1$s：%2$d 个应用</string>
+    <string name="manage_batch_result_partial">%1$s：%2$d 个已完成，%3$d 个失败</string>
+    <string name="manage_batch_clear_data_confirm_title">要清除 %1$d 个应用的数据吗？</string>
+    <string name="manage_batch_clear_data_confirm_text">这将永久擦除所选应用的所有数据和设置。此操作无法撤销。</string>
+    <string name="more_actions_cd">更多操作</string>
+    <string name="apk_info_vt_queued">VirusTotal 排队中…</string>
+    <string name="apk_info_vt_analyzing">VirusTotal 分析中…</string>
+    <string name="apk_info_vt_too_large">文件太大，无法上传至 VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">此应用不请求任何权限</string>
+    <string name="apk_info_vt_error">扫描失败 — 点击重试</string>
+    <string name="setting_biometric_install_enabled">安装现在需要生物识别验证</string>
+    <string name="setting_biometric_install_disabled">安装不再需要生物识别验证</string>
+    <string name="setting_biometric_uninstall_enabled">卸载现在需要生物识别验证</string>
+    <string name="setting_biometric_uninstall_disabled">卸载不再需要生物识别验证</string>
+    <string name="dialog_failed_copy_error">复制错误</string>
+    <string name="dialog_failed_copied">错误已复制到剪贴板</string>
+    <string name="uninstall_clear_filters">清除过滤器</string>
+    <string name="setting_search_hint">搜索设置</string>
+    <string name="setting_search_clear">清除搜索</string>
+    <string name="setting_search_no_results">未找到设置</string>
+    <string name="setting_search_no_results_sub">没有找到与 \%s\ 匹配的内容</string>
 </resources>

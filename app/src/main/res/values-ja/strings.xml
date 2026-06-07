@@ -394,7 +394,6 @@
     <string name="found_chip_older">古い</string>
     <string name="setting_auto_open_title">インストール後にアプリを開く</string>
     <string name="setting_auto_open_subtitle">成功画面からインストールされたアプリを起動します — 3秒のキャンセル可能なカウントダウン付き</string>
-    <string name="dialog_loading_text">パッケージを解析中…</string>
     <string name="dialog_install_btn">インストール</string>
     <string name="dialog_update_btn">更新</string>
     <string name="dialog_downgrade_btn">ダウングレード</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">システムインストーラー（確認ダイアログを表示）</string>
     <string name="setting_show_download_tab_title">ダウンロードタブを表示</string>
     <string name="setting_show_download_tab_subtitle">リモートAPKインストール用にメイン画面にダウンロードタブを表示します</string>
+    <string name="manage_batch_action_force_stop">強制停止</string>
+    <string name="manage_batch_action_disable">無効にする</string>
+    <string name="manage_batch_action_clear_data">データを消去</string>
+    <string name="manage_batch_result_success">%1$s: %2$d個のアプリ</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d個完了、%3$d個失敗</string>
+    <string name="manage_batch_clear_data_confirm_title">%1$d個のアプリのデータを消去しますか？</string>
+    <string name="manage_batch_clear_data_confirm_text">選択したアプリのすべてのデータと設定が完全に消去されます。この操作は取り消せません。</string>
+    <string name="more_actions_cd">その他のアクション</string>
+    <string name="apk_info_vt_queued">VirusTotalで待機中…</string>
+    <string name="apk_info_vt_analyzing">VirusTotalで分析中…</string>
+    <string name="apk_info_vt_too_large">VirusTotalに対してファイルが大きすぎます (%s)</string>
+    <string name="apk_info_permissions_empty">このアプリは権限を要求しません</string>
+    <string name="apk_info_vt_error">スキャン失敗 — タップして再試行</string>
+    <string name="setting_biometric_install_enabled">インストールに生体認証が必要になります</string>
+    <string name="setting_biometric_install_disabled">インストールに生体認証が不要になります</string>
+    <string name="setting_biometric_uninstall_enabled">アンインストールに生体認証が必要になります</string>
+    <string name="setting_biometric_uninstall_disabled">アンインストールに生体認証が不要になります</string>
+    <string name="dialog_failed_copy_error">エラーをコピー</string>
+    <string name="dialog_failed_copied">エラーをクリップボードにコピーしました</string>
+    <string name="uninstall_clear_filters">フィルターをクリア</string>
+    <string name="setting_search_hint">設定を検索</string>
+    <string name="setting_search_clear">検索をクリア</string>
+    <string name="setting_search_no_results">設定が見つかりません</string>
+    <string name="setting_search_no_results_sub">\%s\に一致するものは何もありません</string>
 </resources>

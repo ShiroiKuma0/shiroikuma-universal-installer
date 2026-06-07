@@ -394,7 +394,6 @@
     <string name="found_chip_older">이전 버전</string>
     <string name="setting_auto_open_title">설치 후 앱 열기</string>
     <string name="setting_auto_open_subtitle">성공 화면에서 설치된 앱 실행 — 취소 가능한 3초 카운트다운 포함</string>
-    <string name="dialog_loading_text">패키지 분석 중…</string>
     <string name="dialog_install_btn">설치</string>
     <string name="dialog_update_btn">업데이트</string>
     <string name="dialog_downgrade_btn">다운그레이드</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">시스템 설치 프로그램 (확인 대화 상자 표시)</string>
     <string name="setting_show_download_tab_title">다운로드 탭 표시</string>
     <string name="setting_show_download_tab_subtitle">원격 APK 설치를 위해 메인 화면에 다운로드 탭을 표시합니다</string>
+    <string name="manage_batch_action_force_stop">강제 중지</string>
+    <string name="manage_batch_action_disable">사용 중지</string>
+    <string name="manage_batch_action_clear_data">데이터 삭제</string>
+    <string name="manage_batch_result_success">%1$s: %2$d개 앱</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d개 완료, %3$d개 실패</string>
+    <string name="manage_batch_clear_data_confirm_title">%1$d개 앱의 데이터를 삭제할까요?</string>
+    <string name="manage_batch_clear_data_confirm_text">선택한 앱의 모든 데이터와 설정이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
+    <string name="more_actions_cd">기타 작업</string>
+    <string name="apk_info_vt_queued">VirusTotal 대기 중…</string>
+    <string name="apk_info_vt_analyzing">VirusTotal 분석 중…</string>
+    <string name="apk_info_vt_too_large">VirusTotal에 비해 파일이 너무 큽니다 (%s)</string>
+    <string name="apk_info_permissions_empty">이 앱은 권한을 요청하지 않습니다</string>
+    <string name="apk_info_vt_error">스캔 실패 — 다시 시도하려면 탭하세요</string>
+    <string name="setting_biometric_install_enabled">이제 설치 시 생체 인식 인증이 필요합니다</string>
+    <string name="setting_biometric_install_disabled">이제 설치 시 생체 인식 인증이 필요하지 않습니다</string>
+    <string name="setting_biometric_uninstall_enabled">이제 제거 시 생체 인식 인증이 필요합니다</string>
+    <string name="setting_biometric_uninstall_disabled">이제 제거 시 생체 인식 인증이 필요하지 않습니다</string>
+    <string name="dialog_failed_copy_error">오류 복사</string>
+    <string name="dialog_failed_copied">오류가 클립보드에 복사되었습니다</string>
+    <string name="uninstall_clear_filters">필터 지우기</string>
+    <string name="setting_search_hint">설정 검색</string>
+    <string name="setting_search_clear">검색 지우기</string>
+    <string name="setting_search_no_results">검색된 설정 없음</string>
+    <string name="setting_search_no_results_sub">\%s\와(과) 일치하는 항목이 없습니다</string>
 </resources>

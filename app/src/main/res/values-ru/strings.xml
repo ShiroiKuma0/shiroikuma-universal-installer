@@ -394,7 +394,6 @@
     <string name="found_chip_older">Старое</string>
     <string name="setting_auto_open_title">Открывать приложение после установки</string>
     <string name="setting_auto_open_subtitle">Запускать установленное приложение с экрана успеха — с 3-секундным отменяемым отсчетом</string>
-    <string name="dialog_loading_text">Анализ пакета…</string>
     <string name="dialog_install_btn">Установить</string>
     <string name="dialog_update_btn">Обновить</string>
     <string name="dialog_downgrade_btn">Понизить версию</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">Системный установщик (показывает диалоговое окно подтверждения)</string>
     <string name="setting_show_download_tab_title">Показать вкладку загрузки</string>
     <string name="setting_show_download_tab_subtitle">Показывать вкладку загрузки на главном экране для удаленной установки APK</string>
+    <string name="manage_batch_action_force_stop">Принудительно остановить</string>
+    <string name="manage_batch_action_disable">Отключить</string>
+    <string name="manage_batch_action_clear_data">Очистить данные</string>
+    <string name="manage_batch_result_success">%1$s: %2$d прил.</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d готово, %3$d ошибка</string>
+    <string name="manage_batch_clear_data_confirm_title">Очистить данные для %1$d прил.?</string>
+    <string name="manage_batch_clear_data_confirm_text">Это навсегда удалит все данные и настройки выбранных приложений. Это действие нельзя отменить.</string>
+    <string name="more_actions_cd">Другие действия</string>
+    <string name="apk_info_vt_queued">В очереди на VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Анализ на VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Файл слишком велик для VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Это приложение не запрашивает разрешений</string>
+    <string name="apk_info_vt_error">Ошибка сканирования — нажмите для повтора</string>
+    <string name="setting_biometric_install_enabled">Теперь для установки потребуется биометрия</string>
+    <string name="setting_biometric_install_disabled">Биометрия больше не требуется для установки</string>
+    <string name="setting_biometric_uninstall_enabled">Теперь для удаления потребуется биометрия</string>
+    <string name="setting_biometric_uninstall_disabled">Биометрия больше не требуется для удаления</string>
+    <string name="dialog_failed_copy_error">Копировать ошибку</string>
+    <string name="dialog_failed_copied">Ошибка скопирована в буфер обмена</string>
+    <string name="uninstall_clear_filters">Очистить фильтры</string>
+    <string name="setting_search_hint">Поиск настроек</string>
+    <string name="setting_search_clear">Очистить поиск</string>
+    <string name="setting_search_no_results">Настройки не найдены</string>
+    <string name="setting_search_no_results_sub">По запросу \%s\ ничего не найдено</string>
 </resources>

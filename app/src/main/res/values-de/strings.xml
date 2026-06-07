@@ -394,7 +394,6 @@
     <string name="found_chip_older">Älter</string>
     <string name="setting_auto_open_title">App nach Installation öffnen</string>
     <string name="setting_auto_open_subtitle">Installierte App nach erfolgreicher Installation starten — mit abbrechbarem 3-Sekunden-Countdown</string>
-    <string name="dialog_loading_text">Paket wird analysiert…</string>
     <string name="dialog_install_btn">Installieren</string>
     <string name="dialog_update_btn">Aktualisieren</string>
     <string name="dialog_downgrade_btn">Downgrade</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">System-Installer (zeigt Bestätigungsdialog)</string>
     <string name="setting_show_download_tab_title">Download-Tab anzeigen</string>
     <string name="setting_show_download_tab_subtitle">Zeigen Sie den Download-Tab auf dem Hauptbildschirm für Remote-APK-Installationen an</string>
+    <string name="manage_batch_action_force_stop">Stopp erzwingen</string>
+    <string name="manage_batch_action_disable">Deaktivieren</string>
+    <string name="manage_batch_action_clear_data">Daten löschen</string>
+    <string name="manage_batch_result_success">%1$s: %2$d Apps</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d abgeschlossen, %3$d fehlgeschlagen</string>
+    <string name="manage_batch_clear_data_confirm_title">Daten für %1$d Apps löschen?</string>
+    <string name="manage_batch_clear_data_confirm_text">Dies löscht dauerhaft alle Daten und Einstellungen für die ausgewählten Apps. Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="more_actions_cd">Weitere Aktionen</string>
+    <string name="apk_info_vt_queued">In Warteschlange bei VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Analyse bei VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Datei zu groß für VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Diese App erfordert keine Berechtigungen</string>
+    <string name="apk_info_vt_error">Scan fehlgeschlagen – zum Wiederholen tippen</string>
+    <string name="setting_biometric_install_enabled">Installation erfordert jetzt biometrische Authentifizierung</string>
+    <string name="setting_biometric_install_disabled">Installation erfordert keine biometrische Authentifizierung mehr</string>
+    <string name="setting_biometric_uninstall_enabled">Deinstallation erfordert jetzt biometrische Authentifizierung</string>
+    <string name="setting_biometric_uninstall_disabled">Deinstallation erfordert keine biometrische Authentifizierung mehr</string>
+    <string name="dialog_failed_copy_error">Fehler kopieren</string>
+    <string name="dialog_failed_copied">Fehler in Zwischenablage kopiert</string>
+    <string name="uninstall_clear_filters">Filter löschen</string>
+    <string name="setting_search_hint">Einstellungen suchen</string>
+    <string name="setting_search_clear">Suche löschen</string>
+    <string name="setting_search_no_results">Keine Einstellungen gefunden</string>
+    <string name="setting_search_no_results_sub">Nichts gefunden für \%s\</string>
 </resources>

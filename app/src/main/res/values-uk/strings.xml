@@ -429,7 +429,6 @@
     <string name="theme_dynamic_color_subtitle">Використовувати кольори системних шпалер для акцентів додатка (потрібен Android 12+)</string>
     <string name="theme_amoled_mode_title">AMOLED Чорний</string>
     <string name="theme_amoled_mode_subtitle">Використовувати абсолютно чорний фон у темному режимі</string>
-    <string name="dialog_loading_text">Аналіз пакета…</string>
     <string name="dialog_install_btn">Встановити</string>
     <string name="dialog_update_btn">Оновити</string>
     <string name="dialog_downgrade_btn">Знизити версію</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">Системний інсталятор (показує діалогове вікно підтвердження)</string>
     <string name="setting_show_download_tab_title">Показати вкладку завантаження</string>
     <string name="setting_show_download_tab_subtitle">Показувати вкладку завантаження на головному екрані для віддаленого встановлення APK</string>
+    <string name="manage_batch_action_force_stop">Примусово зупинити</string>
+    <string name="manage_batch_action_disable">Вимкнути</string>
+    <string name="manage_batch_action_clear_data">Очистити дані</string>
+    <string name="manage_batch_result_success">%1$s: %2$d дод.</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d готово, %3$d помилка</string>
+    <string name="manage_batch_clear_data_confirm_title">Очистити дані для %1$d дод.?</string>
+    <string name="manage_batch_clear_data_confirm_text">Це назавжди видалить усі дані та налаштування вибраних додатків. Цю дію не можна скасувати.</string>
+    <string name="more_actions_cd">Інші дії</string>
+    <string name="apk_info_vt_queued">У черзі на VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Аналіз на VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Файл занадто великий для VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Цей додаток не запитує дозволів</string>
+    <string name="apk_info_vt_error">Помилка сканування — натисніть для повтору</string>
+    <string name="setting_biometric_install_enabled">Тепер для встановлення потрібна біометрія</string>
+    <string name="setting_biometric_install_disabled">Біометрія більше не потрібна для встановлення</string>
+    <string name="setting_biometric_uninstall_enabled">Тепер для видалення потрібна біометрія</string>
+    <string name="setting_biometric_uninstall_disabled">Біометрія більше не потрібна для видалення</string>
+    <string name="dialog_failed_copy_error">Копіювати помилку</string>
+    <string name="dialog_failed_copied">Помилку скопійовано в буфер обміну</string>
+    <string name="uninstall_clear_filters">Очистити фільтри</string>
+    <string name="setting_search_hint">Пошук налаштувань</string>
+    <string name="setting_search_clear">Очистити пошук</string>
+    <string name="setting_search_no_results">Налаштувань не знайдено</string>
+    <string name="setting_search_no_results_sub">За запитом \%s\ нічого не знайдено</string>
 </resources>

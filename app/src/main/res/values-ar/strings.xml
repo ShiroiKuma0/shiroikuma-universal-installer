@@ -394,7 +394,6 @@
     <string name="found_chip_older">أقدم</string>
     <string name="setting_auto_open_title">فتح التطبيق بعد التثبيت</string>
     <string name="setting_auto_open_subtitle">تشغيل التطبيق المثبت من شاشة النجاح — مع عد تنازلي لمدة 3 ثوانٍ قابل للإلغاء</string>
-    <string name="dialog_loading_text">جاري تحليل الحزمة…</string>
     <string name="dialog_install_btn">تثبيت</string>
     <string name="dialog_update_btn">تحديث</string>
     <string name="dialog_downgrade_btn">إرجاع لإصدار أقدم</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">مثبت النظام (يعرض حوار التأكيد)</string>
     <string name="setting_show_download_tab_title">إظهار علامة تبويب التنزيل</string>
     <string name="setting_show_download_tab_subtitle">إظهار علامة تبويب التنزيل على الشاشة الرئيسية لتثبيت APK عن بعد</string>
+    <string name="manage_batch_action_force_stop">إيقاف إجباري</string>
+    <string name="manage_batch_action_disable">تعطيل</string>
+    <string name="manage_batch_action_clear_data">مسح البيانات</string>
+    <string name="manage_batch_result_success">%1$s: %2$d تطبيقات</string>
+    <string name="manage_batch_result_partial">%1$s: تم بنجاح %2$d، فشل %3$d</string>
+    <string name="manage_batch_clear_data_confirm_title">مسح بيانات %1$d تطبيقات؟</string>
+    <string name="manage_batch_clear_data_confirm_text">سيؤدي هذا إلى مسح جميع البيانات والإعدادات للتطبيقات المحددة بشكل دائم. لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="more_actions_cd">المزيد من الإجراءات</string>
+    <string name="apk_info_vt_queued">قيد الانتظار على VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">جاري التحليل على VirusTotal…</string>
+    <string name="apk_info_vt_too_large">الملف كبير جداً بالنسبة لـ VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">لا يطلب هذا التطبيق أي أذونات</string>
+    <string name="apk_info_vt_error">فشل الفحص - اضغط لإعادة المحاولة</string>
+    <string name="setting_biometric_install_enabled">سيتطلب التثبيت الآن مصادقة بيومترية</string>
+    <string name="setting_biometric_install_disabled">لم يعد التثبيت يتطلب مصادقة بيومترية</string>
+    <string name="setting_biometric_uninstall_enabled">سيتطلب إلغاء التثبيت الآن مصادقة بيومترية</string>
+    <string name="setting_biometric_uninstall_disabled">لم يعد إلغاء التثبيت يتطلب مصادقة بيومترية</string>
+    <string name="dialog_failed_copy_error">نسخ الخطأ</string>
+    <string name="dialog_failed_copied">تم نسخ الخطأ إلى الحافظة</string>
+    <string name="uninstall_clear_filters">مسح الفلاتر</string>
+    <string name="setting_search_hint">البحث في الإعدادات</string>
+    <string name="setting_search_clear">مسح البحث</string>
+    <string name="setting_search_no_results">لم يتم العثور على إعدادات</string>
+    <string name="setting_search_no_results_sub">لا يوجد ما يطابق \%s\</string>
 </resources>

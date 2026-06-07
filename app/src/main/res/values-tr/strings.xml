@@ -394,7 +394,6 @@
     <string name="found_chip_older">Daha eski</string>
     <string name="setting_auto_open_title">Yüklemeden sonra uygulamayı aç</string>
     <string name="setting_auto_open_subtitle">Yüklenen uygulamayı başarı ekranından başlat — 3 saniyelik iptal edilebilir geri sayım ile</string>
-    <string name="dialog_loading_text">Paket analiz ediliyor…</string>
     <string name="dialog_install_btn">Yükle</string>
     <string name="dialog_update_btn">Güncelle</string>
     <string name="dialog_downgrade_btn">Eski sürüme düşür</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">Sistem yükleyici (onay iletişim kutusunu gösterir)</string>
     <string name="setting_show_download_tab_title">İndirme Sekmesini Göster</string>
     <string name="setting_show_download_tab_subtitle">Uzak APK yüklemeleri için ana ekranda İndirme sekmesini göster</string>
+    <string name="manage_batch_action_force_stop">Durmaya zorla</string>
+    <string name="manage_batch_action_disable">Devre dışı bırak</string>
+    <string name="manage_batch_action_clear_data">Verileri temizle</string>
+    <string name="manage_batch_result_success">%1$s: %2$d uygulama</string>
+    <string name="manage_batch_result_partial">%1$s: %2$d tamamlandı, %3$d başarısız</string>
+    <string name="manage_batch_clear_data_confirm_title">%1$d uygulamanın verileri temizlensin mi?</string>
+    <string name="manage_batch_clear_data_confirm_text">Bu işlem</string>
+    <string name="more_actions_cd">Diğer eylemler</string>
+    <string name="apk_info_vt_queued">VirusTotal\'de kuyruğa alındı…</string>
+    <string name="apk_info_vt_analyzing">VirusTotal\'de analiz ediliyor…</string>
+    <string name="apk_info_vt_too_large">Dosya VirusTotal için çok lớn (%s)</string>
+    <string name="apk_info_permissions_empty">Bu uygulama hiç izin istemiyor</string>
+    <string name="apk_info_vt_error">Tarama başarısız — tekrar denemek için dokunun</string>
+    <string name="setting_biometric_install_enabled">Yükleme artık biyometrik doğrulama gerektirecek</string>
+    <string name="setting_biometric_install_disabled">Yükleme artık biyometrik doğrulama gerektirmiyor</string>
+    <string name="setting_biometric_uninstall_enabled">Kaldırma artık biyometrik doğrulama gerektirecek</string>
+    <string name="setting_biometric_uninstall_disabled">Kaldırma artık biyometrik doğrulama gerektirmiyor</string>
+    <string name="dialog_failed_copy_error">Hatayı kopyala</string>
+    <string name="dialog_failed_copied">Hata panoya kopyalandı</string>
+    <string name="uninstall_clear_filters">Filtreleri temizle</string>
+    <string name="setting_search_hint">Ayarlarda ara</string>
+    <string name="setting_search_clear">Aramayı temizle</string>
+    <string name="setting_search_no_results">Ayar bulunamadı</string>
+    <string name="setting_search_no_results_sub">\%s\ ile eşleşen bir şey yok</string>
 </resources>

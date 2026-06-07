@@ -394,7 +394,6 @@
     <string name="found_chip_older">Plus ancien</string>
     <string name="setting_auto_open_title">Ouvrir l\'application après l\'installation</string>
     <string name="setting_auto_open_subtitle">Lancer l\'application installée depuis l\'écran de succès — avec un compte à rebours annulable de 3 secondes</string>
-    <string name="dialog_loading_text">Analyse du paquet…</string>
     <string name="dialog_install_btn">Installer</string>
     <string name="dialog_update_btn">Mettre à jour</string>
     <string name="dialog_downgrade_btn">Rétrograder</string>
@@ -553,4 +552,28 @@
     <string name="setting_install_mode_default_sub">Installateur système (affiche une boîte de dialogue de confirmation)</string>
     <string name="setting_show_download_tab_title">Afficher l\'onglet Téléchargement</string>
     <string name="setting_show_download_tab_subtitle">Afficher l\'onglet Téléchargement sur l\'écran principal pour les installations d\'APK à distance</string>
+    <string name="manage_batch_action_force_stop">Forcer l\'arrêt</string>
+    <string name="manage_batch_action_disable">Désactiver</string>
+    <string name="manage_batch_action_clear_data">Effacer les données</string>
+    <string name="manage_batch_result_success">%1$s : %2$d applications</string>
+    <string name="manage_batch_result_partial">%1$s : %2$d terminées, %3$d échouées</string>
+    <string name="manage_batch_clear_data_confirm_title">Effacer les données de %1$d applications ?</string>
+    <string name="manage_batch_clear_data_confirm_text">Cela effacera définitivement toutes les données et tous les paramètres des applications sélectionnées. Cette action est irréversible.</string>
+    <string name="more_actions_cd">Plus d\'actions</string>
+    <string name="apk_info_vt_queued">Mis en attente sur VirusTotal…</string>
+    <string name="apk_info_vt_analyzing">Analyse sur VirusTotal…</string>
+    <string name="apk_info_vt_too_large">Fichier trop volumineux pour VirusTotal (%s)</string>
+    <string name="apk_info_permissions_empty">Cette application ne demande aucune autorisation</string>
+    <string name="apk_info_vt_error">Échec de l\'analyse — appuyer pour réessayer</string>
+    <string name="setting_biometric_install_enabled">L\'installation nécessite désormais une authentification biométrique</string>
+    <string name="setting_biometric_install_disabled">L\'installation ne nécessite plus d\'authentification biométrique</string>
+    <string name="setting_biometric_uninstall_enabled">La désinstallation nécessite désormais une authentification biométrique</string>
+    <string name="setting_biometric_uninstall_disabled">La désinstallation ne nécessite plus d\'authentification biométrique</string>
+    <string name="dialog_failed_copy_error">Copier l\'erreur</string>
+    <string name="dialog_failed_copied">Erreur copiée dans le presse-papiers</string>
+    <string name="uninstall_clear_filters">Effacer les filtres</string>
+    <string name="setting_search_hint">Rechercher dans les paramètres</string>
+    <string name="setting_search_clear">Effacer la recherche</string>
+    <string name="setting_search_no_results">Aucun paramètre trouvé</string>
+    <string name="setting_search_no_results_sub">Aucun résultat pour \%s\</string>
 </resources>

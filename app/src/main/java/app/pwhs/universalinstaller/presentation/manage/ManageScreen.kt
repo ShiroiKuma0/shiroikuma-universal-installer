@@ -727,7 +727,7 @@ private fun UninstallUi(
                 query = uiState.searchQuery,
                 onQueryChange = onSearchQueryChanged,
                 active = !uiState.isSelectionMode && searchActive,
-                onActiveChange = { searchActive = it },
+                onActiveChange = { active -> searchActive = active },
                 placeholder = stringResource(R.string.uninstall_search_hint),
                 focusRequester = searchFocusRequester,
             )

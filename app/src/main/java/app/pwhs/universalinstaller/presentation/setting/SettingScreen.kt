@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
@@ -72,6 +73,7 @@ import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.presentation.composable.UniversalSearchBar
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
+import app.pwhs.universalinstaller.presentation.setting.profile.PackageNamePickerDialog
 import androidx.datastore.preferences.core.Preferences
 import org.koin.androidx.compose.koinViewModel
 
@@ -804,11 +806,11 @@ private fun InstallSourceItem(
             )
 
             if (showDialog) {
-                app.pwhs.universalinstaller.presentation.setting.profile.PackageNamePickerDialog(
+                PackageNamePickerDialog(
                     initialValue = installerPackageName,
                     onDismiss = { showDialog = false },
-                    onConfirm = {
-                        onInstallerChange(it)
+                    onConfirm = { newPkg ->
+                        onInstallerChange(newPkg)
                         showDialog = false
                     }
                 )

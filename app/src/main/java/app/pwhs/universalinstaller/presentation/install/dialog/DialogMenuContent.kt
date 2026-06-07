@@ -98,6 +98,7 @@ import app.pwhs.universalinstaller.domain.model.SplitType
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.presentation.install.AttachedObb
 import app.pwhs.universalinstaller.presentation.install.PermissionEntry
+import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
 import app.pwhs.universalinstaller.presentation.install.displayLanguage
 import app.pwhs.universalinstaller.presentation.install.resolvePermissionEntries
 import app.pwhs.universalinstaller.presentation.setting.DEFAULT_INSTALLER_PACKAGE_NAME
@@ -512,21 +513,30 @@ private fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
     item(key = "virustotal") {
         val vtResult = apkInfo.vtResult
         val vtErrorMsg = vtResult?.errorMessage?.takeIf { it.isNotBlank() }
+        val extendedColors = LocalExtendedColors.current
         val vtDesc = when (vtResult?.status) {
             VtStatus.CLEAN -> stringResource(R.string.apk_info_vt_clean)
             VtStatus.MALICIOUS -> stringResource(R.string.apk_info_vt_malicious, vtResult.malicious)
             VtStatus.SUSPICIOUS -> stringResource(R.string.apk_info_vt_suspicious, vtResult.suspicious)
+            VtStatus.NOT_FOUND -> stringResource(R.string.apk_info_vt_not_found)
             VtStatus.SCANNING -> stringResource(R.string.apk_info_vt_scanning)
             VtStatus.UPLOADING -> stringResource(R.string.apk_info_vt_uploading, vtResult.uploadProgress)
+            VtStatus.QUEUED -> stringResource(R.string.apk_info_vt_queued)
+            VtStatus.ANALYZING -> stringResource(R.string.apk_info_vt_analyzing)
             VtStatus.NO_API_KEY -> stringResource(R.string.apk_info_vt_no_api_key)
+            VtStatus.TOO_LARGE -> stringResource(R.string.apk_info_vt_too_large, vtErrorMsg.orEmpty())
             VtStatus.ERROR -> vtErrorMsg ?: stringResource(R.string.apk_info_vt_error)
             else -> stringResource(R.string.dialog_menu_virustotal_desc)
         }
         val vtColor = when (vtResult?.status) {
             VtStatus.CLEAN -> MaterialTheme.colorScheme.tertiary
             VtStatus.MALICIOUS,
-            VtStatus.SUSPICIOUS,
             VtStatus.ERROR -> MaterialTheme.colorScheme.error
+            // NO_API_KEY / TOO_LARGE / SUSPICIOUS are "needs attention" — amber, not red,
+            // and crucially not the neutral grey that made the no-key state invisible.
+            VtStatus.SUSPICIOUS,
+            VtStatus.NO_API_KEY,
+            VtStatus.TOO_LARGE -> extendedColors.warning
             else -> MaterialTheme.colorScheme.onSurfaceVariant
         }
         val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current

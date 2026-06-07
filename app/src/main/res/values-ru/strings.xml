@@ -240,7 +240,7 @@
     <string name="obb_notif_done_title">OBB скопирован · %s</string>
     <string name="obb_notif_done_text">%d файл(ов) помещено в Android/obb</string>
     <string name="obb_notif_failed_title">Ошибка копирования OBB · %s</string>
-    <string name="apk_info_vt_no_api_key">API-ключ VirusTotal не настроен. Откройте Настройки → Безопасность → API-ключ VirusTotal, чтобы добавить его — бесплатный ключ на virustotal.com/gui/my-apikey.</string>
+    <string name="apk_info_vt_no_api_key">API-ключ VirusTotal не настроен. Откройте Настройки → Advanced → API-ключ VirusTotal, чтобы добавить его — бесплатный ключ на virustotal.com/gui/my-apikey.</string>
     <string name="uninstall_sort_name">Имя</string>
     <string name="uninstall_sort_size">Размер</string>
     <string name="uninstall_sort_installed">Установлено</string>

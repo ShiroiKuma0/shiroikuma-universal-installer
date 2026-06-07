@@ -445,9 +445,25 @@ private fun VirusTotalCard(vt: VtResult?, fileSizeBytes: Long, sha256: String = 
     val hasResult = status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS)
     val vtColor = when (status) {
         VtStatus.CLEAN -> MaterialTheme.colorScheme.primary
-        VtStatus.MALICIOUS, VtStatus.TOO_LARGE -> MaterialTheme.colorScheme.error
-        VtStatus.SUSPICIOUS -> extendedColors.warning
+        VtStatus.MALICIOUS, VtStatus.ERROR -> MaterialTheme.colorScheme.error
+        VtStatus.SUSPICIOUS, VtStatus.NO_API_KEY, VtStatus.TOO_LARGE -> extendedColors.warning
         else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    // Status line — without this, NO_API_KEY / ERROR / TOO_LARGE left the card silent
+    // (only the button label changed), so tapping Check with no key looked like a no-op.
+    val vtDesc = when (status) {
+        VtStatus.CLEAN -> stringResource(R.string.apk_info_vt_clean)
+        VtStatus.MALICIOUS -> stringResource(R.string.apk_info_vt_malicious, vt?.malicious ?: 0)
+        VtStatus.SUSPICIOUS -> stringResource(R.string.apk_info_vt_suspicious, vt?.suspicious ?: 0)
+        VtStatus.NOT_FOUND -> stringResource(R.string.apk_info_vt_not_found)
+        VtStatus.NO_API_KEY -> stringResource(R.string.apk_info_vt_no_api_key)
+        VtStatus.ERROR -> vt?.errorMessage?.takeIf { it.isNotBlank() } ?: stringResource(R.string.apk_info_vt_error)
+        VtStatus.TOO_LARGE -> stringResource(R.string.apk_info_vt_too_large, vt?.errorMessage.orEmpty())
+        VtStatus.SCANNING -> stringResource(R.string.apk_info_vt_scanning)
+        VtStatus.UPLOADING -> stringResource(R.string.apk_info_vt_uploading, vt?.uploadProgress ?: 0)
+        VtStatus.QUEUED -> stringResource(R.string.apk_info_vt_queued)
+        VtStatus.ANALYZING -> stringResource(R.string.apk_info_vt_analyzing)
+        null -> null
     }
     ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.elevatedCardColors(containerColor = if (status == VtStatus.MALICIOUS) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow)) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -456,6 +472,11 @@ private fun VirusTotalCard(vt: VtResult?, fileSizeBytes: Long, sha256: String = 
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.apk_info_vt_scan_title), style = MaterialTheme.typography.labelLarge, color = vtColor)
                 if (inProgress) { Spacer(Modifier.width(8.dp)); CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = vtColor) }
+            }
+            // Don't duplicate the count line when the breakdown bar already conveys it.
+            if (vtDesc != null && !hasResult) {
+                Spacer(Modifier.height(8.dp))
+                Text(vtDesc, style = MaterialTheme.typography.bodySmall, color = vtColor)
             }
             if (hasResult && vt != null) {
                 Spacer(Modifier.height(12.dp))

@@ -18,6 +18,7 @@ datastorePreferences = "1.2.1"
 coil = "3.4.0"
 ktor = "3.5.0"
 nanohttpd = "2.3.1"
+coroutines = "1.10.2"
 room = "2.8.4"
 shizuku = "13.1.5"
 rikka-stub = "4.4.0"
@@ -56,6 +57,7 @@ androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscree
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 
 nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanohttpd" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }

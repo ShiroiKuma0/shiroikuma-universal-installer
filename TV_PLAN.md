@@ -29,11 +29,54 @@ adopts `:core` piecemeal once the API has proven out on TV.
 - Acceptance: launches on a TV/emulator, lists user apps, focus moves with D-pad,
   selecting an app → system uninstall flow → list refreshes.
 
-### Phase 2 — install from storage (TV)
-- `:core`: `ApkInstaller` (PackageInstaller session, single + split bundle) with a
-  result Flow; `ApkScanner` to find APK/APKS in Download + `/storage/*` (USB).
-- `:tv`: an "Install" destination — browse found packages, confirm, install with
-  progress. Storage permission flow (MANAGE_EXTERNAL_STORAGE / scoped) for TV.
+### Phase 2 — install on TV (QR transfer + local scan)  ← REVISED after device probes
+
+**Why revised.** Probes on an Android TV (API 31) emulator showed the easy install
+inputs are all dead on TV:
+- No activity handles the apk `VIEW`/`INSTALL_PACKAGE` intent → can't open a system
+  installer by intent. **But** `com.google.android.packageinstaller` is present, so a
+  **PackageInstaller session** works (its confirm UI is launched via the session's
+  `PENDING_USER_ACTION` intent, D-pad navigable).
+- SAF file picker is a no-op **stub** (`frameworkpackagestubs`) → can't pick a file.
+- No "All files access" settings screen on TV → can't read arbitrary Download/USB
+  files under scoped storage.
+- `MANAGE_UNKNOWN_APP_SOURCES` settings and `DownloadManager` are present.
+
+So getting the APK *onto* the TV is the real problem. Chosen direction (user): the TV
+runs a **receiver server + shows a QR**; a phone uploads the APK over LAN; the TV
+installs it via a PackageInstaller session. Plus a best-effort local scan.
+
+**Components**
+
+- `:core`
+  - `ApkInstaller` — PackageInstaller session install from a content/file `Uri`
+    (write bytes → commit → handle `PENDING_USER_ACTION` → final status), suspend/Flow
+    result. The one proven install path on TV.
+  - `ApkReceiverServer` — NanoHTTPD (already a dep) listening on TV: serves a
+    phone-friendly **upload page** at `GET /` and accepts `POST /upload` (multipart) →
+    saves to TV cache → hands off to `ApkInstaller`. Token/PIN auth (reuse the mobile
+    sync server's cookie/PIN pattern). Mirrors `ApkHttpServer` but **receives** instead
+    of serving.
+  - `LanAddress` + `QrEncoder` (QR bitmap from the receiver URL+token).
+  - `DownloadsApkScanner` — MediaStore query for APKs already in Downloads.
+- `:tv`
+  - **Receive screen**: QR + IP + PIN ("scan to send an app"); live "receiving… / install?"
+    state; D-pad friendly.
+  - **Local screen**: list APKs found in Downloads → session install.
+  - Nav shell (Install | Manage) built from proven `Surface`/`Card` (NOT tv-material3
+    `TabRow` — same alpha cohort that crashed via tv-foundation; avoid the gamble).
+  - Manifest: `REQUEST_INSTALL_PACKAGES`, `INTERNET`, foreground-service for the server
+    if it must outlive the screen.
+- `:mobile` (later sub-phase)
+  - "Send to TV": QR **scanner** (camera) → parse TV URL/token → multipart upload the
+    selected APK to the TV. (Any phone browser can already upload via the web page, so
+    this is an enhancement, not a blocker.)
+
+**Sub-phases**
+- 2a: TV receiver server + web upload page + QR + session install (verify with any
+  phone browser; no `:mobile` change).
+- 2b: TV local Downloads scan → install.
+- 2c: `:mobile` QR-scan + "Send to TV" integration.
 
 ### Phase 3 — network push + downloader on TV
 - Reuse `:mobile`'s sync HTTP-server idea in `:core` so a phone can push an APK to

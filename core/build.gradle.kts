@@ -31,6 +31,10 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
+    // Coroutines/Flow — api so consumers (:tv) see the StateFlow/SharedFlow types core exposes.
+    api(libs.kotlinx.coroutines.android)
+    // LAN receiver server (reused from the mobile sync feature's stack).
+    implementation(libs.nanohttpd)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

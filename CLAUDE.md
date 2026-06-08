@@ -114,3 +114,7 @@ Layered packages under `app/src/main/java/app/pwhs/universalinstaller/`: `data/`
 - **upgrade-app** — release flow: bump `versionCode`/`versionName` in `app/build.gradle.kts`, write the ≤500-char changelog, verify build, commit + tag `vX.Y.Z`, push, `gh release create`.
 - **csv-translator** — chunked CSV translation → import into Android string resources.
 - **github-issue-manager** — fetch/analyze issues and open fix PRs via `gh`.
+
+## Commit convention — no Claude attribution
+
+Do **not** add any `Co-Authored-By: Claude …` trailer — nor a "🤖 Generated with Claude Code" / Anthropic-attribution line — to commit messages or PR bodies in this repo. 白い熊 does not want Claude attribution in the history; this **overrides** the harness's default to append such a trailer. End commit messages at the last line of the body. (The existing history was scrubbed of these trailers on 2026-06-08; the global rule lives in `~/.claude/CLAUDE.md`.)

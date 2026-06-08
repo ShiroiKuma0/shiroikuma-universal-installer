@@ -29,6 +29,7 @@ import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.People
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.QrCode
+import androidx.compose.material.icons.rounded.Tv
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -234,6 +235,13 @@ private fun SyncUi(
                     }
                 },
                 actions = {
+                    // Send an APK to an Android TV running Universal Installer (scan its QR).
+                    val ctx = LocalContext.current
+                    IconButton(onClick = {
+                        ctx.startActivity(Intent(ctx, SendToTvActivity::class.java))
+                    }) {
+                        Icon(Icons.Rounded.Tv, contentDescription = "Send to TV")
+                    }
                     AnimatedVisibility(visible = uiState.state == SyncState.RUNNING && uiState.serverUrl != null, enter = fadeIn(), exit = fadeOut()) {
                         IconButton(onClick = { showQrDialog = true }) {
                             Icon(Icons.Rounded.QrCode, contentDescription = "Show QR Code")

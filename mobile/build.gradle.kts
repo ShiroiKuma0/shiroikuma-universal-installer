@@ -138,4 +138,6 @@ dependencies {
 
     implementation(libs.nanohttpd)
     implementation(libs.zxing.core)
+    // Open-source QR scanner (Apache-2.0) for "Send to TV" — avoids proprietary ML Kit.
+    implementation(libs.zxing.android.embedded)
 }

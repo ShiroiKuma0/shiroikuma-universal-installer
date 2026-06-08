@@ -154,6 +154,10 @@
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />
         <activity
+            android:name=".presentation.sync.SendToTvActivity"
+            android:exported="false"
+            android:theme="@style/Theme.UniversalInstaller" />
+        <activity
             android:name=".presentation.setting.SettingActivity"
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />

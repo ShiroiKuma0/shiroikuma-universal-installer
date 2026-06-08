@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageInstaller
+import android.net.Uri
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
@@ -37,24 +38,25 @@ class ApkInstaller(private val context: Context) {
         val BUNDLE_EXTS = setOf("apks", "xapk", "apkm", "apk+", "zip")
     }
 
-    /**
-     * Install [source]. Suspends until the install reaches a terminal state (the user-action
-     * confirm screen is launched mid-flow). Safe to call off the main thread.
-     */
-    suspend fun install(source: File): Result {
-        val pm = context.packageManager.packageInstaller
-        val params = PackageInstaller.SessionParams(
-            PackageInstaller.SessionParams.MODE_FULL_INSTALL
-        )
-        val sessionId = pm.createSession(params)
+    /** Convenience for installing a staged file (e.g. an upload received over LAN). */
+    suspend fun install(source: File): Result =
+        install(Uri.fromFile(source), isBundle = source.extension.lowercase() in BUNDLE_EXTS)
 
+    /**
+     * Install from a content/file [uri]. [isBundle] true unzips split APKs into one session.
+     * Suspends until the install reaches a terminal state (the user-action confirm screen is
+     * launched mid-flow). Safe to call off the main thread.
+     */
+    suspend fun install(uri: Uri, isBundle: Boolean): Result {
+        val pm = context.packageManager.packageInstaller
+        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        val sessionId = pm.createSession(params)
         try {
             pm.openSession(sessionId).use { session ->
-                val isBundle = source.extension.lowercase() in BUNDLE_EXTS
                 if (isBundle) {
-                    writeBundle(session, source)
+                    writeBundle(session, uri)
                 } else {
-                    source.inputStream().use { writeEntry(session, "base.apk", it, source.length()) }
+                    openInput(uri).use { writeEntry(session, "base.apk", it, -1L) }
                 }
                 return commitAndAwait(session, sessionId)
             }
@@ -64,9 +66,13 @@ class ApkInstaller(private val context: Context) {
         }
     }
 
-    private fun writeBundle(session: PackageInstaller.Session, bundle: File) {
+    private fun openInput(uri: Uri): InputStream =
+        context.contentResolver.openInputStream(uri)
+            ?: throw IllegalStateException("Cannot open $uri")
+
+    private fun writeBundle(session: PackageInstaller.Session, bundle: Uri) {
         var wrote = 0
-        ZipInputStream(bundle.inputStream().buffered()).use { zip ->
+        ZipInputStream(openInput(bundle).buffered()).use { zip ->
             var entry = zip.nextEntry
             while (entry != null) {
                 val name = entry.name.substringAfterLast('/')

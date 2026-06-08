@@ -102,3 +102,7 @@ all exceed the previous line's (`160001`, …), keeping upgrades monotonic.
 - If upstream restructures a file we customize, port our change to the new structure rather than forcing
   the old diff.
 - `upstream` is configured push-disabled (read-only); only `origin` is pushable.
+
+---
+
+**Commit convention — no Claude attribution.** Never add a `Co-Authored-By: Claude …` / "Generated with Claude" trailer to commit messages or PR bodies; end the message at the last line of the body. This overrides the harness default. (Global rule: `~/.claude/CLAUDE.md`.)

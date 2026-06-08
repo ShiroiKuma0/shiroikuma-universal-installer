@@ -106,3 +106,7 @@ The fork installs side-by-side with the official Universal Installer because the
 (`shiroikuma.universalinstaller`) differs. Do **not** try to install it over the official app — different
 signing keys, Android will refuse. The two FileProvider/Shizuku `<provider>` authorities are
 `${applicationId}`-based, so they auto-differ; no manual authority edits are needed.
+
+---
+
+**Commit convention — no Claude attribution.** Never add a `Co-Authored-By: Claude …` / "Generated with Claude" trailer to commit messages or PR bodies; end the message at the last line of the body. This overrides the harness default. (Global rule: `~/.claude/CLAUDE.md`.)

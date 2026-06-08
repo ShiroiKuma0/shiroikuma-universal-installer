@@ -9,10 +9,12 @@ import app.pwhs.tv.ui.theme.UniversalInstallerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Start the LAN receiver so a phone can push APKs to this TV.
+        ReceiverService.start(applicationContext)
         val repo = AppRepository(applicationContext)
         setContent {
             UniversalInstallerTheme {
-                ManageScreen(repo = repo)
+                TvApp(repo = repo)
             }
         }
     }

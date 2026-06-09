@@ -42,3 +42,7 @@ This skill provides a robust way to translate CSV files while managing context w
 - **Header Integrity:** Ensure the header row is handled correctly during splitting and merging.
 - **Encoding:** Maintain UTF-8 encoding throughout the process.
 - **Double-Escaping Prevention:** Always provide raw text in the CSV. The import script will convert raw quotes into Android-compatible escapes (e.g., \`can't\` -> \`can\\'t\`).
+
+### 7. Cleanup & Git
+- Ensure you do NOT commit intermediate CSV files (e.g., untranslated strings, chunks, merged files, formatted files) to the repository.
+- Delete these temporary files once the import is successfully validated, or ensure they are excluded via \`.gitignore\`.

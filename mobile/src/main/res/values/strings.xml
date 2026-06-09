@@ -580,7 +580,6 @@
     <string name="uninstall_filter_reset">Reset</string>
     <string name="uninstall_search_open_cd">Search</string>
     <string name="uninstall_search_close_cd">Close search</string>
-    <string name="uninstall_search_clear_cd">Clear search</string>
     <string name="setting_section_profiles">Installer Profiles</string>
     <string name="setting_profiles_title">Profiles</string>
     <string name="setting_profiles_subtitle">Save and reuse install configurations</string>
@@ -600,4 +599,79 @@
     <string name="install_profile_none">None (Use global settings)</string>
     <string name="profile_mapping_header">Auto-apply for this app</string>
     <string name="profile_mapping_desc">Always use this profile when installing this package.</string>
+
+    <!-- TV Sync -->
+    <string name="tv_sync_screen_title">Send to TV</string>
+    <string name="tv_sync_hero_title">Send an app to your TV</string>
+    <string name="tv_sync_instructions">On the TV, open Universal Installer → Install, then scan the QR shown there.</string>
+    <string name="tv_sync_btn_scan">Scan TV QR</string>
+    <string name="tv_sync_prompt_scan">Scan the QR on your TV</string>
+    <string name="tv_sync_status_connected">Connected to %1$s</string>
+    <string name="tv_sync_btn_choose_apk">Choose APK to send</string>
+    <string name="tv_sync_btn_rescan">Scan a different TV</string>
+    <string name="tv_sync_status_sending">Sending…</string>
+    <string name="tv_sync_status_sent">Sent ✓ — confirm the install on your TV</string>
+    <string name="tv_sync_status_failed">Failed: %1$s</string>
+
+    <!-- Sync Screen -->
+    <string name="sync_storage_permission_title">Storage Permission Required</string>
+    <string name="sync_storage_permission_message">Sync Server needs full storage access to share and manage APK files. Please grant \"All files access\" in Settings.</string>
+    <string name="sync_open_settings">Open Settings</string>
+    <string name="sync_qr_code_title">Scan QR Code</string>
+    <string name="sync_qr_code_message">Open your camera and scan this code to access the server.</string>
+    <string name="sync_close">Close</string>
+    <string name="sync_server_offline">Server Offline</string>
+    <string name="sync_server_starting">Starting…</string>
+    <string name="sync_server_online">Server Online</string>
+    <string name="sync_server_error">Error</string>
+    <string name="sync_hero_subtitle">Share APK files to other devices on the same Wi-Fi network.</string>
+    <string name="sync_server_mode">Server Mode</string>
+    <string name="sync_server_running">Running</string>
+    <string name="sync_server_tap_to_start">Tap to start</string>
+    <string name="sync_server_settings">Server Settings</string>
+    <string name="sync_port">Port</string>
+    <string name="sync_require_pin">Require PIN</string>
+    <string name="sync_require_pin_subtitle">Guard transfers with a password</string>
+    <string name="sync_pin_code">PIN Code</string>
+    <string name="sync_active_downloads">Active Downloads</string>
+    <string name="sync_active_downloads_count">%d downloading</string>
+    <string name="sync_no_active_downloads">No active downloads</string>
+    <string name="sync_server_url">Server URL</string>
+    <string name="sync_active_transfer">Active Transfer</string>
+    <string name="sync_active_transfers_count">Active Transfers (%d)</string>
+    <string name="sync_add_files_to_share">Add Files to Share</string>
+    <string name="sync_shared_files_count">Shared Files (%1$d)</string>
+    <string name="sync_empty_state_message">Turn on the server to start sharing files</string>
+    <string name="sync_delete_cd">Delete</string>
+    <string name="sync_percentage">%1$d%%</string>
+    <string name="sync_transfer_progress">%1$s / %2$s</string>
+    <string name="sync_toast_added_skipped">Added %1$d file(s), skipped %2$d unsupported</string>
+    <string name="sync_toast_added">Added %1$d file(s) to Sync Folder</string>
+    <string name="sync_toast_unsupported">No supported package files selected (apk, apk+, apks, xapk, apkm, zip)</string>
+    <string name="sync_toast_failed">Failed to copy files</string>
+    <string name="file_size_gb">%1$.1f GB</string>
+    <string name="file_size_mb">%1$.1f MB</string>
+    <string name="file_size_kb">%1$.0f KB</string>
+    <string name="file_size_b">%1$d B</string>
+
+    <!-- Additional Settings -->
+    <string name="setting_retry_root">Retry Root Probe</string>
+    <string name="setting_section_interface">Interface</string>
+    <string name="setting_section_security">Security</string>
+    <string name="setting_lock_install_title">Lock Installations</string>
+    <string name="setting_lock_install_subtitle">Require biometric to confirm install</string>
+    <string name="setting_lock_uninstall_title">Lock Uninstalls</string>
+    <string name="setting_lock_uninstall_subtitle">Require biometric to confirm uninstall</string>
+    <string name="setting_biometric_unavailable">No biometric or device lock set up on this device.</string>
+    <string name="setting_section_sync_short">Sync</string>
+    <string name="setting_sync_control_panel">Sync Control Panel</string>
+    <string name="setting_section_advanced">Advanced</string>
+    <string name="setting_vt_api_key_title">VirusTotal API Key</string>
+    <string name="setting_vt_api_key_placeholder">Paste API key here…</string>
+    <string name="setting_diagnostics_title">Diagnostics</string>
+    <string name="setting_installer_package_title">Installer Package</string>
+    <string name="backup_settings_title">Backup Settings</string>
+    <string name="backup_output_path">Output Path</string>
+    <string name="backup_filename_template">Filename Template</string>
+    <string name="backup_tags_hint">Tags: {name}, {pkg}, {version}, {code}</string>
 </resources>

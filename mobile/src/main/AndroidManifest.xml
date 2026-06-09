@@ -158,6 +158,12 @@
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />
         <activity
+            android:name=".presentation.sync.CustomScannerActivity"
+            android:screenOrientation="portrait"
+            android:stateNotNeeded="true"
+            android:theme="@style/Theme.UniversalInstaller.Scanner"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
             android:name=".presentation.setting.SettingActivity"
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />

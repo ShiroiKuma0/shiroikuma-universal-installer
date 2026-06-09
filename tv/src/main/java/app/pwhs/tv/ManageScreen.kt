@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.pwhs.core.data.AppRepository
@@ -69,10 +70,10 @@ fun ManageScreen(repo: AppRepository, modifier: Modifier = Modifier) {
             .fillMaxSize()
             .padding(horizontal = 48.dp, vertical = 24.dp),
     ) {
-        Text("Installed apps", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.tv_manage_title), style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(4.dp))
         Text(
-            text = if (loading) "Loading…" else "${apps.size} apps · select to uninstall",
+            text = if (loading) stringResource(R.string.tv_manage_loading) else stringResource(R.string.tv_manage_apps_count, apps.size),
             style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(Modifier.height(20.dp))
@@ -147,8 +148,8 @@ private fun AppRow(app: InstalledApp, onClick: () -> Unit) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (app.versionName.isNotBlank()) MetaChip("v${app.versionName}")
                     if (app.sizeBytes > 0) MetaChip(formatSize(app.sizeBytes))
-                    if (!app.enabled) MetaChip("Disabled")
-                    if (app.isSystemApp) MetaChip("System")
+                    if (!app.enabled) MetaChip(stringResource(R.string.tv_manage_badge_disabled))
+                    if (app.isSystemApp) MetaChip(stringResource(R.string.tv_manage_badge_system))
                 }
             }
         }

@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import app.pwhs.core.data.DownloadsApkScanner
@@ -91,13 +92,13 @@ fun ReceiveScreen(modifier: Modifier = Modifier) {
         if (!context.packageManager.canRequestPackageInstalls()) { openUnknownSources(context); return }
         if (installing) return
         installing = true
-        resultMessage = "Installing $label…"
+        resultMessage = context.getString(R.string.tv_receive_installing, label)
         scope.launch {
             val r = withContext(Dispatchers.IO) { ApkInstaller(context).install(uri, isBundle) }
             installing = false
             resultMessage = when (r) {
-                is ApkInstaller.Result.Success -> "Installed $label ✓"
-                is ApkInstaller.Result.Failure -> "Failed: ${r.message}"
+                is ApkInstaller.Result.Success -> context.getString(R.string.tv_receive_installed_success, label)
+                is ApkInstaller.Result.Failure -> context.getString(R.string.tv_receive_failed, r.message)
             }
         }
     }
@@ -107,7 +108,7 @@ fun ReceiveScreen(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(top = 24.dp, bottom = 48.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        item { Text("Install from phone", style = MaterialTheme.typography.headlineMedium) }
+        item { Text(stringResource(R.string.tv_receive_from_phone), style = MaterialTheme.typography.headlineMedium) }
 
         item {
             when (val s = status) {
@@ -115,16 +116,16 @@ fun ReceiveScreen(modifier: Modifier = Modifier) {
                     QrCode(data = s.url, modifier = Modifier.size(220.dp))
                     Spacer(Modifier.width(36.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("1.  Connect phone to the same Wi-Fi", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.tv_receive_step1), style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.height(6.dp))
-                        Text("2.  Scan the QR (or open the address below)", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.tv_receive_step2), style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.height(6.dp))
-                        Text("3.  Pick an APK — it installs here", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.tv_receive_step3), style = MaterialTheme.typography.titleMedium)
                         Spacer(Modifier.height(16.dp))
                         Text("http://${s.ip}:${s.port}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
                     }
                 }
-                ReceiverStatus.Stopped -> Text("Starting receiver…", style = MaterialTheme.typography.bodyMedium)
+                ReceiverStatus.Stopped -> Text(stringResource(R.string.tv_receive_starting), style = MaterialTheme.typography.bodyMedium)
             }
         }
 
@@ -135,15 +136,15 @@ fun ReceiveScreen(modifier: Modifier = Modifier) {
         pending?.let { p ->
             item {
                 Column(Modifier.fillMaxWidth()) {
-                    Text("Received: ${p.fileName}", style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.tv_receive_received_title, p.fileName), style = MaterialTheme.typography.titleLarge)
                     Text(formatSize(p.sizeBytes), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Button(
                             onClick = { installUri(Uri.fromFile(File(p.path)), p.fileName.isBundleName(), p.fileName) },
                             modifier = Modifier.focusRequester(installFocus),
-                        ) { Text(if (installing) "Installing…" else "Install") }
-                        Button(onClick = { pending = null; resultMessage = null }) { Text("Dismiss") }
+                        ) { Text(if (installing) stringResource(R.string.tv_receive_installing_plain) else stringResource(R.string.tv_receive_install)) }
+                        Button(onClick = { pending = null; resultMessage = null }) { Text(stringResource(R.string.tv_receive_dismiss)) }
                     }
                 }
             }
@@ -152,19 +153,19 @@ fun ReceiveScreen(modifier: Modifier = Modifier) {
         // ── On this TV (MediaStore) ──────────────
         item {
             Spacer(Modifier.height(8.dp))
-            Text("On this TV", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.tv_receive_on_tv), style = MaterialTheme.typography.titleLarge)
         }
         if (!hasStorage) {
             item {
                 Card(onClick = { readPerm?.let { permLauncher.launch(it) } }, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(20.dp)) {
-                        Text("Allow access to storage", style = MaterialTheme.typography.titleMedium)
-                        Text("To list APKs already downloaded on this TV", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.tv_receive_allow_storage_title), style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.tv_receive_allow_storage_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
         } else if (downloads.isEmpty()) {
-            item { Text("No APK files found in storage", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { Text(stringResource(R.string.tv_receive_no_apks), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         } else {
             items(downloads, key = { it.uri }) { apk ->
                 Card(

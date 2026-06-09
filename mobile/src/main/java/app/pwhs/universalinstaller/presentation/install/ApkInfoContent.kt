@@ -338,7 +338,7 @@ internal fun ApkInfoContent(
                 ) {
                     Icon(Icons.Rounded.Menu, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Details")
+                    Text(stringResource(R.string.dialog_menu_details))
                 }
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -347,7 +347,7 @@ internal fun ApkInfoContent(
                     modifier = Modifier.weight(1f),
                     shape = MaterialTheme.shapes.medium,
                 ) {
-                    Text(if (isExpanded && startCompact) "Back" else stringResource(R.string.cancel))
+                    Text(if (isExpanded && startCompact) stringResource(R.string.dialog_back_btn) else stringResource(R.string.cancel))
                 }
                 Button(
                     onClick = onInstall,
@@ -357,7 +357,7 @@ internal fun ApkInfoContent(
                 ) {
                     Icon(Icons.Rounded.InstallMobile, null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text(if (isDowngrade) "Downgrade" else stringResource(R.string.txt_install))
+                    Text(if (isDowngrade) stringResource(R.string.dialog_downgrade_btn) else stringResource(R.string.txt_install))
                 }
             }
         }

@@ -32,4 +32,9 @@
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
         <item name="postSplashScreenTheme">@style/Theme.UniversalInstaller</item>
     </style>
+
+    <style name="Theme.UniversalInstaller.Scanner" parent="Theme.UniversalInstaller">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

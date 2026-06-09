@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Card
 import androidx.tv.material3.ExperimentalTvMaterial3Api
@@ -52,9 +53,9 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         contentPadding = PaddingValues(top = 24.dp, bottom = 48.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { Text("Settings", style = MaterialTheme.typography.headlineMedium) }
+        item { Text(stringResource(R.string.tv_settings_title), style = MaterialTheme.typography.headlineMedium) }
 
-        item { SectionHeader("About") }
+        item { SectionHeader(stringResource(R.string.tv_settings_section_about)) }
         item {
             SettingsCard(onClick = {}) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -65,15 +66,15 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     )
                     Spacer(Modifier.width(20.dp))
                     Column {
-                        Text("Universal Installer", style = MaterialTheme.typography.titleLarge)
+                        Text(stringResource(R.string.tv_settings_app_name), style = MaterialTheme.typography.titleLarge)
                         Text(
-                            "Install anything, anywhere",
+                            stringResource(R.string.tv_settings_app_tagline),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         if (version.isNotBlank()) {
                             Text(
-                                "Version $version",
+                                stringResource(R.string.tv_settings_version, version),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -83,7 +84,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        item { SectionHeader("Install") }
+        item { SectionHeader(stringResource(R.string.tv_settings_section_install)) }
         item {
             SettingsCard(onClick = {
                 runCatching {
@@ -95,40 +96,52 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     )
                 }
             }) {
-                TitleValue("Allow installs from this app", "Open the system 'unknown sources' setting")
+                TitleValue(
+                    stringResource(R.string.tv_settings_allow_installs_title),
+                    stringResource(R.string.tv_settings_allow_installs_subtitle)
+                )
             }
         }
-        item {
-            SettingsCard(onClick = {}) {
-                TitleValue("Receiver", "Port 8787 · token-guarded LAN upload")
-            }
-        }
-
-        item { SectionHeader("Device") }
         item {
             SettingsCard(onClick = {}) {
                 TitleValue(
-                    "This device",
-                    "${Build.MANUFACTURER} ${Build.MODEL} · Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
+                    stringResource(R.string.tv_settings_receiver_title),
+                    stringResource(R.string.tv_settings_receiver_subtitle)
                 )
             }
         }
 
-        item { SectionHeader("Project") }
+        item { SectionHeader(stringResource(R.string.tv_settings_section_device)) }
+        item {
+            SettingsCard(onClick = {}) {
+                TitleValue(
+                    stringResource(R.string.tv_settings_device_title),
+                    stringResource(
+                        R.string.tv_settings_device_info,
+                        Build.MANUFACTURER,
+                        Build.MODEL,
+                        Build.VERSION.RELEASE,
+                        Build.VERSION.SDK_INT
+                    ),
+                )
+            }
+        }
+
+        item { SectionHeader(stringResource(R.string.tv_settings_section_project)) }
         item {
             SettingsCard(onClick = {}) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     QrCode(data = REPO_URL, modifier = Modifier.size(120.dp))
                     Spacer(Modifier.width(24.dp))
                     Column {
-                        Text("Open source", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.tv_settings_open_source_title), style = MaterialTheme.typography.titleMedium)
                         Text(
                             REPO_URL,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            "Scan to view the project",
+                            stringResource(R.string.tv_settings_scan_to_view),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.core.data.AppRepository
 import androidx.tv.material3.Button
@@ -36,9 +37,9 @@ fun TvApp(repo: AppRepository, modifier: Modifier = Modifier) {
                 modifier = Modifier.padding(horizontal = 48.dp, vertical = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                TabButton("Install", selected = tab == 0) { tab = 0 }
-                TabButton("Manage", selected = tab == 1) { tab = 1 }
-                TabButton("Settings", selected = tab == 2) { tab = 2 }
+                TabButton(stringResource(R.string.tv_app_tab_install), selected = tab == 0) { tab = 0 }
+                TabButton(stringResource(R.string.tv_app_tab_manage), selected = tab == 1) { tab = 1 }
+                TabButton(stringResource(R.string.tv_app_tab_settings), selected = tab == 2) { tab = 2 }
             }
             when (tab) {
                 0 -> ReceiveScreen(modifier = Modifier.weight(1f))

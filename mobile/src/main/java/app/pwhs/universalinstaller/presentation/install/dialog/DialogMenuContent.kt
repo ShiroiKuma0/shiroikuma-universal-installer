@@ -496,7 +496,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.infoTab(
                             modifier = Modifier.size(16.dp),
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Copy")
+                        Text(stringResource(R.string.about_btn_copy))
                     }
                 }
             }

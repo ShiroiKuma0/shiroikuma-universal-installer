@@ -36,13 +36,13 @@ class ReceiverService : Service() {
             val mgr = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (mgr.getNotificationChannel(CHANNEL) == null) {
                 mgr.createNotificationChannel(
-                    NotificationChannel(CHANNEL, "Receiver", NotificationManager.IMPORTANCE_LOW)
+                    NotificationChannel(CHANNEL, getString(R.string.tv_receiver_channel_name), NotificationManager.IMPORTANCE_LOW)
                 )
             }
         }
         return Notification.Builder(this, CHANNEL)
-            .setContentTitle("Ready to receive apps")
-            .setContentText("Scan the QR on your TV to send an APK")
+            .setContentTitle(getString(R.string.tv_receiver_notification_title))
+            .setContentText(getString(R.string.tv_receiver_notification_text))
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setOngoing(true)
             .build()

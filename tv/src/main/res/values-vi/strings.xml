@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Universal Installer</string>
+
+    <!-- TV Receive Screen -->
+    <string name="tv_receive_from_phone">Cài đặt từ điện thoại</string>
+    <string name="tv_receive_step1">1. Kết nối điện thoại với cùng mạng Wi-Fi</string>
+    <string name="tv_receive_step2">2. Quét mã QR (hoặc mở địa chỉ bên dưới)</string>
+    <string name="tv_receive_step3">3. Chọn một APK — nó sẽ được cài đặt tại đây</string>
+    <string name="tv_receive_starting">Đang khởi động bộ nhận…</string>
+    <string name="tv_receive_installing">Đang cài đặt %s…</string>
+    <string name="tv_receive_installing_plain">Đang cài đặt…</string>
+    <string name="tv_receive_installed_success">Đã cài đặt %s ✓</string>
+    <string name="tv_receive_failed">Thất bại: %s</string>
+    <string name="tv_receive_received_title">Đã nhận: %s</string>
+    <string name="tv_receive_install">Cài đặt</string>
+    <string name="tv_receive_dismiss">Bỏ qua</string>
+    <string name="tv_receive_on_tv">Trên TV này</string>
+    <string name="tv_receive_allow_storage_title">Cho phép truy cập bộ nhớ</string>
+    <string name="tv_receive_allow_storage_subtitle">Để liệt kê các APK đã được tải xuống trên TV này</string>
+    <string name="tv_receive_no_apks">Không tìm thấy tệp APK nào trong bộ nhớ</string>
+
+    <!-- TV Settings Screen -->
+    <string name="tv_settings_title">Cài đặt</string>
+    <string name="tv_settings_section_about">Giới thiệu</string>
+    <string name="tv_settings_app_name">Universal Installer</string>
+    <string name="tv_settings_app_tagline">Cài đặt mọi thứ, ở mọi nơi</string>
+    <string name="tv_settings_version">Phiên bản %s</string>
+    <string name="tv_settings_section_install">Cài đặt</string>
+    <string name="tv_settings_allow_installs_title">Cho phép cài đặt từ ứng dụng này</string>
+    <string name="tv_settings_allow_installs_subtitle">Mở cài đặt \'nguồn không xác định\' của hệ thống</string>
+    <string name="tv_settings_receiver_title">Bộ nhận</string>
+    <string name="tv_settings_receiver_subtitle">Cổng 8787 · tải lên mạng nội bộ được bảo vệ bằng mã</string>
+    <string name="tv_settings_section_device">Thiết bị</string>
+    <string name="tv_settings_device_title">Thiết bị này</string>
+    <string name="tv_settings_device_info">%1$s %2$s · Android %3$s (API %4$d)</string>
+    <string name="tv_settings_section_project">Dự án</string>
+    <string name="tv_settings_open_source_title">Mã nguồn mở</string>
+    <string name="tv_settings_scan_to_view">Quét để xem dự án</string>
+
+    <!-- TV Manage Screen -->
+    <string name="tv_manage_title">Ứng dụng đã cài đặt</string>
+    <string name="tv_manage_loading">Đang tải…</string>
+    <string name="tv_manage_apps_count">%d ứng dụng · chọn để gỡ cài đặt</string>
+    <string name="tv_manage_badge_disabled">Đã vô hiệu hóa</string>
+    <string name="tv_manage_badge_system">Hệ thống</string>
+
+    <!-- TV Receiver Service -->
+    <string name="tv_receiver_channel_name">Bộ nhận</string>
+    <string name="tv_receiver_notification_title">Sẵn sàng nhận ứng dụng</string>
+    <string name="tv_receiver_notification_text">Quét mã QR trên TV để gửi APK</string>
+
+    <!-- TV Main Tabs -->
+    <string name="tv_app_tab_install">Cài đặt</string>
+    <string name="tv_app_tab_manage">Quản lý</string>
+    <string name="tv_app_tab_settings">Cài đặt</string>
+</resources>

@@ -13,13 +13,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,8 +35,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.base.BaseActivity
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -43,12 +51,13 @@ import kotlinx.coroutines.launch
 class SendToTvActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentWithTheme { SendToTvScreen() }
+        setContentWithTheme { SendToTvScreen(onBack = { finish() }) }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SendToTvScreen() {
+private fun SendToTvScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -65,80 +74,108 @@ private fun SendToTvScreen() {
         val target = scanned
         if (uri != null && target != null) {
             uploading = true
-            status = "Sending…"
+            status = context.getString(R.string.tv_sync_status_sending)
             scope.launch {
                 val name = queryDisplayName(context, uri)
                 val result = TvUploadClient.upload(context, target, uri, name)
                 uploading = false
                 status = when (result) {
-                    is TvUploadClient.Result.Success -> "Sent ✓ — confirm the install on your TV"
-                    is TvUploadClient.Result.Failure -> "Failed: ${result.message}"
+                    is TvUploadClient.Result.Success -> context.getString(R.string.tv_sync_status_sent)
+                    is TvUploadClient.Result.Failure -> context.getString(R.string.tv_sync_status_failed, result.message)
                 }
             }
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.Smartphone,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-        )
-        Spacer(Modifier.height(12.dp))
-        Text("Send an app to your TV", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(8.dp))
-
-        val target = scanned
-        if (target == null) {
-            Text(
-                "On the TV, open Universal Installer → Install, then scan the QR shown there.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.tv_sync_screen_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.back_cd))
+                    }
+                }
             )
-            Spacer(Modifier.height(24.dp))
-            Button(
-                onClick = {
-                    scanLauncher.launch(
-                        ScanOptions()
-                            .setPrompt("Scan the QR on your TV")
-                            .setBeepEnabled(false)
-                            .setOrientationLocked(false)
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Rounded.QrCodeScanner, null)
-                Spacer(Modifier.height(0.dp))
-                Text("  Scan TV QR")
-            }
-        } else {
-            Text(
-                "Connected to ${Uri.parse(target).host ?: "TV"}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(24.dp))
-            Button(
-                onClick = { if (!uploading) apkLauncher.launch(arrayOf("*/*")) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uploading,
-            ) { Text(if (uploading) "Sending…" else "Choose APK to send") }
-            Spacer(Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = { scanned = null; status = null },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uploading,
-            ) { Text("Scan a different TV") }
         }
+    ) { padding ->
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Smartphone,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(Modifier.height(12.dp))
+                Text(stringResource(R.string.tv_sync_hero_title), style = MaterialTheme.typography.headlineSmall)
+                Spacer(Modifier.height(8.dp))
 
-        status?.let {
-            Spacer(Modifier.height(20.dp))
-            Text(it, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
+                val target = scanned
+                if (target == null) {
+                    Text(
+                        stringResource(R.string.tv_sync_instructions),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            scanLauncher.launch(
+                                ScanOptions()
+                                    .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
+                                    .setBeepEnabled(false)
+                                    .setOrientationLocked(true)
+                                    .setCaptureActivity(CustomScannerActivity::class.java)
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Rounded.QrCodeScanner, null)
+                        Spacer(Modifier.height(0.dp))
+                        Text("  " + stringResource(R.string.tv_sync_btn_scan))
+                    }
+                } else {
+                    Text(
+                        stringResource(R.string.tv_sync_status_connected, Uri.parse(target).host ?: "TV"),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(24.dp))
+                    Button(
+                        onClick = { if (!uploading) apkLauncher.launch(arrayOf("*/*")) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uploading,
+                    ) { Text(if (uploading) stringResource(R.string.tv_sync_status_sending) else stringResource(R.string.tv_sync_btn_choose_apk)) }
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { scanned = null; status = null },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uploading,
+                    ) { Text(stringResource(R.string.tv_sync_btn_rescan)) }
+                }
+
+                status?.let {
+                    Spacer(Modifier.height(20.dp))
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }

@@ -236,7 +236,7 @@ fun BackupsScreen(
                         value = displayPath,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Output Path") },
+                        label = { Text(stringResource(R.string.backup_output_path)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -263,11 +263,11 @@ fun BackupsScreen(
                     OutlinedTextField(
                         value = uiState.extractorFilenameTemplate,
                         onValueChange = viewModel::setExtractorFilenameTemplate,
-                        label = { Text("Filename Template") },
+                        label = { Text(stringResource(R.string.backup_filename_template)) },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                         leadingIcon = { Icon(Icons.Rounded.DriveFileRenameOutline, null) },
                         placeholder = { Text("{name}-{version}") },
-                        supportingText = { Text("Tags: {name}, {pkg}, {version}, {code}") },
+                        supportingText = { Text(stringResource(R.string.backup_tags_hint)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
                     )
@@ -277,7 +277,7 @@ fun BackupsScreen(
                     onClick = { showSettings = false },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Done")
+                    Text(stringResource(R.string.dialog_success_done))
                 }
             }
         }

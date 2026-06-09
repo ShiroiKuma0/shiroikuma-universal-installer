@@ -86,11 +86,10 @@ fun SyncScreen(
                     tint = MaterialTheme.colorScheme.primary,
                 )
             },
-            title = { Text("Storage Permission Required") },
+            title = { Text(stringResource(R.string.sync_storage_permission_title)) },
             text = {
                 Text(
-                    "Sync Server needs full storage access to share and manage APK files. " +
-                    "Please grant \"All files access\" in Settings.",
+                    stringResource(R.string.sync_storage_permission_message),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             },
@@ -108,12 +107,12 @@ fun SyncScreen(
                     }
                     settingsLauncher.launch(intent)
                 }) {
-                    Text("Open Settings")
+                    Text(stringResource(R.string.sync_open_settings))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showStorageDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             },
         )
@@ -171,6 +170,7 @@ private fun SyncUi(
     onSetRequirePin: (Boolean) -> Unit = {},
     onSetPinCode: (String) -> Unit = {},
 ) {
+    val context = LocalContext.current
     var showQrDialog by remember { mutableStateOf(false) }
 
     // QR Code Dialog
@@ -186,13 +186,13 @@ private fun SyncUi(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "Scan QR Code",
+                        text = stringResource(R.string.sync_qr_code_title),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Open your camera and scan this code to access the server.",
+                        text = stringResource(R.string.sync_qr_code_message),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -217,7 +217,7 @@ private fun SyncUi(
                     )
                     Spacer(Modifier.height(24.dp))
                     TextButton(onClick = { showQrDialog = false }) {
-                        Text("Close")
+                        Text(stringResource(R.string.sync_close))
                     }
                 }
             }
@@ -231,7 +231,7 @@ private fun SyncUi(
                 title = { Text(stringResource(R.string.setting_section_sync)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.back_cd))
                     }
                 },
                 actions = {
@@ -240,11 +240,11 @@ private fun SyncUi(
                     IconButton(onClick = {
                         ctx.startActivity(Intent(ctx, SendToTvActivity::class.java))
                     }) {
-                        Icon(Icons.Rounded.Tv, contentDescription = "Send to TV")
+                        Icon(Icons.Rounded.Tv, contentDescription = stringResource(R.string.tv_sync_screen_title))
                     }
                     AnimatedVisibility(visible = uiState.state == SyncState.RUNNING && uiState.serverUrl != null, enter = fadeIn(), exit = fadeOut()) {
                         IconButton(onClick = { showQrDialog = true }) {
-                            Icon(Icons.Rounded.QrCode, contentDescription = "Show QR Code")
+                            Icon(Icons.Rounded.QrCode, contentDescription = stringResource(R.string.sync_qr_code_title))
                         }
                     }
                 }
@@ -293,17 +293,17 @@ private fun SyncUi(
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         text = when (uiState.state) {
-                            SyncState.STOPPED -> "Server Offline"
-                            SyncState.STARTING -> "Starting..."
-                            SyncState.RUNNING -> "Server Online"
-                            SyncState.ERROR -> "Error"
+                            SyncState.STOPPED -> stringResource(R.string.sync_server_offline)
+                            SyncState.STARTING -> stringResource(R.string.sync_server_starting)
+                            SyncState.RUNNING -> stringResource(R.string.sync_server_online)
+                            SyncState.ERROR -> stringResource(R.string.sync_server_error)
                         },
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Share APK files to other devices on the same Wi-Fi network.",
+                        text = stringResource(R.string.sync_hero_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -332,11 +332,11 @@ private fun SyncUi(
                         Spacer(Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Server Mode",
+                                text = stringResource(R.string.sync_server_mode),
                                 style = MaterialTheme.typography.titleMedium,
                             )
                             Text(
-                                text = if (uiState.state == SyncState.RUNNING) "Running" else "Tap to start",
+                                text = if (uiState.state == SyncState.RUNNING) stringResource(R.string.sync_server_running) else stringResource(R.string.sync_server_tap_to_start),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -361,7 +361,7 @@ private fun SyncUi(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Server Settings",
+                            text = stringResource(R.string.sync_server_settings),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
@@ -370,7 +370,7 @@ private fun SyncUi(
                         OutlinedTextField(
                             value = uiState.syncOptions.serverPort,
                             onValueChange = onSetPort,
-                            label = { Text("Port") },
+                            label = { Text(stringResource(R.string.sync_port)) },
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                                 keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
@@ -385,8 +385,8 @@ private fun SyncUi(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Require PIN", style = MaterialTheme.typography.bodyLarge)
-                                Text("Guard transfers with a password", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.sync_require_pin), style = MaterialTheme.typography.bodyLarge)
+                                Text(stringResource(R.string.sync_require_pin_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Switch(
                                 checked = uiState.syncOptions.requirePin,
@@ -398,7 +398,7 @@ private fun SyncUi(
                             OutlinedTextField(
                                 value = uiState.syncOptions.pinCode,
                                 onValueChange = onSetPinCode,
-                                label = { Text("PIN Code") },
+                                label = { Text(stringResource(R.string.sync_pin_code)) },
                                 modifier = Modifier.fillMaxWidth(),
                                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
@@ -422,11 +422,11 @@ private fun SyncUi(
                         Column {
                             // Connection status
                             ListItem(
-                                headlineContent = { Text("Active Downloads") },
+                                headlineContent = { Text(stringResource(R.string.sync_active_downloads)) },
                                 supportingContent = {
                                     Text(
-                                        if (uiState.activeConnections > 0) "${uiState.activeConnections} downloading"
-                                        else "No active downloads",
+                                        if (uiState.activeConnections > 0) stringResource(R.string.sync_active_downloads_count, uiState.activeConnections)
+                                        else stringResource(R.string.sync_no_active_downloads),
                                         color = if (uiState.activeConnections > 0) MaterialTheme.colorScheme.primary
                                         else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -445,7 +445,7 @@ private fun SyncUi(
 
                             // Server URL
                             ListItem(
-                                headlineContent = { Text("Server URL") },
+                                headlineContent = { Text(stringResource(R.string.sync_server_url)) },
                                 supportingContent = {
                                     Text(
                                         uiState.serverUrl ?: "",
@@ -465,7 +465,7 @@ private fun SyncUi(
                             // Port
                             val port = uiState.serverUrl?.substringAfterLast(":") ?: "8080"
                             ListItem(
-                                headlineContent = { Text("Port") },
+                                headlineContent = { Text(stringResource(R.string.sync_port)) },
                                 supportingContent = {
                                     Text(
                                         port,
@@ -483,7 +483,7 @@ private fun SyncUi(
                             if (uiState.pinCode != null) {
                                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                                 ListItem(
-                                    headlineContent = { Text("PIN Code") },
+                                    headlineContent = { Text(stringResource(R.string.sync_pin_code)) },
                                     supportingContent = {
                                         Text(
                                             uiState.pinCode,
@@ -517,7 +517,7 @@ private fun SyncUi(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                text = if (uiState.activeTransfers.size == 1) "Active Transfer" else "Active Transfers (${uiState.activeTransfers.size})",
+                                text = if (uiState.activeTransfers.size == 1) stringResource(R.string.sync_active_transfer) else stringResource(R.string.sync_active_transfers_count, uiState.activeTransfers.size),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -552,7 +552,7 @@ private fun SyncUi(
                                     )
                                     Spacer(Modifier.width(12.dp))
                                     Text(
-                                        text = "${progress.percentage}%",
+                                        text = stringResource(R.string.sync_percentage, progress.percentage),
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.primary,
@@ -566,7 +566,11 @@ private fun SyncUi(
                                     trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                                 )
                                 Text(
-                                    text = "${formatFileSize(progress.bytesTransferred)} / ${formatFileSize(progress.totalBytes)}",
+                                    text = stringResource(
+                                        R.string.sync_transfer_progress,
+                                        formatFileSize(context, progress.bytesTransferred),
+                                        formatFileSize(context, progress.totalBytes)
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -584,7 +588,7 @@ private fun SyncUi(
                     ) {
                         Icon(Icons.Rounded.Add, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
-                        Text("Add Files to Share", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.sync_add_files_to_share), style = MaterialTheme.typography.labelLarge)
                     }
                 }
 
@@ -603,7 +607,7 @@ private fun SyncUi(
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                text = "Shared Files (${uiState.sharedFiles.size})",
+                                text = stringResource(R.string.sync_shared_files_count, uiState.sharedFiles.size),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -638,7 +642,7 @@ private fun SyncUi(
                         )
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            text = "Turn on the server to start sharing files",
+                            text = stringResource(R.string.sync_empty_state_message),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.outline,
                         )
@@ -703,7 +707,7 @@ private fun SharedFileItem(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = formatFileSize(file.length()),
+                    text = formatFileSize(context, file.length()),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -711,7 +715,7 @@ private fun SharedFileItem(
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Outlined.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = stringResource(R.string.sync_delete_cd),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
@@ -719,14 +723,14 @@ private fun SharedFileItem(
     }
 }
 
-private fun formatFileSize(bytes: Long): String {
+private fun formatFileSize(context: android.content.Context, bytes: Long): String {
     val kb = bytes / 1024.0
     val mb = kb / 1024.0
     val gb = mb / 1024.0
     return when {
-        gb >= 1.0 -> "%.1f GB".format(gb)
-        mb >= 1.0 -> "%.1f MB".format(mb)
-        kb >= 1.0 -> "%.0f KB".format(kb)
-        else -> "$bytes B"
+        gb >= 1.0 -> context.getString(R.string.file_size_gb, gb)
+        mb >= 1.0 -> context.getString(R.string.file_size_mb, mb)
+        kb >= 1.0 -> context.getString(R.string.file_size_kb, kb)
+        else -> context.getString(R.string.file_size_b, bytes)
     }
 }

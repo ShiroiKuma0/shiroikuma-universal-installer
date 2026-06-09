@@ -285,7 +285,7 @@ private fun SettingUi(
                             )
                             if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
                                 ListItem(
-                                    headlineContent = { Text("Retry Root Probe") },
+                                    headlineContent = { Text(stringResource(R.string.setting_retry_root)) },
                                     leadingContent = { Icon(Icons.Rounded.RocketLaunch, null, tint = MaterialTheme.colorScheme.primary) },
                                     modifier = Modifier.clickable { onRootRetry() },
                                     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
@@ -520,7 +520,7 @@ private fun SettingUi(
 
                 // ── Interface Section ────────────────────────
                 if (matchesQuery(q, interfaceLabels)) item {
-                    SettingsSection(title = "Interface", icon = Icons.Rounded.Palette) {
+                    SettingsSection(title = stringResource(R.string.setting_section_interface), icon = Icons.Rounded.Palette) {
                         SearchableItem(q, stringResource(R.string.theme_screen_title), "interface theme") {
                             ListItem(
                                 headlineContent = { Text(stringResource(R.string.theme_screen_title)) },
@@ -563,20 +563,20 @@ private fun SettingUi(
 
                 // ── Security Section ─────────────────────────
                 if (matchesQuery(q, securityLabels)) item {
-                    SettingsSection(title = "Security", icon = Icons.Rounded.Fingerprint) {
-                        SearchableItem(q, "Lock Installations", "biometric security install") {
+                    SettingsSection(title = stringResource(R.string.setting_section_security), icon = Icons.Rounded.Fingerprint) {
+                        SearchableItem(q, stringResource(R.string.setting_lock_install_title), "biometric security install") {
                             SwitchPreference(
-                                title = "Lock Installations",
-                                subtitle = "Require biometric to confirm install",
+                                title = stringResource(R.string.setting_lock_install_title),
+                                subtitle = stringResource(R.string.setting_lock_install_subtitle),
                                 checked = uiState.biometricLockInstall,
                                 onCheckedChange = onBiometricLockInstallChanged,
                                 enabled = uiState.biometricEnrolmentAvailable
                             )
                         }
-                        SearchableItem(q, "Lock Uninstalls", "biometric security uninstall") {
+                        SearchableItem(q, stringResource(R.string.setting_lock_uninstall_title), "biometric security uninstall") {
                             SwitchPreference(
-                                title = "Lock Uninstalls",
-                                subtitle = "Require biometric to confirm uninstall",
+                                title = stringResource(R.string.setting_lock_uninstall_title),
+                                subtitle = stringResource(R.string.setting_lock_uninstall_subtitle),
                                 checked = uiState.biometricLockUninstall,
                                 onCheckedChange = onBiometricLockUninstallChanged,
                                 enabled = uiState.biometricEnrolmentAvailable
@@ -584,7 +584,7 @@ private fun SettingUi(
                         }
                         if (!uiState.biometricEnrolmentAvailable) {
                             Text(
-                                text = "No biometric or device lock set up on this device.",
+                                text = stringResource(R.string.setting_biometric_unavailable),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -595,9 +595,9 @@ private fun SettingUi(
 
                 // ── Sync Section ─────────────────────────────
                 if (matchesQuery(q, syncLabels)) item {
-                    SettingsSection(title = "Sync", icon = Icons.Rounded.WifiTethering) {
+                    SettingsSection(title = stringResource(R.string.setting_section_sync_short), icon = Icons.Rounded.WifiTethering) {
                         ListItem(
-                            headlineContent = { Text("Sync Control Panel") },
+                            headlineContent = { Text(stringResource(R.string.setting_sync_control_panel)) },
                             leadingContent = { Icon(Icons.Rounded.WifiTethering, null, tint = MaterialTheme.colorScheme.primary) },
                             modifier = Modifier.clickable {
                                 context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.sync.SyncActivity::class.java))
@@ -609,13 +609,13 @@ private fun SettingUi(
                             OutlinedTextField(
                                 value = uiState.syncOptions.serverPort,
                                 onValueChange = onSyncServerPortChanged,
-                                label = { Text("Port") },
+                                label = { Text(stringResource(R.string.sync_port)) },
                                 modifier = Modifier.fillMaxWidth(),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                                 singleLine = true
                             )
                             SwitchPreference(
-                                title = "Require PIN",
+                                title = stringResource(R.string.sync_require_pin),
                                 checked = uiState.syncOptions.requirePin,
                                 onCheckedChange = onSyncRequirePinChanged
                             )
@@ -623,7 +623,7 @@ private fun SettingUi(
                                 OutlinedTextField(
                                     value = uiState.syncOptions.pinCode,
                                     onValueChange = onSyncPinCodeChanged,
-                                    label = { Text("PIN Code") },
+                                    label = { Text(stringResource(R.string.sync_pin_code)) },
                                     modifier = Modifier.fillMaxWidth(),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                                     singleLine = true
@@ -635,14 +635,14 @@ private fun SettingUi(
 
                 // ── Advanced Options ─────────────────────────
                 if (matchesQuery(q, advancedLabels)) item {
-                    SettingsSection(title = "Advanced", icon = Icons.Rounded.Terminal) {
+                    SettingsSection(title = stringResource(R.string.setting_section_advanced), icon = Icons.Rounded.Terminal) {
                         OutlinedTextField(
                             value = uiState.virusTotalApiKey,
                             onValueChange = onVirusTotalKeyChanged,
-                            label = { Text("VirusTotal API Key") },
+                            label = { Text(stringResource(R.string.setting_vt_api_key_title)) },
                             modifier = Modifier.fillMaxWidth().padding(16.dp),
                             leadingIcon = { Icon(Icons.Rounded.Key, null, tint = MaterialTheme.colorScheme.primary) },
-                            placeholder = { Text("Paste API key here...") },
+                            placeholder = { Text(stringResource(R.string.setting_vt_api_key_placeholder)) },
                             singleLine = true,
                         )
                     }
@@ -650,7 +650,7 @@ private fun SettingUi(
 
                 // ── About Section ────────────────────────────
                 if (matchesQuery(q, aboutLabels)) item {
-                    SettingsSection(title = "About", icon = Icons.Rounded.Info) {
+                    SettingsSection(title = stringResource(R.string.setting_section_about), icon = Icons.Rounded.Info) {
                         ListItem(
                             headlineContent = { Text(stringResource(R.string.setting_section_about)) },
                             supportingContent = { Text("v${uiState.appVersion}") },
@@ -661,7 +661,7 @@ private fun SettingUi(
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )
                         ListItem(
-                            headlineContent = { Text("Diagnostics") },
+                            headlineContent = { Text(stringResource(R.string.setting_diagnostics_title)) },
                             leadingContent = { Icon(Icons.Rounded.BugReport, null, tint = MaterialTheme.colorScheme.primary) },
                             modifier = Modifier.clickable {
                                 context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.diagnostics.DiagnosticsActivity::class.java))

@@ -71,7 +71,7 @@ all exceed the previous line's (`160001`, …), keeping upgrades monotonic.
    | App launcher label | `白い熊 Universal installer` | `app_name` in `values/strings.xml` **and** `values-ro/strings.xml` (both `translatable="false"`) |
    | Fork version logic | `forkVersionName` / `forkVersionCode`, `base { archivesName = "shiroikuma-universal-installer_…" }`, `buildFork` task | `app/build.gradle.kts` |
    | Upstream version pins | `VERSION_NAME`/`VERSION_CODE` = new upstream; `BUILD_NUMBER=1` | `gradle.properties` |
-   | We build the **`full`** flavor | task `:app:buildFork` → `assembleFullRelease` | `app/build.gradle.kts` |
+   | We build the single release | task `:app:buildFork` → `assembleRelease` | `app/build.gradle.kts` |
    | Signing | reads gitignored `key.properties` → `shiroikuma-universalinstaller.jks` | `app/build.gradle.kts` (unchanged from upstream) |
 
    **Couplings to be aware of (do NOT "fix" them):** because the **namespace stays
@@ -84,7 +84,7 @@ all exceed the previous line's (`160001`, …), keeping upgrades monotonic.
    - `ManualTargetedInstaller`'s internal broadcast action `app.pwhs.universalinstaller.INSTALL_STATUS_<id>`
      is a self-contained sender+receiver pair — harmless, left as-is.
 
-   Sanity check: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleFullRelease --dry-run`
+   Sanity check: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleRelease --dry-run`
    to confirm the build script still evaluates after the rebase.
 
 6. **Build the new `+1`** via the **build-apk** skill

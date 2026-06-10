@@ -8,9 +8,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Window/splash background. Matches Compose BackgroundLight (BackgroundDark in night)
-         so cold start and inter-Activity transitions don't flash the Material default
-         grey before the first Compose frame draws. -->
+    <!-- window_background matches Compose BackgroundLight (BackgroundDark in night) so
+         inter-Activity transitions don't flash the Material default grey before the first
+         Compose frame draws. splash_background is black to match the black/yellow launcher
+         icon shown on the cold-start splash (and the Compose SplashScreen). -->
     <color name="window_background">#FFF8FAFC</color>
-    <color name="splash_background">#FFF8FAFC</color>
+    <color name="splash_background">#FF000000</color>
 </resources>

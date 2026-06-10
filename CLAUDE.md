@@ -16,7 +16,7 @@ side-by-side with the official app. The fork follows the same model as 白い熊
 | Fork applicationId | `shiroikuma.universalinstaller` (`APP_ID` in `gradle.properties`) |
 | Code namespace (UNCHANGED) | `app.pwhs.universalinstaller` (R/BuildConfig/AIDL/FileProvider class names — never touch) |
 | App label | `白い熊 Universal installer` (`app_name` in `values/strings.xml` + `values-ro/strings.xml`) |
-| Flavor we ship | **`full`** (root + all features) → task `:app:buildFork` (`assembleFullRelease`) |
+| What we build | single release (root + all features) → task `:app:buildFork` (`assembleRelease`) |
 | Fork version | `versionName = "<VERSION_NAME>+<BUILD_NUMBER>"`, `versionCode = VERSION_CODE*10000+BUILD_NUMBER` (`gradle.properties`) |
 | Signing keystore | `~/.android-keystores/shiroikuma-universalinstaller.jks` (alias `universalinstaller`), via gitignored `key.properties` |
 | Build JDK | OpenJDK 21 at `/usr/lib/jvm/java-21-openjdk-amd64` (default `java` here is 11) |
@@ -41,43 +41,38 @@ Universal Installer (`app.pwhs.universalinstaller`) — an Android package manag
 ## Build, test, run
 
 ```bash
-# Build verification — MANDATORY before declaring any task complete (builds both flavors' debug).
+# Build verification — MANDATORY before declaring any task complete.
 ./gradlew assembleDebug
 
-# Per-flavor builds
-./gradlew assembleStoreDebug      # store flavor (no root)
-./gradlew assembleFullDebug       # full flavor (root via libsu)
-./gradlew assembleStoreRelease assembleFullRelease
-./gradlew bundleStoreRelease      # AAB for Play
+# Release builds (single distribution — no product flavors since 1.8.3)
+./gradlew assembleRelease         # signed APK if key.properties exists, else unsigned
+./gradlew bundleRelease           # AAB
 
 # Tests
-./gradlew test                                         # all unit-test variants
-./gradlew testStoreDebugUnitTest --tests "app.pwhs.universalinstaller.SomeTest"
-./gradlew connectedFullDebugAndroidTest                # instrumented (device/emulator)
+./gradlew test                                         # all unit tests
+./gradlew testDebugUnitTest --tests "app.pwhs.universalinstaller.SomeTest"
+./gradlew connectedDebugAndroidTest                    # instrumented (device/emulator)
 ./gradlew lint
 
 # Fastlane (bundle install first; see README for full lane list)
 bundle exec fastlane test
-bundle exec fastlane build_debug          # both flavors
+bundle exec fastlane build_debug
 bundle exec fastlane bump_version version_name:"2.0"
 ```
 
 Release builds only sign when a `key.properties` exists at repo root (gitignored, CI-supplied); otherwise they build unsigned. `local.properties` is also gitignored.
 
-## Two product flavors (the central architectural constraint)
+## Single distribution (no product flavors)
 
-The `distribution` flavor dimension has two flavors sharing one codebase, same `applicationId`, and same signing key (so a user can sideload `full` over a Play install without data loss):
+Upstream **removed the old `store`/`full` flavor split in 1.8.3.** There is now one build that always ships libsu for real root installs, alongside Shizuku and the default system installer. No `distribution` flavor dimension, no `BuildConfig.HAS_ROOT_SUPPORT`, no `BuildConfig.FLAVOR`, no `app/src/store/` or `app/src/full/` source sets — everything lives in `app/src/main/`.
 
-- **`store`** (default) — ships to Google Play / F-Droid. `BuildConfig.HAS_ROOT_SUPPORT = false`. **No libsu / root code is compiled in**, so Play's static analysis has nothing to flag as "device abuse."
-- **`full`** — distributed on GitHub. `HAS_ROOT_SUPPORT = true`. Pulls in `ackpine-libsu` + `topjohnwu.libsu` for a real root install backend.
+All install backends live in `app/src/main/.../install/controller/`. `InstallerBackendFactory` (`.../install/controller/InstallerBackendFactory.kt`) is the install-backend interface; its single implementation `FullInstallerBackendFactory` — plus `RootInstallController` / `RootTargetedInstaller` and `PrivilegedRootService` (a libsu RootService running as UID 0 for hidden `IPackageManager` calls) — is bound by Koin in `di/FlavorModule.kt`.
 
-**All root/libsu code lives in `app/src/full/`** and is reached only through the `InstallerBackendFactory` interface (defined in `main`). The `store` source set provides `StoreInstallerBackendFactory` (no-op: returns `null` controllers and `Result.failure`); the `full` source set provides `FullInstallerBackendFactory` + `RootInstallController` + `PrivilegedRootService` (a libsu RootService running as UID 0 for hidden `IPackageManager` calls). Koin binds the right one via the flavor-specific `di/FlavorModule.kt`.
-
-**Rules:** never add `libsu` imports or `BuildConfig.FLAVOR` branches in `main`. Anything root-related goes behind `InstallerBackendFactory` (`app/src/main/.../install/controller/InstallerBackendFactory.kt`) so `main` code stays flavor-agnostic.
+The fork distributes on GitHub with the full feature set, so the single libsu-bearing release is exactly what we want. (Upstream's rationale for dropping the split: apps in this category on Play routinely ship root/Shizuku/default together, so the static-analysis "device abuse" concern that originally drove the split didn't pan out.)
 
 ## Architecture
 
-Layered packages under `app/src/main/java/app/pwhs/universalinstaller/`: `data/` (Room `local/`, Ktor `remote/`, `repository/`), `domain/` (`model/`, `manager/`, `repository/`), `presentation/` (one package per feature, each with Activity + Compose `Screen` + `ViewModel`), `util/`. DI is split between `di/module.kt` (`appModule`, shared) and the per-flavor `flavorModule`; `App.onCreate` starts Koin with both.
+Layered packages under `app/src/main/java/app/pwhs/universalinstaller/`: `data/` (Room `local/`, Ktor `remote/`, `repository/`), `domain/` (`model/`, `manager/`, `repository/`), `presentation/` (one package per feature, each with Activity + Compose `Screen` + `ViewModel`), `util/`. DI is split between `di/module.kt` (`appModule`) and `di/FlavorModule.kt` (`flavorModule` — now in `main`, binds the single `InstallerBackendFactory`); `App.onCreate` starts Koin with both.
 
 **Install pipeline** — this is where most of the complexity is:
 
@@ -86,7 +81,7 @@ Layered packages under `app/src/main/java/app/pwhs/universalinstaller/`: `data/`
   - `DefaultInstallController` — system installer, `Confirmation.IMMEDIATE`.
   - `ShizukuInstallController` — ackpine shizuku plugin; applies install options + installer-package spoofing from prefs.
   - `ManualInstallController` / `ManualTargetedInstaller` — installs targeted at a specific user id.
-  - `RootInstallController` — **full flavor only**, via libsu.
+  - `RootInstallController` — root installs via libsu.
 - `InstallViewModel` (~1900 lines) is the orchestrator. `activeController(profileId)` selects the backend by precedence: **profile `preferredBackend` → targeted user → global `USE_ROOT`/root-spoof → `USE_SHIZUKU`/shizuku-spoof → default**. It probes root/Shizuku readiness (`probeRootState`, `isShizukuReadyForInstall`) before handing off and falls back to the default installer if the chosen backend isn't actually usable.
 - `BackendSelfHeal.runOnce` runs once per process at startup to clear stale install-method prefs when root was revoked or Shizuku is gone.
 
@@ -103,7 +98,7 @@ Layered packages under `app/src/main/java/app/pwhs/universalinstaller/`: `data/`
 ## Conventions & gotchas
 
 - String resources: `fix_strings.py` escapes unescaped apostrophes inside `<string>` tags across `values-*/strings.xml`; `check_escapes.py` flags invalid backslash escapes. Run these after editing translation files. The app ships ~17 locales — keep keys in sync.
-- Release changelogs live in `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` and **must be ≤ 500 characters** (Play API rejects longer). Play-facing fastlane lanes must use the `store` flavor — `full` ships libsu and would fail Play review.
+- Release changelogs live in `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` and **must be ≤ 500 characters** (Play API rejects longer). Since 1.8.3 the single release ships libsu (root); upstream's Play-safe `store` flavor is gone. This is a non-issue for the fork — we distribute on GitHub, not Play.
 - Hidden-API access uses `hiddenapibypass` + `rikka.stub` (`compileOnly`); logging is Timber.
 
 ## Gemini CLI skills (also usable as workflow references)

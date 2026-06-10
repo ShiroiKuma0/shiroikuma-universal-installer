@@ -1,5 +1,6 @@
 package app.pwhs.tv
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -11,16 +12,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /** Human-readable byte size. */
-fun formatSize(bytes: Long): String {
+fun formatSize(context: Context, bytes: Long): String {
     if (bytes <= 0) return ""
     val kb = bytes / 1024.0
     val mb = kb / 1024.0
     val gb = mb / 1024.0
     return when {
-        gb >= 1.0 -> "%.1f GB".format(gb)
-        mb >= 1.0 -> "%.0f MB".format(mb)
-        kb >= 1.0 -> "%.0f KB".format(kb)
-        else -> "$bytes B"
+        gb >= 1.0 -> context.getString(R.string.tv_common_size_gb, gb)
+        mb >= 1.0 -> context.getString(R.string.tv_common_size_mb, mb)
+        kb >= 1.0 -> context.getString(R.string.tv_common_size_kb, kb)
+        else -> context.getString(R.string.tv_common_size_bytes, bytes)
     }
 }
 

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
@@ -39,7 +40,7 @@ fun QrCode(
         bitmap?.let {
             Image(
                 bitmap = it.asImageBitmap(),
-                contentDescription = "QR code",
+                contentDescription = stringResource(R.string.tv_common_qr_code),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit,
                 filterQuality = FilterQuality.None,

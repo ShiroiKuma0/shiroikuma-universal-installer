@@ -97,6 +97,7 @@ fun ManageScreen(repo: AppRepository, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun AppRow(app: InstalledApp, onClick: () -> Unit) {
+    val context = LocalContext.current
     val icon = rememberAppIcon(app.packageName)
     Card(
         onClick = onClick,
@@ -146,8 +147,8 @@ private fun AppRow(app: InstalledApp, onClick: () -> Unit) {
                 )
                 Spacer(Modifier.height(6.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (app.versionName.isNotBlank()) MetaChip("v${app.versionName}")
-                    if (app.sizeBytes > 0) MetaChip(formatSize(app.sizeBytes))
+                    if (app.versionName.isNotBlank()) MetaChip(stringResource(R.string.tv_manage_version_prefix, app.versionName))
+                    if (app.sizeBytes > 0) MetaChip(formatSize(context, app.sizeBytes))
                     if (!app.enabled) MetaChip(stringResource(R.string.tv_manage_badge_disabled))
                     if (app.isSystemApp) MetaChip(stringResource(R.string.tv_manage_badge_system))
                 }

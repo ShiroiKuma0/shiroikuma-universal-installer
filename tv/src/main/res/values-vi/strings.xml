@@ -54,4 +54,12 @@
     <string name="tv_app_tab_install">Cài đặt</string>
     <string name="tv_app_tab_manage">Quản lý</string>
     <string name="tv_app_tab_settings">Cài đặt</string>
+
+    <!-- TV Common -->
+    <string name="tv_common_qr_code">Mã QR</string>
+    <string name="tv_common_size_gb">%.1f GB</string>
+    <string name="tv_common_size_mb">%.0f MB</string>
+    <string name="tv_common_size_kb">%.0f KB</string>
+    <string name="tv_common_size_bytes">%d B</string>
+    <string name="tv_manage_version_prefix">v%s</string>
 </resources>

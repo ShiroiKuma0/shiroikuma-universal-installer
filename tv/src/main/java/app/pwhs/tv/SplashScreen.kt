@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,14 +53,14 @@ fun SplashScreen(modifier: Modifier = Modifier) {
             )
             Spacer(Modifier.height(28.dp))
             Text(
-                text = "Universal Installer",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Install anything, anywhere",
+                text = stringResource(R.string.tv_settings_app_tagline),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,

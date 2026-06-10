@@ -13,11 +13,24 @@ function parseStrings(filePath) {
     return strings;
 }
 
-const resDir = 'mobile/src/main/res';
+const resDir = process.argv[2] || 'mobile/src/main/res';
+const refDir = process.argv[3]; // Optional reference directory to get target languages from
+
+console.log(`Checking resource directory: ${resDir}`);
+if (refDir) console.log(`Using reference languages from: ${refDir}`);
+
 const baseStrings = parseStrings(path.join(resDir, 'values', 'strings.xml'));
-const targetLangs = fs.readdirSync(resDir)
-    .filter(d => d.startsWith('values-') && d !== 'values-night' && fs.existsSync(path.join(resDir, d, 'strings.xml')))
-    .map(d => d.replace('values-', ''));
+
+let targetLangs;
+if (refDir) {
+    targetLangs = fs.readdirSync(refDir)
+        .filter(d => d.startsWith('values-') && d !== 'values-night' && fs.existsSync(path.join(refDir, d, 'strings.xml')))
+        .map(d => d.replace('values-', ''));
+} else {
+    targetLangs = fs.readdirSync(resDir)
+        .filter(d => d.startsWith('values-') && d !== 'values-night' && fs.existsSync(path.join(resDir, d, 'strings.xml')))
+        .map(d => d.replace('values-', ''));
+}
 
 const untranslated = [];
 

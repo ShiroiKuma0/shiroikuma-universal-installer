@@ -53,4 +53,12 @@
     <string name="tv_app_tab_install">Install</string>
     <string name="tv_app_tab_manage">Manage</string>
     <string name="tv_app_tab_settings">Settings</string>
+
+    <!-- TV Common -->
+    <string name="tv_common_qr_code">QR code</string>
+    <string name="tv_common_size_gb">%.1f GB</string>
+    <string name="tv_common_size_mb">%.0f MB</string>
+    <string name="tv_common_size_kb">%.0f KB</string>
+    <string name="tv_common_size_bytes">%d B</string>
+    <string name="tv_manage_version_prefix">v%s</string>
 </resources>

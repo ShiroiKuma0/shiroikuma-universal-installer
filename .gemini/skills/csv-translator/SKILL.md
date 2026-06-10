@@ -9,6 +9,12 @@ This skill provides a robust way to translate CSV files while managing context w
 
 ## Workflow Steps
 
+### 0. Discovery & Extraction (Optional)
+Before translating, you may need to identify what needs translation:
+- **Find Untranslated Strings:** Use `node scripts/export_untranslated.cjs <res_dir> [ref_res_dir]` to export missing translations to `untranslated_strings.csv`.
+- **Find Hardcoded Strings:** Use `node scripts/extract_hardcoded_strings.cjs <src_dir>` to find UI text in code that should be moved to `strings.xml`.
+- **Find Unused Strings:** Use `node scripts/find_unused_strings.cjs <module_name>` to clean up resources before exporting.
+
 ### 1. Planning & Analysis
 - **Identify Target:** Determine the CSV file to be translated and the target language(s).
 - **Count Lines:** Use \`run_shell_command\` with \`wc -l\` to determine the size of the file.

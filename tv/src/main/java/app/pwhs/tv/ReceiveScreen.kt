@@ -137,7 +137,7 @@ fun ReceiveScreen(modifier: Modifier = Modifier) {
             item {
                 Column(Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.tv_receive_received_title, p.fileName), style = MaterialTheme.typography.titleLarge)
-                    Text(formatSize(p.sizeBytes), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(formatSize(context, p.sizeBytes), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Button(
@@ -174,7 +174,7 @@ fun ReceiveScreen(modifier: Modifier = Modifier) {
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(apk.displayName, style = MaterialTheme.typography.titleMedium)
-                        Text(formatSize(apk.sizeBytes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(formatSize(context, apk.sizeBytes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

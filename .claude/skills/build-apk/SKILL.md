@@ -1,9 +1,9 @@
 ---
 name: build-apk
-description: Build the signed full release APK of 白い熊's Universal Installer fork (app id shiroikuma.universalinstaller, label "白い熊 Universal installer") via the buildFork Gradle task, then always ask whether to push it to the connected phone via adb. Always build first without asking for permission to build — the ONLY question you ever ask is the adb-push question afterward. Use whenever the user asks to build the app, build the APK, make a release build, or build and push to the phone — AND proactively, on your own, after you finish any code change in this repo: as soon as a change is complete and compiles, build it and then ask about the adb push, without waiting to be told to build.
+description: Build the signed release APK of 白い熊's Universal Installer fork (app id shiroikuma.universalinstaller, label "白い熊 Universal installer") via the buildFork Gradle task, then always ask whether to push it to the connected phone via adb. Always build first without asking for permission to build — the ONLY question you ever ask is the adb-push question afterward. Use whenever the user asks to build the app, build the APK, make a release build, or build and push to the phone — AND proactively, on your own, after you finish any code change in this repo: as soon as a change is complete and compiles, build it and then ask about the adb push, without waiting to be told to build.
 ---
 
-# Build the full release APK and optionally push to phone
+# Build the release APK and optionally push to phone
 
 > **Build after every change — proactively, without being asked.** Finishing a
 > code change in this repo is *itself* the trigger for this skill: as soon as you've
@@ -45,9 +45,9 @@ description: Build the signed full release APK of 白い熊's Universal Installe
 
 ## What this fork builds
 
-A fork of **pass-with-high-score/universal-installer** (Kotlin + Jetpack Compose, Gradle). We ship the
-**`full`** flavor only (all power-user features incl. root install via libsu — the GitHub-distribution
-flavor, **not** the Play `store` flavor). Identity: app id `shiroikuma.universalinstaller`, label
+A fork of **pass-with-high-score/universal-installer** (Kotlin + Jetpack Compose, Gradle). It's a single
+release build (no product flavors since 1.8.3) with all power-user features incl. root install via libsu,
+distributed on GitHub. Identity: app id `shiroikuma.universalinstaller`, label
 `白い熊 Universal installer`; the code namespace stays `app.pwhs.universalinstaller`. See `CLAUDE.md` →
 "Fork model" for the full fork layer.
 
@@ -65,12 +65,12 @@ flavor, **not** the Play `store` flavor). Identity: app id `shiroikuma.universal
    does not source the user's profile, so set `JAVA_HOME` in the invocation):
    - `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew buildFork < /dev/null`
      (the `< /dev/null` guarantees it never blocks on stdin)
-   - This runs `assembleFullRelease`, copies the signed APK to `~/tmp/<apk name>`, and auto-increments
+   - This runs `assembleRelease`, copies the signed APK to `~/tmp/<apk name>`, and auto-increments
      `BUILD_NUMBER` in `gradle.properties`.
    - The task prints `>>> <path>` and `>>> versionCode <n>`; use those to confirm the exact filename and
      code, and confirm `BUILD SUCCESSFUL`.
    - The Android SDK location comes from the gitignored `local.properties` (`sdk.dir`); no `ANDROID_HOME`
-     export is needed. The first `full`-flavor build resolves `topjohnwu.libsu` from jitpack, so it needs
+     export is needed. The first build resolves `topjohnwu.libsu` from jitpack, so it needs
      network.
 
 3. **At the end of every build, ALWAYS ask** via `AskUserQuestion` whether to push the APK to the phone —

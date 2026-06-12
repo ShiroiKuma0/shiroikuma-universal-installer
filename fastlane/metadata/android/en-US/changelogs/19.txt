@@ -1,0 +1,3 @@
+- Fix device compatibility regression (camera and screen orientation features marked as optional)
+- Ensure support for devices without cameras and landscape-only devices
+- Includes all features from 1.8.4

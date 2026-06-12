@@ -8,6 +8,19 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.portrait"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+
     <!-- Foreground worker for OBB copy (long-running, shown as notification). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
@@ -159,7 +172,8 @@
             android:theme="@style/Theme.UniversalInstaller" />
         <activity
             android:name=".presentation.sync.CustomScannerActivity"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
+            android:screenOrientation="sensorPortrait"
             android:stateNotNeeded="true"
             android:theme="@style/Theme.UniversalInstaller.Scanner"
             android:windowSoftInputMode="stateAlwaysHidden" />

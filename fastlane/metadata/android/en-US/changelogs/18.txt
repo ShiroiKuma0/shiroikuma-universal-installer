@@ -1,0 +1,6 @@
+- Add full Android TV support (QR scan, local APK scan, Install/Uninstall)
+- Add "Send to TV" feature for phone app
+- Renamed mobile module to 'app' for better build system compatibility
+- Support publishing TV artifacts (APK/AAB) to GitHub Releases
+- Unified signing configuration across all modules
+- Various bug fixes and localization updates (Vietnamese)

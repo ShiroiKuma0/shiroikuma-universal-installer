@@ -27,8 +27,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
-import app.pwhs.universalinstaller.presentation.setting.dataStore
-import androidx.datastore.preferences.core.booleanPreferencesKey
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.data.local.SharedPrefsKeys
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -53,7 +53,7 @@ fun SplashScreen(
     LaunchedEffect(Unit) {
         delay(1000)
         val completed = context.dataStore.data
-            .map { it[booleanPreferencesKey("onboarding_completed")] ?: false }
+            .map { it[SharedPrefsKeys.ONBOARDING_COMPLETED] ?: false }
             .first()
         if (completed) onNavigateToMain() else onNavigateToOnboarding()
     }

@@ -4,7 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.util.BiometricGate
 import kotlinx.coroutines.flow.map
 import androidx.activity.compose.rememberLauncherForActivityResult

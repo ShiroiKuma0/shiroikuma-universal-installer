@@ -16,7 +16,7 @@ import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuShellExecutor
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -61,7 +61,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.pwhs.universalinstaller.R
-import app.pwhs.universalinstaller.util.PermissionMonitor
+import app.pwhs.core.util.PermissionMonitor
 
 /**
  * Identifier for each permission tile. Keeps the composable layer ignorant of which Manifest

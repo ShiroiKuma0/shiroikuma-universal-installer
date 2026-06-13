@@ -14,8 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import app.pwhs.universalinstaller.presentation.setting.ThemeMode
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.domain.ThemeMode
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.data.local.SharedPrefsKeys
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
 import app.pwhs.universalinstaller.util.LocaleHelper
 import kotlinx.coroutines.flow.first

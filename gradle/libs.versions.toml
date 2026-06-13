@@ -29,8 +29,8 @@ coreSplashscreen = "1.2.0"
 kotlinx-serialization = "1.8.0"
 appcompat = "1.7.1"
 material = "1.10.0"
-tvFoundation = "1.0.0-alpha07"
-tvMaterial = "1.0.0-alpha07"
+tvFoundation = "1.0.0"
+tvMaterial = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

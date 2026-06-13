@@ -1,6 +1,8 @@
 package app.pwhs.tv
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.util.DisplayMetrics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -27,12 +29,20 @@ fun formatSize(context: Context, bytes: Long): String {
 
 /** Loads an app's launcher icon off the main thread; null until ready (or on failure). */
 @Composable
-fun rememberAppIcon(packageName: String, sizePx: Int = 96): ImageBitmap? {
+fun rememberAppIcon(packageName: String, sizePx: Int = 256): ImageBitmap? {
     val context = LocalContext.current
     val icon by produceState<ImageBitmap?>(initialValue = null, key1 = packageName, key2 = sizePx) {
         value = withContext(Dispatchers.IO) {
             runCatching {
-                context.packageManager.getApplicationIcon(packageName).toBitmap(sizePx, sizePx).asImageBitmap()
+                val pm = context.packageManager
+                val appInfo = pm.getApplicationInfo(packageName, 0)
+                // Try to get XXXHDPI icon if possible
+                val drawable = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1) {
+                    pm.getResourcesForApplication(appInfo).getDrawableForDensity(appInfo.icon, DisplayMetrics.DENSITY_XXXHIGH, null)
+                } else {
+                    pm.getApplicationIcon(appInfo)
+                }
+                drawable?.toBitmap(sizePx, sizePx)?.asImageBitmap()
             }.getOrNull()
         }
     }

@@ -23,9 +23,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import app.pwhs.universalinstaller.presentation.onboarding.OnboardingScreen
-import app.pwhs.universalinstaller.presentation.setting.ThemeMode
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.domain.ThemeMode
+import app.pwhs.core.presentation.onboarding.OnboardingScreen
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.presentation.splash.SplashActivity
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
 import app.pwhs.universalinstaller.util.LocaleHelper

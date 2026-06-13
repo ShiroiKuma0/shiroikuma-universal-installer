@@ -1,6 +1,12 @@
 package app.pwhs.tv
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,20 +22,22 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.NonInteractiveSurfaceDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import app.pwhs.tv.presentation.manage.ManageScreen
@@ -38,41 +46,68 @@ import app.pwhs.tv.presentation.settings.SettingsScreen
 
 /**
  * Top-level TV shell: a side Navigation Rail for Install | Manage | Settings.
+ * Modern collapsible design that expands on focus.
  */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun TvApp(modifier: Modifier = Modifier) {
     var tab by remember { mutableIntStateOf(0) }
+    var isRailFocused by remember { mutableStateOf(false) }
+    val railWidth by animateDpAsState(
+        targetValue = if (isRailFocused) 280.dp else 88.dp,
+        label = "railWidth"
+    )
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        shape = RectangleShape,
-        colors = NonInteractiveSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surface)
+    Box(
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface),
     ) {
         Row(Modifier.fillMaxSize()) {
             // Side Navigation Rail
-            Surface(
+            Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(240.dp),
-                shape = RectangleShape,
-                colors = NonInteractiveSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                    .width(railWidth)
+                    .onFocusChanged { isRailFocused = it.hasFocus }
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.Start,
+                        .padding(vertical = 24.dp, horizontal = 16.dp),
+                    horizontalAlignment = if (isRailFocused) Alignment.Start else Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 32.dp, start = 12.dp)
-                    )
+
+                    // App Logo / Title
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .padding(horizontal = 8.dp),
+                        contentAlignment = if (isRailFocused) Alignment.CenterStart else Alignment.Center
+                    ) {
+                        if (isRailFocused) {
+                            Text(
+                                text = stringResource(R.string.app_name),
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
+                            )
+                        } else {
+                            Icon(
+                                painter = painterResource(R.drawable.logo),
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp),
+                                tint = Color.Unspecified
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(32.dp))
 
                     NavigationItem(
                         selected = tab == 0,
+                        expanded = isRailFocused,
                         onClick = { tab = 0 },
                         iconRes = R.drawable.ic_apk_install,
                         label = stringResource(R.string.tv_app_tab_install)
@@ -80,6 +115,7 @@ fun TvApp(modifier: Modifier = Modifier) {
                     Spacer(Modifier.height(12.dp))
                     NavigationItem(
                         selected = tab == 1,
+                        expanded = isRailFocused,
                         onClick = { tab = 1 },
                         iconRes = R.drawable.ic_delete,
                         label = stringResource(R.string.tv_app_tab_manage)
@@ -87,6 +123,7 @@ fun TvApp(modifier: Modifier = Modifier) {
                     Spacer(Modifier.height(12.dp))
                     NavigationItem(
                         selected = tab == 2,
+                        expanded = isRailFocused,
                         onClick = { tab = 2 },
                         iconRes = R.drawable.ic_setting,
                         label = stringResource(R.string.tv_app_tab_settings)
@@ -110,6 +147,7 @@ fun TvApp(modifier: Modifier = Modifier) {
 @Composable
 private fun NavigationItem(
     selected: Boolean,
+    expanded: Boolean,
     onClick: () -> Unit,
     iconRes: Int,
     label: String
@@ -119,28 +157,44 @@ private fun NavigationItem(
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
         shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(12.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (expanded) 1f else 0.5f) else Color.Transparent,
             focusedContainerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
             pressedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+            focusedContentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
         ),
-        modifier = Modifier.fillMaxWidth().clickable { onClick() }
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
     ) {
         Row(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = if (expanded) Arrangement.Start else Arrangement.Center
         ) {
             Icon(
                 painter = painterResource(iconRes),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp)
             )
-            Spacer(Modifier.width(16.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge
-            )
+            if (expanded) {
+                Spacer(Modifier.width(16.dp))
+                AnimatedVisibility(
+                    visible = true,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge,
+                        maxLines = 1,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+            }
         }
     }
 }
+

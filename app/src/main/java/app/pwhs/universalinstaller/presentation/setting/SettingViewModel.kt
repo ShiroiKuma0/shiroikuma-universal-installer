@@ -11,8 +11,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.data.local.SharedPrefsKeys
 import androidx.lifecycle.ViewModel
+import app.pwhs.core.domain.ThemeMode
+
+
 import androidx.lifecycle.viewModelScope
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
@@ -34,7 +38,6 @@ import app.pwhs.universalinstaller.domain.manager.ProfileManager
 import rikka.shizuku.Shizuku
 import timber.log.Timber
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 object PreferencesKeys {
     val THEME_MODE = stringPreferencesKey("theme_mode")
@@ -147,11 +150,6 @@ enum class InstallMode {
     }
 }
 
-enum class ThemeMode(val label: String) {
-    System("System"),
-    Light("Light"),
-    Dark("Dark"),
-}
 
 enum class ShizukuState {
     NOT_INSTALLED,   // no Shizuku app and no Sui — nothing to talk to

@@ -120,7 +120,7 @@ import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
 import app.pwhs.universalinstaller.presentation.manage.logs.UninstallLogsActivity
 import app.pwhs.universalinstaller.presentation.manage.permissions.AppPermissionsActivity
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.util.AppIconData
 import app.pwhs.universalinstaller.util.BiometricGate
 import coil3.compose.SubcomposeAsyncImage

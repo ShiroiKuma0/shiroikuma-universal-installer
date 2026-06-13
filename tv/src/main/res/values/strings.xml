@@ -33,6 +33,8 @@
     <string name="tv_settings_section_device">Device</string>
     <string name="tv_settings_device_title">This device</string>
     <string name="tv_settings_device_info">%1$s %2$s · Android %3$s (API %4$d)</string>
+    <string name="tv_settings_section_appearance">Appearance</string>
+    <string name="tv_settings_section_language">Language</string>
     <string name="tv_settings_section_project">Project</string>
     <string name="tv_settings_open_source_title">Open source</string>
     <string name="tv_settings_scan_to_view">Scan to view the project</string>
@@ -43,6 +45,13 @@
     <string name="tv_manage_apps_count">%d apps · select to uninstall</string>
     <string name="tv_manage_badge_disabled">Disabled</string>
     <string name="tv_manage_badge_system">System</string>
+    <string name="tv_manage_filter_user">User</string>
+    <string name="tv_manage_filter_system">System</string>
+    <string name="tv_manage_filter_disabled">Disabled</string>
+    <string name="tv_manage_sort_name">Name</string>
+    <string name="tv_manage_sort_size">Size</string>
+    <string name="tv_manage_sort_date">Date</string>
+
 
     <!-- TV Receiver Service -->
     <string name="tv_receiver_channel_name">Receiver</string>

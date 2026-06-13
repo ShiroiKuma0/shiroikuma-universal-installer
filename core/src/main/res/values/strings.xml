@@ -1,0 +1,20 @@
+<resources>
+    <!-- Onboarding Shared -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_permission_granted">Permission granted</string>
+    <string name="onboarding_grant_permission">Grant Permission</string>
+    <string name="onboarding_page1_title">Install Any Package</string>
+    <string name="onboarding_page1_desc">Support for APK, APKS, XAPK, and APKM formats. Install split APKs with ease.</string>
+    <string name="onboarding_page2_title">Manage Your Apps</string>
+    <string name="onboarding_page2_desc">Browse installed apps, uninstall unwanted ones, and manage your device effortlessly.</string>
+    <string name="onboarding_page3_title">Allow Installation</string>
+    <string name="onboarding_page3_desc">To install packages, the app needs permission to install from unknown sources. Tap the button below to grant it.</string>
+
+    <!-- Permission Monitor Shared -->
+    <string name="permission_return_channel_name">Return to app</string>
+    <string name="permission_return_channel_desc">Notification to return to the app after granting a permission in system settings.</string>
+    <string name="permission_return_title">Permission granted</string>
+    <string name="permission_return_body">Tap to return to Universal Installer.</string>
+</resources>

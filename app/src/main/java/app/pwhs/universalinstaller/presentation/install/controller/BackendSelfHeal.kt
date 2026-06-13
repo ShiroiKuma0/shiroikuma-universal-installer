@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.pm.PackageManager
 import androidx.datastore.preferences.core.edit
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import rikka.shizuku.Shizuku

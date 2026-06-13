@@ -73,7 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.util.ApkFileIconData
-import app.pwhs.universalinstaller.util.PermissionMonitor
+import app.pwhs.core.util.PermissionMonitor
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import java.text.DateFormat

@@ -7,7 +7,7 @@ import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
 import app.pwhs.universalinstaller.presentation.install.dialog.InstallerOverrides
 import app.pwhs.universalinstaller.presentation.setting.DEFAULT_INSTALLER_PACKAGE_NAME
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import kotlinx.coroutines.flow.first
 import ru.solrudev.ackpine.DelicateAckpineApi
 import ru.solrudev.ackpine.installer.InstallFailure

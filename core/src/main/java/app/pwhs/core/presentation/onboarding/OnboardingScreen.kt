@@ -1,4 +1,4 @@
-package app.pwhs.universalinstaller.presentation.onboarding
+package app.pwhs.core.presentation.onboarding
 
 import android.content.Intent
 import android.net.Uri
@@ -9,7 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,12 +48,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import app.pwhs.universalinstaller.R
-import androidx.datastore.preferences.core.booleanPreferencesKey
+import app.pwhs.core.R
+import app.pwhs.core.util.PermissionMonitor
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.data.local.SharedPrefsKeys
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import app.pwhs.universalinstaller.presentation.setting.dataStore
-import app.pwhs.universalinstaller.util.PermissionMonitor
 import kotlinx.coroutines.launch
 
 private data class OnboardingPage(
@@ -63,7 +62,9 @@ private data class OnboardingPage(
     val description: String,
 )
 
-
+/**
+ * Shared onboarding screen for both Mobile and TV.
+ */
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
@@ -114,7 +115,6 @@ fun OnboardingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .systemBarsPadding()
                 .padding(24.dp),
         ) {
             // Skip button
@@ -208,7 +208,7 @@ fun OnboardingScreen(
                     Button(onClick = {
                         scope.launch {
                             context.dataStore.edit {
-                                it[booleanPreferencesKey("onboarding_completed")] = true
+                                it[SharedPrefsKeys.ONBOARDING_COMPLETED] = true
                             }
                             onFinish()
                         }

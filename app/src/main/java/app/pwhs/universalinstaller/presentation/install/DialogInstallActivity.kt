@@ -68,7 +68,7 @@ import androidx.compose.ui.window.DialogProperties
 import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogFailedContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallingContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogMenuContent

@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -24,7 +25,9 @@ android {
             freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
         }
     }
-
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
@@ -38,6 +41,18 @@ dependencies {
 
     // Ackpine for APK/bundle parsing
     api(libs.bundles.ackpine)
+
+    // DataStore for shared preferences
+    api(libs.androidx.datastore.preferences)
+
+    // Compose requirements for shared UI
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.foundation)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)

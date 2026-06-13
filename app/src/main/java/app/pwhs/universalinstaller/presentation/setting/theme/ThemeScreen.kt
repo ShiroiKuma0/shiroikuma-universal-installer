@@ -21,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
-import app.pwhs.universalinstaller.presentation.setting.ThemeMode
+import app.pwhs.core.domain.ThemeMode
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

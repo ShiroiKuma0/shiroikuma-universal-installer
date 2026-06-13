@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,23 +42,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Surface
+import androidx.tv.material3.Text
 import app.pwhs.core.domain.ApkFile
 import app.pwhs.core.receiver.ReceivedApk
 import app.pwhs.core.receiver.ReceiverStatus
 import app.pwhs.tv.R
 import app.pwhs.tv.formatSize
 import app.pwhs.tv.ui.components.QrCode
-import androidx.tv.material3.Button
-import androidx.tv.material3.Card
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Text
 import java.io.File
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -98,94 +105,154 @@ fun ReceiveScreen(
         if (hasStorage) viewModel.scanLocalApks()
     }
 
-    LazyColumn(
-        modifier = modifier.fillMaxSize().padding(horizontal = 48.dp),
-        contentPadding = PaddingValues(top = 24.dp, bottom = 48.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        item { Text(stringResource(R.string.tv_receive_from_phone), style = MaterialTheme.typography.headlineMedium) }
+    Row(modifier = modifier.fillMaxSize().padding(horizontal = 48.dp)) {
+        // ── Left Pane: Connection Hub ────────────────────────────────────────
+        Column(
+            modifier = Modifier
+                .weight(0.45f)
+                .fillMaxHeight()
+                .padding(vertical = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                stringResource(R.string.tv_receive_from_phone),
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
-        item {
-            when (val s = status) {
-                is ReceiverStatus.Running -> Row(verticalAlignment = Alignment.Top) {
-                    QrCode(data = s.url, modifier = Modifier.size(220.dp))
-                    Spacer(Modifier.width(36.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(stringResource(R.string.tv_receive_step1), style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(6.dp))
-                        Text(stringResource(R.string.tv_receive_step2), style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(6.dp))
-                        Text(stringResource(R.string.tv_receive_step3), style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(16.dp))
-                        Text("http://${s.ip}:${s.port}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            ) {
+                Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    when (val s = status) {
+                        is ReceiverStatus.Running -> {
+                            Box(
+                                modifier = Modifier
+                                    .size(240.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color.White)
+                                    .padding(12.dp)
+                            ) {
+                                QrCode(data = s.url, modifier = Modifier.fillMaxSize())
+                            }
+                            Spacer(Modifier.height(24.dp))
+                            Text(
+                                "http://${s.ip}:${s.port}",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                stringResource(R.string.tv_receive_step1),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        ReceiverStatus.Stopped -> {
+                            Box(Modifier.size(240.dp), contentAlignment = Alignment.Center) {
+                                Text(stringResource(R.string.tv_receive_starting), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
                     }
                 }
-                ReceiverStatus.Stopped -> Text(stringResource(R.string.tv_receive_starting), style = MaterialTheme.typography.bodyMedium)
             }
         }
 
-        installResult?.let { msg ->
-            item { Text(msg, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary) }
-        }
+        Spacer(Modifier.width(48.dp))
 
-        pending?.let { p ->
+        // ── Right Pane: Content List ─────────────────────────────────────────
+        LazyColumn(
+            modifier = Modifier
+                .weight(0.55f)
+                .fillMaxHeight(),
+            contentPadding = PaddingValues(top = 32.dp, bottom = 48.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            installResult?.let { msg ->
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .padding(16.dp)
+                    ) {
+                        Text(msg, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
+                }
+            }
+
+
+            pending?.let { p ->
+                item {
+                    Text(
+                        stringResource(R.string.tv_receive_step3),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    ReceivedApkCard(
+                        apk = p,
+                        isInstalling = installingLabel != null,
+                        installFocus = installFocus,
+                        onInstall = {
+                            if (!context.packageManager.canRequestPackageInstalls()) {
+                                openUnknownSources(context)
+                            } else {
+                                viewModel.install(Uri.fromFile(File(p.path)), p.fileName.isBundleName(), p.metadata?.appName ?: p.fileName)
+                            }
+                        },
+                        onDismiss = { viewModel.dismissPending() }
+                    )
+                    Spacer(Modifier.height(24.dp))
+                }
+            }
+
+            // Storage Section
             item {
-                ReceivedApkCard(
-                    apk = p,
-                    isInstalling = installingLabel != null,
-                    installFocus = installFocus,
-                    onInstall = {
+                Text(
+                    stringResource(R.string.tv_receive_on_tv),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
+            if (!hasStorage) {
+                item {
+                    StoragePermissionCard {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:${context.packageName}"))
+                            settingsLauncher.launch(intent)
+                        } else {
+                            readPerm?.let { permLauncher.launch(it) }
+                        }
+                    }
+                }
+            } else if (downloads.isEmpty() && !isScanning) {
+                item {
+                    Text(
+                        stringResource(R.string.tv_receive_no_apks),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                items(downloads, key = { it.uri }) { apk ->
+                    ApkFileCard(apk) {
                         if (!context.packageManager.canRequestPackageInstalls()) {
                             openUnknownSources(context)
                         } else {
-                            viewModel.install(Uri.fromFile(File(p.path)), p.fileName.isBundleName(), p.metadata?.appName ?: p.fileName)
+                            viewModel.install(Uri.parse(apk.uri), apk.isBundle, apk.metadata?.appName ?: apk.displayName)
                         }
-                    },
-                    onDismiss = { viewModel.dismissPending() }
-                )
-            }
-        }
-
-        // ── On this TV (Storage) ──────────────
-        item {
-            Spacer(Modifier.height(8.dp))
-            Text(stringResource(R.string.tv_receive_on_tv), style = MaterialTheme.typography.titleLarge)
-        }
-        if (!hasStorage) {
-            item {
-                Card(
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:${context.packageName}"))
-                            settingsLauncher.launch(intent)
-                        } else {
-                            readPerm?.let { permLauncher.launch(it) }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth().clickable {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:${context.packageName}"))
-                            settingsLauncher.launch(intent)
-                        } else {
-                            readPerm?.let { permLauncher.launch(it) }
-                        }
-                    }
-                ) {
-                    Column(Modifier.padding(20.dp)) {
-                        Text(stringResource(R.string.tv_receive_allow_storage_title), style = MaterialTheme.typography.titleMedium)
-                        Text(stringResource(R.string.tv_receive_allow_storage_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-        } else if (downloads.isEmpty() && !isScanning) {
-            item { Text(stringResource(R.string.tv_receive_no_apks), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-        } else {
-            items(downloads, key = { it.uri }) { apk ->
-                ApkFileCard(apk) {
-                    if (!context.packageManager.canRequestPackageInstalls()) {
-                        openUnknownSources(context)
-                    } else {
-                        viewModel.install(Uri.parse(apk.uri), apk.isBundle, apk.metadata?.appName ?: apk.displayName)
                     }
                 }
             }
@@ -204,41 +271,54 @@ private fun ReceivedApkCard(
 ) {
     val context = LocalContext.current
     val meta = apk.metadata
-    Card(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+    Surface(
+        onClick = {},
+        modifier = Modifier.fillMaxWidth(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(20.dp)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            focusedContentColor = MaterialTheme.colorScheme.onSurface
+        )
+    ) {
         Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             val icon = meta?.icon
             if (icon != null) {
                 Image(
                     bitmap = icon.asImageBitmap(),
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp).clip(RoundedCornerShape(12.dp))
+                    modifier = Modifier.size(72.dp).clip(RoundedCornerShape(14.dp))
                 )
             } else {
                 Box(
-                    Modifier.size(64.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
+                    Modifier.size(72.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.secondaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("APK", style = MaterialTheme.typography.labelMedium)
+                    Text("APK", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
                 }
             }
             Spacer(Modifier.width(20.dp))
             Column(Modifier.weight(1f)) {
-                Text(meta?.appName ?: apk.fileName, style = MaterialTheme.typography.titleLarge)
+                Text(meta?.appName ?: apk.fileName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 if (meta != null) {
                     Text("${meta.packageName} · v${meta.versionName}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Text(formatSize(context, apk.sizeBytes), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(12.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(
                         onClick = onInstall,
-                        modifier = Modifier
-                            .focusRequester(installFocus)
-                            .clickable { onInstall() }
+                        modifier = Modifier.focusRequester(installFocus),
+                        shape = ButtonDefaults.shape(CircleShape)
                     ) {
                         Text(if (isInstalling) stringResource(R.string.tv_receive_installing_plain) else stringResource(R.string.tv_receive_install))
                     }
-                    Button(onClick = onDismiss, modifier = Modifier.clickable { onDismiss() }) {
+                    Button(
+                        onClick = onDismiss,
+                        shape = ButtonDefaults.shape(CircleShape),
+                        colors = ButtonDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
                         Text(stringResource(R.string.tv_receive_dismiss))
                     }
                 }
@@ -252,32 +332,64 @@ private fun ReceivedApkCard(
 private fun ApkFileCard(apk: ApkFile, onClick: () -> Unit) {
     val context = LocalContext.current
     val meta = apk.metadata
-    Card(onClick = onClick, modifier = Modifier.fillMaxWidth().clickable { onClick() }) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.03f),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            focusedContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             val icon = meta?.icon
             if (icon != null) {
                 Image(
                     bitmap = icon.asImageBitmap(),
                     contentDescription = null,
-                    modifier = Modifier.size(48.dp).clip(RoundedCornerShape(10.dp))
+                    modifier = Modifier.size(56.dp).clip(RoundedCornerShape(10.dp))
                 )
             } else {
                 Box(
-                    Modifier.size(48.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
+                    Modifier.size(56.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("APK", style = MaterialTheme.typography.labelSmall)
+                    Text("APK", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Spacer(Modifier.width(16.dp))
             Column {
-                Text(meta?.appName ?: apk.displayName, style = MaterialTheme.typography.titleMedium)
-                if (meta != null) {
-                    Text("v${meta.versionName} · ${formatSize(context, apk.sizeBytes)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                } else {
-                    Text(formatSize(context, apk.sizeBytes), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+                Text(meta?.appName ?: apk.displayName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = if (meta != null) "v${meta.versionName} · ${formatSize(context, apk.sizeBytes)}" else formatSize(context, apk.sizeBytes),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun StoragePermissionCard(onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f),
+            focusedContainerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            focusedContentColor = MaterialTheme.colorScheme.onErrorContainer
+        )
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            Text(stringResource(R.string.tv_receive_allow_storage_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.tv_receive_allow_storage_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -293,3 +405,4 @@ private fun openUnknownSources(context: Context) {
         )
     }
 }
+

@@ -105,7 +105,7 @@ import app.pwhs.universalinstaller.presentation.setting.DEFAULT_INSTALLER_PACKAG
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.install.InstallTargetPicker
 import app.pwhs.universalinstaller.presentation.install.rememberDeviceUserProfiles
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import kotlinx.coroutines.launch
 
 /**

@@ -64,7 +64,9 @@ class ApkMetadataReader(private val context: Context) {
                 versionName = pi.versionName ?: "",
                 versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) pi.longVersionCode else pi.versionCode.toLong(),
                 icon = appInfo.loadIcon(pm).toBitmap(512, 512),
-                isBundle = isBundle
+                isBundle = isBundle,
+                minSdk = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) appInfo.minSdkVersion else 0,
+                targetSdk = appInfo.targetSdkVersion
             )
         } catch (e: Exception) {
             return null

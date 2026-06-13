@@ -1,4 +1,4 @@
-package app.pwhs.universalinstaller.presentation.manage
+package app.pwhs.core.install
 
 import android.content.Context
 import android.content.pm.ApplicationInfo

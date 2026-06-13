@@ -11,6 +11,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.data.local.UninstallLogDao
 import app.pwhs.universalinstaller.data.local.UninstallLogEntity
 import app.pwhs.universalinstaller.domain.model.InstalledApp
+import app.pwhs.core.install.ApkExtractor
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuShellExecutor

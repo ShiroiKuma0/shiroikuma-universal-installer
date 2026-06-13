@@ -12,7 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "app.pwhs.tv"
+        applicationId = "app.pwhs.universalinstaller.tv"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

@@ -1,7 +1,5 @@
 package app.pwhs.universalinstaller.presentation.install
 
-import android.os.Environment
-import android.os.StatFs
 import android.text.format.Formatter
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import app.pwhs.core.util.StorageUtil
 import app.pwhs.universalinstaller.R
 
 /**
@@ -36,12 +35,8 @@ internal fun StorageCard(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     // Reads once per composition scope — fresh enough for a home-screen glance without
     // polling. A recomposition (e.g. pick a file) naturally refreshes it.
-    val (free, total) = remember {
-        val stat = StatFs(Environment.getDataDirectory().path)
-        stat.availableBytes to stat.totalBytes
-    }
-    val used = (total - free).coerceAtLeast(0L)
-    val progress = if (total > 0) used.toFloat() / total.toFloat() else 0f
+    val stats = remember { StorageUtil.getStorageStats() }
+    val progress = stats.progress
 
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
@@ -68,8 +63,8 @@ internal fun StorageCard(modifier: Modifier = Modifier) {
                 Text(
                     text = stringResource(
                         R.string.install_storage_value,
-                        Formatter.formatShortFileSize(context, free),
-                        Formatter.formatShortFileSize(context, total),
+                        Formatter.formatShortFileSize(context, stats.freeBytes),
+                        Formatter.formatShortFileSize(context, stats.totalBytes),
                     ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

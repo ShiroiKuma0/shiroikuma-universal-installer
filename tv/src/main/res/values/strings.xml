@@ -2,7 +2,7 @@
     <string name="app_name">Universal Installer</string>
 
     <!-- TV Receive Screen -->
-    <string name="tv_receive_from_phone">Install from phone</string>
+    <string name="tv_receive_from_phone">Receive from phone</string>
     <string name="tv_receive_step1">1.  Connect phone to the same Wi-Fi</string>
     <string name="tv_receive_step2">2.  Scan the QR (or open the address below)</string>
     <string name="tv_receive_step3">3.  Pick an APK — it installs here</string>
@@ -51,6 +51,16 @@
     <string name="tv_manage_sort_name">Name</string>
     <string name="tv_manage_sort_size">Size</string>
     <string name="tv_manage_sort_date">Date</string>
+    <string name="tv_manage_action_open">Open App</string>
+    <string name="tv_manage_action_uninstall">Uninstall</string>
+    <string name="tv_manage_action_extract">Extract APK</string>
+    <string name="tv_manage_action_settings">System Settings</string>
+    <string name="tv_manage_action_close">Close</string>
+    <string name="tv_manage_extracting">Extracting... %d%%</string>
+    <string name="tv_manage_extract_success">Extracted successfully!</string>
+    <string name="tv_manage_extract_error">Extraction failed: %s</string>
+    <string name="tv_manage_search_placeholder">Search apps...</string>
+    <string name="tv_manage_empty">No apps found</string>
 
 
     <!-- TV Receiver Service -->
@@ -70,4 +80,8 @@
     <string name="tv_common_size_kb">%.0f KB</string>
     <string name="tv_common_size_bytes">%d B</string>
     <string name="tv_manage_version_prefix">v%s</string>
-</resources>
+    <string name="install_storage_title">Storage</string>
+    <string name="install_storage_value">%1$s free / %2$s</string>
+    <string name="tv_receive_local_files">Local Downloads</string>
+    <string name="tv_receive_grant_all_files">Grant All Files Access</string>
+    </resources>

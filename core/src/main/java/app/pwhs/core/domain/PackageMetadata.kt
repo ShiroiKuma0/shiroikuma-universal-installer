@@ -10,4 +10,6 @@ data class PackageMetadata(
     val versionCode: Long,
     val icon: Bitmap?,
     val isBundle: Boolean,
+    val minSdk: Int = 0,
+    val targetSdk: Int = 0,
 )

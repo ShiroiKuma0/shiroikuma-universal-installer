@@ -44,6 +44,16 @@
     <string name="tv_manage_apps_count">%d ứng dụng · chọn để gỡ cài đặt</string>
     <string name="tv_manage_badge_disabled">Đã vô hiệu hóa</string>
     <string name="tv_manage_badge_system">Hệ thống</string>
+    <string name="tv_manage_action_open">Mở ứng dụng</string>
+    <string name="tv_manage_action_uninstall">Gỡ cài đặt</string>
+    <string name="tv_manage_action_extract">Trích xuất APK</string>
+    <string name="tv_manage_action_settings">Cài đặt hệ thống</string>
+    <string name="tv_manage_action_close">Đóng</string>
+    <string name="tv_manage_extracting">Đang trích xuất… %d%%</string>
+    <string name="tv_manage_extract_success">Trích xuất thành công!</string>
+    <string name="tv_manage_extract_error">Trích xuất thất bại: %s</string>
+    <string name="tv_manage_search_placeholder">Tìm kiếm ứng dụng…</string>
+    <string name="tv_manage_empty">Không tìm thấy ứng dụng nào</string>
 
     <!-- TV Receiver Service -->
     <string name="tv_receiver_channel_name">Bộ nhận</string>
@@ -62,4 +72,8 @@
     <string name="tv_common_size_kb">%.0f KB</string>
     <string name="tv_common_size_bytes">%d B</string>
     <string name="tv_manage_version_prefix">v%s</string>
-</resources>
+    <string name="install_storage_title">Bộ nhớ</string>
+    <string name="install_storage_value">%1$s trống / %2$s</string>
+    <string name="tv_receive_local_files">Tệp đã tải</string>
+    <string name="tv_receive_grant_all_files">Cấp quyền truy cập tệp</string>
+    </resources>

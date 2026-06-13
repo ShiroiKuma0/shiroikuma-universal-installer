@@ -2,8 +2,10 @@ package app.pwhs.tv
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +46,8 @@ import app.pwhs.tv.presentation.manage.ManageScreen
 import app.pwhs.tv.presentation.receive.ReceiveScreen
 import app.pwhs.tv.presentation.settings.SettingsScreen
 
+import androidx.compose.animation.core.tween
+
 /**
  * Top-level TV shell: a side Navigation Rail for Install | Manage | Settings.
  * Modern collapsible design that expands on focus.
@@ -54,7 +58,8 @@ fun TvApp(modifier: Modifier = Modifier) {
     var tab by remember { mutableIntStateOf(0) }
     var isRailFocused by remember { mutableStateOf(false) }
     val railWidth by animateDpAsState(
-        targetValue = if (isRailFocused) 280.dp else 88.dp,
+        targetValue = if (isRailFocused) 240.dp else 88.dp,
+        animationSpec = tween(durationMillis = 300),
         label = "railWidth"
     )
 
@@ -74,32 +79,39 @@ fun TvApp(modifier: Modifier = Modifier) {
                     Modifier
                         .fillMaxSize()
                         .padding(vertical = 24.dp, horizontal = 16.dp),
-                    horizontalAlignment = if (isRailFocused) Alignment.Start else Alignment.CenterHorizontally,
+                    horizontalAlignment = Alignment.Start,
                 ) {
 
                     // App Logo / Title
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp)
-                            .padding(horizontal = 8.dp),
-                        contentAlignment = if (isRailFocused) Alignment.CenterStart else Alignment.Center
+                            .height(56.dp),
+                        contentAlignment = Alignment.CenterStart
                     ) {
-                        if (isRailFocused) {
-                            Text(
-                                text = stringResource(R.string.app_name),
-                                style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1
-                            )
-                        } else {
-                            Icon(
-                                painter = painterResource(R.drawable.logo),
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp),
-                                tint = Color.Unspecified
-                            )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(Modifier.width(56.dp), contentAlignment = Alignment.Center) {
+                                Icon(
+                                    painter = painterResource(R.drawable.logo),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp),
+                                    tint = Color.Unspecified
+                                )
+                            }
+                            AnimatedVisibility(
+                                visible = isRailFocused,
+                                enter = fadeIn(tween(durationMillis = 300, delayMillis = 100)),
+                                exit = fadeOut(tween(durationMillis = 150))
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.app_name),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    modifier = Modifier.padding(start = 4.dp)
+                                )
+                            }
                         }
                     }
 
@@ -131,6 +143,7 @@ fun TvApp(modifier: Modifier = Modifier) {
                 }
             }
 
+
             // Content Area
             Box(Modifier.weight(1f).fillMaxHeight()) {
                 when (tab) {
@@ -158,10 +171,10 @@ private fun NavigationItem(
         shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(12.dp)),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (expanded) 1f else 0.5f) else Color.Transparent,
-            focusedContainerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+            focusedContainerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
             pressedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-            focusedContentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+            contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedContentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -170,29 +183,29 @@ private fun NavigationItem(
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(vertical = 12.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = if (expanded) Arrangement.Start else Arrangement.Center
+            horizontalArrangement = Arrangement.Start
         ) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            if (expanded) {
-                Spacer(Modifier.width(16.dp))
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(),
-                    exit = fadeOut()
-                ) {
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
-                    )
-                }
+            Box(Modifier.width(56.dp), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+            AnimatedVisibility(
+                visible = expanded,
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1,
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
             }
         }
     }

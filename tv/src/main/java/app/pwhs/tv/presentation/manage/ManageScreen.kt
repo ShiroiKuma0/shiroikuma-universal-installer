@@ -4,28 +4,40 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,21 +50,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Card
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
@@ -64,10 +72,6 @@ import app.pwhs.tv.R
 import app.pwhs.tv.formatSize
 import app.pwhs.tv.rememberAppIcon
 
-/**
- * Manage destination: a D-pad grid of installed apps with a Hero detail section.
- * Includes filtering and sorting ported from mobile.
- */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun ManageScreen(
@@ -77,6 +81,7 @@ fun ManageScreen(
     val uiState by viewModel.uiState.collectAsState()
     var reloadTick by remember { mutableIntStateOf(0) }
     var focusedApp by remember { mutableStateOf<InstalledApp?>(null) }
+    val context = LocalContext.current
 
     val uninstallLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -86,118 +91,223 @@ fun ManageScreen(
         viewModel.loadApps()
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        // Background Immersive Gradient
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                            MaterialTheme.colorScheme.surface
-                        )
-                    )
-                )
-        )
+    LaunchedEffect(uiState.filteredApps, uiState.isLoading) {
+        if (!uiState.isLoading && focusedApp == null && uiState.filteredApps.isNotEmpty()) {
+            focusedApp = uiState.filteredApps.first()
+        }
+    }
 
+    Row(modifier = modifier.fillMaxSize().background(Color(0xFF101214))) {
+        // Left Column: Apps List (with Sidebar Background)
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 48.dp),
+                .weight(1.1f)
+                .fillMaxHeight()
+                .background(Color(0xFF181A1C)) // Darker sidebar background
+                .padding(horizontal = 32.dp, vertical = 40.dp)
         ) {
-            Spacer(Modifier.height(32.dp))
-
-            // Hero Section: Detailed info of the focused app
-            AppHeroSection(focusedApp, uiState.isLoading, uiState.filteredApps.size)
-
+            Text(
+                text = "Apps",
+                style = MaterialTheme.typography.displaySmall,
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold
+            )
+            
             Spacer(Modifier.height(24.dp))
 
-            // Filter, Sort & Search Controls
+            // Search and Filter Bar
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        // Filters
-                        FilterButton(
-                            selected = uiState.filter == AppFilter.User,
-                            label = stringResource(R.string.tv_manage_filter_user),
-                            onClick = { viewModel.setFilter(AppFilter.User) }
-                        )
-                        FilterButton(
-                            selected = uiState.filter == AppFilter.System,
-                            label = stringResource(R.string.tv_manage_filter_system),
-                            onClick = { viewModel.setFilter(AppFilter.System) }
-                        )
-                        FilterButton(
-                            selected = uiState.filter == AppFilter.Disabled,
-                            label = stringResource(R.string.tv_manage_filter_disabled),
-                            onClick = { viewModel.setFilter(AppFilter.Disabled) }
-                        )
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        // Sorts
-                        SortButton(
-                            selected = uiState.sortBy == SortBy.Name,
-                            label = stringResource(R.string.tv_manage_sort_name),
-                            onClick = { viewModel.setSortBy(SortBy.Name) }
-                        )
-                        SortButton(
-                            selected = uiState.sortBy == SortBy.Size,
-                            label = stringResource(R.string.tv_manage_sort_size),
-                            onClick = { viewModel.setSortBy(SortBy.Size) }
-                        )
-                        SortButton(
-                            selected = uiState.sortBy == SortBy.Date,
-                            label = stringResource(R.string.tv_manage_sort_date),
-                            onClick = { viewModel.setSortBy(SortBy.Date) }
-                        )
-                    }
-                }
-
-                // Search Bar
                 OutlinedTextField(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.setSearchQuery(it) },
-                    modifier = Modifier
-                        .width(300.dp)
-                        .padding(bottom = 8.dp),
-                    placeholder = { Text("Search apps...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    placeholder = { Text(stringResource(R.string.tv_manage_search_placeholder), style = MaterialTheme.typography.labelSmall) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                    shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        focusedContainerColor = Color.White.copy(alpha = 0.05f),
                         unfocusedContainerColor = Color.Transparent,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.Gray
                     )
+                )
+            }
+            
+            Spacer(Modifier.height(12.dp))
+            
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                SmallFilterChip(
+                    selected = uiState.filter == AppFilter.User,
+                    label = stringResource(R.string.tv_manage_filter_user),
+                    onClick = { viewModel.setFilter(AppFilter.User) }
+                )
+                SmallFilterChip(
+                    selected = uiState.filter == AppFilter.System,
+                    label = stringResource(R.string.tv_manage_filter_system),
+                    onClick = { viewModel.setFilter(AppFilter.System) }
+                )
+                SmallFilterChip(
+                    selected = uiState.filter == AppFilter.Disabled,
+                    label = stringResource(R.string.tv_manage_filter_disabled),
+                    onClick = { viewModel.setFilter(AppFilter.Disabled) }
                 )
             }
 
             Spacer(Modifier.height(24.dp))
 
-            // App Grid
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(160.dp),
+            LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 48.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 64.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(uiState.filteredApps, key = { it.packageName }) { app ->
-                    AppCard(
-                        app = app,
-                        onFocus = { focusedApp = app },
-                        onClick = {
+                if (uiState.isLoading) {
+                    items(8) { LoadingRow() }
+                } else if (uiState.filteredApps.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillParentMaxHeight(0.5f).fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(R.string.tv_manage_empty),
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                } else {
+                    items(uiState.filteredApps, key = { it.packageName }) { app ->
+                        AppListRow(
+                            app = app,
+                            isSelected = focusedApp?.packageName == app.packageName,
+                            onFocus = { focusedApp = app }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Right Column: Details & Actions (Main Content Background)
+        Column(
+            modifier = Modifier
+                .weight(0.9f)
+                .fillMaxHeight()
+                .background(Color(0xFF101214))
+                .padding(horizontal = 48.dp, vertical = 48.dp)
+        ) {
+            AnimatedContent(
+                targetState = focusedApp,
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "detailTransition"
+            ) { app ->
+                if (app != null && !uiState.isLoading) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = app.appName,
+                            style = MaterialTheme.typography.displaySmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        
+                        Spacer(Modifier.height(12.dp))
+                        
+                        Text(
+                            text = "Version ${app.versionName}",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = app.packageName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+
+                        Spacer(Modifier.height(40.dp))
+
+                        // Actions - Modern flat list style
+                        ActionItem(label = "Open") {
+                            runCatching {
+                                context.packageManager.getLaunchIntentForPackage(app.packageName)?.let { intent ->
+                                    context.startActivity(intent)
+                                }
+                            }
+                        }
+                        
+                        ActionItem(label = "Uninstall") {
                             uninstallLauncher.launch(
                                 Intent(Intent.ACTION_DELETE, Uri.parse("package:${app.packageName}"))
                             )
                         }
-                    )
+
+                        ActionItem(label = "Extract APK") {
+                            viewModel.extractApp(app.packageName, app.appName)
+                        }
+                        
+                        ActionItem(label = "System settings") {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.parse("package:${app.packageName}")
+                                    }
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.height(40.dp))
+                        
+                        // Metadata Breakdown
+                        InfoBlock(label = "Storage used", value = formatSize(context, app.sizeBytes))
+                        if (app.isSystemApp) InfoBlock(label = "Type", value = "System Application")
+                        if (!app.enabled) InfoBlock(label = "Status", value = "Disabled")
+                        
+                        // Async Status (Extraction)
+                        val extractState = uiState.extractState
+                        if (extractState !is ExtractState.Idle) {
+                            Spacer(Modifier.height(24.dp))
+                            when (extractState) {
+                                is ExtractState.Running -> if (extractState.packageName == app.packageName) {
+                                    Text(
+                                        text = "Extracting... ${(extractState.bytesCopied * 100 / extractState.totalBytes).toInt()}%",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                                is ExtractState.Done -> if (extractState.appName == app.appName) {
+                                    Text(text = "Extracted ✓", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
+                                }
+                                is ExtractState.Error -> if (extractState.appName == app.appName) {
+                                    Text(text = "Error: ${extractState.message}", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+                                }
+                                else -> {}
+                            }
+                        }
+                        
+                        Spacer(Modifier.height(64.dp))
+                    }
+                } else {
+                    // Hero loading state or placeholder
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        if (uiState.isLoading) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                ShimmerBox(modifier = Modifier.size(120.dp), shape = RoundedCornerShape(20.dp))
+                                Spacer(Modifier.height(24.dp))
+                                ShimmerBox(modifier = Modifier.width(200.dp).height(32.dp), shape = RoundedCornerShape(8.dp))
+                                Spacer(Modifier.height(8.dp))
+                                ShimmerBox(modifier = Modifier.width(140.dp).height(24.dp), shape = RoundedCornerShape(8.dp))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -206,197 +316,149 @@ fun ManageScreen(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun FilterButton(selected: Boolean, label: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = ButtonDefaults.shape(CircleShape),
-        scale = ButtonDefaults.scale(focusedScale = 1.05f),
-        colors = ButtonDefaults.colors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    ) {
-        Text(label, style = MaterialTheme.typography.labelLarge)
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun SortButton(selected: Boolean, label: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = ButtonDefaults.shape(RoundedCornerShape(12.dp)),
-        scale = ButtonDefaults.scale(focusedScale = 1.05f),
-        colors = ButtonDefaults.colors(
-            containerColor = if (selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
-            contentColor = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    ) {
-        Text(label, style = MaterialTheme.typography.labelLarge)
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun AppHeroSection(app: InstalledApp?, loading: Boolean, totalCount: Int) {
-    val context = LocalContext.current
-    Crossfade(targetState = app, label = "heroCrossfade") { focused ->
-        Column(modifier = Modifier.height(140.dp).fillMaxWidth()) {
-            if (focused != null) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    val icon = rememberAppIcon(focused.packageName, sizePx = 256)
-                    if (icon != null) {
-                        Image(
-                            bitmap = icon,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(focused.appName.take(1).uppercase(), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-
-                    Spacer(Modifier.width(24.dp))
-
-                    Column {
-                        Text(
-                            text = focused.appName,
-                            style = MaterialTheme.typography.displaySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = focused.packageName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            if (focused.versionName.isNotBlank()) MetaChip(stringResource(R.string.tv_manage_version_prefix, focused.versionName))
-                            if (focused.sizeBytes > 0) MetaChip(formatSize(context, focused.sizeBytes))
-                            if (!focused.enabled) MetaChip(stringResource(R.string.tv_manage_badge_disabled))
-                            if (focused.isSystemApp) MetaChip(stringResource(R.string.tv_manage_badge_system))
-                        }
-                    }
-                }
-            } else {
-                // Fallback / Title when nothing is focused or list is empty
-                Column {
-                    Text(
-                        text = stringResource(R.string.tv_manage_title),
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = if (loading) stringResource(R.string.tv_manage_loading) else stringResource(R.string.tv_manage_apps_count, totalCount),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun AppCard(
+private fun AppListRow(
     app: InstalledApp,
-    onFocus: () -> Unit,
-    onClick: () -> Unit
+    isSelected: Boolean,
+    onFocus: () -> Unit
 ) {
-    val icon = rememberAppIcon(app.packageName, sizePx = 256)
-
+    val icon = rememberAppIcon(app.packageName, sizePx = 120)
+    
     Surface(
-        onClick = onClick,
+        onClick = { /* Detail pane updates on focus */ },
         modifier = Modifier
-            .width(160.dp)
+            .fillMaxWidth()
             .onFocusChanged { if (it.isFocused) onFocus() },
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.1f),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f), // Minimal scale to avoid overlap
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            pressedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            focusedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            pressedContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
-        glow = ClickableSurfaceDefaults.glow(
-            focusedGlow = androidx.tv.material3.Glow(
-                elevationColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                elevation = 12.dp
-            )
+            containerColor = Color.Transparent,
+            focusedContainerColor = Color.White,
+            contentColor = if (isSelected) Color.White else Color.LightGray,
+            focusedContentColor = Color.Black
         )
     ) {
-        Column(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)),
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 if (icon != null) {
                     Image(
                         bitmap = icon,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize().padding(4.dp)
                     )
                 } else {
-                    Text(
-                        text = app.appName.take(1).uppercase(),
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Text(text = app.appName.take(1).uppercase(), style = MaterialTheme.typography.titleMedium)
                 }
             }
-            Spacer(Modifier.height(12.dp))
+            
+            Spacer(Modifier.width(16.dp))
+            
             Text(
                 text = app.appName,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ActionItem(
+    label: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
+        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = Color.Transparent,
+            focusedContainerColor = Color.White.copy(alpha = 0.1f),
+            contentColor = Color.White,
+            focusedContentColor = Color.White
+        )
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Medium
             )
         }
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun MetaChip(label: String) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+private fun SmallFilterChip(selected: Boolean, label: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        shape = ButtonDefaults.shape(CircleShape),
+        scale = ButtonDefaults.scale(focusedScale = 1.05f),
+        colors = ButtonDefaults.colors(
+            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.White.copy(alpha = 0.05f),
+            contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else Color.Gray
+        ),
+        modifier = Modifier.height(32.dp)
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Text(label, style = MaterialTheme.typography.labelSmall)
     }
 }
 
+@Composable
+private fun InfoBlock(label: String, value: String) {
+    Column(modifier = Modifier.padding(vertical = 10.dp)) {
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+        Text(text = value, style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = 0.8f))
+    }
+}
 
+@Composable
+private fun LoadingRow() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ShimmerBox(modifier = Modifier.size(40.dp), shape = RoundedCornerShape(8.dp))
+        Spacer(Modifier.width(16.dp))
+        ShimmerBox(modifier = Modifier.width(140.dp).height(20.dp), shape = RoundedCornerShape(4.dp))
+    }
+}
 
-
+@Composable
+fun ShimmerBox(modifier: Modifier = Modifier, shape: Shape) {
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val alpha by transition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "shimmer-alpha",
+    )
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .background(Color.White.copy(alpha = alpha * 0.15f)),
+    )
+}

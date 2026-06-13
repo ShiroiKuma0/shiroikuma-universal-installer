@@ -15,8 +15,28 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+import app.pwhs.core.install.ApkExtractor
+
 enum class AppFilter { User, System, Disabled }
 enum class SortBy { Name, Size, Date }
+
+sealed interface ExtractState {
+    data object Idle : ExtractState
+    data class Running(
+        val packageName: String,
+        val appName: String,
+        val bytesCopied: Long,
+        val totalBytes: Long,
+    ) : ExtractState
+    data class Done(
+        val appName: String,
+        val uri: android.net.Uri,
+    ) : ExtractState
+    data class Error(
+        val appName: String,
+        val message: String,
+    ) : ExtractState
+}
 
 data class ManageUiState(
     val apps: List<InstalledApp> = emptyList(),
@@ -24,22 +44,35 @@ data class ManageUiState(
     val isLoading: Boolean = true,
     val filter: AppFilter = AppFilter.User,
     val sortBy: SortBy = SortBy.Name,
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val extractState: ExtractState = ExtractState.Idle
 )
 
 class ManageViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repo = AppRepository(application.applicationContext)
+    private val appContext = application.applicationContext
+    private val repo = AppRepository(appContext)
 
     private val _apps = MutableStateFlow<List<InstalledApp>>(emptyList())
     private val _isLoading = MutableStateFlow(true)
     private val _filter = MutableStateFlow(AppFilter.User)
     private val _sortBy = MutableStateFlow(SortBy.Name)
     private val _searchQuery = MutableStateFlow("")
+    private val _extractState = MutableStateFlow<ExtractState>(ExtractState.Idle)
+
+    private var extractJob: kotlinx.coroutines.Job? = null
 
     val uiState: StateFlow<ManageUiState> = combine(
-        _apps, _isLoading, _filter, _sortBy, _searchQuery
-    ) { apps, loading, filter, sortBy, query ->
+        listOf(_apps, _isLoading, _filter, _sortBy, _searchQuery, _extractState)
+    ) { flows ->
+        @Suppress("UNCHECKED_CAST")
+        val apps = flows[0] as List<InstalledApp>
+        val loading = flows[1] as Boolean
+        val filter = flows[2] as AppFilter
+        val sortBy = flows[3] as SortBy
+        val query = flows[4] as String
+        val extract = flows[5] as ExtractState
+        
         val filtered = apps.filter { app ->
             val matchesFilter = when (filter) {
                 AppFilter.User -> !app.isSystemApp && app.enabled
@@ -57,7 +90,7 @@ class ManageViewModel(application: Application) : AndroidViewModel(application) 
                 SortBy.Date -> list.sortedByDescending { it.installedAt }
             }
         }
-        ManageUiState(apps, filtered, loading, filter, sortBy, query)
+        ManageUiState(apps, filtered, loading, filter, sortBy, query, extract)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ManageUiState())
 
     fun loadApps() {
@@ -67,6 +100,30 @@ class ManageViewModel(application: Application) : AndroidViewModel(application) 
             _apps.value = allApps
             _isLoading.value = false
         }
+    }
+
+    fun extractApp(packageName: String, appName: String) {
+        if (_extractState.value is ExtractState.Running) return
+        extractJob?.cancel()
+        _extractState.value = ExtractState.Running(packageName, appName, 0L, 1L)
+        extractJob = viewModelScope.launch {
+            val result = ApkExtractor.extract(
+                context = appContext,
+                packageName = packageName,
+                outputDirUri = null, // Uses default public Downloads dir
+                filenameTemplate = "{name}-{version}"
+            ) { bytes, total ->
+                _extractState.value = ExtractState.Running(packageName, appName, bytes, total)
+            }
+            _extractState.value = when (result) {
+                is ApkExtractor.Result.Success -> ExtractState.Done(appName, result.uri)
+                is ApkExtractor.Result.Failure -> ExtractState.Error(appName, result.message)
+            }
+        }
+    }
+
+    fun dismissExtractResult() {
+        _extractState.value = ExtractState.Idle
     }
 
     fun setFilter(filter: AppFilter) {

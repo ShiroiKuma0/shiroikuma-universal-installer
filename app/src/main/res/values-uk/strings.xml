@@ -574,7 +574,7 @@
     <string name="setting_search_clear">Очистити пошук</string>
     <string name="setting_search_no_results">Налаштувань не знайдено</string>
     <string name="setting_search_no_results_sub">За запитом \%s\ нічого не знайдено</string>
-    <string name="app_name">Universal Installer</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="download_notif_running_text">%1$s / %2$s · %3$d%%</string>
     <string name="source_action_browse_packages_sub">.APK · .APK+ · .XAPK · .APKS · .APKM</string>
     <string name="obb_copy_progress">%1$s / %2$s · %3$d%%</string>

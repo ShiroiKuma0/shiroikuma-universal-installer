@@ -574,7 +574,7 @@
     <string name="setting_search_clear">清除搜索</string>
     <string name="setting_search_no_results">未找到设置</string>
     <string name="setting_search_no_results_sub">没有找到与 \%s\ 匹配的内容</string>
-    <string name="app_name">通用安装器</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="download_notif_running_text">%1$s / %2$s · %3$d%%</string>
     <string name="source_action_browse_packages_sub">.APK · .APK+ · .XAPK · .APKS · .APKM</string>
     <string name="obb_copy_progress">%1$s / %2$s · %3$d%%</string>

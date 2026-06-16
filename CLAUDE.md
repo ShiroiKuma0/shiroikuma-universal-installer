@@ -15,7 +15,7 @@ side-by-side with the official app. The fork follows the same model as 白い熊
 | Dev branch | `custom` — carries all our commits, rebased onto each new upstream release |
 | Fork applicationId | `shiroikuma.universalinstaller` (`APP_ID` in `gradle.properties`) |
 | Code namespace (UNCHANGED) | `app.pwhs.universalinstaller` (R/BuildConfig/AIDL/FileProvider class names — never touch) |
-| App label | `白い熊 Universal installer` (`app_name` in `values/strings.xml` + `values-ro/strings.xml`) |
+| App label | `白い熊 Universal installer` (`app_name`, `translatable="false"`, in **every** `app/src/main/res/values*/strings.xml`) |
 | What we build | single release (root + all features) → task `:app:buildFork` (`assembleRelease`) |
 | Fork version | `versionName = "<VERSION_NAME>+<BUILD_NUMBER>"`, `versionCode = VERSION_CODE*10000+BUILD_NUMBER` (`gradle.properties`) |
 | Signing keystore | `~/.android-keystores/shiroikuma-universalinstaller.jks` (alias `universalinstaller`), via gitignored `key.properties` |

@@ -17,7 +17,7 @@
     <string name="done_cd">Τέλος</string>
     <string name="edit">Επεξεργασία</string>
     <string name="more_actions_cd">Περισσότερες ενέργειες</string>
-    <string name="app_name">Universal Installer</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>

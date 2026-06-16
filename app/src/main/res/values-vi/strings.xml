@@ -23,7 +23,7 @@
     <string name="file_size_kb">%1$.0f KB</string>
     <string name="file_size_b">%1$d B</string>
     <string name="permission_install_prompt_required">Vui lòng cấp quyền \"Cài đặt ứng dụng không xác định\" để sử dụng Trình cài đặt gói.</string>
-    <string name="app_name">Universal Installer</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="dir_picker_browse_action">Duyệt thư mục</string>
     <string name="dir_picker_use_folder">Dùng thư mục này</string>
     <string name="dir_picker_new_folder">Thư mục mới</string>

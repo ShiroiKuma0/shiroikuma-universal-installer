@@ -773,7 +773,7 @@
   <string name="backup_output_path">Đường dẫn xuất</string>
   <string name="backup_filename_template">Mẫu tên tệp</string>
   <string name="backup_tags_hint">Thẻ: {name}, {pkg}, {version}, {code}</string>
-  <string name="app_name">Universal Installer</string>
+  <string name="app_name" translatable="false">白い熊 Universal installer</string>
   <string name="dialog_menu_skip_analysis">Bỏ qua &amp; Cài đặt</string>
   <string name="extract_progress_title">Đang trích xuất %1$s…</string>
   <string name="manage_batch_action_extract">Trích xuất mục đã chọn</string>

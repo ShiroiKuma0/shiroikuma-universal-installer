@@ -574,7 +574,7 @@
     <string name="setting_search_clear">مسح البحث</string>
     <string name="setting_search_no_results">لم يتم العثور على إعدادات</string>
     <string name="setting_search_no_results_sub">لا يوجد ما يطابق \%s\</string>
-    <string name="app_name">المثبت العالمي</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="download_notif_running_text">%1$s / %2$s · %3$d%%</string>
     <string name="source_action_browse_packages_sub">.APK · .APK+ · .XAPK · .APKS · .APKM</string>
     <string name="obb_copy_progress">%1$s / %2$s · %3$d%%</string>

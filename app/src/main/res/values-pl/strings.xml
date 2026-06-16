@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>    <string name="txt_install">Zainstaluj</string>
+<resources>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
+    <string name="txt_install">Zainstaluj</string>
     <string name="txt_manage">Zarządzaj</string>
     <string name="txt_setting">Ustawienia</string>
     <string name="screen_title_uninstall">Zarządzanie aplikacjami</string>

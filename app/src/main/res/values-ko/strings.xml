@@ -574,7 +574,7 @@
     <string name="setting_search_clear">검색 지우기</string>
     <string name="setting_search_no_results">검색된 설정 없음</string>
     <string name="setting_search_no_results_sub">\%s\와(과) 일치하는 항목이 없습니다</string>
-    <string name="app_name">Universal Installer</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="download_notif_running_text">%1$s / %2$s · %3$d%%</string>
     <string name="source_action_browse_packages_sub">.APK · .APK+ · .XAPK · .APKS · .APKM</string>
     <string name="obb_copy_progress">%1$s / %2$s · %3$d%%</string>

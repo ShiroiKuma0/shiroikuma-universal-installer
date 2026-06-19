@@ -23,10 +23,11 @@ object ManualTargetedInstaller {
         context: Context,
         uris: List<Uri>,
         userId: Int,
+        overrideInstallerPackageName: String? = null,
         onProgress: (Float) -> Unit = {}
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
-            val targetedInstaller = HiddenApiHacks.createPackageInstallerForUser(context, userId)
+            val targetedInstaller = HiddenApiHacks.createPackageInstallerForUser(context, userId, overrideInstallerPackageName)
                 ?: throw RuntimeException("Failed to get targeted PackageInstaller")
 
             val params = PackageInstaller.SessionParams(

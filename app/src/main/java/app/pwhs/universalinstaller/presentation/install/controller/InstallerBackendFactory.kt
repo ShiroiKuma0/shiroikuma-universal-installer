@@ -1,6 +1,8 @@
 package app.pwhs.universalinstaller.presentation.install.controller
 
 import android.app.Application
+import android.content.Context
+import android.net.Uri
 import app.pwhs.universalinstaller.data.local.InstallHistoryDao
 import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
 import ru.solrudev.ackpine.installer.PackageInstaller
@@ -84,6 +86,7 @@ interface InstallerBackendFactory {
         context: android.content.Context,
         uris: List<android.net.Uri>,
         userId: Int,
+        overrideInstallerPackageName: String? = null,
         onProgress: (Int) -> Unit = {}
     ): Result<String>
 

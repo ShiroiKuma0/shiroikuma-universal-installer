@@ -263,8 +263,13 @@ class DialogInstallActivity : ComponentActivity() {
 
             // Auto-confirm logic for external intents
             LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall) {
-                if (autoConfirmExternalInstall && uiState.dialogStage == DialogStage.Prepare) {
-                    handleInstallTap()
+                if (autoConfirmExternalInstall) {
+                    if (uiState.dialogStage == DialogStage.Prepare) {
+                        handleInstallTap()
+                    } else if (uiState.dialogStage == DialogStage.Success) {
+                        viewModel.dialogClose()
+                        finish()
+                    }
                 }
             }
 

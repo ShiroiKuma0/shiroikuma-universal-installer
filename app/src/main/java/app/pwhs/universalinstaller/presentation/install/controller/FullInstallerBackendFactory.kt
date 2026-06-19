@@ -192,11 +192,12 @@ class FullInstallerBackendFactory : InstallerBackendFactory {
         context: android.content.Context,
         uris: List<android.net.Uri>,
         userId: Int,
+        overrideInstallerPackageName: String?,
         onProgress: (Int) -> Unit
     ): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
             val targetedInstaller = app.pwhs.universalinstaller.util.HiddenApiHacks.createPackageInstallerForUser(
-                context, userId
+                context, userId, overrideInstallerPackageName
             ) ?: throw RuntimeException("Failed to get targeted PackageInstaller")
 
             // Simple session creation and installation for targeted user.

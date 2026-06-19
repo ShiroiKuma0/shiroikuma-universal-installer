@@ -17,7 +17,7 @@ import timber.log.Timber
  */
 object HiddenApiHacks {
 
-    fun createPackageInstallerForUser(context: Context, userId: Int): PackageInstaller? {
+    fun createPackageInstallerForUser(context: Context, userId: Int, overrideInstallerPackageName: String? = null): PackageInstaller? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             // Prefix match — keep trailing `;` off so e.g. `IPackageInstaller$Stub` is covered
             // too. With `;` the prefix terminates at the outer class and nested Stubs throw
@@ -38,7 +38,7 @@ object HiddenApiHacks {
                 ShizukuBinderWrapper(iPackageManager.packageInstaller.asBinder())
             )
 
-            val installerPackageName = if (rikka.shizuku.Shizuku.getUid() == 0) {
+            val installerPackageName = overrideInstallerPackageName ?: if (rikka.shizuku.Shizuku.getUid() == 0) {
                 context.packageName
             } else {
                 "com.android.shell"

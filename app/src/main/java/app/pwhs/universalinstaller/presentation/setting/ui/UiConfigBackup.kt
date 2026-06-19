@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Base64
 import androidx.datastore.preferences.core.edit
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.ui.theme.fontsDir
 import app.pwhs.universalinstaller.ui.theme.invalidateFontCache
 import kotlinx.coroutines.flow.first

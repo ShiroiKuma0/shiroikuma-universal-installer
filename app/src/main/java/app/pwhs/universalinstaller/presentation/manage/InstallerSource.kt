@@ -10,17 +10,13 @@ import androidx.core.net.toUri
  */
 data class InstallerInfo(
     val displayName: String,
-    val intent: Intent,
+    val intent: Intent? = null,
 )
 
 /**
- * Map an installer package name → store name + listing intent. Returns null for sideload
- * and unrecognised installers; callers gate the "Open in store" action on this.
- *
- * Aurora Store is treated as a Play Store proxy — same `play.google.com` URL, but we do
- * NOT pin `setPackage("com.aurora.store")` because Aurora itself accepts the Play URL via
- * its intent filter, and bypassing the chooser when both Aurora + Play are installed
- * picks whichever the user already set as default.
+ * Map an installer package name → store name + optional listing intent.
+ * Stores we can route the user back to return an intent.
+ * Sideload / unknown installers return just the display name without an intent.
  */
 fun resolveInstallerInfo(installerPackage: String?, packageName: String): InstallerInfo? {
     return when (installerPackage) {
@@ -34,9 +30,6 @@ fun resolveInstallerInfo(installerPackage: String?, packageName: String): Instal
         "org.fdroid.fdroid",
         "org.fdroid.basic" -> InstallerInfo(
             displayName = "F-Droid",
-            // F-Droid registers an intent filter on f-droid.org/packages — the deep-link
-            // works as long as F-Droid is installed; if uninstalled later we'd just open
-            // the URL in a browser, which is acceptable graceful degradation.
             intent = Intent(
                 Intent.ACTION_VIEW,
                 "https://f-droid.org/packages/$packageName/".toUri(),
@@ -49,6 +42,14 @@ fun resolveInstallerInfo(installerPackage: String?, packageName: String): Instal
                 "https://play.google.com/store/apps/details?id=$packageName".toUri(),
             ),
         )
-        else -> null
+        "app.pwhs.universalinstaller" -> InstallerInfo(displayName = "Universal Installer")
+        "app.pwhs.universalinstaller.debug" -> InstallerInfo(displayName = "Universal Installer (Debug)")
+        "app.obtainium" -> InstallerInfo(displayName = "Obtainium")
+        "com.android.packageinstaller", "com.google.android.packageinstaller" -> InstallerInfo(displayName = "Package Installer")
+        "com.android.shell" -> InstallerInfo(displayName = "ADB (Shell)")
+        "com.termux" -> InstallerInfo(displayName = "Termux")
+        "com.google.android.apps.nbu.files", "com.android.documentsui", "com.marc.files" -> InstallerInfo(displayName = "File Manager")
+        null -> null
+        else -> InstallerInfo(displayName = installerPackage)
     }
 }

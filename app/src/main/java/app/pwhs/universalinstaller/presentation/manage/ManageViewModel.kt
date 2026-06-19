@@ -91,7 +91,7 @@ sealed interface SystemAppPrompt {
  * Backup → save to public Download/.../Extracted, snackbar with "Open folder" action.
  * Share  → save to cacheDir, fire ACTION_SEND chooser as soon as the copy completes.
  */
-enum class ExtractMode { Backup, Share, Server }
+enum class ExtractMode { Backup, Share, Server, Reinstall }
 
 sealed interface ExtractState {
     data object Idle : ExtractState
@@ -231,6 +231,49 @@ class ManageViewModel(
         // Best-effort cleanup so old share blobs from previous runs don't accumulate.
         shareDir.listFiles()?.forEach { runCatching { it.delete() } }
         runExtraction(packageName, appName, ExtractMode.Share, outputDir = shareDir)
+    }
+
+    /**
+     * Extract into `cacheDir/reinstall` to be picked up by the reinstall intent.
+     */
+    fun reinstallApp(packageName: String, appName: String) {
+        val reinstallDir = java.io.File(application.cacheDir, "reinstall").apply { mkdirs() }
+        reinstallDir.listFiles()?.forEach { runCatching { it.delete() } }
+        runExtraction(packageName, appName, ExtractMode.Reinstall, outputDir = reinstallDir)
+    }
+
+    /**
+     * Launch browser to check VirusTotal detection for the base APK sha256.
+     */
+    fun scanVirusTotal(context: android.content.Context, app: InstalledApp) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val appInfo = context.packageManager.getApplicationInfo(app.packageName, 0)
+                val baseApkFile = java.io.File(appInfo.sourceDir)
+                if (baseApkFile.exists()) {
+                    val digest = java.security.MessageDigest.getInstance("SHA-256")
+                    val buffer = ByteArray(8192)
+                    baseApkFile.inputStream().use { input ->
+                        var bytes = input.read(buffer)
+                        while (bytes >= 0) {
+                            digest.update(buffer, 0, bytes)
+                            bytes = input.read(buffer)
+                        }
+                    }
+                    val sha256 = digest.digest().joinToString("") { "%02x".format(it) }
+                    
+                    withContext(Dispatchers.Main) {
+                        val intent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW, 
+                            android.net.Uri.parse("https://www.virustotal.com/gui/file/$sha256/detection")
+                        ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        runCatching { context.startActivity(intent) }
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to scan VT for ${app.packageName}")
+            }
+        }
     }
 
     /**

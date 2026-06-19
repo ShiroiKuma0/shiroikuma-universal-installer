@@ -150,6 +150,8 @@ fun ManageScreen(
         onUninstall = viewModel::uninstallApp,
         onExtract = viewModel::extractApp,
         onShare = viewModel::shareApp,
+        onReinstall = viewModel::reinstallApp,
+        onCheckVirusTotal = { app -> viewModel.scanVirusTotal(context, app) },
         onAddToServer = viewModel::addToServer,
         onForceStop = viewModel::forceStop,
         onSetEnabled = viewModel::setEnabled,
@@ -203,6 +205,8 @@ private fun UninstallUi(
     onUninstall: (String) -> Unit = {},
     onExtract: (String, String) -> Unit = { _, _ -> },
     onShare: (String, String) -> Unit = { _, _ -> },
+    onReinstall: (String, String) -> Unit = { _, _ -> },
+    onCheckVirusTotal: (InstalledApp) -> Unit = {},
     onAddToServer: (String, String) -> Unit = { _, _ -> },
     onForceStop: (String, String) -> Unit = { _, _ -> },
     onSetEnabled: (String, String, Boolean) -> Unit = { _, _, _ -> },
@@ -287,6 +291,14 @@ private fun UninstallUi(
             onShare = {
                 actionTarget = null
                 onShare(target.packageName, target.appName)
+            },
+            onReinstall = {
+                actionTarget = null
+                onReinstall(target.packageName, target.appName)
+            },
+            onCheckVirusTotal = {
+                actionTarget = null
+                onCheckVirusTotal(target)
             },
             onExtract = {
                 actionTarget = null
@@ -415,6 +427,18 @@ private fun UninstallUi(
                             withDismissAction = true,
                         )
                     }
+                    ExtractMode.Reinstall -> {
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                            setDataAndType(s.uri, "application/vnd.android.package-archive")
+                            addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        runCatching { context.startActivity(intent) }.onFailure {
+                            snackbarHostState.showSnackbar(
+                                message = "Couldn't launch Universal Installer",
+                                withDismissAction = true,
+                            )
+                        }
+                    }
                 }
                 onDismissExtractResult()
             }            is ExtractState.Error -> {
@@ -425,6 +449,8 @@ private fun UninstallUi(
                         resource.getString(R.string.extract_failed, s.message)
                     ExtractMode.Server ->
                         "Failed to add to server: ${s.message}"
+                    ExtractMode.Reinstall ->
+                        "Failed to extract for reinstall: ${s.message}"
                 }
                 snackbarHostState.showSnackbar(message = msg, withDismissAction = true)
                 onDismissExtractResult()
@@ -1504,6 +1530,8 @@ private fun AppActionSheet(
     onOpenApp: () -> Unit,
     onOpenAppInfo: () -> Unit,
     onShare: () -> Unit,
+    onReinstall: () -> Unit,
+    onCheckVirusTotal: () -> Unit,
     onAddToServer: () -> Unit,
     onExtract: () -> Unit,
     onForceStop: () -> Unit,
@@ -1673,20 +1701,30 @@ private fun AppActionSheet(
             resolveInstallerInfo(app.installerPackage, app.packageName)
         }
         storeInfo?.let { info ->
-            ActionRow(
-                icon = Icons.Rounded.Store,
-                iconTint = MaterialTheme.colorScheme.primary,
-                label = stringResource(R.string.manage_action_open_in_store, info.displayName),
-                subtitle = stringResource(R.string.manage_action_open_in_store_sub),
-                onClick = {
-                    runCatching {
-                        context.startActivity(
-                            info.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                        )
-                    }
-                    onDismiss()
-                },
-            )
+            if (info.intent != null) {
+                ActionRow(
+                    icon = Icons.Rounded.Store,
+                    iconTint = MaterialTheme.colorScheme.primary,
+                    label = stringResource(R.string.manage_action_open_in_store, info.displayName),
+                    subtitle = stringResource(R.string.manage_action_open_in_store_sub),
+                    onClick = {
+                        runCatching {
+                            context.startActivity(
+                                info.intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+                            )
+                        }
+                        onDismiss()
+                    },
+                )
+            } else {
+                ActionRow(
+                    icon = Icons.Rounded.Android,
+                    iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    label = stringResource(R.string.manage_action_installer_source, info.displayName),
+                    subtitle = stringResource(R.string.manage_action_installer_source_sub),
+                    onClick = { },
+                )
+            }
         }
         ActionRow(
             icon = Icons.Rounded.Info,
@@ -1714,6 +1752,24 @@ private fun AppActionSheet(
             subtitle = stringResource(R.string.manage_action_share_sub),
             enabled = !extractInProgress,
             onClick = onShare,
+        )
+        ActionRow(
+            icon = Icons.Rounded.Refresh,
+            iconTint = MaterialTheme.colorScheme.primary,
+            label = stringResource(R.string.manage_action_reinstall),
+            subtitle = stringResource(R.string.manage_action_reinstall_sub),
+            enabled = !extractInProgress,
+            onClick = onReinstall,
+        )
+        ActionRow(
+            icon = Icons.Rounded.Search,
+            iconTint = MaterialTheme.colorScheme.primary,
+            label = stringResource(R.string.manage_action_check_vt),
+            subtitle = stringResource(R.string.manage_action_check_vt_sub),
+            onClick = {
+                onCheckVirusTotal()
+                onDismiss()
+            },
         )
         ActionRow(
             icon = Icons.Rounded.CloudUpload,

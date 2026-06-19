@@ -675,4 +675,10 @@
     <string name="backup_output_path">Output Path</string>
     <string name="backup_filename_template">Filename Template</string>
     <string name="backup_tags_hint">Tags: {name}, {pkg}, {version}, {code}</string>
+    <string name="manage_action_reinstall">Reinstall</string>
+    <string name="manage_action_reinstall_sub">Extract and reinstall with Universal Installer</string>
+    <string name="manage_action_check_vt">Check VirusTotal</string>
+    <string name="manage_action_check_vt_sub">Scan the installed APK</string>
+    <string name="manage_action_installer_source">Installed by %1$s</string>
+    <string name="manage_action_installer_source_sub">Sideloaded / Unknown source</string>
 </resources>

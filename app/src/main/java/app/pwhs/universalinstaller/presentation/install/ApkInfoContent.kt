@@ -308,7 +308,18 @@ internal fun ApkInfoContent(
                 AbisCard(apkInfo.supportedAbis)
             }
             Spacer(Modifier.height(16.dp))
-            VirusTotalCard(vt = apkInfo.vtResult, fileSizeBytes = apkInfo.fileSizeBytes, sha256 = apkInfo.sha256, onCheck = onCheckVirusTotal)
+            val uriHandler = LocalUriHandler.current
+            VirusTotalCard(
+                vt = apkInfo.vtResult, 
+                fileSizeBytes = apkInfo.fileSizeBytes, 
+                sha256 = apkInfo.sha256, 
+                onCheck = onCheckVirusTotal,
+                onOpenLink = {
+                    if (apkInfo.vtResult?.status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS) && apkInfo.sha256.isNotBlank()) {
+                        uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
+                    }
+                }
+            )
             if (apkInfo.permissions.isNotEmpty()) {
                 Spacer(Modifier.height(16.dp))
                 PermissionsCard(apkInfo.permissions)
@@ -465,8 +476,9 @@ private fun AbisCard(abis: List<String>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun VirusTotalCard(vt: VtResult?, fileSizeBytes: Long, sha256: String = "", onCheck: () -> Unit) {
+private fun VirusTotalCard(vt: VtResult?, fileSizeBytes: Long, sha256: String = "", onCheck: () -> Unit, onOpenLink: () -> Unit = {}) {
     val extendedColors = LocalExtendedColors.current
     val status = vt?.status
     val inProgress = status == VtStatus.SCANNING || status == VtStatus.UPLOADING || status == VtStatus.QUEUED || status == VtStatus.ANALYZING
@@ -493,7 +505,7 @@ private fun VirusTotalCard(vt: VtResult?, fileSizeBytes: Long, sha256: String = 
         VtStatus.ANALYZING -> stringResource(R.string.apk_info_vt_analyzing)
         null -> null
     }
-    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.elevatedCardColors(containerColor = if (status == VtStatus.MALICIOUS) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow)) {
+    ElevatedCard(onClick = onOpenLink, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.elevatedCardColors(containerColor = if (status == VtStatus.MALICIOUS) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow)) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.Security, null, tint = vtColor, modifier = Modifier.size(20.dp))

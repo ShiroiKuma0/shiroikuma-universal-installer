@@ -279,6 +279,7 @@ fun DialogMenuContent(
                             style = MaterialTheme.typography.labelLarge,
                             color = if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
+                            softWrap = false,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
                     }

@@ -261,10 +261,18 @@ private fun SettingUi(
                     matchesQuery(q, advancedLabels) ||
                     matchesQuery(q, aboutLabels)
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentPadding = PaddingValues(
+            androidx.compose.animation.Crossfade(
+                targetState = uiState.isLoading,
+                label = "SettingsLoading",
+                modifier = Modifier.fillMaxSize()
+            ) { isLoading ->
+                if (isLoading) {
+                    androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize())
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(
                     start = 16.dp,
                     end = 16.dp,
                     top = 8.dp,
@@ -681,10 +689,12 @@ private fun SettingUi(
                             .padding(top = 48.dp, start = 32.dp, end = 32.dp),
                     )
                 }
-            }
-        }
-    }
-}
+            } // end of LazyColumn
+                } // end of else
+            } // end of Crossfade
+        } // end of Column
+    } // end of Scaffold
+} // end of SettingUi
 
 /** True when [query] is blank (everything passes) or any [haystacks] entry contains it. */
 private fun matchesQuery(query: String, haystacks: List<String>): Boolean =

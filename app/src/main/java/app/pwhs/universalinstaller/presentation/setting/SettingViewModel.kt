@@ -188,6 +188,7 @@ data class RootOptions(
 )
 
 data class SettingUiState(
+    val isLoading: Boolean = true,
     val themeMode: ThemeMode = ThemeMode.System,
     val dynamicColor: Boolean = false,
     val amoledMode: Boolean = false,
@@ -754,6 +755,7 @@ class SettingViewModel(
             ""
         }
         SettingUiState(
+            isLoading = false,
             themeMode = theme,
             dynamicColor = dynamicColor,
             amoledMode = amoledMode,

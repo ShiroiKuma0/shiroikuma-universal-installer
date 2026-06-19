@@ -7,6 +7,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.content.Intent
+import android.app.PendingIntent
+import android.net.Uri
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -69,16 +72,22 @@ class VirusTotalNotifier(private val context: Context) {
         post(id, n)
     }
 
-    fun notifyResult(id: Int, fileName: String, title: String, text: String) {
+    fun notifyResult(id: Int, fileName: String, title: String, text: String, sha256: String = "") {
         if (!canPost() || id < 0) return
-        val n = baseBuilder()
+        val builder = baseBuilder()
             .setContentTitle(title)
             .setContentText("$fileName · $text")
             .setProgress(0, 0, false)
             .setOngoing(false)
             .setAutoCancel(true)
-            .build()
-        post(id, n)
+            
+        if (sha256.isNotBlank()) {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.virustotal.com/gui/file/$sha256/detection"))
+            val pendingIntent = PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            builder.setContentIntent(pendingIntent)
+        }
+
+        post(id, builder.build())
     }
 
     fun cancel(id: Int) {

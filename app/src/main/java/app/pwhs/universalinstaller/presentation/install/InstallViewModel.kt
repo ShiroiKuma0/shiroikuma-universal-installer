@@ -1428,7 +1428,8 @@ class InstallViewModel(
     private fun finishScan(result: VtResult, fileName: String) {
         setVt(result)
         val (title, text) = resultNotifCopy(result)
-        virusTotalNotifier.notifyResult(scanNotifId, fileName, title, text)
+        val sha256 = _pendingApkInfo.value?.sha256.orEmpty()
+        virusTotalNotifier.notifyResult(scanNotifId, fileName, title, text, sha256)
         scanNotifId = -1
     }
 
@@ -2032,8 +2033,12 @@ class InstallViewModel(
             val keep = when (e.type) {
                 SplitType.Base, SplitType.Feature, SplitType.Other -> true
                 SplitType.Libs -> {
-                    val p = abiPriority[e.name.replace('-', '_').lowercase()] ?: Int.MAX_VALUE
-                    p == bestLibsPriority && bestLibsPriority != null
+                    val normalized = e.name.replace('-', '_').lowercase()
+                    val p = abiPriority[normalized] ?: Int.MAX_VALUE
+                    val isBest = p == bestLibsPriority && bestLibsPriority != null
+                    val bestAbi = abiPriority.entries.find { it.value == bestLibsPriority }?.key
+                    val containsBest = bestAbi != null && normalized.contains(bestAbi)
+                    isBest || containsBest
                 }
                 SplitType.ScreenDensity -> e.name.equals(densityBest, ignoreCase = true)
                 SplitType.Locale -> e.name.lowercase() in userLangs

@@ -28,7 +28,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.install.InstallActivity
 import app.pwhs.universalinstaller.presentation.manage.ManageActivity
 import app.pwhs.universalinstaller.presentation.setting.SettingActivity
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.presentation.setting.ui.InstallerUiActivity
 import app.pwhs.universalinstaller.ui.theme.BottomBarThemeStore
 import app.pwhs.universalinstaller.util.extension.disableSceneTransition

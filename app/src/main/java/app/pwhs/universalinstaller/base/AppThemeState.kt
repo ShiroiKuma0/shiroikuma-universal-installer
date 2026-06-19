@@ -2,7 +2,7 @@ package app.pwhs.universalinstaller.base
 
 import androidx.datastore.preferences.core.Preferences
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.ThemeMode
+import app.pwhs.core.domain.ThemeMode
 
 /**
  * Snapshot of every DataStore preference that affects how a screen is themed — the stock theme

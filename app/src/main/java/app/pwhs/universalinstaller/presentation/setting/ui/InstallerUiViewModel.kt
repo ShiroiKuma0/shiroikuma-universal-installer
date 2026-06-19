@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.universalinstaller.presentation.setting.dataStore
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.ui.theme.AppSurface
 import app.pwhs.universalinstaller.ui.theme.BottomBarTheme
 import app.pwhs.universalinstaller.ui.theme.BottomBarThemeStore

@@ -1,0 +1,2 @@
+- Hotfix: Removed FOREGROUND_SERVICE and FOREGROUND_SERVICE_DATA_SYNC permissions from the Android TV manifest to comply with Google Play Store policies regarding background services.
+- Re-architected TV web server to run directly within the application lifecycle without relying on foreground services.

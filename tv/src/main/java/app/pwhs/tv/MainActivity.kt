@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
                     })
                 } else {
                     LaunchedEffect(Unit) {
-                        ReceiverService.start(applicationContext)
+                        app.pwhs.core.receiver.TvReceiver.start(applicationContext)
                     }
                     TvApp()
                     AnimatedVisibility(visible = showSplash, enter = fadeIn(), exit = fadeOut()) {
@@ -78,5 +78,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        app.pwhs.core.receiver.TvReceiver.stop()
     }
 }

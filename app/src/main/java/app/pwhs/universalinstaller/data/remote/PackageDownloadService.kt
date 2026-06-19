@@ -3,15 +3,13 @@ package app.pwhs.universalinstaller.data.remote
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.prepareGet
+import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.readRemaining
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.io.readByteArray
 import java.io.File
 import java.io.IOException
 
@@ -40,17 +38,16 @@ class PackageDownloadService(private val client: HttpClient) {
                     ?.let { parseFileNameFromContentDisposition(it) }
                     ?: url.substringAfterLast('/').substringBefore('?').ifBlank { destination.name }
 
-                val channel: ByteReadChannel = response.bodyAsChannel()
+                val inputStream: java.io.InputStream = response.body()
                 var read = 0L
                 destination.outputStream().use { out ->
-                    while (!channel.isClosedForRead) {
-                        val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-                        while (!packet.exhausted()) {
-                            val bytes = packet.readByteArray()
-                            out.write(bytes)
-                            read += bytes.size
-                            onProgress(read, total)
-                        }
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var bytes = inputStream.read(buffer)
+                    while (bytes >= 0) {
+                        out.write(buffer, 0, bytes)
+                        read += bytes
+                        onProgress(read, total)
+                        bytes = inputStream.read(buffer)
                     }
                 }
                 DownloadedPackage(file = destination, fileName = fileName, totalBytes = read)

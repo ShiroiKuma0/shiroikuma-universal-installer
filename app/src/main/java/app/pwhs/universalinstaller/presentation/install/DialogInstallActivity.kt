@@ -380,7 +380,8 @@ class DialogInstallActivity : ComponentActivity() {
                                 proceedInstall()
                             },
                             onToggleAllUsers = viewModel::setAllUsers,
-                            onSelectUserId = viewModel::setUserId,
+                            onSelectUserId = { viewModel.setUserId(it) },
+                            onSkipParse = { viewModel.skipParseAndInstallSingle() },
                         )
 
                         PositionDialog(

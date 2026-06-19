@@ -668,4 +668,5 @@
     <string name="backup_output_path">مسار المخرجات</string>
     <string name="backup_filename_template">قالب اسم الملف</string>
     <string name="backup_tags_hint">العلامات: {name}, {pkg}, {version}, {code}</string>
+    <string name="dialog_menu_skip_analysis">تخطي وتثبيت</string>
 </resources>

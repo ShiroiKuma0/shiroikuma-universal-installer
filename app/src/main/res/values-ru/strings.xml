@@ -668,4 +668,5 @@
     <string name="backup_output_path">Путь сохранения</string>
     <string name="backup_filename_template">Шаблон имени файла</string>
     <string name="backup_tags_hint">Теги: {name}, {pkg}, {version}, {code}</string>
+    <string name="dialog_menu_skip_analysis">Пропустить и установить</string>
 </resources>

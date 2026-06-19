@@ -668,4 +668,5 @@
     <string name="backup_output_path">Percorso di output</string>
     <string name="backup_filename_template">Modello nome file</string>
     <string name="backup_tags_hint">Tag: {name}, {pkg}, {version}, {code}</string>
+    <string name="dialog_menu_skip_analysis">Salta e installa</string>
 </resources>

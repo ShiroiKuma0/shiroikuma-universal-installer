@@ -668,4 +668,5 @@
     <string name="backup_output_path">出力パス</string>
     <string name="backup_filename_template">ファイル名のテンプレート</string>
     <string name="backup_tags_hint">タグ: {name}, {pkg}, {version}, {code}</string>
+    <string name="dialog_menu_skip_analysis">スキップしてインストール</string>
 </resources>

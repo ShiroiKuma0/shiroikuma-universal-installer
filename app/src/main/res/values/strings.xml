@@ -259,6 +259,7 @@
     <string name="setting_biometric_uninstall_disabled">Uninstall no longer requires biometric auth</string>
     <string name="dialog_failed_copy_error">Copy error</string>
     <string name="dialog_failed_copied">Error copied to clipboard</string>
+    <string name="dialog_menu_skip_analysis">Skip &amp; Install</string>
     <string name="install_notif_channel_name">Install progress</string>
     <string name="install_notif_channel_description">Shows install progress and results for apps installed in the background</string>
     <string name="install_notif_progress_title_single">Installing %1$s</string>

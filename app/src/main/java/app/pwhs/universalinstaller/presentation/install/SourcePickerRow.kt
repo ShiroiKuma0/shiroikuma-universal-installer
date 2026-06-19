@@ -64,6 +64,7 @@ internal fun SourcePicker(
     onTabChange: (SourceTab) -> Unit,
     isParsing: Boolean,
     downloadState: DownloadState,
+    onSkipParse: () -> Unit,
     onFindAutomatic: () -> Unit,
     onBrowsePackages: () -> Unit,
     onBrowseAll: () -> Unit,
@@ -93,6 +94,7 @@ internal fun SourcePicker(
             when (tab) {
                 SourceTab.Local -> LocalSourceContent(
                     isParsing = isParsing,
+                    onSkipParse = onSkipParse,
                     onFindAutomatic = onFindAutomatic,
                     onBrowsePackages = onBrowsePackages,
                     onBrowseAll = onBrowseAll,
@@ -176,6 +178,7 @@ private fun SourceTabPill(
 @Composable
 private fun LocalSourceContent(
     isParsing: Boolean,
+    onSkipParse: () -> Unit,
     onFindAutomatic: () -> Unit,
     onBrowsePackages: () -> Unit,
     onBrowseAll: () -> Unit,
@@ -193,17 +196,25 @@ private fun LocalSourceContent(
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp,
-                )
-                Text(
-                    text = stringResource(R.string.file_picker_parsing),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Text(
+                        text = stringResource(R.string.file_picker_parsing),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                androidx.compose.material3.TextButton(onClick = onSkipParse) {
+                    Text(stringResource(R.string.dialog_menu_skip_analysis, "Skip & Install"))
+                }
             }
         }
         LocalSourceAction(

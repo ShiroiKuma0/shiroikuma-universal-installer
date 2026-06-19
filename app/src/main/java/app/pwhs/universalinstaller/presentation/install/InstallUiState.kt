@@ -90,7 +90,7 @@ data class BatchApkEntry(
 
 sealed interface BatchInstallState {
     data object Idle : BatchInstallState
-    data class Parsing(val processed: Int, val total: Int) : BatchInstallState
+    data class Parsing(val uris: List<android.net.Uri>, val processed: Int, val total: Int) : BatchInstallState
     data class Ready(val entries: List<BatchApkEntry>) : BatchInstallState
 }
 

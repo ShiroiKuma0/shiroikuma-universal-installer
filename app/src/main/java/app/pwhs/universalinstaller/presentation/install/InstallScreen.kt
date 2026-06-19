@@ -170,6 +170,8 @@ fun InstallScreen(
         onBatchToggleAll = viewModel::setBatchAllSelected,
         onBatchConfirm = viewModel::confirmBatchInstall,
         onBatchDismiss = viewModel::dismissBatchInstall,
+        onSkipBatchParse = viewModel::skipBatchParseAndInstall,
+        onSkipParseSingle = viewModel::skipParseAndInstallSingle,
         onToggleSplit = viewModel::toggleSplit,
         onOpenSyncServer = {
             context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.sync.SyncActivity::class.java))
@@ -217,6 +219,8 @@ private fun InstallUi(
     onBatchToggleAll: (Boolean) -> Unit = {},
     onBatchConfirm: () -> Unit = {},
     onBatchDismiss: () -> Unit = {},
+    onSkipBatchParse: () -> Unit = {},
+    onSkipParseSingle: () -> Unit = {},
     onToggleSplit: (Int) -> Unit = {},
     onOpenSyncServer: () -> Unit = {},
     onSetMergeSplits: (Boolean) -> Unit = { },
@@ -442,6 +446,7 @@ private fun InstallUi(
         onToggleAll = onBatchToggleAll,
         onToggleMerge = onSetMergeSplits,
         onConfirm = onBatchConfirm,
+        onSkipParse = onSkipBatchParse,
     )
 
     var showPermissions by remember { mutableStateOf(false) }
@@ -524,6 +529,7 @@ private fun InstallUi(
                     onTabChange = { selectedTab = it },
                     showDownloadTab = showDownloadTab,
                     isParsing = uiState.isLoading,
+                    onSkipParse = onSkipParseSingle,
                     downloadState = uiState.downloadState,
                     onFindAutomatic = onStartDeviceScan,
                     onBrowsePackages = {

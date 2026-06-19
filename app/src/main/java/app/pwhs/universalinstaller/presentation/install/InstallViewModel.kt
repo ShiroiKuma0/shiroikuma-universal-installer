@@ -128,6 +128,9 @@ class InstallViewModel(
 
     private var scanJob: Job? = null
     private var scanNotifId: Int = -1
+    
+    private var parseJob: Job? = null
+    private var batchParseJob: Job? = null
     private var downloadJob: Job? = null
     private var deviceScanJob: Job? = null
 
@@ -252,7 +255,7 @@ class InstallViewModel(
     /** Transition to Installing stage. */
     fun dialogStartInstalling() { _dialogStage.value = DialogStage.Installing }
 
-    /** Install completed successfully. */
+    /** Install succeeded — show open/done buttons. */
     fun dialogInstallSuccess() { _dialogStage.value = DialogStage.Success }
 
     /** Install failed. */
@@ -294,24 +297,20 @@ class InstallViewModel(
         application.packageManager.getLaunchIntentForPackage(packageName)
 
     fun parseApkInfo(context: Context, uri: Uri, splitPackage: SplitPackage.Provider, fileName: String) {
-        // A new file invalidates any in-flight scan.
         cancelActiveScan()
         pendingObbEntries = emptyList()
-        viewModelScope.launch {
+        parseJob?.cancel()
+        parseJob = viewModelScope.launch {
             _isLoading.value = true
             pendingFileName = fileName
             pendingOriginalUri = uri
             val info = withContext(Dispatchers.IO) {
                 extractApkInfoAndCacheUris(context, uri, splitPackage, fileName)
             }
-            // OBB scan — only for archive-type bundles; skip raw APKs to avoid pointless I/O.
             val ext = fileName.substringAfterLast('.', "").lowercase()
             val archiveExts = setOf("apks", "xapk", "apkm", "zip")
             val obbEntries = if (ext in archiveExts) ObbExtractor.scan(context, uri) else emptyList()
             pendingObbEntries = obbEntries
-            // Look up the currently-installed version so the dialog can flag downgrades and
-            // gate them behind a confirmation. Returns nulls if not installed — the most
-            // common case — and that's a clean signal for "no downgrade risk".
             val installed = withContext(Dispatchers.IO) {
                 lookupInstalledVersion(context, info.packageName)
             }
@@ -324,7 +323,6 @@ class InstallViewModel(
             _isLoading.value = false
             launchHashLookupOnly(context, uri)
 
-            // Smart Pick: apply profile if mapping exists for this package
             val currentProfiles = uiState.value.installerProfiles
             val mapping = uiState.value.appProfileMapping
             mapping[info.packageName]?.let { profileId ->
@@ -777,8 +775,10 @@ class InstallViewModel(
      */
     fun parseBatch(context: Context, uris: List<Uri>) {
         if (uris.size <= 1) return
-        _batchState.value = BatchInstallState.Parsing(processed = 0, total = uris.size)
-        viewModelScope.launch {
+        _batchState.value = BatchInstallState.Parsing(uris = uris, processed = 0, total = uris.size)
+        
+        batchParseJob?.cancel()
+        batchParseJob = viewModelScope.launch {
             val entries = mutableListOf<BatchApkEntry>()
             withContext(Dispatchers.IO) {
                 uris.forEachIndexed { index, uri ->
@@ -823,7 +823,7 @@ class InstallViewModel(
                         )
                     }
                     _batchState.value = BatchInstallState.Parsing(
-                        processed = index + 1, total = uris.size,
+                        uris = uris, processed = index + 1, total = uris.size,
                     )
                 }
             }
@@ -974,6 +974,79 @@ class InstallViewModel(
                     originalUri = entry.uri,
                     deleteAfterInstall = deleteAfterInstall,
                     onSuccess = null,  // batch install skips OBB flow — standalone APKs only
+                )
+            }
+        }
+    }
+
+    fun skipParseAndInstallSingle() {
+        parseJob?.cancel()
+        val uri = pendingOriginalUri ?: return
+        val fileName = pendingFileName ?: uri.lastPathSegment ?: "Unknown"
+        _isLoading.value = false
+        
+        _dialogTarget.value = DialogTarget(
+            sessionId = UUID.randomUUID(),
+            packageName = "",
+            appName = fileName,
+            iconPath = null,
+        )
+        dialogStartInstalling()
+        
+        parseJob = viewModelScope.launch {
+            try {
+                val deleteAfterInstall = readDeleteApkPref()
+                val controller = activeController()
+                val sessionData = SessionData(
+                    id = _dialogTarget.value!!.sessionId,
+                    name = fileName,
+                    appName = fileName,
+                    packageName = "",
+                    iconPath = null,
+                )
+                controller.install(
+                    uris = listOf(uri),
+                    sessionData = sessionData,
+                    scope = viewModelScope,
+                    context = application,
+                    originalUri = uri,
+                    deleteAfterInstall = deleteAfterInstall,
+                    onSuccess = { 
+                        dialogInstallSuccess()
+                        _dialogTarget.value = null
+                    },
+                )
+            } catch (_: Exception) {}
+        }
+    }
+
+    fun skipBatchParseAndInstall() {
+        val parsing = _batchState.value as? BatchInstallState.Parsing ?: return
+        val uris = parsing.uris
+        batchParseJob?.cancel()
+        batchParseJob = null
+        _batchState.value = BatchInstallState.Idle
+        
+        viewModelScope.launch {
+            val deleteAfterInstall = readDeleteApkPref()
+            val controller = activeController()
+            for (uri in uris) {
+                val fileName = application.contentResolver.getDisplayName(uri)
+                val sessionData = SessionData(
+                    id = UUID.randomUUID(),
+                    name = fileName,
+                    appName = fileName,
+                    packageName = "",
+                    iconPath = null,
+                )
+                controller.install(
+                    uris = listOf(uri),
+                    sessionData = sessionData,
+                    scope = viewModelScope,
+                    context = application,
+                    originalUri = uri,
+                    deleteAfterInstall = deleteAfterInstall,
+                    onSuccess = null,
                 )
             }
         }

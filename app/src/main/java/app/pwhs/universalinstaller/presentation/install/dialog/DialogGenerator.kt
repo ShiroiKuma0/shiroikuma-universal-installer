@@ -51,12 +51,13 @@ fun generateDialogParams(
     onRetry: () -> Unit,
     onToggleAllUsers: (Boolean) -> Unit,
     onSelectUserId: (Int?) -> Unit,
+    onSkipParse: (() -> Unit)? = null,
 ): DialogParams {
     return when (val stage = uiState.dialogStage) {
         DialogStage.Loading -> {
             DialogParams(
                 content = DialogInnerParams("loading") {
-                    LoadingContent()
+                    LoadingContent(onSkipParse = onSkipParse)
                 }
             )
         }

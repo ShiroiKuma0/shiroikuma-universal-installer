@@ -24,7 +24,9 @@ import app.pwhs.universalinstaller.ui.theme.Spacing
  * placeholders occupied.
  */
 @Composable
-fun LoadingContent() {
+fun LoadingContent(
+    onSkipParse: (() -> Unit)? = null,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -45,11 +47,17 @@ fun LoadingContent() {
             ShimmerBox(modifier = Modifier.width(80.dp).height(28.dp), shape = RoundedCornerShape(14.dp))
             ShimmerBox(modifier = Modifier.width(64.dp).height(28.dp), shape = RoundedCornerShape(14.dp))
         }
-        Spacer(modifier = Modifier.height(Spacing.XL))
         // Button row
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.S)) {
             ShimmerBox(modifier = Modifier.weight(1f).height(40.dp), shape = RoundedCornerShape(20.dp))
             ShimmerBox(modifier = Modifier.weight(1f).height(40.dp), shape = RoundedCornerShape(20.dp))
+        }
+        
+        if (onSkipParse != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            androidx.compose.material3.TextButton(onClick = onSkipParse) {
+                androidx.compose.material3.Text(androidx.compose.ui.res.stringResource(app.pwhs.universalinstaller.R.string.dialog_menu_skip_analysis, "Skip & Install"))
+            }
         }
     }
 }

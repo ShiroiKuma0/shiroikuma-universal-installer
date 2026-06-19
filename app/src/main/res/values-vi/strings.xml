@@ -668,4 +668,5 @@
     <string name="backup_filename_template">Mẫu tên tệp</string>
     <string name="backup_tags_hint">Thẻ: {name}, {pkg}, {version}, {code}</string>
     <string name="app_name">Universal Installer</string>
+    <string name="dialog_menu_skip_analysis">Bỏ qua &amp; Cài đặt</string>
 </resources>

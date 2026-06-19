@@ -67,6 +67,7 @@ internal fun BatchInstallSheet(
     onToggleAll: (Boolean) -> Unit,
     onToggleMerge: (Boolean) -> Unit,
     onConfirm: () -> Unit,
+    onSkipParse: () -> Unit,
 ) {
     if (state is BatchInstallState.Idle) return
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -76,7 +77,7 @@ internal fun BatchInstallSheet(
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         when (state) {
-            is BatchInstallState.Parsing -> ParsingBody(state)
+            is BatchInstallState.Parsing -> ParsingBody(state, onSkipParse)
             is BatchInstallState.Ready -> ReadyBody(
                 state = state,
                 mergeSplits = mergeSplits,
@@ -92,7 +93,7 @@ internal fun BatchInstallSheet(
 }
 
 @Composable
-private fun ParsingBody(state: BatchInstallState.Parsing) {
+private fun ParsingBody(state: BatchInstallState.Parsing, onSkipParse: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -115,6 +116,10 @@ private fun ParsingBody(state: BatchInstallState.Parsing) {
             },
             modifier = Modifier.fillMaxWidth(),
         )
+        Spacer(Modifier.height(32.dp))
+        androidx.compose.material3.TextButton(onClick = onSkipParse) {
+            Text(stringResource(R.string.dialog_menu_skip_analysis, "Skip & Install All"))
+        }
     }
 }
 

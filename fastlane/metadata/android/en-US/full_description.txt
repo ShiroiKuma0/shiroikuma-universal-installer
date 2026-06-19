@@ -57,9 +57,5 @@ Device Utilities
 - Storage Overview: Free and total space visible on the Install screen.
 - Install History: Detailed logs with success/failure and error reasons.
 - Progress Notifications: Stay informed during downloads, installs, and OBB copying.
-- Multi-language: Support for Arabic, German, Greek, English, Spanish, French, Hindi, Indonesian, Italian, Japanese, Korean, Portuguese (BR), Russian, Turkish, Ukrainian, Vietnamese, and Chinese.
+- Multi-language: Support for 15+ languages.
 
-Website: https://universal-installer.pwhs.app  
-Privacy: https://universal-installer.pwhs.app/privacy
-Terms: https://universal-installer.pwhs.app/terms
-Source code: https://github.com/pass-with-high-score/universal-installer

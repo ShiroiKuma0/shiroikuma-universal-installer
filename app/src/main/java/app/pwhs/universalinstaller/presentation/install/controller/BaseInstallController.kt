@@ -150,7 +150,7 @@ abstract class BaseInstallController(
                         if (context == null) return@launch
                         val errorInfo = InstallErrorHelper.getErrorInfo(context, result.failure)
                         val fullMessage = "${errorInfo.title}\n${errorInfo.guidance}"
-                        saveHistory(sessionData, success = false, errorMessage = errorInfo.title)
+                        saveHistory(sessionData, success = false, errorMessage = fullMessage)
                         handleError(fullMessage, session.id)
                     }
                 }

@@ -2,6 +2,7 @@ package app.pwhs.universalinstaller.base
 
 import androidx.datastore.preferences.core.Preferences
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.core.domain.AppThemePreset
 import app.pwhs.core.domain.ThemeMode
 
 /**
@@ -19,6 +20,7 @@ data class AppThemeState(
     val monoTechnical: Boolean,
     val accentColor: Int,
     val cornerScale: Float,
+    val themePreset: AppThemePreset,
 )
 
 fun Preferences.toAppThemeState(): AppThemeState {
@@ -33,5 +35,8 @@ fun Preferences.toAppThemeState(): AppThemeState {
         monoTechnical = this[PreferencesKeys.UI_MONO_TECHNICAL] ?: false,
         accentColor = this[PreferencesKeys.UI_ACCENT_COLOR] ?: 0,
         cornerScale = this[PreferencesKeys.UI_CORNER_SCALE] ?: 1f,
+        themePreset = AppThemePreset.entries.find {
+            it.name == (this[PreferencesKeys.THEME_PRESET] ?: AppThemePreset.Orange.name)
+        } ?: AppThemePreset.Orange,
     )
 }

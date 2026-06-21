@@ -1,3 +1,3 @@
-• Giới hạn font chữ để không bị vỡ UI khi tăng kích cỡ font hệ thống.
-• Khôi phục lại hộp thoại xác nhận (dialog) trước khi cài đặt và sửa lỗi tự động cài đặt (Fixes #53, #54).
-• Cải thiện độ ổn định chung.
+• Capped the max font scale to prevent UI breakage with large system fonts.
+• Restored the installation confirmation dialog and fixed the auto-install bug (Fixes #53, #54).
+• General stability improvements.

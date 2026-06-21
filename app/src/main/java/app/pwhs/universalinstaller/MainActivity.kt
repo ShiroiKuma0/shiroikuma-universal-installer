@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity() {
                 darkTheme = darkTheme,
                 dynamicColor = themeState.dynamicColor,
                 amoledMode = themeState.amoledMode,
+                themePreset = themeState.themePreset,
                 fontFamily = customFontFamily,
                 fontWeight = themeState.fontWeight.takeIf { it in 100..1000 }?.let { FontWeight(it) },
                 fontScale = themeState.fontScale,

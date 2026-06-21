@@ -296,10 +296,6 @@ fun DialogSuccessContent(
                 kind = DialogButtonKind.Outlined,
                 onClick = onDone,
                 modifier = Modifier.weight(1f),
-                border = androidx.compose.foundation.BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                ),
             ) {
                 Text(stringResource(R.string.dialog_success_done))
             }

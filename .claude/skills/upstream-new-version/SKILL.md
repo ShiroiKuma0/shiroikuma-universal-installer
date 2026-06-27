@@ -88,8 +88,9 @@ all exceed the previous line's (`160001`, …), keeping upgrades monotonic.
    to confirm the build script still evaluates after the rebase.
 
 6. **Build the new `+1`** via the **build-apk** skill
-   (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew buildFork < /dev/null`), then **ask** before
-   any `adb push`. This is the first build of the new upstream line (`<newVersion>+1`).
+   (`JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew buildFork < /dev/null`), then auto-deliver it
+   via the global **/after-build** skill (adb-push if a phone is connected, else scp to skhw — no prompt).
+   This is the first build of the new upstream line (`<newVersion>+1`).
 
 7. **Stop.** Let the user test. Commit/push only on their explicit **"Push"** (force-push may be needed for
    `custom` since rebasing rewrites history: `git push --force-with-lease origin custom`; `main` is a

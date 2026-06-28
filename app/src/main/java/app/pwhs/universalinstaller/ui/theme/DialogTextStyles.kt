@@ -19,9 +19,22 @@ val LocalDialogTextStyles = staticCompositionLocalOf<Map<String, TextStyleOverri
  * `color =` argument, so the override can take effect.
  */
 @Composable
-fun dialogTextStyle(category: String, base: TextStyle, defaultColor: Color = Color.Unspecified): TextStyle {
+fun dialogTextStyle(category: String, base: TextStyle, defaultColor: Color = Color.Unspecified): TextStyle =
+    resolveDialogTextStyle(LocalDialogTextStyles.current[category], base, defaultColor)
+
+/**
+ * Apply a [TextStyleOverride] directly on top of [base], with the same resolution rules as
+ * [dialogTextStyle] — but for an override you already hold (e.g. the settings live-preview) rather
+ * than one looked up by category. A null [override] yields [base] recoloured to [defaultColor].
+ */
+@Composable
+fun resolveDialogTextStyle(
+    override: TextStyleOverride?,
+    base: TextStyle,
+    defaultColor: Color = Color.Unspecified,
+): TextStyle {
     val resolvedDefault = if (defaultColor != Color.Unspecified) defaultColor else base.color
-    val o = LocalDialogTextStyles.current[category]
+    val o = override
         ?: return if (resolvedDefault != base.color) base.copy(color = resolvedDefault) else base
 
     val context = LocalContext.current

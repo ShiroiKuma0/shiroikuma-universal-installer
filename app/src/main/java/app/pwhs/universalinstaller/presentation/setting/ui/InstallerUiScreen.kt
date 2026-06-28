@@ -212,8 +212,8 @@ fun InstallerUiScreen(
                     SubHeader(stringResource(R.string.theme_size))
                     SliderRow(
                         value = state.fontScale,
-                        valueRange = 0.85f..1.30f,
-                        steps = 8,
+                        valueRange = 0.5f..3.0f,
+                        steps = 0,
                         valueLabel = "${(state.fontScale * 100).roundToInt()}%",
                         onChange = { viewModel.setFontScale(it) },
                     )
@@ -281,7 +281,7 @@ fun InstallerUiScreen(
                     SliderRow(
                         value = state.cornerScale,
                         valueRange = 0f..2f,
-                        steps = 7,
+                        steps = 0,
                         valueLabel = "×${"%.2f".format(state.cornerScale)}",
                         onChange = { viewModel.setCornerScale(it) },
                     )

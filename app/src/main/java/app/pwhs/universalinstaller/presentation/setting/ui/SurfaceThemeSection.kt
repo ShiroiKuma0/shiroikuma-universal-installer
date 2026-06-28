@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.ColorPickerDialog
@@ -52,6 +54,7 @@ import app.pwhs.universalinstaller.ui.theme.FontWeightOption
 import app.pwhs.universalinstaller.ui.theme.SurfaceTheme
 import app.pwhs.universalinstaller.ui.theme.composeFontFamily
 import app.pwhs.universalinstaller.ui.theme.fontDisplayName
+import app.pwhs.universalinstaller.ui.theme.resolveDialogTextStyle
 import kotlin.math.roundToInt
 
 // Indent levels (dp): section header (0) → sub-header (1) → item (2) → per-button control (3).
@@ -191,7 +194,7 @@ fun SurfaceThemeSection(
             WidthSlider(
                 L2, theme.progressThickness,
                 labelRes = R.string.ui_progress_thickness,
-                valueRange = 1f..16f, steps = 14, nullValue = 4f,
+                valueRange = 1f..16f, nullValue = 4f,
             ) { onChange(theme.copy(progressThickness = it)) }
         }
 
@@ -210,7 +213,7 @@ fun SurfaceThemeSection(
             WidthSlider(
                 L2, theme.successCircleThickness,
                 labelRes = R.string.ui_success_circle_thickness,
-                valueRange = 0.5f..8f, steps = 14, nullValue = 3f,
+                valueRange = 0.5f..8f, nullValue = 3f,
             ) { onChange(theme.copy(successCircleThickness = it)) }
             ColorRow(L2, stringResource(R.string.ui_success_tick), theme.successTick) {
                 colorEdit = ColorEdit(theme.successTick) { onChange(theme.copy(successTick = it)) }
@@ -218,7 +221,7 @@ fun SurfaceThemeSection(
             WidthSlider(
                 L2, theme.successTickThickness,
                 labelRes = R.string.ui_success_tick_thickness,
-                valueRange = 1f..10f, steps = 17, nullValue = 4f,
+                valueRange = 1f..10f, nullValue = 4f,
             ) { onChange(theme.copy(successTickThickness = it)) }
         }
 
@@ -324,6 +327,10 @@ fun SurfaceThemeSection(
             )
             val tkey = selectedText.key
             val ts = theme.texts[tkey] ?: TextStyleOverride()
+            // Live preview: the selected text rendered with the current override, so the effect of
+            // colour/font/weight/size is visible while editing.
+            val previewBg = theme.background?.let { Color(it) } ?: MaterialTheme.colorScheme.surfaceVariant
+            TextPreview(L3, previewBg, ts, stringResource(selectedText.labelRes))
             fun updT(next: TextStyleOverride) {
                 val map = theme.texts.toMutableMap()
                 if (next == TextStyleOverride()) map.remove(tkey) else map[tkey] = next
@@ -500,7 +507,6 @@ private fun WidthSlider(
     value: Float?,
     @StringRes labelRes: Int = R.string.ui_border_width,
     valueRange: ClosedFloatingPointRange<Float> = 0f..6f,
-    steps: Int = 11,
     nullValue: Float = 0f,
     onChange: (Float?) -> Unit,
 ) {
@@ -517,7 +523,7 @@ private fun WidthSlider(
                 TextButton(onClick = { onChange(null) }) { Text(stringResource(R.string.ui_inherit)) }
             }
         }
-        Slider(value = value ?: nullValue, onValueChange = { onChange(it) }, valueRange = valueRange, steps = steps)
+        Slider(value = value ?: nullValue, onValueChange = { onChange(it) }, valueRange = valueRange)
     }
 }
 
@@ -535,7 +541,27 @@ private fun ScaleSlider(indent: Int, value: Float?, onChange: (Float?) -> Unit) 
                 TextButton(onClick = { onChange(null) }) { Text(stringResource(R.string.ui_inherit)) }
             }
         }
-        Slider(value = value ?: 1f, onValueChange = { onChange(it) }, valueRange = 0.85f..1.30f, steps = 8)
+        Slider(value = value ?: 1f, onValueChange = { onChange(it) }, valueRange = 0.5f..3.0f)
+    }
+}
+
+/** A live preview of a single dialog/main text [override] applied to a representative [sample] line. */
+@Composable
+private fun TextPreview(indent: Int, background: Color, override: TextStyleOverride, sample: String) {
+    Box(
+        modifier = Modifier
+            .padding(start = indent.dp, end = 16.dp, top = 4.dp, bottom = 8.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(background)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = sample,
+            style = resolveDialogTextStyle(override, MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurface),
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

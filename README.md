@@ -1,145 +1,67 @@
 <div align="center">
-  <img src="fastlane/metadata/android/en-US/images/icon.png" width="128" height="128" alt="Universal Installer Icon">
-  <h1>Universal Installer</h1>
-  <p>A modern, powerful Android package manager and sideloading tool for Phones, Android TV, and Wear OS.</p>
 
-  <p>
-    <a href="https://github.com/pass-with-high-score/universal-installer/releases">
-      <img src="https://img.shields.io/github/v/release/pass-with-high-score/universal-installer" alt="Latest Release">
-    </a>
-    <a href="https://github.com/pass-with-high-score/universal-installer/releases">
-      <img src="https://img.shields.io/github/downloads/pass-with-high-score/universal-installer/total" alt="Downloads">
-    </a>
-    <a href="LICENSE">
-      <img src="https://img.shields.io/badge/License-GPL--3.0--only-blue.svg" alt="License">
-    </a>
-  </p>
+<img src="app/src/main/ic_launcher-playstore.png" width="120" alt="白い熊 Universal installer icon" />
 
-  <h4>Download</h4>
-  <p>
-    <a href="https://play.google.com/store/apps/details?id=app.pwhs.universalinstaller">
-      <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="55" alt="Google Play">
-    </a>
-    <a href="https://f-droid.org/packages/app.pwhs.universalinstaller">
-      <img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="55" alt="F-Droid">
-    </a>
-    <a href="https://apt.izzysoft.de/fdroid/index/apk/app.pwhs.universalinstaller">
-      <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="55" alt="IzzyOnDroid">
-    </a>
-    <a href="https://github.com/pass-with-high-score/universal-installer/releases">
-      <img src="https://raw.githubusercontent.com/NeoApplications/Neo-Backup/034b226cea5c1b30eb4f6a6f313e4dadcbb0ece4/badge_github.png" height="55" alt="GitHub Release">
-    </a>
-  </p>
+# 白い熊 Universal installer
 
-  <a href="https://universal-installer.pwhs.app/">Website</a> ·
-  <a href="https://universal-installer.pwhs.app/privacy">Privacy</a> ·
-  <a href="https://universal-installer.pwhs.app/terms">Terms</a>
+**A package installer you can theme down to the last button, border and progress line.**
+
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine, per-surface and per-element styling of the install dialog, custom imported fonts, and one-file config export/import.
+
+Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
+
+**📥 Latest release: [`1.9.11+1`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+
 </div>
 
 ---
 
-## Supported Platforms
+## 🎨 A real theming engine
 
-| Platform | Module | Description |
-| :--- | :--- | :--- |
-| 📱 **Phone & Tablet** | `:app` | Material 3 UI, dynamic colors & spring animations |
-| 📺 **Android TV** | `:tv` | D-pad navigation, 10-foot UI with QR code pairing & remote receive |
-| ⌚ **Wear OS** | `:wearos` | Wear Compose UI for smartwatch package management & install |
+The **白い熊 Installer UI** settings page turns the installer into something you actually style. A global **accent color** (custom color picker plus recent-color hotpicks), a **corner roundness** slider for app-wide shape, and a **typeface** section: choose the system font, monospace, or **import your own `.ttf` / `.otf`**, then dial in font **weight (100–900)** and **size**. A "monospace for technical text" toggle renders package names, versions and sizes in a mono face.
 
 ---
 
-## Supported Formats
+## 🪟 Per-surface overrides
 
-- **Single APK**: `.apk`
-- **Split APK Bundles**: `.apks`, `.xapk`, `.apkm`, `.apk+`
-- **Manual Splits**: Merge multiple individual `.apk` files into a single installation session
-- **Game Data**: Automatic extraction & background placement of `.obb` expansion files
+The **install pop-up dialog** and the **main page** each carry their own look. Override accent, title text, secondary text, card, background, danger, success and highlight colors — plus border and font — independently per surface. Anything left untouched inherits the global theme, applied through a nested Material 3 theme so every element restyles live.
 
 ---
 
-## Key Features
+## 🔘 Style the install dialog down to the element
 
-- **⚡ Flexible Installation Backends**:
-  - Standard system installer, **Shizuku**, and **Root (libsu)**.
-  - Silent install and uninstall without prompts.
-  - Privileged controls: allow downgrade, bypass minimum SDK restrictions, grant permissions, install for all users, and spoof installer package names (Google Play, F-Droid, Aurora Store, Amazon, etc.).
-
-- **📦 Seamless OBB Support**:
-  - Auto-extracts `.obb` files from XAPK/APKM archives directly to `Android/obb/<package>/`.
-  - Attach standalone OBB files to APK installs.
-  - Multi-tier write strategy: Direct I/O, Shizuku, or Storage Access Framework (SAF).
-
-- **🛡️ VirusTotal Security**:
-  - Automatic SHA-256 hash lookup before install.
-  - Engine detection breakdown (malicious, suspicious, clean).
-  - On-demand file upload scan for unindexed packages (up to 650 MB).
-
-- **🌐 Local Sharing & Send to TV**:
-  - Built-in HTTP server and web dashboard for transferring APKs from PC or mobile browser.
-  - Push packages directly to Android TV via QR code scanning.
-  - Optional PIN security for local network access.
-
-- **🗂️ App Manager**:
-  - Inspect installed user & system apps with rich details (SDK targets, size, permissions, signatures).
-  - Sort and filter by name, install date, size, or last used time.
-  - Batch uninstall with detailed status logs.
-
-- **📥 Remote Downloader & Intake**:
-  - Download APK packages directly from web URLs with download history.
-  - Deep-link and intent handling to open packages from browsers, messaging apps, and file managers.
+Beyond surface colors, the install dialog exposes **per-button** styling (menu / install / cancel — background, content, border), **per-text-category** styling (app label, version, size… — color, weight, size), a **themable progress line** (color & thickness), and a **custom success badge** (circle color, tick color, ring & tick thickness). Continuous sliders with **live preview** as you drag.
 
 ---
 
-## Tech Stack
+## 💾 Export & import your whole look
 
-- **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose), [Wear Compose](https://developer.android.com/training/wearables/compose), Material 3
-- **Installer Engine**: [Ackpine](https://ackpine.solrudev.ru/) & [Shizuku](https://shizuku.rikka.app/)
-- **Networking**: [Ktor](https://ktor.io/)
-- **Storage & Async**: [Room](https://developer.android.com/training/data-storage/room), [DataStore](https://developer.android.com/topic/libraries/architecture/datastore), [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
-- **Dependency Injection**: [Koin](https://insert-koin.io/)
+Save the entire UI configuration — every preference **and** your imported font files — to a single JSON you can back up or carry to another device, then restore it in one tap.
 
 ---
 
-## Project Structure
+## ⚫🟡 Black-and-yellow branding
 
-```text
-├── app/        # Android Phone & Tablet application
-├── tv/         # Android TV application
-├── wearos/     # Wear OS smartwatch application
-├── core/       # Shared engine (package parsing, installers, storage, networking)
-└── updater/    # In-app update checking logic
-```
+A custom **black/yellow launcher icon**, and a splash with a black background, the black/yellow mark and a yellow title + tagline — so the fork is unmistakable in your launcher and app switcher.
 
 ---
 
-## Building from Source
+## 🔧 Install-flow fix
 
-### Prerequisites
-- Android Studio Ladybug or newer
-- JDK 17+
-- Android SDK 36
+Drops the false **"data may be wiped"** downgrade warning that stock shows even when it doesn't apply.
 
-### Build Commands
+---
+
+## Built on Universal Installer
+
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) (app id `shiroikuma.universalinstaller`, so it coexists with the official build). Upstream is a modern Material 3 package manager that installs **APK / APK+ / APKS / XAPK / APKM** (with split APKs and OBB), downloads packages from URLs, manages installed apps, and silent-installs via **Shizuku or root** — now with **Android TV** support. All credit for the core app goes to the upstream authors; this fork only layers the theming engine and branding on top. The code remains under the **GNU GPL v3**.
+
+## Building
+
 ```bash
-# Build Phone app (open-source flavor)
-./gradlew :app:assembleOpensourceDebug
-
-# Build Android TV app
-./gradlew :tv:assembleDebug
-
-# Build Wear OS app
-./gradlew :wearos:assembleDebug
-
-# Build all debug variants
-./gradlew assembleDebug
+git clone git@github.com:ShiroiKuma0/shiroikuma-universal-installer.git
+cd shiroikuma-universal-installer
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleRelease
 ```
 
-> **Note:** The `play` flavor of `:app` requires `app/src/play/google-services.json` (see [docs/FIREBASE.md](docs/FIREBASE.md)). Without it, build the `opensource` flavor.
-
----
-
-## Contributing & License
-
-- **Issues & Requests**: [GitHub Issues](https://github.com/pass-with-high-score/universal-installer/issues)
-- **License**: [GNU General Public License v3.0 (GPL-3.0)](LICENSE)
-- **Maintainer**: [Nguyen Quang Minh](https://github.com/nqmgaming)
+The fork build task `:app:buildFork` assembles the signed release, copies it to `~/tmp/` as `shiroikuma-universal-installer_<version>.apk`, and bumps the build number. Signing reads a gitignored `key.properties`; without it the build is unsigned.

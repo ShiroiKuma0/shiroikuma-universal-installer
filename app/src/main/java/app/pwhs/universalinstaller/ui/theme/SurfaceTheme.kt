@@ -59,6 +59,10 @@ data class SurfaceTheme(
     val successTick: Int? = null,    // install-dialog success badge tick colour; null = yellow default
     val successCircleThickness: Float? = null, // success badge ring width in dp; null = default
     val successTickThickness: Float? = null,   // success badge tick stroke width in dp; null = default
+    val badgeBackground: Int? = null,     // backend badge pill background; null = black default
+    val badgeText: Int? = null,           // backend badge text + icon colour; null = yellow default
+    val badgeBorder: Int? = null,         // backend badge border colour; null = yellow default
+    val badgeBorderWidth: Float? = null,  // backend badge border width in dp; null = default
     val topIconColor: Int? = null,        // main page: top-bar action-icon tint; null = default content colour
     val fontFamily: String? = null,  // null = inherit; "" = system; "@monospace"; else imported filename
     val fontWeight: Int? = null,     // null = inherit; else 100..900
@@ -77,6 +81,8 @@ data class SurfaceTheme(
             progressColor != null || progressThickness != null || topIconColor != null ||
             successCircle != null || successTick != null ||
             successCircleThickness != null || successTickThickness != null ||
+            badgeBackground != null || badgeText != null ||
+            badgeBorder != null || badgeBorderWidth != null ||
             fontFamily != null || fontWeight != null || fontScale != null ||
             buttons.isNotEmpty() || texts.isNotEmpty()
 }
@@ -198,6 +204,9 @@ fun ThemedSurface(surface: AppSurface, content: @Composable () -> Unit) {
         LocalDialogSuccessStyle provides DialogSuccessStyle(
             theme.successCircle, theme.successTick,
             theme.successCircleThickness, theme.successTickThickness,
+        ),
+        LocalInstallerBadgeStyle provides DialogBadgeStyle(
+            theme.badgeBackground, theme.badgeText, theme.badgeBorder, theme.badgeBorderWidth,
         ),
     ) {
         MaterialTheme(

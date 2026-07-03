@@ -10,7 +10,7 @@ A fork of [pass-with-high-score/universal-installer](https://github.com/pass-wit
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.9.11+1`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.9.11+3`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -31,6 +31,8 @@ The **install pop-up dialog** and the **main page** each carry their own look. O
 ## 🔘 Style the install dialog down to the element
 
 Beyond surface colors, the install dialog exposes **per-button** styling (menu / install / cancel — background, content, border), **per-text-category** styling (app label, version, size… — color, weight, size), a **themable progress line** (color & thickness), and a **custom success badge** (circle color, tick color, ring & tick thickness). Continuous sliders with **live preview** as you drag.
+
+The **install-backend badge** — the “Using Shizuku / Root” pill — is a **black pill with yellow text and border** by default (on brand), and its background, text/icon and border are configurable per surface. The engine-picker dialog it opens carries a matching **yellow border**.
 
 ---
 

@@ -4,7 +4,11 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
-## 1.9.11+1
+## 1.9.11+3
+
+**New in this build:** the install-backend badge (the “Using Shizuku / Root” pill) is now a **black pill
+with yellow text, icon and border** by default — and fully configurable per-surface — and the
+**install-engine picker dialog gains a yellow border**.
 
 Tracks upstream **1.9.11 (versionCode 31)** — inherits its Android TV root install, privileged
 Manage actions, and install-progress work — with the full 白い熊 fork layer on top:
@@ -23,6 +27,8 @@ Manage actions, and install-progress work — with the full 白い熊 fork layer
 - **Per-text-category** styling in the install dialog (app label, version, size, … — color, weight, size).
 - **Themable install-dialog progress line** (color & thickness).
 - **Custom success badge** in the install dialog (circle color, tick color, ring & tick thickness).
+- **Backend badge** (“Using Shizuku / Root / PackageInstaller” pill): black pill with yellow text, icon and border by default, with per-surface overrides for background, text/icon, border color & width (install dialog + main page).
+- **Yellow border on the install-engine picker dialog** (opened by tapping the badge).
 - **Bottom navigation bar** theme.
 - **Main-page top-bar action-icon tint.**
 - **Continuous sliders** with **live per-text style preview** while dragging.

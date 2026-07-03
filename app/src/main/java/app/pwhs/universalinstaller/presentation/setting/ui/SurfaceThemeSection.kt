@@ -150,6 +150,7 @@ fun SurfaceThemeSection(
     showBorder: Boolean = false,
     showProgress: Boolean = false,
     showSuccess: Boolean = false,
+    showBadge: Boolean = false,
     showButtons: Boolean = false,
     showTexts: Boolean = false,
 ) {
@@ -223,6 +224,31 @@ fun SurfaceThemeSection(
                 labelRes = R.string.ui_success_tick_thickness,
                 valueRange = 1f..10f, nullValue = 4f,
             ) { onChange(theme.copy(successTickThickness = it)) }
+        }
+
+        if (showBadge) {
+            SubHeader(stringResource(R.string.ui_section_badge))
+            Text(
+                text = stringResource(R.string.ui_badge_hint),
+                style = MaterialTheme.typography.bodySmall,
+                fontStyle = FontStyle.Italic,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
+            )
+            ColorRow(L2, stringResource(R.string.ui_badge_bg), theme.badgeBackground) {
+                colorEdit = ColorEdit(theme.badgeBackground) { onChange(theme.copy(badgeBackground = it)) }
+            }
+            ColorRow(L2, stringResource(R.string.ui_badge_text), theme.badgeText) {
+                colorEdit = ColorEdit(theme.badgeText) { onChange(theme.copy(badgeText = it)) }
+            }
+            ColorRow(L2, stringResource(R.string.ui_badge_border), theme.badgeBorder) {
+                colorEdit = ColorEdit(theme.badgeBorder) { onChange(theme.copy(badgeBorder = it)) }
+            }
+            WidthSlider(
+                L2, theme.badgeBorderWidth,
+                labelRes = R.string.ui_border_width,
+                valueRange = 0f..6f, nullValue = 1.5f,
+            ) { onChange(theme.copy(badgeBorderWidth = it)) }
         }
 
         if (showButtons) {

@@ -5,7 +5,9 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -41,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -49,6 +53,8 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.BackendIcon
 import app.pwhs.universalinstaller.domain.model.InstallBackend
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
+import app.pwhs.universalinstaller.ui.theme.InstallerBadgeDefaults
+import app.pwhs.universalinstaller.ui.theme.LocalInstallerBadgeStyle
 import app.pwhs.universalinstaller.presentation.setting.InstallMode
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
 import app.pwhs.universalinstaller.presentation.setting.ShizukuState
@@ -181,21 +187,24 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     }
 
     val label = stringResource(activeBackend.titleRes)
-    val privileged = activeBackend != InstallBackend.DEFAULT
-    val container = if (privileged)
-        MaterialTheme.colorScheme.primaryContainer
-    else
-        MaterialTheme.colorScheme.surfaceContainerHigh
-    val content = if (privileged)
-        MaterialTheme.colorScheme.onPrimaryContainer
-    else
-        MaterialTheme.colorScheme.onSurfaceVariant
+    // Pill look: black background, yellow text/icon and a thin yellow border by default (the 白い熊
+    // aesthetic), each overridable per-surface from the 白い熊 Installer UI page.
+    val badgeStyle = LocalInstallerBadgeStyle.current
+    val container = badgeStyle.background?.let { Color(it) } ?: InstallerBadgeDefaults.Background
+    val content = badgeStyle.text?.let { Color(it) } ?: InstallerBadgeDefaults.Content
+    val borderColor = badgeStyle.border?.let { Color(it) } ?: InstallerBadgeDefaults.Border
+    val borderWidth = badgeStyle.borderWidth ?: InstallerBadgeDefaults.BorderWidth
+    val shape = RoundedCornerShape(50)
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(50))
-            .clickable { showPicker = true }
+            .clip(shape)
             .background(container)
+            .then(
+                if (borderWidth > 0f) Modifier.border(BorderStroke(borderWidth.dp, borderColor), shape)
+                else Modifier
+            )
+            .clickable { showPicker = true }
             .padding(horizontal = 10.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -231,6 +240,11 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
 
         AlertDialog(
             onDismissRequest = { showPicker = false },
+            // Yellow border on the engine-picker dialog, matching the 白い熊 black/yellow aesthetic.
+            modifier = Modifier.border(
+                BorderStroke(2.dp, InstallerBadgeDefaults.Border),
+                AlertDialogDefaults.shape,
+            ),
             title = { Text(stringResource(R.string.installer_engine_dialog_title)) },
             text = {
                 Column {

@@ -992,6 +992,11 @@
     <string name="ui_success_circle_thickness">Circle thickness</string>
     <string name="ui_success_tick">Tick color</string>
     <string name="ui_success_tick_thickness">Tick thickness</string>
+    <string name="ui_section_badge">Backend badge</string>
+    <string name="ui_badge_hint">Style the “Using Shizuku / Root” pill shown on the install screen and dialog.</string>
+    <string name="ui_badge_bg">Background</string>
+    <string name="ui_badge_text">Text &amp; icon</string>
+    <string name="ui_badge_border">Border color</string>
     <string name="ui_section_buttons">Buttons</string>
     <string name="ui_btn_bg">Background</string>
     <string name="ui_btn_content">Text &amp; icon</string>

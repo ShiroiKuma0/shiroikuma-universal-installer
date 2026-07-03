@@ -311,6 +311,7 @@ fun InstallerUiScreen(
                     showBorder = true,
                     showProgress = true,
                     showSuccess = true,
+                    showBadge = true,
                     showButtons = true,
                     showTexts = true,
                 )
@@ -327,6 +328,7 @@ fun InstallerUiScreen(
                     surface = AppSurface.Main,
                     showBorder = true,
                     showProgress = true,
+                    showBadge = true,
                     showTexts = true,
                 )
             }

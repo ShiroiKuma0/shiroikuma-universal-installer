@@ -6,11 +6,11 @@
 
 **A package installer you can theme down to the last button, border and progress line.**
 
-A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine, per-surface and per-element styling of the install dialog, custom imported fonts, and one-file config export/import.
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine, per-surface and per-element styling of the install dialog, custom imported fonts, a categorized **whole-app config export/import** with a one-tap export directory, and a black/yellow kxkb-styled settings page.
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.9.11+3`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.9.11+8`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -36,9 +36,15 @@ The **install-backend badge** — the “Using Shizuku / Root” pill — is a *
 
 ---
 
-## 💾 Export & import your whole look
+## 💾 Export & import the whole app configuration
 
-Save the entire UI configuration — every preference **and** your imported font files — to a single JSON you can back up or carry to another device, then restore it in one tap.
+The first section of the UI page is **Export / Import**: pick an **export directory** once and every export is one tap; the page shows the **latest export in that directory** each time you open it. Everything settable in the app rides along, split into **eight selectable categories** — Installer UI theme (with your imported fonts embedded), app theme, install behavior, Shizuku & Root options, installer profiles, security & VirusTotal, Sync & Share, Manage & APK extractor — as a single JSON. Import restores the categories you choose and offers an in-place **app restart**; the whole flow lives in black/yellow dialogs with round pill buttons.
+
+---
+
+## 🖤💛 kxkb-styled settings page
+
+The 白い熊 Installer UI page follows the kxkb look: flat sections with yellow headings underlined **exactly as wide as the text**, hairline separators, all texts in yellow, and black pills with yellow borders for every chip and button. The same black/yellow treatment runs through the install page — accent storage bar, Local/Download pills, yellow-bordered file cards, and a yellow-edged bottom bar.
 
 ---
 

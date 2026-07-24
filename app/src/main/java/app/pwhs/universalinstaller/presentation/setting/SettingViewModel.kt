@@ -187,6 +187,8 @@ object PreferencesKeys {
     val UI_BOTTOM_BAR_THEME = stringPreferencesKey("ui_bottom_bar_theme")
     /** Recently-picked colours (comma-separated ARGB ints, most-recent first) shown as picker hotpicks. */
     val UI_RECENT_COLORS = stringPreferencesKey("ui_recent_colors")
+    /** SAF tree URI of the config export directory. Device-local — never included in exports. */
+    val UI_EXPORT_DIR = stringPreferencesKey("ui_export_dir")
 }
 
 data class SyncOptions(

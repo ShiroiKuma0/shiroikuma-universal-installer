@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.InstallMobile
@@ -61,10 +64,14 @@ fun BottomBar(
         selectedIconColor = bb.selectedIcon?.let { Color(it) } ?: colors.onPrimaryContainer,
         selectedTextColor = bb.selectedText?.let { Color(it) } ?: colors.primary,
         indicatorColor = bb.indicator?.let { Color(it) } ?: colors.primaryContainer,
-        unselectedIconColor = bb.unselectedIcon?.let { Color(it) } ?: colors.onSurfaceVariant,
-        unselectedTextColor = bb.unselectedText?.let { Color(it) } ?: colors.onSurfaceVariant,
+        // 白い熊: unselected items follow the accent too (Manage/Settings in yellow, not grey).
+        unselectedIconColor = bb.unselectedIcon?.let { Color(it) } ?: colors.primary,
+        unselectedTextColor = bb.unselectedText?.let { Color(it) } ?: colors.primary,
     )
-    NavigationBar(containerColor = bb.container?.let { Color(it) } ?: NavigationBarDefaults.containerColor) {
+    Column {
+        // 白い熊: accent border along the bar's top edge.
+        HorizontalDivider(thickness = 1.5.dp, color = colors.primary)
+        NavigationBar(containerColor = bb.container?.let { Color(it) } ?: NavigationBarDefaults.containerColor) {
         BottomBarItem.entries.forEach { destination ->
             val isSelected = currentTab == destination
             val navigate = {
@@ -101,6 +108,7 @@ fun BottomBar(
                 },
                 label = { Text(stringResource(destination.label)) },
             )
+        }
         }
     }
 }

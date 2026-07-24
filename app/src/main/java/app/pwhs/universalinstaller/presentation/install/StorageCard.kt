@@ -74,13 +74,11 @@ internal fun StorageCard(modifier: Modifier = Modifier) {
                 )
             }
             Spacer(Modifier.height(8.dp))
-            // Honour the Main surface's progress override (colour + thickness); else colour by fill level.
+            // Honour the Main surface's progress override (colour + thickness); else the accent —
+            // the earlier fill-level tinting (tertiary/error) broke the black/yellow look.
             val progressStyle = LocalDialogProgressStyle.current
-            val progressColor = progressStyle.color?.let { Color(it) } ?: when {
-                progress >= 0.9f -> MaterialTheme.colorScheme.error
-                progress >= 0.75f -> MaterialTheme.colorScheme.tertiary
-                else -> MaterialTheme.colorScheme.primary
-            }
+            val progressColor = progressStyle.color?.let { Color(it) }
+                ?: MaterialTheme.colorScheme.primary
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier

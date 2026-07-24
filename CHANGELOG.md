@@ -4,6 +4,29 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.9.11+8
+
+**New in this build:**
+
+### 💾 Whole-app config Export/Import (Kōjiki-style)
+- **Export / Import is the first section of the 白い熊 Installer UI page**, opening a black, yellow-bordered panel.
+- **Settable export directory** (SAF, grant persisted; device-local — never itself exported): set it once and export is **one tap**; without it, export falls back to the system Save-As picker.
+- The directory is **queried on opening the page** and shows the **latest export** (`Last export: <timestamp>`); warnings ("no directory set", "no export yet") in red, statuses in yellow.
+- Coverage grew from UI-only to **everything settable in the app**, split into **8 selectable categories**: Installer UI theme (imported fonts embedded), App theme (mode & preset), Install behavior, Shizuku & Root options, Installer profiles, Security & VirusTotal, Sync & Share, Manage & APK extractor — with a **Select all** master checkbox.
+- **Old UI-only export files still import** (key-based filtering, versioned format).
+- **Arcanechat-style button row**: round black pills with yellow text and border — Cancel separate on the left, Import and Export on the right.
+- **Finished-info dialogs** (black, yellow border, pill buttons): export success shows the file name and its **OK closes the info dialog, the panel and the UI page in one go**; import success lists restored categories and offers **Restart now** (in-place app relaunch) or **Later** (closes the whole chain). Failures ("Export failed…", "No categories selected.") keep the panel open.
+
+### 🖤💛 kxkb-style UI page & black/yellow accents
+- The **whole UI page restyled to the kxkb look**: flat sections, 20 sp yellow headings underlined **exactly text-wide** (1.5 dp for sub-headings), thin full-width hairline separators between sections, yellow page title, **all page texts in yellow** (secondary text dimmed yellow).
+- All selector chips (weight, per-button, per-text, inherit) are now **black pills with yellow text and border**, thicker border + bold when selected.
+- **Install page**: storage-fill line always in the accent (the old fill-level lavender/red tinting is gone; a per-surface progress override still wins), **Local/Download as black/yellow pills** (thicker border + bold on the selected one), **yellow borders on the select-file cards**, and the **bottom bar** gains a yellow top border with yellow unselected Manage/Settings icons and labels (still themable per element).
+
+### ⬆️ Upstream sync (post-1.9.11 main)
+- Rebased onto upstream `main` past 1.9.11: **Android TV UI/UX overhaul** (10-foot type, focus, privileged Manage, theming, kept-alive tabs), **new Polish locale** (fork app label asserted there too), translation fills across ~17 locales, a **strict VirusTotal** install option, a split-ABI selection fix, and compiler-warning cleanups.
+
+Tracks upstream **1.9.11 (versionCode 31)** with the full 白い熊 fork layer on top — cumulative:
+
 ## 1.9.11+3
 
 **New in this build:** the install-backend badge (the “Using Shizuku / Root” pill) is now a **black pill

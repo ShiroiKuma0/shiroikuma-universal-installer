@@ -20,19 +20,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Code
-import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.RoundedCorner
-import androidx.compose.material.icons.rounded.SettingsBackupRestore
-import androidx.compose.material.icons.rounded.TextFields
-import androidx.compose.material.icons.rounded.WebAsset
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,7 +36,9 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,7 +57,6 @@ import app.pwhs.universalinstaller.presentation.composable.AccentPalette
 import app.pwhs.universalinstaller.presentation.composable.ColorPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.ColorSwatch
 import app.pwhs.universalinstaller.presentation.composable.FontPickerDialog
-import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.ui.theme.AppSurface
 import app.pwhs.universalinstaller.ui.theme.FontWeightOption
 import app.pwhs.universalinstaller.ui.theme.composeFontFamily
@@ -94,6 +86,9 @@ fun InstallerUiScreen(
 
     var showFontPicker by remember { mutableStateOf(false) }
     var showColorPicker by remember { mutableStateOf(false) }
+    var showExportImport by remember { mutableStateOf(false) }
+    // Queried on page open (and whenever the export directory changes): the newest export.
+    val lastExport by viewModel.lastExport.collectAsState()
 
     val invalidFontMessage = stringResource(R.string.font_invalid)
     // Where a just-imported font should be applied (global / surface / per-button). Set before launching.
@@ -118,25 +113,6 @@ fun InstallerUiScreen(
         pickFontLauncher.launch(arrayOf("*/*"))
     }
 
-    // UI-config export / import (one JSON file carrying the UI prefs + imported fonts).
-    val exportedMsg = stringResource(R.string.ui_backup_exported)
-    val importedMsg = stringResource(R.string.ui_backup_imported)
-    val backupFailedMsg = stringResource(R.string.ui_backup_failed)
-    val exportConfigLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/json")
-    ) { uri ->
-        if (uri != null) viewModel.exportUiConfig(uri) { ok ->
-            scope.launch { snackbarHostState.showSnackbar(if (ok) exportedMsg else backupFailedMsg) }
-        }
-    }
-    val importConfigLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) viewModel.importUiConfig(uri) { ok ->
-            scope.launch { snackbarHostState.showSnackbar(if (ok) importedMsg else backupFailedMsg) }
-        }
-    }
-
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -147,6 +123,7 @@ fun InstallerUiScreen(
                     Text(
                         text = stringResource(R.string.shiroikuma_ui_title),
                         style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 },
                 navigationIcon = {
@@ -162,16 +139,39 @@ fun InstallerUiScreen(
             )
         },
     ) { innerPadding ->
+        // 白い熊: every unspecified text/icon on this page renders in the accent (kxkb yellow).
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.primary) {
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
             contentPadding = PaddingValues(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // ── Export / Import — first section, Kōjiki-style ───────────
+            item {
+                KxkbSectionFrame(title = stringResource(R.string.eim_section), first = true) {
+                    IndentRow(indent = 72, onClick = { showExportImport = true }) {
+                        Column(Modifier.weight(1f)) {
+                            Text(stringResource(R.string.eim_row_title), style = MaterialTheme.typography.bodyLarge)
+                            val (statusText, warn) = when (val le = lastExport) {
+                                LastExport.NoDir -> stringResource(R.string.eim_warn_nodir) to true
+                                LastExport.None -> stringResource(R.string.eim_warn_none) to true
+                                is LastExport.Found -> stringResource(R.string.eim_last, le.formatted) to false
+                            }
+                            Text(
+                                text = statusText,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (warn) KxkbWarnRed
+                                else MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                            )
+                        }
+                    }
+                }
+            }
+
             // ── Typeface ────────────────────────────────────────────────
             item {
-                SettingsSection(title = stringResource(R.string.ui_section_typeface), icon = Icons.Rounded.TextFields) {
+                KxkbSectionFrame(title = stringResource(R.string.ui_section_typeface)) {
                     // Live sample, drawn in the current global typography.
                     Text(
                         text = stringResource(R.string.font_sample_text),
@@ -201,10 +201,10 @@ fun InstallerUiScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         FontWeightOption.entries.forEach { option ->
-                            FilterChip(
+                            KxkbChip(
                                 selected = state.fontWeight == option.value,
                                 onClick = { viewModel.setFontWeight(option.value) },
-                                label = { Text(stringResource(option.labelRes)) },
+                                label = stringResource(option.labelRes),
                             )
                         }
                     }
@@ -231,7 +231,7 @@ fun InstallerUiScreen(
                             Text(
                                 stringResource(R.string.ui_mono_technical_subtitle),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                             )
                         }
                         Switch(checked = state.monoTechnical, onCheckedChange = { viewModel.setMonoTechnical(it) })
@@ -241,7 +241,7 @@ fun InstallerUiScreen(
 
             // ── Color ───────────────────────────────────────────────────
             item {
-                SettingsSection(title = stringResource(R.string.ui_section_color), icon = Icons.Rounded.Palette) {
+                KxkbSectionFrame(title = stringResource(R.string.ui_section_color)) {
                     SubHeader(stringResource(R.string.ui_accent_color))
                     FlowRow(
                         modifier = Modifier.padding(start = 108.dp, end = 16.dp, top = 4.dp, bottom = 8.dp),
@@ -276,7 +276,7 @@ fun InstallerUiScreen(
 
             // ── Shape ───────────────────────────────────────────────────
             item {
-                SettingsSection(title = stringResource(R.string.ui_section_shape), icon = Icons.Rounded.RoundedCorner) {
+                KxkbSectionFrame(title = stringResource(R.string.ui_section_shape)) {
                     SubHeader(stringResource(R.string.ui_corner_roundness))
                     SliderRow(
                         value = state.cornerScale,
@@ -301,7 +301,6 @@ fun InstallerUiScreen(
             item {
                 SurfaceThemeSection(
                     title = stringResource(R.string.ui_section_dialog),
-                    icon = Icons.Rounded.WebAsset,
                     theme = dialogTheme,
                     onChange = { viewModel.setSurfaceTheme(AppSurface.Dialog, it) },
                     recents = recents,
@@ -319,7 +318,6 @@ fun InstallerUiScreen(
             item {
                 SurfaceThemeSection(
                     title = stringResource(R.string.ui_section_main),
-                    icon = Icons.Rounded.Home,
                     theme = mainTheme,
                     onChange = { viewModel.setSurfaceTheme(AppSurface.Main, it) },
                     recents = recents,
@@ -335,45 +333,16 @@ fun InstallerUiScreen(
             item {
                 BottomBarThemeSection(
                     title = stringResource(R.string.ui_section_bottom_bar),
-                    icon = Icons.Rounded.Apps,
                     theme = bottomBarTheme,
                     onChange = { viewModel.setBottomBarTheme(it) },
                     recents = recents,
                     onRecordRecent = viewModel::recordRecentColor,
                 )
             }
-            item {
-                SettingsSection(title = stringResource(R.string.ui_backup_section), icon = Icons.Rounded.SettingsBackupRestore) {
-                    IndentRow(onClick = {
-                        val stamp = java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US)
-                            .format(java.util.Date())
-                        exportConfigLauncher.launch("shiroikuma-universal-installer_ui-config_$stamp.json")
-                    }) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.ui_backup_export), style = MaterialTheme.typography.bodyLarge)
-                            Text(
-                                stringResource(R.string.ui_backup_export_sub),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                    IndentRow(onClick = { importConfigLauncher.launch(arrayOf("*/*")) }) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stringResource(R.string.ui_backup_import), style = MaterialTheme.typography.bodyLarge)
-                            Text(
-                                stringResource(R.string.ui_backup_import_sub),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
 
             // ── Link to the stock Theme screen ──────────────────────────
             item {
-                SettingsSection(title = stringResource(R.string.theme_screen_title), icon = Icons.Rounded.DarkMode) {
+                KxkbSectionFrame(title = stringResource(R.string.theme_screen_title)) {
                     IndentRow(onClick = {
                         context.startActivity(
                             android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.theme.ThemeActivity::class.java)
@@ -384,13 +353,26 @@ fun InstallerUiScreen(
                             Text(
                                 stringResource(R.string.ui_open_theme_sub),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                             )
                         }
                     }
                 }
             }
         }
+        }
+    }
+
+    if (showExportImport) {
+        ExportImportDialog(
+            viewModel = viewModel,
+            onDismiss = { showExportImport = false },
+            onCloseAll = {
+                // Success acknowledged: close the panel and the UI settings page in one go.
+                showExportImport = false
+                (context as? Activity)?.finish()
+            },
+        )
     }
 
     if (showFontPicker) {
@@ -426,16 +408,12 @@ private fun Color.toArgbInt(): Int = this.toArgb()
 
 @Composable
 private fun SubHeader(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 72.dp, top = 12.dp, bottom = 2.dp),
-    )
+    KxkbSubHeader(text, indent = 72)
 }
 
 @Composable
 private fun IndentRow(
+    indent: Int = 108,
     onClick: (() -> Unit)? = null,
     content: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit,
 ) {
@@ -443,7 +421,7 @@ private fun IndentRow(
         modifier = Modifier
             .fillMaxWidth()
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
-            .padding(start = 108.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
+            .padding(start = indent.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         content = content,
     )
@@ -458,7 +436,7 @@ private fun SliderRow(
     onChange: (Float) -> Unit,
 ) {
     Column(Modifier.padding(start = 108.dp, end = 16.dp, bottom = 8.dp)) {
-        Text(valueLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(valueLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
         Slider(value = value, onValueChange = onChange, valueRange = valueRange, steps = steps)
     }
 }

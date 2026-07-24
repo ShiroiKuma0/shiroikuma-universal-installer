@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -45,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.ColorPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.FontPickerDialog
-import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.ui.theme.AppSurface
 import app.pwhs.universalinstaller.ui.theme.BottomBarTheme
 import app.pwhs.universalinstaller.ui.theme.ButtonStyle
@@ -133,14 +130,13 @@ private class ColorEdit(val current: Int?, val onSet: (Int?) -> Unit)
 private class FontEdit(val current: String?, val onSet: (String?) -> Unit)
 
 /**
- * Settings card for one [SurfaceTheme] (install dialog or main page): colour-role rows, an optional
+ * Settings section for one [SurfaceTheme] (install dialog or main page): colour-role rows, an optional
  * border, optional per-button styling, and font controls — all with an "inherit global" option.
  */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun SurfaceThemeSection(
     title: String,
-    icon: ImageVector,
     theme: SurfaceTheme,
     onChange: (SurfaceTheme) -> Unit,
     recents: List<Int>,
@@ -159,7 +155,7 @@ fun SurfaceThemeSection(
     var selectedButton by remember { mutableStateOf(ButtonSlot.Menu) }
     var selectedText by remember(surface) { mutableStateOf(TextCat.entries.first { it.surface == surface }) }
 
-    SettingsSection(title = title, icon = icon) {
+    KxkbSectionFrame(title = title) {
         SubHeader(stringResource(R.string.ui_section_color))
         // When per-text categories are available (the dialog), title/secondary text colours are set there,
         // per category — so the broad Title/Secondary roles are hidden here to avoid redundancy.
@@ -186,7 +182,7 @@ fun SurfaceThemeSection(
                 text = stringResource(R.string.ui_progress_hint),
                 style = MaterialTheme.typography.bodySmall,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
             )
             ColorRow(L2, stringResource(R.string.ui_progress_color), theme.progressColor) {
@@ -205,7 +201,7 @@ fun SurfaceThemeSection(
                 text = stringResource(R.string.ui_success_hint),
                 style = MaterialTheme.typography.bodySmall,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
             )
             ColorRow(L2, stringResource(R.string.ui_success_circle), theme.successCircle) {
@@ -232,7 +228,7 @@ fun SurfaceThemeSection(
                 text = stringResource(R.string.ui_badge_hint),
                 style = MaterialTheme.typography.bodySmall,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
             )
             ColorRow(L2, stringResource(R.string.ui_badge_bg), theme.badgeBackground) {
@@ -258,7 +254,7 @@ fun SurfaceThemeSection(
                 text = stringResource(R.string.ui_buttons_hint),
                 style = MaterialTheme.typography.bodySmall,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
             )
             // Chips grouped by the dialog stage each button appears in.
@@ -266,7 +262,7 @@ fun SurfaceThemeSection(
                 Text(
                     text = stringResource(stageRes),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                     modifier = Modifier.padding(start = L2.dp, top = 8.dp, bottom = 2.dp),
                 )
                 FlowRow(
@@ -274,10 +270,10 @@ fun SurfaceThemeSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     slots.forEach { b ->
-                        FilterChip(
+                        KxkbChip(
                             selected = selectedButton == b,
                             onClick = { selectedButton = b },
-                            label = { Text(stringResource(b.labelRes)) },
+                            label = stringResource(b.labelRes),
                         )
                     }
                 }
@@ -321,7 +317,7 @@ fun SurfaceThemeSection(
                 text = stringResource(R.string.ui_texts_hint),
                 style = MaterialTheme.typography.bodySmall,
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 modifier = Modifier.padding(start = L2.dp, end = 16.dp, top = 2.dp, bottom = 4.dp),
             )
             // Chips grouped by the area each text appears in (only this surface's categories).
@@ -329,7 +325,7 @@ fun SurfaceThemeSection(
                 Text(
                     text = stringResource(groupRes),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                     modifier = Modifier.padding(start = L2.dp, top = 8.dp, bottom = 2.dp),
                 )
                 FlowRow(
@@ -337,10 +333,10 @@ fun SurfaceThemeSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     cats.forEach { c ->
-                        FilterChip(
+                        KxkbChip(
                             selected = selectedText == c,
                             onClick = { selectedText = c },
-                            label = { Text(stringResource(c.labelRes)) },
+                            label = stringResource(c.labelRes),
                         )
                     }
                 }
@@ -423,20 +419,19 @@ fun SurfaceThemeSection(
 }
 
 /**
- * Settings card for the app-wide bottom navigation bar: six colour rows (container, selected/unselected
+ * Settings section for the app-wide bottom navigation bar: six colour rows (container, selected/unselected
  * icon & text, indicator) each with an "inherit default" option, plus a reset.
  */
 @Composable
 fun BottomBarThemeSection(
     title: String,
-    icon: ImageVector,
     theme: BottomBarTheme,
     onChange: (BottomBarTheme) -> Unit,
     recents: List<Int>,
     onRecordRecent: (Int) -> Unit,
 ) {
     var colorEdit by remember { mutableStateOf<ColorEdit?>(null) }
-    SettingsSection(title = title, icon = icon) {
+    KxkbSectionFrame(title = title) {
         ColorRow(L2, stringResource(R.string.ui_bottom_bar_container), theme.container) {
             colorEdit = ColorEdit(theme.container) { onChange(theme.copy(container = it)) }
         }
@@ -516,12 +511,12 @@ private fun WeightChips(indent: Int, weight: Int?, onChange: (Int?) -> Unit) {
         modifier = Modifier.padding(start = indent.dp, end = 16.dp, bottom = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        FilterChip(selected = weight == null, onClick = { onChange(null) }, label = { Text(stringResource(R.string.ui_inherit)) })
+        KxkbChip(selected = weight == null, onClick = { onChange(null) }, label = stringResource(R.string.ui_inherit))
         FontWeightOption.entries.forEach { option ->
-            FilterChip(
+            KxkbChip(
                 selected = weight == option.value,
                 onClick = { onChange(option.value) },
-                label = { Text(stringResource(option.labelRes)) },
+                label = stringResource(option.labelRes),
             )
         }
     }
@@ -542,7 +537,7 @@ private fun WidthSlider(
                 text = value?.let { "${stringResource(labelRes)} — ${"%.1f".format(it)} dp" }
                     ?: stringResource(R.string.ui_inherit),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 modifier = Modifier.weight(1f),
             )
             if (value != null) {
@@ -560,7 +555,7 @@ private fun ScaleSlider(indent: Int, value: Float?, onChange: (Float?) -> Unit) 
             Text(
                 text = value?.let { "${(it * 100).roundToInt()}%" } ?: stringResource(R.string.ui_inherit),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                 modifier = Modifier.weight(1f),
             )
             if (value != null) {
@@ -604,7 +599,7 @@ private fun InheritableSwatch(value: Int?) {
                 .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Text("—", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("—", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f))
         }
     }
 }
@@ -615,17 +610,12 @@ private fun FieldLabel(indent: Int, text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
         modifier = Modifier.padding(start = indent.dp, top = 8.dp, bottom = 2.dp),
     )
 }
 
 @Composable
 private fun SubHeader(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = L1.dp, top = 12.dp, bottom = 2.dp),
-    )
+    KxkbSubHeader(text, indent = L1)
 }

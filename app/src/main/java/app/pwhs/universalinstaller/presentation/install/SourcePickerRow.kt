@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,7 +30,6 @@ import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -49,7 +49,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.platform.LocalResources
@@ -147,35 +149,26 @@ private fun SourceTabPill(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (selected) {
-        FilledTonalButton(
-            onClick = onClick,
-            modifier = modifier.heightIn(min = 52.dp),
-            shape = RoundedCornerShape(26.dp),
-            border = LocalSurfaceBorder.current,
-            colors = ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            ),
-        ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.size(8.dp))
-            Text(label, style = dialogTextStyle("tab", MaterialTheme.typography.titleMedium))
-        }
-    } else {
-        OutlinedButton(
-            onClick = onClick,
-            modifier = modifier.heightIn(min = 52.dp),
-            shape = RoundedCornerShape(26.dp),
-            border = LocalSurfaceBorder.current ?: ButtonDefaults.outlinedButtonBorder(enabled = true),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
-        ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.size(8.dp))
-            Text(label, style = dialogTextStyle("tab", MaterialTheme.typography.titleMedium))
-        }
+    // 白い熊 black/yellow pills: black fill, accent text + border on both tabs; the selected
+    // one is set apart by a thicker border and a bold label.
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = 52.dp),
+        shape = RoundedCornerShape(26.dp),
+        border = LocalSurfaceBorder.current
+            ?: BorderStroke(if (selected) 2.5.dp else 1.dp, MaterialTheme.colorScheme.primary),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = Color.Black,
+            contentColor = MaterialTheme.colorScheme.primary,
+        ),
+    ) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+        Spacer(Modifier.size(8.dp))
+        Text(
+            text = label,
+            style = dialogTextStyle("tab", MaterialTheme.typography.titleMedium),
+            fontWeight = if (selected) FontWeight.Bold else null,
+        )
     }
 }
 
@@ -267,7 +260,7 @@ private fun LocalSourceAction(
             .defaultMinSize(minHeight = 64.dp),
         enabled = enabled,
         shape = RoundedCornerShape(16.dp),
-        border = LocalSurfaceBorder.current ?: ButtonDefaults.outlinedButtonBorder(enabled = enabled),
+        border = LocalSurfaceBorder.current ?: BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             horizontal = 16.dp, vertical = 12.dp,
         ),

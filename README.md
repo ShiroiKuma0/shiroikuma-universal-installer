@@ -38,7 +38,13 @@ The **install-backend badge** — the “Using Shizuku / Root” pill — is a *
 
 ## 💾 Export & import the whole app configuration
 
-The first section of the UI page is **Export / Import**: pick an **export directory** once and every export is one tap; the page shows the **latest export in that directory** each time you open it. Everything settable in the app rides along, split into **eight selectable categories** — Installer UI theme (with your imported fonts embedded), app theme, install behavior, Shizuku & Root options, installer profiles, security & VirusTotal, Sync & Share, Manage & APK extractor — as a single JSON. Import restores the categories you choose and offers an in-place **app restart**; the whole flow lives in black/yellow dialogs with round pill buttons.
+The first section of the UI page is **Export / Import**: pick an **export directory** once and every export is one tap; the page shows the **latest export in that directory** each time you open it. Everything settable in the app rides along, split into **eight selectable categories** — Installer UI theme (with your imported fonts embedded, their own sub-option), app theme, install behavior, Shizuku & Root options, installer profiles, security & VirusTotal, Sync & Share, Manage & APK extractor — as **one ZIP** (`shiroikuma-universal-installer_<date>_<time>.zip`, a `manifest.json` plus one JSON per category and your fonts alongside). Import restores the categories you choose — older single-JSON exports still load — and offers an in-place **app restart**; the whole flow lives in black/yellow dialogs with round pill buttons.
+
+---
+
+## 🤖 Headless backup for 保存復元 automation
+
+Below the export rows sit an **Automation export** switch (off by default) and an **automation token** you tap to copy. With them on, a sister-app task can back this app up without touching the screen: it broadcasts `shiroikuma.universalinstaller.action.EXPORT_STATE` with the token, an optional target directory and an optional list of categories, and the app writes the same one-ZIP backup and answers with its path, byte size and category count — reporting real counts (`区分 3/9 — Engines`) while it works. `…action.LIST_CATEGORIES` enumerates what can be picked. Nothing is reachable while the switch is off or the token does not match, and the token itself never travels inside a backup.
 
 ---
 

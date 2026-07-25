@@ -76,11 +76,17 @@ fun ExportImportDialog(
             ConfigCategory.entries.forEach { this[it] = true }
         }
     }
+    // The imported fonts are a sub-option of the UI-theme category (contract id `ui_theme.fonts`):
+    // they follow their parent's toggle but can be dropped on their own — they are the only bulky
+    // part of the archive.
+    var fontsChecked by remember { mutableStateOf(true) }
     var result by remember { mutableStateOf<EimResult?>(null) }
     val noneSelectedMsg = stringResource(R.string.eim_none_selected)
 
-    fun selected(): Set<ConfigCategory> =
-        ConfigCategory.entries.filter { checked[it] == true }.toSet()
+    fun selected(): UiConfigBackup.Selection = UiConfigBackup.Selection(
+        cats = ConfigCategory.entries.filter { checked[it] == true }.toSet(),
+        fonts = fontsChecked,
+    )
     fun Result<String>.toExportResult(): EimResult = fold(
         { EimResult.ExportOk(it) },
         { EimResult.Failed(context.getString(R.string.eim_export_failed, it.message ?: "")) },
@@ -93,7 +99,7 @@ fun ExportImportDialog(
     }
     // Save-As fallback when no export directory is set.
     val exportFallback = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/json")
+        ActivityResultContracts.CreateDocument("application/zip")
     ) { uri ->
         if (uri != null) viewModel.exportConfigTo(uri, selected()) { r -> result = r.toExportResult() }
     }
@@ -174,18 +180,32 @@ fun ExportImportDialog(
                 )
                 Spacer(Modifier.height(10.dp))
 
-                val allChecked = ConfigCategory.entries.all { checked[it] == true }
+                val allChecked = ConfigCategory.entries.all { checked[it] == true } && fontsChecked
                 CheckRow(
                     label = stringResource(R.string.eim_select_all),
                     checkedState = allChecked,
                     bold = true,
-                ) { v -> ConfigCategory.entries.forEach { checked[it] = v } }
+                ) { v ->
+                    ConfigCategory.entries.forEach { checked[it] = v }
+                    fontsChecked = v
+                }
                 ConfigCategory.entries.forEach { cat ->
                     CheckRow(
                         label = stringResource(cat.labelRes),
                         checkedState = checked[cat] == true,
                         indent = 16,
-                    ) { checked[cat] = it }
+                    ) { v ->
+                        checked[cat] = v
+                        // Sub-options follow their parent's toggle.
+                        if (cat == ConfigCategory.UiTheme) fontsChecked = v
+                    }
+                    if (cat == ConfigCategory.UiTheme) {
+                        CheckRow(
+                            label = stringResource(R.string.eim_cat_fonts),
+                            checkedState = fontsChecked,
+                            indent = 40,
+                        ) { fontsChecked = it }
+                    }
                 }
                 Spacer(Modifier.height(16.dp))
 
@@ -198,17 +218,22 @@ fun ExportImportDialog(
                     PillButton(stringResource(R.string.cancel), onClick = onDismiss)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         PillButton(stringResource(R.string.eim_import)) {
-                            if (selected().isEmpty()) {
+                            if (selected().isEmpty) {
                                 result = EimResult.Failed(noneSelectedMsg)
                             } else {
                                 importPicker.launch(
-                                    arrayOf("application/json", "application/octet-stream", "*/*")
+                                    arrayOf(
+                                        "application/zip",
+                                        "application/json",
+                                        "application/octet-stream",
+                                        "*/*",
+                                    )
                                 )
                             }
                         }
                         PillButton(stringResource(R.string.eim_export)) {
                             when {
-                                selected().isEmpty() -> result = EimResult.Failed(noneSelectedMsg)
+                                selected().isEmpty -> result = EimResult.Failed(noneSelectedMsg)
                                 dirUri.isNotEmpty() ->
                                     viewModel.exportConfigToDir(selected()) { r -> result = r.toExportResult() }
                                 else -> exportFallback.launch(viewModel.exportFileName())

@@ -30,7 +30,7 @@ import java.util.Date
 import java.util.Locale
 
 /** Common prefix of every config export file name (also matches pre-category UI-only exports). */
-private const val EXPORT_PREFIX = "shiroikuma-universal-installer_"
+private const val EXPORT_PREFIX = UiConfigBackup.EXPORT_PREFIX
 
 /** State of the "latest export in the configured directory" query. */
 sealed interface LastExport {
@@ -124,10 +124,11 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
         val dir = runCatching { DocumentFile.fromTreeUri(application, Uri.parse(dirUri)) }
             .getOrNull()?.takeIf { it.isDirectory } ?: return LastExport.NoDir
         val newest = runCatching {
-            dir.listFiles().filter {
-                it.isFile &&
-                    it.name?.startsWith(EXPORT_PREFIX) == true &&
-                    it.name?.endsWith(".json") == true
+            dir.listFiles().filter { file ->
+                val name = file.name.orEmpty()
+                // The current category ZIP, and pre-ZIP single-JSON exports of the same family.
+                file.isFile && name.startsWith(EXPORT_PREFIX) &&
+                    (name.endsWith(".zip") || name.endsWith(".json"))
             }.maxByOrNull { it.lastModified() }
         }.getOrNull() ?: return LastExport.None
         val stamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
@@ -135,12 +136,10 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
         return LastExport.Found(newest.name ?: "", stamp)
     }
 
-    fun exportFileName(): String =
-        EXPORT_PREFIX + "config_" +
-            SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date()) + ".json"
+    fun exportFileName(): String = UiConfigBackup.exportFileName()
 
     /** One-tap export into the configured directory; [onResult] carries the file name. */
-    fun exportConfigToDir(cats: Set<ConfigCategory>, onResult: (Result<String>) -> Unit) {
+    fun exportConfigToDir(selection: UiConfigBackup.Selection, onResult: (Result<String>) -> Unit) {
         viewModelScope.launch {
             val res = withContext(Dispatchers.IO) {
                 runCatching {
@@ -149,11 +148,11 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
                     val dir = DocumentFile.fromTreeUri(application, Uri.parse(dirStr))
                         ?.takeIf { it.isDirectory } ?: error("export directory unavailable")
                     val name = exportFileName()
-                    val file = dir.createFile("application/json", name)
+                    val file = dir.createFile("application/zip", name)
                         ?: error("cannot create file in the export directory")
-                    val json = UiConfigBackup.export(application, cats)
                     application.contentResolver.openOutputStream(file.uri)
-                        ?.use { it.write(json.toByteArray()) } ?: error("cannot write the file")
+                        ?.use { UiConfigBackup.export(application, selection, it) }
+                        ?: error("cannot write the file")
                     file.name ?: name
                 }
             }
@@ -163,13 +162,17 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
     }
 
     /** Save-As fallback export to an explicit [uri]; [onResult] carries the file name. */
-    fun exportConfigTo(uri: Uri, cats: Set<ConfigCategory>, onResult: (Result<String>) -> Unit) {
+    fun exportConfigTo(
+        uri: Uri,
+        selection: UiConfigBackup.Selection,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             val res = withContext(Dispatchers.IO) {
                 runCatching {
-                    val json = UiConfigBackup.export(application, cats)
                     application.contentResolver.openOutputStream(uri)
-                        ?.use { it.write(json.toByteArray()) } ?: error("cannot write the file")
+                        ?.use { UiConfigBackup.export(application, selection, it) }
+                        ?: error("cannot write the file")
                     DocumentFile.fromSingleUri(application, uri)?.name
                         ?: uri.lastPathSegment ?: "export"
                 }
@@ -180,13 +183,17 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
     }
 
     /** Restore the selected categories from [uri]; [onResult] carries a per-category summary. */
-    fun importConfig(uri: Uri, cats: Set<ConfigCategory>, onResult: (Result<String>) -> Unit) {
+    fun importConfig(
+        uri: Uri,
+        selection: UiConfigBackup.Selection,
+        onResult: (Result<String>) -> Unit,
+    ) {
         viewModelScope.launch {
             val res = withContext(Dispatchers.IO) {
                 runCatching {
-                    val content = application.contentResolver.openInputStream(uri)
-                        ?.use { it.readBytes().decodeToString() } ?: error("cannot read the file")
-                    UiConfigBackup.import(application, content, cats).getOrThrow()
+                    val bytes = application.contentResolver.openInputStream(uri)
+                        ?.use { it.readBytes() } ?: error("cannot read the file")
+                    UiConfigBackup.import(application, bytes, selection).getOrThrow()
                 }
             }
             onResult(res)

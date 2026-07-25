@@ -48,11 +48,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.automation.AutomationAuth
 import app.pwhs.universalinstaller.presentation.composable.AccentPalette
 import app.pwhs.universalinstaller.presentation.composable.ColorPickerDialog
 import app.pwhs.universalinstaller.presentation.composable.ColorSwatch
@@ -89,6 +93,13 @@ fun InstallerUiScreen(
     var showExportImport by remember { mutableStateOf(false) }
     // Queried on page open (and whenever the export directory changes): the newest export.
     val lastExport by viewModel.lastExport.collectAsState()
+
+    // 保存復元 automation surface (StateExportReceiver): master switch + shared secret.
+    var automationEnabled by remember { mutableStateOf(AutomationAuth.enabled(context)) }
+    var automationToken by remember { mutableStateOf(AutomationAuth.token(context)) }
+    val clipboard = LocalClipboardManager.current
+    val tokenCopiedMessage = stringResource(R.string.eim_token_copied)
+    val tokenRegeneratedMessage = stringResource(R.string.eim_token_regenerated)
 
     val invalidFontMessage = stringResource(R.string.font_invalid)
     // Where a just-imported font should be applied (global / surface / per-button). Set before launching.
@@ -165,6 +176,65 @@ fun InstallerUiScreen(
                                 else MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                             )
                         }
+                    }
+
+                    // 保存復元 automation contract (StateExportReceiver): the master switch and
+                    // the shared token live here, right below the export rows, in every sister app.
+                    IndentRow(
+                        indent = 72,
+                        onClick = {
+                            automationEnabled = !automationEnabled
+                            AutomationAuth.setEnabled(context, automationEnabled)
+                        },
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.eim_automation_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            Text(
+                                stringResource(R.string.eim_automation_desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                            )
+                        }
+                        Switch(
+                            checked = automationEnabled,
+                            onCheckedChange = {
+                                automationEnabled = it
+                                AutomationAuth.setEnabled(context, it)
+                            },
+                        )
+                    }
+                    IndentRow(
+                        indent = 72,
+                        onClick = {
+                            clipboard.setText(AnnotatedString(automationToken))
+                            scope.launch { snackbarHostState.showSnackbar(tokenCopiedMessage) }
+                        },
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.eim_token_title),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            Text(
+                                text = "${automationToken.take(8)}…${automationToken.takeLast(8)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                        Text(
+                            text = stringResource(R.string.eim_token_regenerate),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = KxkbWarnRed,
+                            modifier = Modifier.clickable {
+                                automationToken = AutomationAuth.regenerateToken(context)
+                                scope.launch { snackbarHostState.showSnackbar(tokenRegeneratedMessage) }
+                            },
+                        )
                     }
                 }
             }

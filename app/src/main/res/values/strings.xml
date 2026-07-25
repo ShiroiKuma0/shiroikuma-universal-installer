@@ -1064,6 +1064,7 @@
     <string name="eim_cat_security">Security &amp; VirusTotal</string>
     <string name="eim_cat_sync">Sync &amp; Share</string>
     <string name="eim_cat_manage">Manage &amp; APK extractor</string>
+    <string name="eim_cat_fonts">Imported fonts</string>
     <string name="eim_export">Export</string>
     <string name="eim_import">Import</string>
     <string name="eim_none_selected">No categories selected.</string>
@@ -1074,4 +1075,11 @@
     <string name="eim_import_ok_body">Restored:\n\n%1$s\n\nRestart to apply everything.</string>
     <string name="eim_restart_now">Restart now</string>
     <string name="eim_later">Later</string>
+    <!-- 保存復元 automation contract: master switch + shared token, inside Export / Import -->
+    <string name="eim_automation_title">Automation export</string>
+    <string name="eim_automation_desc">Let sister-app tasks trigger this export via the token-gated intent.</string>
+    <string name="eim_token_title">Automation token (tap to copy)</string>
+    <string name="eim_token_copied">Automation token copied</string>
+    <string name="eim_token_regenerate">Regenerate</string>
+    <string name="eim_token_regenerated">Automation token regenerated — update pasted copies</string>
 </resources>

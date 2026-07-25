@@ -265,6 +265,18 @@
 
 
 
+        <!-- 保存復元 state-export automation contract: sister-app tasks trigger this app's
+             category-ZIP export headlessly. No android:permission — the caller cannot hold
+             one; the master switch + shared token in the Export/Import section are the gate. -->
+        <receiver
+            android:name=".automation.StateExportReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="${applicationId}.action.EXPORT_STATE" />
+                <action android:name="${applicationId}.action.LIST_CATEGORIES" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

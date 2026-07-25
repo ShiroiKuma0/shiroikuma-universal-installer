@@ -4,6 +4,24 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.9.11+10
+
+**New in this build:**
+
+### 🤖 保存復元 state-export automation contract
+- The app now implements the **sister-app state-export contract**, so 白い熊 自由作業盤's 保存復元 project can back it up headlessly in the same run as every other app: two exported broadcast actions, `shiroikuma.universalinstaller.action.EXPORT_STATE` and `…action.LIST_CATEGORIES`.
+- **Token-gated**: a master switch (**default off**) plus a 24-byte shared secret, compared constant-time, with "automation disabled" and "bad token" reported as distinct errors. The token lives in its own device-local preferences file, so it **can never travel inside a backup**.
+- Both rows sit **inside the Export / Import section**, directly below the existing export rows: an **Automation export** switch and an **Automation token** row that copies the full token on tap and carries a **Regenerate** action.
+- `EXPORT_STATE` runs the normal export with no UI: an optional absolute `path` overrides the configured directory (All-Files-Access, plain file I/O), optional `items` selects categories, and the reply broadcast carries `OK:<path>|<bytes>|<human size>|<n> categories` — exactly one reply per request, sent as a fresh broadcast (no binders, no ordered-result reliance — the only channel EMUI carries reliably).
+- **Progress broadcasts with real numbers, never a percentage** (`区分 3/9 — Shizuku & Root options`), throttled to one per 500 ms with the completing one always sent, alongside structured `current` / `total` / `unit` extras.
+- `LIST_CATEGORIES` enumerates the exportable ids as `id⇥label`, with sub-options carrying their parent id — the imported fonts are now a **selectable sub-option** of the Installer UI theme category.
+- Every reply is echoed to logcat under the tag `StateExport` (the token never is), so the contract can be traced on the signed build with `adb logcat -s StateExport`.
+
+### 💾 Export is now one ZIP per app (family file-name convention)
+- The backup is a **category ZIP** — `manifest.json` plus one `<category>.json` per selected category, with the imported fonts stored alongside as real files instead of base64 — written both by the Export/Import panel and by the automation path.
+- File name follows the family convention: `shiroikuma-universal-installer_2026-07-25_18-58-23.zip` — **no version, no infix, no suffix** — so every 白い熊 app's backups sort and read uniformly in one shared directory.
+- **Older single-JSON exports still import** unchanged, and the "latest export" line recognises both.
+
 ## 1.9.11+8
 
 **New in this build:**

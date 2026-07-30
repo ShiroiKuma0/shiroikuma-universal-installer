@@ -100,21 +100,28 @@ import app.pwhs.universalinstaller.domain.model.VtResult
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
 
-/**
- * Height ceiling for any sheet showing [ApkInfoContent], as a fraction of screen height.
- *
- * Applied twice on purpose. On the [androidx.compose.material3.ModalBottomSheet] itself it caps
- * what the user actually sees — the sheet's drag handle and inset padding sit *outside* the
- * content, so capping only the content still lets the sheet reach the top of the screen. On the
- * content it guarantees the weighted scroll child has a bounded parent even if a future caller
- * hosts [ApkInfoContent] somewhere that hands down an unbounded height.
- */
-internal const val APK_SHEET_HEIGHT_FRACTION = 0.9f
+/** Height ceiling for a sheet showing [ApkInfoContent], as a fraction of screen height. */
+private const val APK_SHEET_HEIGHT_FRACTION = 0.9f
 
-/** [APK_SHEET_HEIGHT_FRACTION] resolved against the current screen height. */
+/**
+ * ModalBottomSheet's default drag handle: a 4dp bar with 22dp of padding above and below
+ * (`SheetDefaults.DragHandle`). It sits above the content slot inside the sheet, so the content
+ * has to give it back for the *sheet* to land on [APK_SHEET_HEIGHT_FRACTION].
+ */
+private val DragHandleHeight = 48.dp
+
+/**
+ * Max height for [ApkInfoContent] when hosted in a ModalBottomSheet.
+ *
+ * Must be applied to the sheet's **content**, never to the `modifier` of `ModalBottomSheet`
+ * itself. That modifier sits outside `Modifier.draggableAnchors`, which derives the sheet's
+ * resting position from `constraints.maxHeight` — clamping it there moves the Expanded anchor to
+ * `0.9 × height − sheetHeight`, so the sheet comes to rest 10% of the screen above the bottom
+ * edge and reads as a floating dialog.
+ */
 @Composable
 internal fun apkSheetMaxHeight(): Dp =
-    (LocalConfiguration.current.screenHeightDp * APK_SHEET_HEIGHT_FRACTION).dp
+    (LocalConfiguration.current.screenHeightDp * APK_SHEET_HEIGHT_FRACTION).dp - DragHandleHeight
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

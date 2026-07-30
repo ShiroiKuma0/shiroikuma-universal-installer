@@ -114,6 +114,7 @@
     <string name="install_error_failed_title">安装失败</string>
     <string name="install_error_unknown_guidance">发生未知错误。请点击“重试”以重新尝试。</string>
     <string name="install_error_unknown_guidance_short">发生未知错误。</string>
+    <string name="install_error_miui_hint">在小米、红米和 POCO 设备上，MIUI/HyperOS 优化经常会静默阻止安装。请打开设置 &gt; 更多设置 &gt; 开发者选项，关闭\"MIUI 优化\"，安装应用后再重新打开。关闭期间系统主题可能显示异常，重启手机即可恢复。</string>
     <string name="splash_tagline">随时随地，安装一切</string>
     <string name="onboarding_skip">跳过</string>
     <string name="onboarding_next">下一步</string>

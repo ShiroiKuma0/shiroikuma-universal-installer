@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.pwhs.core.domain.ThemeMode
 import app.pwhs.core.presentation.onboarding.OnboardingScreen
+import app.pwhs.core.util.DeviceCompat
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.presentation.splash.SplashActivity
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
@@ -110,6 +111,7 @@ class MainActivity : ComponentActivity() {
                 when (currentRoute) {
                     AppRoute.Onboarding -> OnboardingScreen(
                         onFinish = { currentRoute = AppRoute.Main },
+                        showXiaomiTip = DeviceCompat.isXiaomi,
                     )
                     AppRoute.Main -> {
                         LaunchedEffect(Unit) {

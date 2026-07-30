@@ -497,6 +497,7 @@
     <string name="install_error_failed_title">Installation failed</string>
     <string name="install_error_unknown_guidance">An unknown error occurred. Tap Retry to try again.</string>
     <string name="install_error_unknown_guidance_short">An unknown error occurred.</string>
+    <string name="install_error_miui_hint">On Xiaomi, Redmi and POCO devices, MIUI/HyperOS optimization often blocks installs silently. Open Settings &gt; Additional settings &gt; Developer options, turn off \"MIUI optimization\", install the app, then turn it back on. While it is off the system theme may look distorted — restarting the phone fixes that.</string>
     <string name="splash_tagline">Install anything, anywhere</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>

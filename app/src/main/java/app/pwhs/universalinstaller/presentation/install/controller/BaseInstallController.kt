@@ -158,9 +158,15 @@ abstract class BaseInstallController(
                     is Session.State.Failed -> {
                         if (context == null) return@launch
                         val errorInfo = InstallErrorHelper.getErrorInfo(context, result.failure)
-                        val fullMessage = "${errorInfo.title}\n${errorInfo.guidance}"
-                        saveHistory(sessionData, success = false, errorMessage = fullMessage)
-                        handleError(fullMessage, session.id)
+                        saveHistory(
+                            sessionData,
+                            success = false,
+                            errorMessage = "${errorInfo.title}\n${errorInfo.guidance}",
+                        )
+                        // Device-specific workarounds go to the live error only — history keeps
+                        // the plain diagnosis.
+                        val shown = InstallErrorHelper.withDeviceHint(context, errorInfo, result.failure)
+                        handleError("${shown.title}\n${shown.guidance}", session.id)
                     }
                 }
             } catch (e: CancellationException) {

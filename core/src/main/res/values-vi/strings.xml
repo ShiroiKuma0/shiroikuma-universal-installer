@@ -9,6 +9,9 @@
     <string name="onboarding_page2_desc">Duyệt qua các ứng dụng đã cài đặt, gỡ cài đặt những ứng dụng không mong muốn và quản lý thiết bị của bạn một cách dễ dàng.</string>
     <string name="onboarding_page3_title">Cho phép cài đặt</string>
     <string name="onboarding_page3_desc">Để cài đặt các gói, ứng dụng cần có quyền cài đặt từ các nguồn không xác định. Nhấn vào nút bên dưới để cấp nó.</string>
+    <string name="onboarding_xiaomi_title">Nếu cài đặt thất bại trên MIUI</string>
+    <string name="onboarding_xiaomi_desc">Tối ưu hóa MIUI/HyperOS có thể chặn cài đặt từ bên thứ ba mà không báo lý do. Nếu gặp trường hợp đó, hãy mở Tùy chọn nhà phát triển, tắt \"Tối ưu hóa MIUI\", cài đặt ứng dụng rồi bật lại. Khi đang tắt, giao diện hệ thống có thể bị lỗi hiển thị — khởi động lại điện thoại sẽ khắc phục.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Mở Tùy chọn nhà phát triển</string>
     <string name="permission_return_channel_name">Quay lại ứng dụng</string>
     <string name="permission_return_channel_desc">Thông báo quay lại ứng dụng sau khi cấp quyền trong cài đặt hệ thống.</string>
     <string name="permission_return_title">Đã cấp quyền</string>

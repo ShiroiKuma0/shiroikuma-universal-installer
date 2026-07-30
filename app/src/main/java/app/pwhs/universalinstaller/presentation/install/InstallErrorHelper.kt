@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.presentation.install
 
 import android.content.Context
+import app.pwhs.core.util.DeviceCompat
 import app.pwhs.universalinstaller.R
 import ru.solrudev.ackpine.installer.InstallFailure
 
@@ -10,6 +11,46 @@ object InstallErrorHelper {
         val title: String,
         val guidance: String,
     )
+
+    /**
+     * Appends the MIUI/HyperOS workaround to [info] when we're on Xiaomi hardware and the failure
+     * is one this ROM family is known to cause (issue #104).
+     *
+     * Kept separate from [getErrorInfo] so it can be applied to the live error only — install
+     * history stores the plain diagnosis, not a paragraph of advice that would be replayed on
+     * every history card forever.
+     */
+    fun withDeviceHint(context: Context, info: ErrorInfo, failure: InstallFailure): ErrorInfo {
+        if (!DeviceCompat.isXiaomi || !isMiuiSuspect(failure)) return info
+        return info.copy(
+            guidance = "${info.guidance}\n\n${context.getString(R.string.install_error_miui_hint)}",
+        )
+    }
+
+    /**
+     * Failure kinds MIUI/HyperOS "optimization" is known to produce when it silently vetoes a
+     * third-party install. Which one surfaces depends on the ROM version, so we cover the whole
+     * ambiguous set rather than guessing; the well-diagnosed failures (storage, invalid APK,
+     * ABI mismatch, package conflict) keep their own guidance untouched.
+     *
+     * [InstallFailure.Aborted] is in the "suspect" set on purpose: ackpine's `await()` resolves an
+     * in-app cancel by throwing [kotlinx.coroutines.CancellationException], so an Aborted result
+     * here is always a *system* abort — precisely what MIUI optimization produces.
+     */
+    private fun isMiuiSuspect(failure: InstallFailure): Boolean = when (failure) {
+        is InstallFailure.Aborted,
+        is InstallFailure.Blocked,
+        is InstallFailure.Generic,
+        -> true
+        is InstallFailure.Conflict,
+        is InstallFailure.Incompatible,
+        is InstallFailure.Invalid,
+        is InstallFailure.Storage,
+        is InstallFailure.Timeout,
+        is InstallFailure.Exceptional,
+        -> false
+        else -> true
+    }
 
     fun getErrorInfo(context: Context, failure: InstallFailure): ErrorInfo = when (failure) {
         is InstallFailure.Aborted -> ErrorInfo(

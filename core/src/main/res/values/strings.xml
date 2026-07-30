@@ -11,6 +11,9 @@
     <string name="onboarding_page2_desc">Browse installed apps, uninstall unwanted ones, and manage your device effortlessly.</string>
     <string name="onboarding_page3_title">Allow Installation</string>
     <string name="onboarding_page3_desc">To install packages, the app needs permission to install from unknown sources. Tap the button below to grant it.</string>
+    <string name="onboarding_xiaomi_title">If an install fails on MIUI</string>
+    <string name="onboarding_xiaomi_desc">MIUI/HyperOS optimization can block third-party installs without saying why. If that happens, open Developer options, turn off \"MIUI optimization\", install the app, then turn it back on. While it is off the system theme may look distorted — restarting the phone fixes that.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Open Developer options</string>
 
     <!-- Permission Monitor Shared -->
     <string name="permission_return_channel_name">Return to app</string>

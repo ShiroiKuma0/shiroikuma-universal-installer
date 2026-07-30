@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.InstallMobile
 import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Widgets
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.pwhs.core.R
+import app.pwhs.core.util.DeviceCompat
 import app.pwhs.core.util.PermissionMonitor
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.core.data.local.SharedPrefsKeys
@@ -60,34 +62,68 @@ private data class OnboardingPage(
     val icon: ImageVector,
     val title: String,
     val description: String,
+    /** Optional secondary action rendered under the description (e.g. "Open Developer options"). */
+    val actionLabel: String? = null,
+    val onAction: (() -> Unit)? = null,
 )
 
 /**
  * Shared onboarding screen for both Mobile and TV.
+ *
+ * @param showXiaomiTip inserts an extra page warning about MIUI/HyperOS optimization silently
+ *   blocking installs (issue #104). Callers gate it on [DeviceCompat.isXiaomi]; TV leaves it off
+ *   because the toggle doesn't exist on Xiaomi's TV builds.
  */
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
+    showXiaomiTip: Boolean = false,
 ) {
-    val pages = listOf(
-        OnboardingPage(
-            icon = Icons.Rounded.InstallMobile,
-            title = stringResource(R.string.onboarding_page1_title),
-            description = stringResource(R.string.onboarding_page1_desc),
-        ),
-        OnboardingPage(
-            icon = Icons.Rounded.Widgets,
-            title = stringResource(R.string.onboarding_page2_title),
-            description = stringResource(R.string.onboarding_page2_desc),
-        ),
-        OnboardingPage(
-            icon = Icons.Rounded.Security,
-            title = stringResource(R.string.onboarding_page3_title),
-            description = stringResource(R.string.onboarding_page3_desc),
-        ),
-    )
     val context = LocalContext.current
     val activity = context as? android.app.Activity
+    // Hide the shortcut when Developer options aren't reachable — the text alone still tells the
+    // user what to look for.
+    val developerOptions = remember(showXiaomiTip) {
+        if (showXiaomiTip) DeviceCompat.developerOptionsIntent(context) else null
+    }
+
+    val pages = buildList {
+        add(
+            OnboardingPage(
+                icon = Icons.Rounded.InstallMobile,
+                title = stringResource(R.string.onboarding_page1_title),
+                description = stringResource(R.string.onboarding_page1_desc),
+            )
+        )
+        add(
+            OnboardingPage(
+                icon = Icons.Rounded.Widgets,
+                title = stringResource(R.string.onboarding_page2_title),
+                description = stringResource(R.string.onboarding_page2_desc),
+            )
+        )
+        if (showXiaomiTip) {
+            add(
+                OnboardingPage(
+                    icon = Icons.Rounded.Tune,
+                    title = stringResource(R.string.onboarding_xiaomi_title),
+                    description = stringResource(R.string.onboarding_xiaomi_desc),
+                    actionLabel = developerOptions?.let {
+                        stringResource(R.string.onboarding_xiaomi_open_developer_options)
+                    },
+                    onAction = developerOptions?.let { intent -> { context.startActivity(intent) } },
+                )
+            )
+        }
+        // Must stay last: PageContent keys the permission UI off `page == pages.lastIndex`.
+        add(
+            OnboardingPage(
+                icon = Icons.Rounded.Security,
+                title = stringResource(R.string.onboarding_page3_title),
+                description = stringResource(R.string.onboarding_page3_desc),
+            )
+        )
+    }
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { pages.size })
 
@@ -265,6 +301,20 @@ private fun PageContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
+
+        page.onAction?.let { action ->
+            val label = page.actionLabel ?: return@let
+            Spacer(Modifier.height(32.dp))
+            OutlinedButton(onClick = action) {
+                Icon(
+                    Icons.Rounded.Tune,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(label)
+            }
+        }
 
         // Permission button on last page
         if (isPermissionPage) {

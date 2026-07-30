@@ -117,6 +117,7 @@
     <string name="install_error_failed_title">Cài đặt thất bại</string>
     <string name="install_error_unknown_guidance">Đã xảy ra một lỗi không xác định. Nhấn Thử lại để thử lại.</string>
     <string name="install_error_unknown_guidance_short">Đã xảy ra một lỗi không xác định.</string>
+    <string name="install_error_miui_hint">Trên thiết bị Xiaomi, Redmi và POCO, tính năng tối ưu hóa MIUI/HyperOS thường âm thầm chặn việc cài đặt. Hãy mở Cài đặt &gt; Cài đặt bổ sung &gt; Tùy chọn nhà phát triển, tắt \"Tối ưu hóa MIUI\", cài đặt ứng dụng rồi bật lại. Khi đang tắt, giao diện hệ thống có thể bị lỗi hiển thị — khởi động lại điện thoại sẽ khắc phục.</string>
     <string name="splash_tagline">Cài đặt mọi thứ, ở mọi nơi</string>
     <string name="onboarding_skip">Bỏ qua</string>
     <string name="onboarding_next">Tiếp theo</string>

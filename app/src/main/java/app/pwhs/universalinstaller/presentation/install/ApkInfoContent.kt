@@ -143,7 +143,7 @@ internal fun ApkInfoContent(
             apkInfo.installedVersionCode > 0 &&
             apkInfo.versionCode < apkInfo.installedVersionCode
 
-    // Outer container: capped to 92% of screen height when expanded so the sheet never
+    // Outer container: capped to 90% of screen height when expanded so the sheet never
     // goes edge-to-edge — that left no scrim to tap and made drag-to-dismiss only work
     // from the very top. We use an explicit heightIn(max) rather than fillMaxHeight(fraction)
     // because the latter is a no-op when ModalBottomSheet hands down an unbounded height
@@ -151,7 +151,7 @@ internal fun ApkInfoContent(
     // child a bounded parent. When collapsed the content is short, so we let it wrap.
     // The scroll area is weighted and the action buttons live in a fixed footer below it,
     // so Cancel is always reachable without scrolling or fighting the drag gesture.
-    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.92f).dp
+    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.9f).dp
     Column(
         modifier = Modifier
             .fillMaxWidth()

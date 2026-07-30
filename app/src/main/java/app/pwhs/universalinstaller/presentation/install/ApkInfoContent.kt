@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -78,7 +79,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -97,36 +98,24 @@ import app.pwhs.universalinstaller.domain.model.VtEngineResult
 import app.pwhs.universalinstaller.domain.model.VtResult
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
-import kotlin.math.roundToInt
 
 /**
- * Height ceiling for [ApkInfoContent] when expanded, as a fraction of the space the host gives it.
+ * How much of the screen the scrollable detail area may take, following the shape `FoundApksSheet`
+ * uses (a plain `heightIn(max = …)` on its results `LazyColumn` and no cap anywhere else).
  *
- * Measured against the incoming constraints (see [fractionHeightCap]), not
- * `Configuration.screenHeightDp` — that value already excludes system bars on most API levels, so
- * taking a fraction of it and then subtracting chrome shrinks the sheet twice over.
+ * The sheet's height then falls out of wrap-content: scroll area + footer. Two rules make it hold
+ * still, and both were learned the hard way:
  *
- * Must never be applied to the `modifier` of `ModalBottomSheet` itself: that modifier sits outside
- * `Modifier.draggableAnchors`, which derives the sheet's resting position from
- * `constraints.maxHeight`. Clamping it there moves the Expanded anchor up by the same fraction and
- * the sheet comes to rest floating above the bottom edge.
+ *  - Cap the **scroll area**, never the outer container or `ModalBottomSheet`'s own `modifier`.
+ *    That modifier sits outside `Modifier.draggableAnchors`, which reads `constraints.maxHeight`
+ *    to place the Expanded anchor — clamping it there parks the sheet above the bottom edge.
+ *  - Size it from `screenHeightDp`, never from the incoming constraints. M3 varies the sheet's
+ *    inset padding with `sheetState.offset` while you drag (`consumeWindowInsets(top = offset)`),
+ *    so a constraint-derived height re-measures every frame, which moves the anchor, which moves
+ *    the offset — the loop that showed up as jitter on a fast fling. `screenHeightDp` doesn't
+ *    move during a drag.
  */
-private const val APK_SHEET_HEIGHT_FRACTION = 0.9f
-
-/**
- * Caps the child at [fraction] of the height its parent offers, leaving it free to be shorter —
- * `heightIn(max = …)` semantics, but measured against the live constraint instead of a guessed dp.
- * No-op when the incoming height is unbounded, since there's nothing to take a fraction of.
- */
-private fun Modifier.fractionHeightCap(fraction: Float) = layout { measurable, constraints ->
-    val capped = if (constraints.hasBoundedHeight) {
-        constraints.copy(maxHeight = (constraints.maxHeight * fraction).roundToInt())
-    } else {
-        constraints
-    }
-    val placeable = measurable.measure(capped)
-    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-}
+private const val APK_SHEET_SCROLL_FRACTION = 0.65f
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -172,22 +161,14 @@ internal fun ApkInfoContent(
             apkInfo.installedVersionCode > 0 &&
             apkInfo.versionCode < apkInfo.installedVersionCode
 
-    // Outer container: capped when expanded so the sheet never goes edge-to-edge — that left
-    // no scrim to tap and made drag-to-dismiss only work from the very top. When collapsed the
-    // content is short, so we let it wrap. The scroll area is weighted and the action buttons
-    // live in a fixed footer below it, so Cancel is always reachable without scrolling or
-    // fighting the drag gesture.
-    Column(
+    // Outer container wraps its content — same shape as FoundApksSheet. Nothing here reads the
+    // sheet's height, so the sheet measures once and holds still while you drag it.
+    val scrollCap = (LocalConfiguration.current.screenHeightDp * APK_SHEET_SCROLL_FRACTION).dp
+    Column(modifier = Modifier.fillMaxWidth()) {
+      Column(
         modifier = Modifier
             .fillMaxWidth()
-            .then(
-                if (isExpanded) Modifier.fractionHeightCap(APK_SHEET_HEIGHT_FRACTION)
-                else Modifier
-            ),
-    ) {
-      Column(
-        modifier = (if (isExpanded) Modifier.weight(1f) else Modifier)
-            .fillMaxWidth()
+            .then(if (isExpanded) Modifier.heightIn(max = scrollCap) else Modifier)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp)
             .padding(top = 8.dp),

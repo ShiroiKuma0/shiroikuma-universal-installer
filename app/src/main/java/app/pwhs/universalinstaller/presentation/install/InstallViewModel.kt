@@ -1784,6 +1784,16 @@ class InstallViewModel(
                     "SplitPackage enumerated 0 entries for $originalUri (fileName=$fileName ext=$extension) — " +
                         "remote downloads: check file isn't truncated; bundles: filterCompatible() may have excluded all"
                 )
+                if (extension == "apk" || extension.isBlank()) {
+                    Timber.w("Failed to parse $originalUri as APK, but forcing it as an installable base APK anyway.")
+                    splitEntries.add(SplitEntry(
+                        name = "Base APK (Unparsed)",
+                        type = SplitType.Base,
+                        uri = originalUri,
+                        sizeBytes = fileSize.coerceAtLeast(0L),
+                    ))
+                    baseApkUri = originalUri
+                }
             }
 
             for (entry in entries) {

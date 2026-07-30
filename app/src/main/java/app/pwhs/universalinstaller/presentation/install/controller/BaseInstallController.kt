@@ -74,10 +74,18 @@ abstract class BaseInstallController(
 
     fun cancel(id: UUID, scope: CoroutineScope) {
         scope.launch {
-            activeSessions[id]?.cancel()
-            activeSessions.remove(id)
-            sessionUris.remove(id)
-            sessionDataRepository.removeSessionData(id)
+            try {
+                activeSessions[id]?.cancel()
+            } catch (e: Exception) {
+                Timber.e(e, "Error cancelling session")
+            } finally {
+                activeSessions.remove(id)
+                sessionUris.remove(id)
+                originalFileUris.remove(id)
+                deleteFlags.remove(id)
+                successHooks.remove(id)
+                sessionDataRepository.removeSessionData(id)
+            }
         }
     }
 
@@ -105,6 +113,7 @@ abstract class BaseInstallController(
         scope.launch {
             val sessions = sessionDataRepository.sessions.value
             for (data in sessions) {
+                if (activeSessions.containsKey(data.id)) continue
                 val session = packageInstaller.getSession(data.id) ?: continue
                 activeSessions[session.id] = session
                 awaitSession(session, scope)

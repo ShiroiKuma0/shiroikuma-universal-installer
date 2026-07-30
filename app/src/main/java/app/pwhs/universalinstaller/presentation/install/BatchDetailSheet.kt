@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.presentation.install
 
 import android.net.Uri
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -10,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.R
@@ -38,6 +40,7 @@ internal fun BatchDetailSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        modifier = Modifier.heightIn(max = apkSheetMaxHeight()),
         sheetState = sheetState,
         shape = MaterialTheme.shapes.extraLarge,
     ) {

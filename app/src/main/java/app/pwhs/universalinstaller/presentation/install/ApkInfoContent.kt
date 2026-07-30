@@ -86,6 +86,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
@@ -98,6 +99,22 @@ import app.pwhs.universalinstaller.domain.model.VtEngineResult
 import app.pwhs.universalinstaller.domain.model.VtResult
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
+
+/**
+ * Height ceiling for any sheet showing [ApkInfoContent], as a fraction of screen height.
+ *
+ * Applied twice on purpose. On the [androidx.compose.material3.ModalBottomSheet] itself it caps
+ * what the user actually sees — the sheet's drag handle and inset padding sit *outside* the
+ * content, so capping only the content still lets the sheet reach the top of the screen. On the
+ * content it guarantees the weighted scroll child has a bounded parent even if a future caller
+ * hosts [ApkInfoContent] somewhere that hands down an unbounded height.
+ */
+internal const val APK_SHEET_HEIGHT_FRACTION = 0.9f
+
+/** [APK_SHEET_HEIGHT_FRACTION] resolved against the current screen height. */
+@Composable
+internal fun apkSheetMaxHeight(): Dp =
+    (LocalConfiguration.current.screenHeightDp * APK_SHEET_HEIGHT_FRACTION).dp
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -143,15 +160,15 @@ internal fun ApkInfoContent(
             apkInfo.installedVersionCode > 0 &&
             apkInfo.versionCode < apkInfo.installedVersionCode
 
-    // Outer container: capped to 90% of screen height when expanded so the sheet never
-    // goes edge-to-edge — that left no scrim to tap and made drag-to-dismiss only work
-    // from the very top. We use an explicit heightIn(max) rather than fillMaxHeight(fraction)
-    // because the latter is a no-op when ModalBottomSheet hands down an unbounded height
-    // constraint; an absolute max caps regardless and still gives the weighted scroll
-    // child a bounded parent. When collapsed the content is short, so we let it wrap.
-    // The scroll area is weighted and the action buttons live in a fixed footer below it,
-    // so Cancel is always reachable without scrolling or fighting the drag gesture.
-    val maxSheetHeight = (LocalConfiguration.current.screenHeightDp * 0.9f).dp
+    // Outer container: capped when expanded so the sheet never goes edge-to-edge — that left
+    // no scrim to tap and made drag-to-dismiss only work from the very top. We use an explicit
+    // heightIn(max) rather than fillMaxHeight(fraction) because the latter is a no-op when
+    // ModalBottomSheet hands down an unbounded height constraint; an absolute max caps
+    // regardless and still gives the weighted scroll child a bounded parent. When collapsed the
+    // content is short, so we let it wrap. The scroll area is weighted and the action buttons
+    // live in a fixed footer below it, so Cancel is always reachable without scrolling or
+    // fighting the drag gesture.
+    val maxSheetHeight = apkSheetMaxHeight()
     Column(
         modifier = Modifier
             .fillMaxWidth()

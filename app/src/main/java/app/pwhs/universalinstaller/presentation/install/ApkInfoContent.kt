@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -79,14 +78,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
@@ -99,29 +97,36 @@ import app.pwhs.universalinstaller.domain.model.VtEngineResult
 import app.pwhs.universalinstaller.domain.model.VtResult
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
+import kotlin.math.roundToInt
 
-/** Height ceiling for a sheet showing [ApkInfoContent], as a fraction of screen height. */
+/**
+ * Height ceiling for [ApkInfoContent] when expanded, as a fraction of the space the host gives it.
+ *
+ * Measured against the incoming constraints (see [fractionHeightCap]), not
+ * `Configuration.screenHeightDp` — that value already excludes system bars on most API levels, so
+ * taking a fraction of it and then subtracting chrome shrinks the sheet twice over.
+ *
+ * Must never be applied to the `modifier` of `ModalBottomSheet` itself: that modifier sits outside
+ * `Modifier.draggableAnchors`, which derives the sheet's resting position from
+ * `constraints.maxHeight`. Clamping it there moves the Expanded anchor up by the same fraction and
+ * the sheet comes to rest floating above the bottom edge.
+ */
 private const val APK_SHEET_HEIGHT_FRACTION = 0.9f
 
 /**
- * ModalBottomSheet's default drag handle: a 4dp bar with 22dp of padding above and below
- * (`SheetDefaults.DragHandle`). It sits above the content slot inside the sheet, so the content
- * has to give it back for the *sheet* to land on [APK_SHEET_HEIGHT_FRACTION].
+ * Caps the child at [fraction] of the height its parent offers, leaving it free to be shorter —
+ * `heightIn(max = …)` semantics, but measured against the live constraint instead of a guessed dp.
+ * No-op when the incoming height is unbounded, since there's nothing to take a fraction of.
  */
-private val DragHandleHeight = 48.dp
-
-/**
- * Max height for [ApkInfoContent] when hosted in a ModalBottomSheet.
- *
- * Must be applied to the sheet's **content**, never to the `modifier` of `ModalBottomSheet`
- * itself. That modifier sits outside `Modifier.draggableAnchors`, which derives the sheet's
- * resting position from `constraints.maxHeight` — clamping it there moves the Expanded anchor to
- * `0.9 × height − sheetHeight`, so the sheet comes to rest 10% of the screen above the bottom
- * edge and reads as a floating dialog.
- */
-@Composable
-internal fun apkSheetMaxHeight(): Dp =
-    (LocalConfiguration.current.screenHeightDp * APK_SHEET_HEIGHT_FRACTION).dp - DragHandleHeight
+private fun Modifier.fractionHeightCap(fraction: Float) = layout { measurable, constraints ->
+    val capped = if (constraints.hasBoundedHeight) {
+        constraints.copy(maxHeight = (constraints.maxHeight * fraction).roundToInt())
+    } else {
+        constraints
+    }
+    val placeable = measurable.measure(capped)
+    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -168,18 +173,17 @@ internal fun ApkInfoContent(
             apkInfo.versionCode < apkInfo.installedVersionCode
 
     // Outer container: capped when expanded so the sheet never goes edge-to-edge — that left
-    // no scrim to tap and made drag-to-dismiss only work from the very top. We use an explicit
-    // heightIn(max) rather than fillMaxHeight(fraction) because the latter is a no-op when
-    // ModalBottomSheet hands down an unbounded height constraint; an absolute max caps
-    // regardless and still gives the weighted scroll child a bounded parent. When collapsed the
+    // no scrim to tap and made drag-to-dismiss only work from the very top. When collapsed the
     // content is short, so we let it wrap. The scroll area is weighted and the action buttons
     // live in a fixed footer below it, so Cancel is always reachable without scrolling or
     // fighting the drag gesture.
-    val maxSheetHeight = apkSheetMaxHeight()
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (isExpanded) Modifier.heightIn(max = maxSheetHeight) else Modifier),
+            .then(
+                if (isExpanded) Modifier.fractionHeightCap(APK_SHEET_HEIGHT_FRACTION)
+                else Modifier
+            ),
     ) {
       Column(
         modifier = (if (isExpanded) Modifier.weight(1f) else Modifier)
@@ -744,4 +748,3 @@ private fun InstallTargetCard(
         )
     }
 }
-

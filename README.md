@@ -10,7 +10,7 @@ A fork of [pass-with-high-score/universal-installer](https://github.com/pass-wit
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.9.11+10`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.9.11+11`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -57,6 +57,12 @@ The 白い熊 Installer UI page follows the kxkb look: flat sections with yellow
 ## ⚫🟡 Black-and-yellow branding
 
 A custom **black/yellow launcher icon**, and a splash with a black background, the black/yellow mark and a yellow title + tagline — so the fork is unmistakable in your launcher and app switcher.
+
+---
+
+## 🔑 Shizuku that works with 白い熊 雫
+
+Silent installs authorize against **白い熊 雫** (`shiroikuma.shizuku`) as well as stock Shizuku, with no Compat Hub stub in between. The app requests both `API_V23` permission names, so the server grants whichever one it actually defines — on stock Shizuku nothing changes at all.
 
 ---
 

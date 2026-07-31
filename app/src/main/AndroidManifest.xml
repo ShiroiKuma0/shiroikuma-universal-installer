@@ -59,6 +59,20 @@
     <!-- Require QUERY_ALL_PACKAGES to see background services without launcher intents -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 
+    <!-- Fork: Shizuku access. BOTH names are declared on purpose. 白い熊 雫 (shiroikuma.shizuku)
+         defines af.shizuku.plus.permission.API_V23 and deliberately does NOT define the stock name,
+         so it can install beside stock Shizuku; with only the stock name requested, the server's
+         grantRuntimePermission() targets a permission no installed package defines, throws inside
+         the server process, and the authorization prompt appears to do nothing at all.
+         ShizukuService.updateFlagsForUid grants the first name it finds in a fixed priority order
+         (af.shizuku.plus.* → moe.shizuku.manager.* → af.shizuku.manager.*), so ours wins on 白い熊 雫
+         while stock Shizuku still falls through to the moe.* name exactly as before.
+         The moe.* line also arrives by manifest-merge from dev.rikka.shizuku:provider; it is spelled
+         out here so the pair is legible. A uses-permission naming a permission no installed package
+         defines is inert, so declaring both costs nothing. Do not remove either. -->
+    <uses-permission android:name="af.shizuku.plus.permission.API_V23" />
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+
     <application
         android:name=".App"
         android:allowBackup="true"

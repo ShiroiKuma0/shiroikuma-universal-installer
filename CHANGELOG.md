@@ -4,6 +4,16 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.9.11+11
+
+**New in this build:**
+
+### 🔑 Shizuku authorization now works against 白い熊 雫
+- Granting Shizuku access from inside the app used to do **nothing at all** on a phone running **白い熊 雫** (`shiroikuma.shizuku`, the ShizukuPlus fork) without its optional Compat Hub — no dialog, no error, no log line.
+- Cause: the only `API_V23` permission this app requested was `moe.shizuku.manager.permission.API_V23`, merged in from `dev.rikka.shizuku:provider`. 白い熊 雫 deliberately **does not define** that name (defining it is what would stop it installing beside stock Shizuku), so the server's `grantRuntimePermission()` targeted a permission **no installed package defines**, threw inside the server process, and was caught and logged only there — nothing propagated back, so the prompt looked like it never happened.
+- Fix: the manifest declares **both** names — `af.shizuku.plus.permission.API_V23` and `moe.shizuku.manager.permission.API_V23`. `ShizukuService.updateFlagsForUid` grants the first name the caller requests in a fixed priority order (`af.shizuku.plus.*` → `moe.shizuku.manager.*` → `af.shizuku.manager.*`), so **ours wins on 白い熊 雫 while stock Shizuku still resolves to the `moe.*` name exactly as before**. A `uses-permission` naming a permission no installed package defines is inert, so one build works against either manager and the Compat Hub stub is no longer needed.
+- Manifest only: no code change, no dependency change, no `<queries>` entry (`QUERY_ALL_PACKAGES` already covers visibility). Verify with `adb shell dumpsys package shiroikuma.universalinstaller | grep API_V23`.
+
 ## 1.9.11+10
 
 **New in this build:**

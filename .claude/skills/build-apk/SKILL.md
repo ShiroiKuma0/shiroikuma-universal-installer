@@ -58,10 +58,13 @@ distributed on GitHub. Identity: app id `shiroikuma.universalinstaller`, label
 
 1. **Note the output filename.** Read the current version and build number from `gradle.properties`:
    - `grep -E 'VERSION_NAME|VERSION_CODE|BUILD_NUMBER' gradle.properties`
-   - The APK will be `shiroikuma-universal-installer_<VERSION_NAME>+<BUILD_NUMBER>.apk`, using the
-     `BUILD_NUMBER` value **before** the build (the task bumps it afterward), e.g.
-     `shiroikuma-universal-installer_1.8.2+1.apk`. (All files produced by this fork — the APK and any
-     in-app exports — use the hyphenated `shiroikuma-universal-installer_` prefix.)
+   - The APK will be `shiroikuma-universal-installer_<VERSION_NAME>+<BUILD_NUMBER>.apk` with the
+     **`BUILD_NUMBER` zero-padded to three digits**, using the value **before** the build (the task
+     bumps it afterward), e.g. `BUILD_NUMBER=13` → `shiroikuma-universal-installer_1.9.11+013.apk`.
+     (All files produced by this fork — the APK and any in-app exports — use the hyphenated
+     `shiroikuma-universal-installer_` prefix.) The padding lives in `app/build.gradle.kts`
+     (`forkVersionName`); `gradle.properties` keeps `BUILD_NUMBER` unpadded. Builds made before
+     2026-08-01 carry unpadded names (`…_1.9.11+12.apk`) — leave those exactly as they are.
    - versionCode for that build = `VERSION_CODE * 10000 + BUILD_NUMBER` (e.g. `16*10000+1 = 160001`).
 
 2. **Build** (needs JDK 21 — the default `java` on this machine is JDK 11, and the non-interactive shell

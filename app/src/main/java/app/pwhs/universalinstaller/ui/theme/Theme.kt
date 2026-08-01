@@ -163,8 +163,70 @@ private val PurpleDarkColorScheme = DarkColorScheme.copy(
     tertiary = Color(0xFF34D399),
 )
 
+// The 白い熊 scheme: yellow on black. The dark variant is the fork default — every colour role that
+// carries meaning (error red, warning amber) is left to the base scheme, so only the accent group,
+// the text roles and the backdrop go monochrome. The light variant keeps the yellow accent but on
+// upstream's light backdrop, for the rare case the user switches the app to Light.
+// Every accent-carrying role is overridden, not just `primary`: the base scheme IS upstream's
+// orange (OrangeDarkColorScheme == DarkColorScheme), so anything left inherited — surfaceTint most
+// visibly, since Material tints every elevated surface with it — would keep leaking orange into a
+// theme that must be black and yellow. Only error/warning stay as they are: those colours carry
+// meaning rather than identity.
+private val YellowDarkColorScheme = DarkColorScheme.copy(
+    primary = Color(0xFFFFEB3B),
+    onPrimary = Color(0xFF000000),
+    primaryContainer = Color(0xFF3B3600),
+    onPrimaryContainer = Color(0xFFFFEB3B),
+    inversePrimary = Color(0xFF8A7A00),
+    secondary = Color(0xFFFFEB3B),
+    onSecondary = Color(0xFF000000),
+    secondaryContainer = Color(0xFF3B3600),
+    onSecondaryContainer = Color(0xFFFFEB3B),
+    tertiary = Color(0xFFFFD54F),
+    onTertiary = Color(0xFF000000),
+    tertiaryContainer = Color(0xFF3B3600),
+    onTertiaryContainer = Color(0xFFFFD54F),
+    background = Color(0xFF000000),
+    onBackground = Color(0xFFFFEB3B),
+    surface = Color(0xFF000000),
+    onSurface = Color(0xFFFFEB3B),
+    surfaceVariant = Color(0xFF000000),
+    onSurfaceVariant = Color(0xB3FFEB3B),
+    surfaceTint = Color(0xFFFFEB3B),
+    inverseSurface = Color(0xFFFFEB3B),
+    inverseOnSurface = Color(0xFF000000),
+    // True black at every container level, so the scheme is black on its own — AMOLED mode is the
+    // default but must not be the only thing keeping the app dark.
+    surfaceContainerLowest = Color(0xFF000000),
+    surfaceContainerLow = Color(0xFF000000),
+    surfaceContainer = Color(0xFF000000),
+    surfaceContainerHigh = Color(0xFF000000),
+    surfaceContainerHighest = Color(0xFF000000),
+    outline = Color(0xFFFFEB3B),
+    outlineVariant = Color(0x66FFEB3B),
+    scrim = Color(0xFF000000),
+)
+
+private val YellowLightColorScheme = LightColorScheme.copy(
+    primary = Color(0xFF8A7A00),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFFFF7B2),
+    onPrimaryContainer = Color(0xFF3B3600),
+    inversePrimary = Color(0xFFFFEB3B),
+    secondary = Color(0xFF8A7A00),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFFFF7B2),
+    onSecondaryContainer = Color(0xFF3B3600),
+    tertiary = Color(0xFFB28900),
+    onTertiary = Color(0xFFFFFFFF),
+    tertiaryContainer = Color(0xFFFFF3C4),
+    onTertiaryContainer = Color(0xFF3B3600),
+    surfaceTint = Color(0xFF8A7A00),
+)
+
 private fun getPresetColorScheme(darkTheme: Boolean, preset: AppThemePreset): ColorScheme {
     return when (preset) {
+        AppThemePreset.Yellow -> if (darkTheme) YellowDarkColorScheme else YellowLightColorScheme
         AppThemePreset.Orange -> if (darkTheme) OrangeDarkColorScheme else OrangeLightColorScheme
         AppThemePreset.Blue -> if (darkTheme) BlueDarkColorScheme else BlueLightColorScheme
         AppThemePreset.Green -> if (darkTheme) GreenDarkColorScheme else GreenLightColorScheme
@@ -214,9 +276,9 @@ private val DarkExtendedColors = ExtendedColors(
 @Composable
 fun UniversalInstallerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
-    amoledMode: Boolean = false,
-    themePreset: AppThemePreset = AppThemePreset.Orange,
+    dynamicColor: Boolean = ForkUiDefaults.DynamicColor,
+    amoledMode: Boolean = ForkUiDefaults.Amoled,
+    themePreset: AppThemePreset = ForkUiDefaults.Preset,
     // 白い熊 Installer UI customizations (see the InstallerUi page). Defaults reproduce stock theming.
     fontFamily: FontFamily? = null,
     fontWeight: FontWeight? = null,

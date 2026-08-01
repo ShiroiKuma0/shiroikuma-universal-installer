@@ -158,7 +158,8 @@
     <string name="setting_diagnostics_title">診断</string>
     <string name="theme_preset_title">カラーテーマ</string>
     <string name="theme_preset_subtitle">アプリのアクセントカラーを選択</string>
-    <string name="theme_preset_orange">オレンジ（デフォルト）</string>
+    <string name="theme_preset_yellow">白い熊 Yellow（デフォルト）</string>
+    <string name="theme_preset_orange">オレンジ</string>
     <string name="theme_preset_blue">オーシャンブルー</string>
     <string name="theme_preset_green">フォレストグリーン</string>
     <string name="theme_preset_red">クリムゾンレッド</string>

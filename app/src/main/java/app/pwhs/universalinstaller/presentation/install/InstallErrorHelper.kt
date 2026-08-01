@@ -28,6 +28,26 @@ object InstallErrorHelper {
     }
 
     /**
+     * `Conflict` covers several unrelated `INSTALL_FAILED_*` codes — a version downgrade, a
+     * signature mismatch and a plain duplicate all land here. The old single message named the
+     * "Replace existing" toggle for all of them, which sent users who hit a downgrade or a
+     * signature mismatch to a switch that was already on and couldn't have helped.
+     *
+     * ackpine passes the platform's status message through verbatim, so the code is in there.
+     */
+    private fun conflictGuidance(message: String?): Int {
+        val raw = message.orEmpty().uppercase()
+        return when {
+            "VERSION_DOWNGRADE" in raw -> R.string.install_error_conflict_downgrade_guidance
+            // The platform reports a signature mismatch as UPDATE_INCOMPATIBLE, and older/OEM
+            // builds sometimes spell it out in prose instead.
+            "UPDATE_INCOMPATIBLE" in raw || "SIGNATURES DO NOT MATCH" in raw ->
+                R.string.install_error_conflict_signature_guidance
+            else -> R.string.install_error_conflict_guidance
+        }
+    }
+
+    /**
      * Failure kinds MIUI/HyperOS "optimization" is known to produce when it silently vetoes a
      * third-party install. Which one surfaces depends on the ROM version, so we cover the whole
      * ambiguous set rather than guessing; the well-diagnosed failures (storage, invalid APK,
@@ -63,7 +83,7 @@ object InstallErrorHelper {
         )
         is InstallFailure.Conflict -> ErrorInfo(
             title = context.getString(R.string.install_error_conflict_title),
-            guidance = context.getString(R.string.install_error_conflict_guidance),
+            guidance = context.getString(conflictGuidance(failure.message)),
         )
         is InstallFailure.Incompatible -> ErrorInfo(
             title = context.getString(R.string.install_error_incompatible_title),

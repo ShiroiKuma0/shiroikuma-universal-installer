@@ -483,7 +483,9 @@
     <string name="install_error_blocked_title">Installation blocked</string>
     <string name="install_error_blocked_guidance">Your device policy or security settings blocked this install. Check if unknown sources are allowed in Settings &gt; Apps &gt; Special access.</string>
     <string name="install_error_conflict_title">Package conflict</string>
-    <string name="install_error_conflict_guidance">A conflicting version is already installed. Uninstall the existing app first, or enable \&quot;Replace existing\&quot; in Shizuku options.</string>
+    <string name="install_error_conflict_guidance">A conflicting version is already installed. Uninstall the existing app first, or enable \&quot;Replace existing\&quot; in the installer options.</string>
+    <string name="install_error_conflict_downgrade_guidance">A newer version is already installed. Android refuses to downgrade unless you allow it — turn on \&quot;Allow downgrade\&quot; in the installer options, or uninstall the current version first. \&quot;Replace existing\&quot; does not cover this.</string>
+    <string name="install_error_conflict_signature_guidance">The installed app is signed with a different key, so Android will not treat this file as an update. Uninstall the existing app first — its data will be lost. No installer option can bypass this.</string>
     <string name="install_error_incompatible_title">Incompatible package</string>
     <string name="install_error_incompatible_guidance">This APK is not compatible with your device. It may require a different CPU architecture, Android version, or missing hardware feature.</string>
     <string name="install_error_invalid_title">Invalid package</string>

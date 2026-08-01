@@ -14,6 +14,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -37,6 +38,9 @@ internal fun LazyListScope.InstallSection(
     q: String,
     installLabels: List<String>,
     uiState: SettingUiState,
+    /** Label of the installed Shizuku manager (白い熊 雫, stock Shizuku, …); null = none installed. */
+    shizukuManagerLabel: String?,
+    onOpenShizukuManager: () -> Unit,
     dhizukuState: DhizukuState,
     useDhizuku: Boolean,
     context: Context,
@@ -65,6 +69,7 @@ internal fun LazyListScope.InstallSection(
                 InstallModeSelector(
                     currentMode = currentMode,
                     shizukuState = uiState.shizukuState,
+                    shizukuManagerLabel = shizukuManagerLabel,
                     rootSupported = uiState.rootSupported,
                     rootState = uiState.rootState,
                     dhizukuSupported = DhizukuCompat.isSupported,
@@ -78,6 +83,18 @@ internal fun LazyListScope.InstallSection(
                         onCommandChange = onCustomAuthorizerCommandChange,
                         onTestCommand = onTestCustomAuthorizerCommand,
                     )
+                }
+                // The service is installed but hasn't handed us a binder — offer the one
+                // action that fixes it, aimed at the Shizuku the user actually has.
+                if (uiState.shizukuState == ShizukuState.NOT_RUNNING &&
+                    shizukuManagerLabel != null
+                ) {
+                    TextButton(
+                        onClick = onOpenShizukuManager,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    ) {
+                        Text(stringResource(R.string.setting_shizuku_open_manager, shizukuManagerLabel))
+                    }
                 }
                 if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
                     ListItem(

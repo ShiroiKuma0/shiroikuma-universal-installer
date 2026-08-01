@@ -16,6 +16,7 @@ import app.pwhs.universalinstaller.presentation.setting.util.SettingPrivilegeDel
 import app.pwhs.universalinstaller.presentation.setting.util.SettingProfilesDelegate
 import app.pwhs.universalinstaller.presentation.setting.util.SettingUiStateBuilder
 import app.pwhs.universalinstaller.util.CustomShellExecutor
+import app.pwhs.universalinstaller.ui.theme.ForkUiDefaults
 import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.util.LocaleHelper
 import kotlinx.coroutines.channels.Channel
@@ -93,12 +94,16 @@ class SettingViewModel(
 
     private val dataStore = application.dataStore
 
-    private val _events = Channel<Int>(Channel.BUFFERED)
-    val events: Flow<Int> = _events.receiveAsFlow()
+    // Messages carry a resource *and* its format args (UiMessage) rather than a bare string res,
+    // so a message can name the Shizuku manager the user actually has installed.
+    private val _events = Channel<UiMessage>(Channel.BUFFERED)
+    val events: Flow<UiMessage> = _events.receiveAsFlow()
 
-    private fun emitEvent(stringRes: Int) {
+    private fun emitEvent(stringRes: Int) = emitMessage(UiMessage(stringRes))
+
+    private fun emitMessage(message: UiMessage) {
         viewModelScope.launch {
-            _events.send(stringRes)
+            _events.send(message)
         }
     }
 
@@ -107,6 +112,7 @@ class SettingViewModel(
         scope = viewModelScope,
         backendFactory = backendFactory,
         emitEvent = { emitEvent(it) },
+        emitMessage = { emitMessage(it) },
     )
 
     private val preferencesDelegate = SettingPreferencesDelegate(
@@ -119,6 +125,9 @@ class SettingViewModel(
         application = application,
         scope = viewModelScope,
     )
+
+    /** Installed Shizuku manager (package id + app label), or null when none is installed. */
+    val shizukuManager: StateFlow<ShizukuManagerApp?> = privilegeDelegate.shizukuManager
 
     val dhizukuState: StateFlow<DhizukuState> = privilegeDelegate.dhizukuState
     val useDhizuku: StateFlow<Boolean> = privilegeDelegate.useDhizuku
@@ -134,12 +143,14 @@ class SettingViewModel(
 
     val uiState: StateFlow<SettingUiState> = combine(
         dataStore.data.map { prefs ->
-            val modeName = prefs[PreferencesKeys.THEME_MODE] ?: ThemeMode.System.name
-            val mode = ThemeMode.entries.find { it.name == modeName } ?: ThemeMode.System
-            val dynamicColor = prefs[PreferencesKeys.DYNAMIC_COLOR] ?: false
-            val amoledMode = prefs[PreferencesKeys.AMOLED_MODE] ?: false
-            val presetName = prefs[PreferencesKeys.THEME_PRESET] ?: AppThemePreset.Orange.name
-            val preset = AppThemePreset.entries.find { it.name == presetName } ?: AppThemePreset.Orange
+            // Fork defaults (see ForkUiDefaults) — must match Preferences.toAppThemeState(),
+            // otherwise the Settings screen shows a different theme than the app is drawing.
+            val modeName = prefs[PreferencesKeys.THEME_MODE] ?: ForkUiDefaults.Mode.name
+            val mode = ThemeMode.entries.find { it.name == modeName } ?: ForkUiDefaults.Mode
+            val dynamicColor = prefs[PreferencesKeys.DYNAMIC_COLOR] ?: ForkUiDefaults.DynamicColor
+            val amoledMode = prefs[PreferencesKeys.AMOLED_MODE] ?: ForkUiDefaults.Amoled
+            val presetName = prefs[PreferencesKeys.THEME_PRESET] ?: ForkUiDefaults.Preset.name
+            val preset = AppThemePreset.entries.find { it.name == presetName } ?: ForkUiDefaults.Preset
             SettingThemeState(mode, dynamicColor, amoledMode, preset)
         },
         dataStore.data.map { it[PreferencesKeys.USE_SHIZUKU] ?: false },
@@ -257,6 +268,7 @@ class SettingViewModel(
     fun setCustomAuthorizerCommand(command: String) = privilegeDelegate.setCustomAuthorizerCommand(command)
     suspend fun testCustomAuthorizerCommand(command: String): Result<String> =
         CustomShellExecutor.testCommand(command)
+    fun openShizukuManager() = privilegeDelegate.openShizukuManager()
 
     // ── Preferences Delegates ───────────────────────────────────────────────
 

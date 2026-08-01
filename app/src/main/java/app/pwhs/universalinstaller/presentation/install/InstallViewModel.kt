@@ -37,6 +37,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import app.pwhs.universalinstaller.presentation.install.dialog.isDowngrade
+import app.pwhs.universalinstaller.util.SignatureCheck
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.util.extension.getDisplayName
@@ -1944,6 +1945,7 @@ class InstallViewModel(
         var permissions = emptyList<String>()
         var minSdk = 0
         var targetSdk = 0
+        var signatureMismatch: Boolean? = null
 
         try {
             val tempFile = File(context.cacheDir, "temp_parse_${System.currentTimeMillis()}.apk")
@@ -1958,11 +1960,16 @@ class InstallViewModel(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     pm.getPackageArchiveInfo(
                         tempFile.absolutePath,
-                        PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
+                        PackageManager.PackageInfoFlags.of(
+                            (PackageManager.GET_PERMISSIONS or SignatureCheck.archiveFlag).toLong()
+                        )
                     )
                 } else {
                     @Suppress("DEPRECATION")
-                    pm.getPackageArchiveInfo(tempFile.absolutePath, PackageManager.GET_PERMISSIONS)
+                    pm.getPackageArchiveInfo(
+                        tempFile.absolutePath,
+                        PackageManager.GET_PERMISSIONS or SignatureCheck.archiveFlag,
+                    )
                 }
             } catch (t: Throwable) {
                 Timber.w(t, "PackageManager failed to parse $fileName — falling back to metadata")
@@ -1978,6 +1985,8 @@ class InstallViewModel(
                 permissions = packageInfo.requestedPermissions?.toList() ?: emptyList()
                 minSdk = packageInfo.applicationInfo?.minSdkVersion ?: 0
                 targetSdk = packageInfo.applicationInfo?.targetSdkVersion ?: 0
+                // Must run before tempFile is deleted — the certificates come from the archive.
+                signatureMismatch = SignatureCheck.isMismatch(context, packageInfo.packageName, packageInfo)
 
                 if (ackpinePackageName.isEmpty()) ackpinePackageName = packageInfo.packageName
                 if (ackpineVersionName.isEmpty()) ackpineVersionName = packageInfo.versionName ?: ""
@@ -2029,6 +2038,7 @@ class InstallViewModel(
             fileFormat = fileFormat,
             supportedAbis = supportedAbis.distinct(),
             splitEntries = splitEntries,
+            signatureMismatch = signatureMismatch,
         )
     }
 

@@ -713,6 +713,9 @@
     <string name="manage_action_installer_source_sub">手动安装 / 未知来源</string>
     <string name="installer_engine_root_request">点击以授予 root 权限</string>
     <string name="dialog_failed_fallback_install">通过系统安装程序安装</string>
+    <string name="dialog_risk_signature_mismatch">已安装的应用使用了不同的签名密钥。Android 不会将此文件视为更新 — 必须先卸载现有应用，其数据将丢失。</string>
+    <string name="dialog_risk_action_uninstall_existing">卸载现有应用</string>
+    <string name="dialog_risk_action_view_report">查看 VirusTotal 报告</string>
     <string name="dialog_risk_vt_unscanned">VirusTotal 扫描未完成</string>
     <string name="scan_virustotal_btn">扫描 VirusTotal</string>
     <string name="skip_and_install_btn">跳过并安装</string>

@@ -34,4 +34,10 @@ data class ApkInfo(
     /** Installed version on this device, null if not installed. Powers the downgrade chip. */
     val installedVersionName: String? = null,
     val installedVersionCode: Long? = null,
+    /**
+     * Whether the installed copy was signed with a different key, so Android will refuse this file
+     * as an update. `null` means we could not determine it — treat as "no problem known", never as
+     * a mismatch. See [app.pwhs.universalinstaller.util.SignatureCheck].
+     */
+    val signatureMismatch: Boolean? = null,
 )

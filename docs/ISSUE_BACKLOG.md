@@ -64,9 +64,31 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
   (`Application.kt:45`), nên diagnostics report của bản release **không có một dòng log nào
   của app**. Đó là lý do issue này không có bằng chứng nào để lần. Đáng mở issue riêng.
 
-- [ ] **#92** — Parsing error khi cài ReAppzuku 1.8.4
-  - "Install with Options" cài được cùng file → parser của mình sai, không phải file hỏng.
-  - Tải đúng release đó về tái hiện trước khi đoán.
+- [ ] **#92** — Parsing error khi cài ReAppzuku 1.8.4 — **KHÔNG TÁI HIỆN ĐƯỢC** (2026-08-01)
+
+  File: `https://github.com/gree1d/ReAppzuku` release 1.8.4, asset `ReAppzuku_1.8.4.apk`.
+
+  Đã kiểm chứng:
+  - APK **hợp lệ**. `aapt2 dump badging` đọc ngon: `com.gree1d.reappzuku`, versionCode 25,
+    minSdk 23, targetSdk 36, compileSdk 36. `apksigner` xác thực v1 + v2 (không v3/v4).
+    1964 entry, `resources.arsc` để `Stored`, `AndroidManifest.xml` deflate. Không có gì lạ.
+  - **Chạy thử trên máy thật** (Samsung SM-N986N, Android 13 / SDK 33, build từ `main`):
+    mở qua `DialogInstallActivity` bằng intent VIEW → dialog hiện đúng
+    `ReAppzuku / com.gree1d.reappzuku / 1.8.4 (25) / 5.29 MB / Using Package Installer`.
+    Logcat **không có** `SplitPackage enumerated 0 entries`, **không có** `Failed to parse`.
+    Parser của mình chạy đúng.
+  - Log có một warning lành tính: `PackageParser: Unknown element under <service>: property`
+    — tag `<property>` cần API 31+, trên API 33 chỉ cảnh báo.
+
+  Chưa kết luận được, thiếu thông tin từ reporter:
+  - Chữ "parsing error" có thể là **của hệ thống** ("There was a problem parsing the package")
+    chứ không phải string của mình (`install_no_splits_error`). Nếu đúng vậy thì lỗi nằm ở
+    system PackageInstaller, không phải parser của app.
+  - Reporter nói "Install with Options" (dùng Shizuku) cài được → nghi vấn khác biệt nằm ở
+    **install mode**, không phải ở parse.
+
+  **Cần hỏi reporter:** phiên bản Android, install mode đang dùng (Package Installer / Shizuku /
+  Root), và ảnh chụp đúng thông báo lỗi. Đừng sửa mò khi chưa có mấy thông tin này.
 
 - [ ] **#58** — Shizuku: `Session does not belong to uid` khi cài vào profile riêng (Android 11)
   - Đường targeted: `ManualInstallController.installTargeted()` → `ManualTargetedInstaller`,

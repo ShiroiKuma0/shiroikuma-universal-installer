@@ -48,12 +48,17 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
     (`content://com.mixplorer.fileprovider/...`) vì đó không phải document URI của một
     DocumentsProvider.
 
-  Hướng sửa, cần chọn:
-  1. Thêm nhánh `file://` → `File.delete()`. App đã có `MANAGE_EXTERNAL_STORAGE`. Rẻ, chắc ăn.
-  2. Sửa picker batch lấy `READ or WRITE` như nhánh 1 file.
-  3. FileProvider bên thứ ba: **về nguyên tắc không xoá được**. Đừng đi dò `_data` column để
-     map ra đường dẫn thật rồi xoá — mong manh và là xoá file của app khác bằng cách đoán.
-  4. Dù chọn gì cũng nên **báo cho user khi xoá thất bại** thay vì im lặng.
+  Đã làm (1 + 2 + 4):
+  1. [x] `BaseInstallController.deleteSourceFile()` thêm nhánh `file://` → `File.delete()`.
+  2. [x] Picker batch (`InstallScreen.kt:287`) lấy `READ or WRITE`.
+  4. [x] Xoá thất bại → toast `install_delete_source_failed` (en/zh/vi) thay vì im lặng.
+  3. [ ] FileProvider bên thứ ba: **cố ý không làm**. Về nguyên tắc không xoá được, và đi dò
+     `_data` column để map ra đường dẫn thật rồi xoá là mong manh + xoá file app khác bằng
+     cách đoán. Giờ user ít nhất được báo và tự xoá trong file manager.
+
+  Còn hở, chưa làm: `ManualInstallController.installTargeted()` (cài vào profile riêng) **không
+  hề nhận** `originalUri`/`deleteAfterInstall` — đường này chưa bao giờ xoá file dù bật toggle.
+  Sửa cần đổi chữ ký hàm + chỗ gọi, nằm ngoài phạm vi đã thống nhất.
 
   Ghi riêng, không thuộc #100: `Timber` chỉ `plant` khi `BuildConfig.DEBUG`
   (`Application.kt:45`), nên diagnostics report của bản release **không có một dòng log nào

@@ -284,8 +284,13 @@ private fun InstallUi(
             if (uris.size >= 2) {
                 uris.forEach { u ->
                     runCatching {
+                        // WRITE as well as READ — the batch flow honours "delete APK after
+                        // install" just like the single-file one, and that needs write access
+                        // persisted here at pick time (issue #100).
                         context.contentResolver.takePersistableUriPermission(
-                            u, Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                            u,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
                         )
                     }
                 }

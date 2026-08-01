@@ -91,7 +91,7 @@ class RootInstallController(
                     runCatching { onSuccess?.invoke() }
                         .onFailure { Timber.e(it, "Install success hook failed") }
                     if (deleteAfterInstall && originalUri != null) {
-                        deleteSourceDocument(context ?: application, originalUri)
+                        deleteSourceFileAndWarn(context ?: application, originalUri)
                     }
                     sessionDataRepository.removeSessionData(sessionId)
                 },

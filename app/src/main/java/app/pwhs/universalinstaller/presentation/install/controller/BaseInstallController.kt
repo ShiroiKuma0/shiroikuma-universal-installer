@@ -1,9 +1,12 @@
 package app.pwhs.universalinstaller.presentation.install.controller
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.widget.Toast
+import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.data.local.InstallHistoryDao
 import app.pwhs.universalinstaller.presentation.install.InstallErrorHelper
 import app.pwhs.universalinstaller.data.local.InstallHistoryEntity
@@ -11,10 +14,12 @@ import app.pwhs.universalinstaller.domain.model.SessionData
 import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.solrudev.ackpine.installer.InstallFailure
 import ru.solrudev.ackpine.installer.PackageInstaller
 import ru.solrudev.ackpine.installer.getSession
@@ -25,6 +30,7 @@ import ru.solrudev.ackpine.session.await
 import ru.solrudev.ackpine.session.progress
 import ru.solrudev.ackpine.session.state
 import timber.log.Timber
+import java.io.File
 import java.util.UUID
 
 abstract class BaseInstallController(
@@ -206,38 +212,64 @@ abstract class BaseInstallController(
         }
     }
 
-    /** Delete an OpenDocument-picked source file. Shared with controllers that bypass the
-     *  ackpine session path (e.g. the root shell installer) and so don't go through the
-     *  per-session deleteFlags map. */
-    protected fun deleteSourceDocument(context: Context, uri: Uri) {
-        try {
+    /**
+     * Delete the file the user installed from. Shared with controllers that bypass the ackpine
+     * session path (e.g. the root shell installer) and so don't go through the per-session
+     * [deleteFlags] map.
+     *
+     * Returns false when the file is still on disk afterwards — [deleteSourceFileAndWarn] turns
+     * that into something the user can see. Silently swallowing it is what made issue #100 look
+     * like the setting did nothing at all.
+     */
+    protected fun deleteSourceFile(context: Context, uri: Uri): Boolean {
+        // `file://` never reaches a DocumentsProvider, so deleteDocument can't touch it —
+        // DialogInstallActivity.collectIncomingUris accepts this scheme from external intents.
+        // MANAGE_EXTERNAL_STORAGE (declared in the manifest) is what makes the plain delete work.
+        if (uri.scheme == ContentResolver.SCHEME_FILE) {
+            val path = uri.path
+            if (path == null) {
+                Timber.e("No path on file uri: $uri")
+                return false
+            }
+            return runCatching { File(path).delete() }
+                .onFailure { Timber.e(it, "Failed to delete source file: $uri") }
+                .getOrDefault(false)
+        }
+
+        runCatching {
+            // Write access granted by our own OpenDocument picker. Absent for URIs handed to us
+            // by another app, which typically grant read only.
             context.contentResolver.takePersistableUriPermission(
                 uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
-        } catch (_: Exception) { /* permission may already be held or not available */ }
-        try {
-            DocumentsContract.deleteDocument(context.contentResolver, uri)
+        }
+        // Only documents from a DocumentsProvider can be deleted this way. A third-party
+        // FileProvider URI (a file manager sharing us an APK) has no delete method to call, and
+        // there is no supported way to remove it — we report that rather than guessing at a path.
+        return runCatching { DocumentsContract.deleteDocument(context.contentResolver, uri) }
+            .onFailure { Timber.e(it, "Failed to delete source file: $uri") }
+            .getOrDefault(false)
+    }
+
+    /** [deleteSourceFile], plus a toast when the file survived so the user isn't left guessing. */
+    protected suspend fun deleteSourceFileAndWarn(context: Context, uri: Uri) {
+        if (deleteSourceFile(context, uri)) {
             Timber.d("Deleted source file: $uri")
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to delete source file: $uri")
+            return
+        }
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                context,
+                context.getString(R.string.install_delete_source_failed),
+                Toast.LENGTH_LONG,
+            ).show()
         }
     }
 
-    private fun deleteSourceFileIfNeeded(sessionId: UUID, context: Context?) {
+    private suspend fun deleteSourceFileIfNeeded(sessionId: UUID, context: Context?) {
         if (deleteFlags[sessionId] != true || context == null) return
         val uri = originalFileUris[sessionId] ?: return
-        try {
-            // Take write permission granted by OpenDocument picker
-            context.contentResolver.takePersistableUriPermission(
-                uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
-        } catch (_: Exception) { /* permission may already be held or not available */ }
-        try {
-            DocumentsContract.deleteDocument(context.contentResolver, uri)
-            Timber.d("Deleted source file: $uri")
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to delete source file: $uri")
-        }
+        deleteSourceFileAndWarn(context, uri)
     }
 
     private fun handleError(message: String?, sessionId: UUID) {

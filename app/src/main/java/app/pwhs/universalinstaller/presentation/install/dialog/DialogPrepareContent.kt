@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Menu
@@ -42,8 +44,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -97,27 +101,10 @@ fun DialogPrepareContent(
                     )
                 }
                 update -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        Text(
-                            text = installedVersionName ?: "?",
-                            style = dialogTextStyle("version_old", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.onSurfaceVariant),
-                        )
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .padding(horizontal = 4.dp)
-                                .size(16.dp),
-                        )
-                        Text(
-                            text = newVersion,
-                            style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), MaterialTheme.colorScheme.primary),
-                        )
-                    }
+                    VersionTransition(
+                        oldVersion = installedVersionName ?: "?",
+                        newVersion = newVersion,
+                    )
                 }
                 else -> {
                     Text(
@@ -338,6 +325,92 @@ fun DialogPrepareContent(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(stringResource(R.string.dialog_cancel_btn))
+        }
+    }
+}
+
+/**
+ * The "installed version → new version" line of an update.
+ *
+ * Long version names — our git-pinned `6.3.0-alpha.2026-07-30.g5c0ed6a3+002` style, or anything
+ * with a build suffix — used to tear the plain Row apart: the old version was measured first and
+ * ate the whole dialog width, leaving the new version a few pixels in which to wrap itself into a
+ * one-character-per-line ribbon that spilled past the card edge. So we measure both strings up
+ * front against the width we actually have: if they fit side by side nothing changes, otherwise
+ * the pair is stacked with a downward arrow and each version soft-wraps over as many lines as it
+ * needs. Nothing is ever clipped or ellipsised — the full version string always stays readable.
+ */
+@Composable
+private fun VersionTransition(oldVersion: String, newVersion: String) {
+    val oldStyle = dialogTextStyle(
+        "version_old",
+        MaterialTheme.typography.bodyMedium,
+        MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    val newStyle = dialogTextStyle(
+        "version",
+        MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+        MaterialTheme.colorScheme.primary,
+    )
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
+    ) {
+        // The inline arrow costs 16dp of icon plus 4dp of padding on either side. maxWidth is
+        // Dp.Infinity if we're ever measured unbounded, which simply keeps the side-by-side row.
+        val available = maxWidth - 24.dp
+        // Measured every composition on purpose: TextMeasurer caches internally, and a custom
+        // dialog font that finishes loading late must re-measure rather than keep a stale verdict.
+        val sideBySideWidth = with(density) {
+            (measurer.measure(oldVersion, oldStyle).size.width +
+                    measurer.measure(newVersion, newStyle).size.width).toDp()
+        }
+
+        if (sideBySideWidth <= available) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Text(text = oldVersion, style = oldStyle)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .size(16.dp),
+                )
+                Text(text = newVersion, style = newStyle)
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = oldVersion,
+                    style = oldStyle,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ArrowDownward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(vertical = 2.dp)
+                        .size(16.dp),
+                )
+                Text(
+                    text = newVersion,
+                    style = newStyle,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
         }
     }
 }

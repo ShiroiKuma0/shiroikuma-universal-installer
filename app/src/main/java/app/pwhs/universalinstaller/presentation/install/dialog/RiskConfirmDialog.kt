@@ -12,12 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -108,6 +114,10 @@ fun RiskConfirmDialog(
 
     AlertDialog(
         onDismissRequest = onCancel,
+        // This dialog opens on top of the install dialog, which is dark and rounded too. Without
+        // a distinct container the two overlapping surfaces read as one notched shape.
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        tonalElevation = 8.dp,
         icon = {
             Icon(
                 imageVector = if (severe) Icons.Rounded.Security else Icons.Rounded.Warning,
@@ -123,35 +133,46 @@ fun RiskConfirmDialog(
             )
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                risks.forEach { risk -> RiskRow(risk) }
-                Spacer(modifier = Modifier.height(4.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                risks.forEach { risk -> RiskCard(risk) }
                 Text(
                     text = stringResource(R.string.dialog_risk_footer),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp),
                 )
             }
         },
+        // Filled for the action that carries the risk, outlined for the safe one: two flat text
+        // buttons gave equal visual weight to "back out" and "do it anyway".
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(
-                    text = stringResource(proceedRes),
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.SemiBold,
-                )
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError,
+                ),
+            ) {
+                Text(text = stringResource(proceedRes), fontWeight = FontWeight.SemiBold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onCancel) {
+            OutlinedButton(onClick = onCancel) {
                 Text(stringResource(R.string.dialog_cancel_btn))
             }
         },
     )
 }
 
+/**
+ * One risk, one card, with its remedy inside the same surface as the problem it solves.
+ *
+ * The remedy used to be a bare link under the whole list, which read as unattached to any
+ * particular line — with two risks showing it was ambiguous which one it applied to.
+ */
 @Composable
-private fun RiskRow(risk: InstallRisk) {
+private fun RiskCard(risk: InstallRisk) {
+    val severe = risk is InstallRisk.VtMalicious
     val (icon: ImageVector, line: String) = when (risk) {
         is InstallRisk.Downgrade -> Icons.Rounded.Warning to
             stringResource(R.string.dialog_risk_downgrade, risk.installedVersionName, risk.newVersionName)
@@ -164,29 +185,36 @@ private fun RiskRow(risk: InstallRisk) {
         is InstallRisk.VtUnscanned -> Icons.Rounded.Warning to
             stringResource(R.string.dialog_risk_vt_unscanned)
     }
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.size(18.dp),
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = line,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(top = 1.dp),
-            )
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        // Tinted with the error colour rather than a neutral surface: on a dark theme a plain
+        // surfaceContainer is indistinguishable from the dialog behind it and the card vanishes.
+        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = if (severe) 1f else 0.30f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = line,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            RiskAction(risk)
         }
-        RiskAction(risk)
     }
 }
 
 /**
- * The way out of this particular risk, when there is one. Rendered under its own row so each
- * problem carries its own remedy rather than leaving "Install anyway" as the only button.
+ * The way out of this particular risk, when there is one. Indented to line up with the risk text
+ * above it (icon 20dp + gap 10dp, less the button's own 8dp content padding).
  *
  * Resolved from LocalContext here rather than hoisted, so both InstallScreen and
  * DialogInstallActivity get the actions without either having to pass anything in.
@@ -195,37 +223,52 @@ private fun RiskRow(risk: InstallRisk) {
 private fun RiskAction(risk: InstallRisk) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    val (labelRes, onClick) = when (risk) {
-        is InstallRisk.SignatureMismatch -> R.string.dialog_risk_action_uninstall_existing to {
-            // ACTION_DELETE shows the platform's own uninstall confirmation — we are not
-            // removing anyone's app behind their back, and it needs no extra permission.
-            runCatching {
-                context.startActivity(
-                    Intent(Intent.ACTION_DELETE, "package:${risk.packageName}".toUri())
-                )
+    val report = { sha: String -> uriHandler.openUri("$VT_FILE_REPORT_URL$sha") }
+
+    val label: Int
+    val actionIcon: ImageVector
+    val onClick: () -> Unit
+    when (risk) {
+        is InstallRisk.SignatureMismatch -> {
+            label = R.string.dialog_risk_action_uninstall_existing
+            actionIcon = Icons.Rounded.DeleteOutline
+            onClick = {
+                // ACTION_DELETE shows the platform's own uninstall confirmation — we are not
+                // removing anyone's app behind their back, and it needs no extra permission.
+                runCatching {
+                    context.startActivity(
+                        Intent(Intent.ACTION_DELETE, "package:${risk.packageName}".toUri())
+                    )
+                }
+                Unit
             }
-            Unit
         }
-        is InstallRisk.VtMalicious ->
+        is InstallRisk.VtMalicious -> {
             if (risk.sha256.isBlank()) return
-            else R.string.dialog_risk_action_view_report to {
-                uriHandler.openUri("$VT_FILE_REPORT_URL${risk.sha256}")
-            }
-        is InstallRisk.VtSuspicious ->
+            label = R.string.dialog_risk_action_view_report
+            actionIcon = Icons.AutoMirrored.Rounded.OpenInNew
+            onClick = { report(risk.sha256) }
+        }
+        is InstallRisk.VtSuspicious -> {
             if (risk.sha256.isBlank()) return
-            else R.string.dialog_risk_action_view_report to {
-                uriHandler.openUri("$VT_FILE_REPORT_URL${risk.sha256}")
-            }
+            label = R.string.dialog_risk_action_view_report
+            actionIcon = Icons.AutoMirrored.Rounded.OpenInNew
+            onClick = { report(risk.sha256) }
+        }
         // Downgrade is consented to right here and carried into the session; unscanned has no
         // action beyond running the scan, which the install screen already offers.
         is InstallRisk.Downgrade, InstallRisk.VtUnscanned -> return
     }
+
+    Spacer(modifier = Modifier.height(4.dp))
     TextButton(
         onClick = onClick,
-        modifier = Modifier.padding(start = 26.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+        modifier = Modifier.padding(start = 22.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
     ) {
-        Text(stringResource(labelRes), style = MaterialTheme.typography.labelLarge)
+        Icon(actionIcon, contentDescription = null, modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(stringResource(label), style = MaterialTheme.typography.labelLarge)
     }
 }
 

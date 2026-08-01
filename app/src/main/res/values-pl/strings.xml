@@ -467,7 +467,8 @@
     <string name="theme_amoled_mode_subtitle">Użyj całkowicie czarnego tła w trybie ciemnym</string>
     <string name="theme_preset_title">Gotowy motyw kolorystyczny</string>
     <string name="theme_preset_subtitle">Wybierz podstawowy schemat kolorów dla akcentów aplikacji</string>
-    <string name="theme_preset_orange">Pomarańczowy (domyślny)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (domyślny)</string>
+    <string name="theme_preset_orange">Pomarańczowy</string>
     <string name="theme_preset_blue">Oceaniczny błękit</string>
     <string name="theme_preset_green">Leśna zieleń</string>
     <string name="theme_preset_red">Karmazynowa czerwień</string>

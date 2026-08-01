@@ -645,7 +645,8 @@
     <string name="installer_engine_root_unsupported">Недоступно для цієї збірки</string>
     <string name="theme_preset_title">Колірна тема</string>
     <string name="theme_preset_subtitle">Оберіть основну колірну схему для акцентів додатка</string>
-    <string name="theme_preset_orange">Помаранчевий (За замовчуванням)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (За замовчуванням)</string>
+    <string name="theme_preset_orange">Помаранчевий</string>
     <string name="theme_preset_blue">Океанський синій</string>
     <string name="theme_preset_green">Лісовий зелений</string>
     <string name="theme_preset_red">Темно-червоний</string>

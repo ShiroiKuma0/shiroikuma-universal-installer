@@ -645,7 +645,8 @@
     <string name="installer_engine_root_unsupported">Bu sürümde kullanılamaz</string>
     <string name="theme_preset_title">Renk teması</string>
     <string name="theme_preset_subtitle">Uygulama vurguları için bir ana renk şeması seçin</string>
-    <string name="theme_preset_orange">Turuncu (Varsayılan)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Varsayılan)</string>
+    <string name="theme_preset_orange">Turuncu</string>
     <string name="theme_preset_blue">Okyanus Mavisi</string>
     <string name="theme_preset_green">Orman Yeşili</string>
     <string name="theme_preset_red">Koyu Kırmızı</string>

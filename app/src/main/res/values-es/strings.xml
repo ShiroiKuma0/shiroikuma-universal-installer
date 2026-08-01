@@ -645,7 +645,8 @@
     <string name="installer_engine_root_unsupported">No disponible en esta versión</string>
     <string name="theme_preset_title">Tema de color</string>
     <string name="theme_preset_subtitle">Selecciona un esquema de color principal para los acentos de la app</string>
-    <string name="theme_preset_orange">Naranja (Predeterminado)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Predeterminado)</string>
+    <string name="theme_preset_orange">Naranja</string>
     <string name="theme_preset_blue">Azul océano</string>
     <string name="theme_preset_green">Verde bosque</string>
     <string name="theme_preset_red">Rojo carmesí</string>

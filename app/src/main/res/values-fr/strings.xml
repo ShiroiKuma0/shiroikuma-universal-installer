@@ -645,7 +645,8 @@
     <string name="installer_engine_root_unsupported">Non disponible sur cette version</string>
     <string name="theme_preset_title">Thème de couleur</string>
     <string name="theme_preset_subtitle">Choisissez un jeu de couleurs principal pour les accents de l\'appli</string>
-    <string name="theme_preset_orange">Orange (Par défaut)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Par défaut)</string>
+    <string name="theme_preset_orange">Orange</string>
     <string name="theme_preset_blue">Bleu océan</string>
     <string name="theme_preset_green">Vert forêt</string>
     <string name="theme_preset_red">Rouge cramoisi</string>

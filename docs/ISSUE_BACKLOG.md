@@ -121,10 +121,40 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
   thường — hiện tại nó hỏng 100%, sửa không thể làm tệ hơn.
 
 - [ ] **#30** — Đổi installation source không ăn, app info vẫn hiện "Universal Installer"
-  - `InstallerOverrides.kt`, cờ `ROOT_SET_INSTALL_SOURCE` / `installerPackageName` trong
-    `RootInstallController.createSession()`, `DEFAULT_INSTALLER_PACKAGE_NAME`.
-  - Issue có **hai phần**: (a) source không đổi, (b) app cần tải từ Play Store vẫn không đi
-    qua Play. (b) có thể là giới hạn của hệ thống chứ không sửa được — xác minh trước.
+
+  Điều tra lại 2026-08-01. Issue đã có comment cũ kết luận "on hold vì ackpine khoá
+  `initiatingPackageName` vào `com.android.shell`, Android 14+ bỏ qua `installingPackageName`".
+  **Kết luận đó ít nhất là quá rộng.**
+
+  Kiểm chứng trên máy thật (Samsung SM-N986N, Android 13):
+  ```
+  adb shell pm install -i com.android.vending /data/local/tmp/t.apk   → Success
+  dumpsys package <pkg> → installerPackageName=com.android.vending
+  ```
+  Shizuku chạy dưới shell, đúng ngữ cảnh này. Tức là **cơ chế spoof có hoạt động**, ít nhất
+  tới Android 13. Chưa test được Android 14+ (không có máy).
+
+  Nguyên nhân nhiều khả năng nhất cho reporter — **fallback im lặng**:
+  - `activeController()` (`InstallViewModel.kt:1578-1605`) tự nâng lên root/Shizuku khi bật
+    spoof, nhưng nếu **không có backend nào READY** thì rơi về `defaultController` và chỉ
+    `Timber.w(...)`. Mà Timber chỉ plant ở debug build → user bản release không thấy gì.
+  - Kết quả: cài bằng system installer, installer thật sự **là** Universal Installer, và không
+    có gì báo rằng cài đặt vừa bị bỏ qua.
+  - `SettingScreen.kt:365` mở section Shizuku theo `uiState.useShizuku`, **không** theo Shizuku
+    có thật sự chạy được không — dòng 349 còn ghi rõ "Don't gate on shizukuAvailable here".
+    Nên toggle bật được kể cả khi Shizuku chưa sẵn sàng.
+
+  Hai trường khác nhau, chỉ một cái đổi được:
+  - `installingPackageName` — shell đặt được (đã kiểm chứng ở trên).
+  - `initiatingPackageName` — là process tạo session, không spoof được. Qua Shizuku sẽ là
+    `com.android.shell`; ở default mode là Universal Installer. Tuỳ ROM/app mà UI đọc trường nào.
+
+  Phần Play Store trong issue: **không sửa được**. Đặt đúng `installingPackageName` không làm Play
+  coi app là được cài từ Play — Play có kiểm tra riêng phía nó. Nên tách ra và trả lời dứt khoát.
+
+  Hướng sửa, chưa làm:
+  1. Báo cho user khi spoof bị bỏ qua (backend đặc quyền không sẵn sàng) thay vì log debug-only.
+  2. Gate/ghi rõ setting này cần Shizuku hoặc root.
 
 - [ ] **#93** — History hiện tên app **2 lần**; không xoá được log của lần cài lỗi
   - Hai bug trong một issue, tách ra khi làm.

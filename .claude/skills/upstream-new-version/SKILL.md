@@ -23,7 +23,9 @@ The fork version is driven by `gradle.properties`; `app/build.gradle.kts` comput
   `app/build.gradle.kts`; we mirror them into `gradle.properties`).
 - `BUILD_NUMBER` is **our** fork increment. It **resets to `1`** on each new upstream version and bumps by
   `1` on every build (the `build-apk` / `buildFork` step does the bump).
-- Fork `versionName` = `"<VERSION_NAME>+<BUILD_NUMBER>"`; `versionCode` = `VERSION_CODE * 10000 + BUILD_NUMBER`.
+- Fork `versionName` = `"<VERSION_NAME>+<BUILD_NUMBER zero-padded to 3 digits>"` (e.g. `1.9.11+013`);
+  `versionCode` = `VERSION_CODE * 10000 + BUILD_NUMBER` (plain integer). `BUILD_NUMBER` itself stays
+  unpadded in `gradle.properties`; `forkVersionName` in `app/build.gradle.kts` applies the padding.
 
 So when upstream's `versionCode` climbs (e.g. 16 → 17), our codes for the new line (`170001`, `170002`, …)
 all exceed the previous line's (`160001`, …), keeping upgrades monotonic.

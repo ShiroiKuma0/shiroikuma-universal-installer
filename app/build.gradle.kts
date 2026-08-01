@@ -46,10 +46,16 @@ if (hasFirebaseConfig) {
 }
 
 // === Fork versioning (shiroikuma fork) — values live in gradle.properties ========================
-// forkVersionName = "<VERSION_NAME>+<BUILD_NUMBER>"; forkVersionCode = VERSION_CODE * 10000 + BUILD_NUMBER.
-val forkVersionName = "${project.property("VERSION_NAME")}+${project.property("BUILD_NUMBER")}"
-val forkVersionCode = project.property("VERSION_CODE").toString().toInt() * 10000 +
-        project.property("BUILD_NUMBER").toString().toInt()
+// forkVersionName = "<VERSION_NAME>+<BUILD_NUMBER, zero-padded to 3 digits>";
+// forkVersionCode = VERSION_CODE * 10000 + BUILD_NUMBER (plain integer — the padding is text only).
+// The padding keeps APK filenames sorting in build order: unpadded, "+10" lands before "+3" in
+// every lexicographic file list (~/tmp, the phone's file manager, the GitHub release list), which
+// buries the newest build in the middle. Three digits covers the whole range the * 10000 versionCode
+// multiplier allows anyway. BUILD_NUMBER itself stays an unpadded integer in gradle.properties.
+val forkBuildNumber = project.property("BUILD_NUMBER").toString().trim().toInt()
+val forkVersionName =
+    "${project.property("VERSION_NAME")}+${forkBuildNumber.toString().padStart(3, '0')}"
+val forkVersionCode = project.property("VERSION_CODE").toString().toInt() * 10000 + forkBuildNumber
 
 base {
     archivesName = "shiroikuma-universal-installer_${forkVersionName}"
@@ -191,9 +197,10 @@ tasks.register("buildFork") {
             println("\u001b[1;36m>>> versionCode $forkVersionCode\u001b[0m")
         } ?: throw GradleException("No APK found in $outputDir")
 
-        // Auto-increment BUILD_NUMBER for the next build.
+        // Auto-increment BUILD_NUMBER for the next build (stored unpadded; only the
+        // versionName / APK filename carry the three-digit padding).
         val propsFile = rootProject.file("gradle.properties")
-        val currentBuildNumber = project.property("BUILD_NUMBER").toString().toInt()
+        val currentBuildNumber = forkBuildNumber
         val nextBuildNumber = currentBuildNumber + 1
         propsFile.writeText(
             propsFile.readText().replace(

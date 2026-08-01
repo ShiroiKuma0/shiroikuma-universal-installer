@@ -403,6 +403,11 @@
     <string name="setting_shizuku_ready">Silent install without prompts</string>
     <string name="setting_shizuku_permission_denied">Shizuku permission was denied</string>
     <string name="setting_shizuku_start_service_hint">Open the Shizuku app and start the service first</string>
+    <!-- %1$s = the installed Shizuku manager's app label (e.g. 白い熊 雫), looked up from whichever
+         package defines the Shizuku API permission. -->
+    <string name="setting_shizuku_start_service_hint_named">%1$s is installed but its service isn\'t running — open it and start Shizuku</string>
+    <string name="setting_shizuku_not_running_named">%1$s installed but not running</string>
+    <string name="setting_shizuku_open_manager">Open %1$s</string>
     <string name="setting_shizuku_install_hint">Install Shizuku from Play Store to use this backend</string>
     <string name="setting_delete_apk_title">Delete APK after install</string>
     <string name="setting_auto_open_title">Open app after install</string>
@@ -591,7 +596,8 @@
     <string name="theme_amoled_mode_subtitle">Use pitch black background in dark mode</string>
     <string name="theme_preset_title">Color ThemePreset</string>
     <string name="theme_preset_subtitle">Select a primary color scheme for app accents</string>
-    <string name="theme_preset_orange">Orange (Default)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Default)</string>
+    <string name="theme_preset_orange">Orange</string>
     <string name="theme_preset_blue">Ocean Blue</string>
     <string name="theme_preset_green">Forest Green</string>
     <string name="theme_preset_red">Crimson Red</string>

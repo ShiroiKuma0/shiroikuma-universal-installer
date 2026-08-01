@@ -15,8 +15,10 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.core.data.local.SharedPrefsKeys
 import androidx.lifecycle.ViewModel
+import androidx.annotation.StringRes
 import app.pwhs.core.domain.ThemeMode
 import app.pwhs.core.domain.AppThemePreset
+import app.pwhs.universalinstaller.ui.theme.ForkUiDefaults
 
 
 import androidx.lifecycle.viewModelScope
@@ -50,11 +52,22 @@ import timber.log.Timber
 
 
 data class SettingThemeState(
-    val mode: ThemeMode = ThemeMode.System,
-    val dynamicColor: Boolean = false,
-    val amoledMode: Boolean = false,
-    val themePreset: AppThemePreset = AppThemePreset.Orange
+    // Fork defaults: 白い熊 black/yellow, dark, AMOLED, no Material You (see ForkUiDefaults).
+    val mode: ThemeMode = ForkUiDefaults.Mode,
+    val dynamicColor: Boolean = ForkUiDefaults.DynamicColor,
+    val amoledMode: Boolean = ForkUiDefaults.Amoled,
+    val themePreset: AppThemePreset = ForkUiDefaults.Preset
 )
+
+/** One-shot UI message: a string resource plus the format args it takes (empty for plain strings). */
+data class UiMessage(@StringRes val res: Int, val formatArgs: List<Any> = emptyList())
+
+/**
+ * The installed Shizuku manager app — 白い熊 雫, stock Shizuku, whichever package defines the
+ * Shizuku API permission. The client API is package-agnostic (it only ever waits for a binder to
+ * be pushed to it), so this is purely so the UI can name the app the user is supposed to open.
+ */
+data class ShizukuManagerApp(val packageName: String, val label: String)
 
 object PreferencesKeys {
     val THEME_MODE = stringPreferencesKey("theme_mode")
@@ -303,10 +316,10 @@ data class RootOptions(
 
 data class SettingUiState(
     val isLoading: Boolean = true,
-    val themeMode: ThemeMode = ThemeMode.System,
-    val dynamicColor: Boolean = false,
-    val amoledMode: Boolean = false,
-    val themePreset: AppThemePreset = AppThemePreset.Orange,
+    val themeMode: ThemeMode = ForkUiDefaults.Mode,
+    val dynamicColor: Boolean = ForkUiDefaults.DynamicColor,
+    val amoledMode: Boolean = ForkUiDefaults.Amoled,
+    val themePreset: AppThemePreset = ForkUiDefaults.Preset,
     val useShizuku: Boolean = false,
     val useRoot: Boolean = false,
     val virusTotalApiKey: String = "",
@@ -371,6 +384,48 @@ class SettingViewModel(
      */
     private val _isDefaultInstaller = MutableStateFlow(false)
 
+    /**
+     * Permission names that identify an installed Shizuku manager, in the order the fork's server
+     * (`BinderSender`) itself matches them: 白い熊 雫 defines the `af.shizuku.plus.*` name, stock
+     * Shizuku the `moe.shizuku.manager.*` one. Whichever package *defines* one of these is the
+     * manager app — the client API never names a package, so this lookup is the only way we can
+     * tell the user which Shizuku they actually have.
+     */
+    private val shizukuPermissionNames = listOf(
+        "af.shizuku.plus.permission.API_V23",
+        "af.shizuku.manager.permission.API_V23",
+        "moe.shizuku.manager.permission.API_V23",
+    )
+
+    /** Installed Shizuku manager (package id + app label), or null when none is installed. */
+    private val _shizukuManager = MutableStateFlow(findShizukuManager())
+    val shizukuManager: StateFlow<ShizukuManagerApp?> = _shizukuManager
+
+    private fun findShizukuManager(): ShizukuManagerApp? {
+        val pm = application.packageManager
+        val packageName = shizukuPermissionNames.firstNotNullOfOrNull { name ->
+            runCatching { pm.getPermissionInfo(name, 0).packageName }.getOrNull()
+        } ?: return null
+        val label = runCatching {
+            pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
+        }.getOrNull() ?: packageName
+        return ShizukuManagerApp(packageName, label)
+    }
+
+    /** Open the installed Shizuku manager so the user can start its service. */
+    fun openShizukuManager() {
+        val pkg = _shizukuManager.value?.packageName ?: return
+        val intent = application.packageManager.getLaunchIntentForPackage(pkg)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (intent == null) {
+            Timber.w("No launch intent for Shizuku manager %s", pkg)
+            return
+        }
+        runCatching { application.startActivity(intent) }
+            .onFailure { Timber.w(it, "Failed to open Shizuku manager %s", pkg) }
+    }
+
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
         Timber.d("Shizuku binder received")
         updateShizukuState()
@@ -391,19 +446,23 @@ class SettingViewModel(
                 }
             } else {
                 viewModelScope.launch {
-                    _events.send(R.string.setting_shizuku_permission_denied)
+                    emit(R.string.setting_shizuku_permission_denied)
                 }
             }
         }
 
     // One-shot UI events (toast/snackbar). Channel so events fire once per send, even
     // when the screen is briefly unmounted, without coalescing or being missed.
-    private fun emitEvent(stringRes: Int) {
-        viewModelScope.launch { _events.send(stringRes) }
-    }
+    private val _events = Channel<UiMessage>(Channel.BUFFERED)
+    val events: Flow<UiMessage> = _events.receiveAsFlow()
 
-    private val _events = Channel<Int>(Channel.BUFFERED)
-    val events: Flow<Int> = _events.receiveAsFlow()
+    private suspend fun emit(@StringRes res: Int, vararg args: Any) =
+        _events.send(UiMessage(res, args.toList()))
+
+    /** Fire-and-forget variant of [emit] for call sites that are not themselves suspending. */
+    private fun emitEvent(@StringRes stringRes: Int) {
+        viewModelScope.launch { emit(stringRes) }
+    }
 
     init {
         updateShizukuState()
@@ -669,22 +728,43 @@ class SettingViewModel(
             }
             return
         }
-        // Re-probe before deciding — binder state may have changed since last update.
-        updateShizukuState()
-        when (_shizukuState.value) {
-            ShizukuState.READY -> viewModelScope.launch {
-                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
+        viewModelScope.launch {
+            // The Shizuku server PUSHES its binder into our process (BinderSender reacts to
+            // process/uid events); we never fetch it. So right after a cold start pingBinder() is
+            // false for a moment even when the service is perfectly healthy, and an instant verdict
+            // here used to report "not running" on a working setup. Give the push a moment to land
+            // before judging — same reasoning as BackendSelfHeal.awaitShizukuReady().
+            awaitShizukuBinder()
+            updateShizukuState()
+            when (_shizukuState.value) {
+                ShizukuState.READY ->
+                    dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
+                ShizukuState.NO_PERMISSION -> requestShizukuPermission()
+                ShizukuState.NOT_RUNNING -> _events.send(notRunningMessage())
+                ShizukuState.NOT_INSTALLED -> _events.send(UiMessage(R.string.setting_shizuku_install_hint))
+                ShizukuState.UNSUPPORTED -> _events.send(UiMessage(R.string.setting_shizuku_unsupported))
             }
-            ShizukuState.NO_PERMISSION -> requestShizukuPermission()
-            ShizukuState.NOT_RUNNING -> viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_start_service_hint)
-            }
-            ShizukuState.NOT_INSTALLED -> viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_install_hint)
-            }
-            ShizukuState.UNSUPPORTED -> viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_unsupported)
-            }
+        }
+    }
+
+    /** "Open 白い熊 雫 and start the service first" — names the manager when we know which it is. */
+    private fun notRunningMessage(): UiMessage {
+        val label = _shizukuManager.value?.label
+            ?: return UiMessage(R.string.setting_shizuku_start_service_hint)
+        return UiMessage(R.string.setting_shizuku_start_service_hint_named, listOf(label))
+    }
+
+    /**
+     * Poll until the Shizuku binder shows up, up to [timeoutMs]. Returns immediately when no
+     * manager app is installed at all — there is nothing that could deliver a binder then.
+     */
+    private suspend fun awaitShizukuBinder(timeoutMs: Long = 2000L, stepMs: Long = 100L) {
+        if (findShizukuManager() == null) return
+        var elapsed = 0L
+        while (elapsed <= timeoutMs) {
+            if (runCatching { Shizuku.pingBinder() }.getOrDefault(false)) return
+            kotlinx.coroutines.delay(stepMs)
+            elapsed += stepMs
         }
     }
 
@@ -696,7 +776,7 @@ class SettingViewModel(
         } catch (t: Throwable) {
             Timber.w(t, "Shizuku.requestPermission threw")
             viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_start_service_hint)
+                emit(R.string.setting_shizuku_start_service_hint)
             }
         }
     }
@@ -749,7 +829,7 @@ class SettingViewModel(
     fun setBiometricLockInstall(enabled: Boolean) {
         viewModelScope.launch {
             dataStore.edit { prefs -> prefs[PreferencesKeys.BIOMETRIC_LOCK_INSTALL] = enabled }
-            _events.send(
+            emit(
                 if (enabled) R.string.setting_biometric_install_enabled
                 else R.string.setting_biometric_install_disabled,
             )
@@ -759,7 +839,7 @@ class SettingViewModel(
     fun setBiometricLockUninstall(enabled: Boolean) {
         viewModelScope.launch {
             dataStore.edit { prefs -> prefs[PreferencesKeys.BIOMETRIC_LOCK_UNINSTALL] = enabled }
-            _events.send(
+            emit(
                 if (enabled) R.string.setting_biometric_uninstall_enabled
                 else R.string.setting_biometric_uninstall_disabled,
             )
@@ -905,10 +985,10 @@ class SettingViewModel(
             when (_shizukuState.value) {
                 ShizukuState.NO_PERMISSION -> requestShizukuPermission()
                 ShizukuState.NOT_RUNNING -> viewModelScope.launch {
-                    _events.send(R.string.setting_shizuku_start_service_hint)
+                    emit(R.string.setting_shizuku_start_service_hint)
                 }
                 else -> viewModelScope.launch {
-                    _events.send(R.string.setting_default_installer_needs_backend)
+                    emit(R.string.setting_default_installer_needs_backend)
                 }
             }
             return
@@ -927,7 +1007,7 @@ class SettingViewModel(
                 .onSuccess {
                     reportDefaultInstaller(method, enabled, TelemetryEvents.RESULT_SUCCESS)
                     updateDefaultInstallerStatus()
-                    _events.send(
+                    emit(
                         if (enabled) R.string.setting_default_installer_enabled
                         else R.string.setting_default_installer_disabled,
                     )
@@ -935,7 +1015,7 @@ class SettingViewModel(
                 .onFailure { e ->
                     Timber.e(e, "Failed to toggle default installer")
                     reportDefaultInstaller(method, enabled, TelemetryEvents.RESULT_FAILURE)
-                    _events.send(R.string.setting_default_installer_failed)
+                    emit(R.string.setting_default_installer_failed)
                 }
         }
     }
@@ -999,7 +1079,12 @@ class SettingViewModel(
 
     private fun updateShizukuState() {
         _shizukuState.value = when {
-            !Shizuku.pingBinder() -> ShizukuState.NOT_RUNNING
+            !Shizuku.pingBinder() -> {
+                // Re-scan: the manager may have been installed or removed since the last check.
+                val manager = findShizukuManager()
+                _shizukuManager.value = manager
+                if (manager == null) ShizukuState.NOT_INSTALLED else ShizukuState.NOT_RUNNING
+            }
             Shizuku.getVersion() < 11 -> ShizukuState.UNSUPPORTED
             Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuState.NO_PERMISSION
             else -> ShizukuState.READY
@@ -1015,12 +1100,14 @@ class SettingViewModel(
 
     val uiState: StateFlow<SettingUiState> = combine(
         dataStore.data.map { prefs ->
-            val modeName = prefs[PreferencesKeys.THEME_MODE] ?: ThemeMode.System.name
-            val mode = ThemeMode.entries.find { it.name == modeName } ?: ThemeMode.System
-            val dynamicColor = prefs[PreferencesKeys.DYNAMIC_COLOR] ?: false
-            val amoledMode = prefs[PreferencesKeys.AMOLED_MODE] ?: false
-            val presetName = prefs[PreferencesKeys.THEME_PRESET] ?: AppThemePreset.Orange.name
-            val preset = AppThemePreset.entries.find { it.name == presetName } ?: AppThemePreset.Orange
+            // Fork defaults (see ForkUiDefaults) — must match Preferences.toAppThemeState(),
+            // otherwise the Settings screen shows a different theme than the app is drawing.
+            val modeName = prefs[PreferencesKeys.THEME_MODE] ?: ForkUiDefaults.Mode.name
+            val mode = ThemeMode.entries.find { it.name == modeName } ?: ForkUiDefaults.Mode
+            val dynamicColor = prefs[PreferencesKeys.DYNAMIC_COLOR] ?: ForkUiDefaults.DynamicColor
+            val amoledMode = prefs[PreferencesKeys.AMOLED_MODE] ?: ForkUiDefaults.Amoled
+            val presetName = prefs[PreferencesKeys.THEME_PRESET] ?: ForkUiDefaults.Preset.name
+            val preset = AppThemePreset.entries.find { it.name == presetName } ?: ForkUiDefaults.Preset
             SettingThemeState(mode, dynamicColor, amoledMode, preset)
         },
         dataStore.data.map { it[PreferencesKeys.USE_SHIZUKU] ?: false },

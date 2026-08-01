@@ -59,6 +59,7 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val settingViewModel: SettingViewModel = koinViewModel()
     val settingState by settingViewModel.uiState.collectAsState()
+    val shizukuManager by settingViewModel.shizukuManager.collectAsState()
 
     val modeFlow = remember(context) {
         context.dataStore.data.map { prefs ->
@@ -75,8 +76,9 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     // Surface the hint events the switcher emits (e.g. "install Shizuku", "permission denied")
     // so the user isn't left wondering why the engine didn't change.
     LaunchedEffect(Unit) {
-        settingViewModel.events.collect { stringRes ->
-            Toast.makeText(context, context.getString(stringRes), Toast.LENGTH_LONG).show()
+        settingViewModel.events.collect { message ->
+            val text = context.getString(message.res, *message.formatArgs.toTypedArray())
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -169,9 +171,15 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
                     )
                     EngineOption(
                         title = stringResource(R.string.installer_mode_shizuku),
+                        // Name the Shizuku that is actually installed (白い熊 雫, stock, …) instead of
+                        // a generic "not running" — the client API can't pick a manager, so telling
+                        // the user which app to open is the most it can usefully say.
                         subtitle = when (settingState.shizukuState) {
                             ShizukuState.NOT_INSTALLED -> stringResource(R.string.setting_shizuku_not_installed)
                             ShizukuState.UNSUPPORTED -> stringResource(R.string.setting_shizuku_unsupported)
+                            ShizukuState.NOT_RUNNING -> shizukuManager?.label
+                                ?.let { stringResource(R.string.setting_shizuku_not_running_named, it) }
+                                ?: stringResource(R.string.setting_shizuku_not_running)
                             else -> stringResource(R.string.installer_engine_shizuku_desc)
                         },
                         selected = current == InstallMode.SHIZUKU,

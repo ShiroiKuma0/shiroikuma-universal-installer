@@ -37,3 +37,14 @@
 # annotation; the version that actually resolves — 18.9.0, pulled up by Firebase — no longer
 # ships it. It is a CLASS-retained annotation, so R8 only needs permission to stop caring.
 -dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
+
+# rikka.shizuku.BinderContainer is OUR class (the library only ships the moe.shizuku.api one) and
+# it is resolved BY NAME: the Shizuku server writes the class name into the parcel and
+# Parcel.readParcelableCreator does Class.forName on it. Renaming it would resurrect exactly the
+# ClassNotFoundException this class exists to fix, and it would fail silently — the binder is
+# simply never delivered and Shizuku reads as "not running". Mirrors the rule the library ships
+# for its own container.
+-keepnames class rikka.shizuku.BinderContainer
+-keepclassmembers class rikka.shizuku.BinderContainer {
+    public static final android.os.Parcelable$Creator CREATOR;
+}

@@ -69,6 +69,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -136,15 +137,20 @@ fun SettingScreen(
         onPauseOrDispose {}
     }
 
+    val shizukuManager by viewModel.shizukuManager.collectAsState()
+
     LaunchedEffect(viewModel) {
-        viewModel.events.collect { stringRes ->
-            android.widget.Toast.makeText(context, stringRes, android.widget.Toast.LENGTH_LONG).show()
+        viewModel.events.collect { message ->
+            val text = context.getString(message.res, *message.formatArgs.toTypedArray())
+            android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show()
         }
     }
 
     SettingUi(
         modifier = modifier,
         uiState = uiState,
+        shizukuManagerLabel = shizukuManager?.label,
+        onOpenShizukuManager = viewModel::openShizukuManager,
         onInstallModeChanged = viewModel::setInstallMode,
         onVirusTotalKeyChanged = viewModel::setVirusTotalApiKey,
         securityLevel = securityLevel,
@@ -202,6 +208,9 @@ fun SettingScreen(
 private fun SettingUi(
     modifier: Modifier = Modifier,
     uiState: SettingUiState = SettingUiState(),
+    /** Label of the installed Shizuku manager (白い熊 雫, stock Shizuku, …); null = none installed. */
+    shizukuManagerLabel: String? = null,
+    onOpenShizukuManager: () -> Unit = {},
     onInstallModeChanged: (InstallMode) -> Unit = {},
     onVirusTotalKeyChanged: (String) -> Unit = {},
     securityLevel: SecurityLevel = SecurityLevel.Normal,
@@ -388,6 +397,8 @@ private fun SettingUi(
                     q = q,
                     installLabels = installLabels,
                     uiState = uiState,
+                    shizukuManagerLabel = shizukuManagerLabel,
+                    onOpenShizukuManager = onOpenShizukuManager,
                     dhizukuState = dhizukuState,
                     useDhizuku = useDhizuku,
                     context = context,

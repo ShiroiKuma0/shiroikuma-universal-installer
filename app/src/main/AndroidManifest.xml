@@ -234,8 +234,15 @@
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />
 
+        <!-- Fork: our subclass of rikka.shizuku.ShizukuProvider, not the library class. Modern
+             Shizuku servers (白い熊 雫) hand the binder over in a rikka.shizuku.BinderContainer,
+             which the last published client library (13.1.5, 2023) cannot unparcel — it threw
+             ClassNotFoundException and dropped the binder, so Shizuku read as "not running"
+             forever. ShizukuCompatProvider understands that envelope and delegates the legacy one
+             to the library. Authority is unchanged: the server addresses us by authority, not by
+             class, so this swap is invisible to it. -->
         <provider
-            android:name="rikka.shizuku.ShizukuProvider"
+            android:name="rikka.shizuku.ShizukuCompatProvider"
             android:authorities="${applicationId}.shizuku"
             android:enabled="true"
             android:exported="true"

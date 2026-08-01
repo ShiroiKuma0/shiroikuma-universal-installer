@@ -67,6 +67,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -128,15 +129,20 @@ fun SettingScreen(
         onPauseOrDispose {}
     }
 
+    val shizukuManager by viewModel.shizukuManager.collectAsState()
+
     LaunchedEffect(viewModel) {
-        viewModel.events.collect { stringRes ->
-            android.widget.Toast.makeText(context, stringRes, android.widget.Toast.LENGTH_LONG).show()
+        viewModel.events.collect { message ->
+            val text = context.getString(message.res, *message.formatArgs.toTypedArray())
+            android.widget.Toast.makeText(context, text, android.widget.Toast.LENGTH_LONG).show()
         }
     }
 
     SettingUi(
         modifier = modifier,
         uiState = uiState,
+        shizukuManagerLabel = shizukuManager?.label,
+        onOpenShizukuManager = viewModel::openShizukuManager,
         onInstallModeChanged = viewModel::setInstallMode,
         onVirusTotalKeyChanged = viewModel::setVirusTotalApiKey,
         securityLevel = securityLevel,
@@ -194,6 +200,9 @@ fun SettingScreen(
 private fun SettingUi(
     modifier: Modifier = Modifier,
     uiState: SettingUiState = SettingUiState(),
+    /** Label of the installed Shizuku manager (白い熊 雫, stock Shizuku, …); null = none installed. */
+    shizukuManagerLabel: String? = null,
+    onOpenShizukuManager: () -> Unit = {},
     onInstallModeChanged: (InstallMode) -> Unit = {},
     onVirusTotalKeyChanged: (String) -> Unit = {},
     securityLevel: SecurityLevel = SecurityLevel.Normal,
@@ -385,6 +394,7 @@ private fun SettingUi(
                             InstallModeSelector(
                                 currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot),
                                 shizukuState = uiState.shizukuState,
+                                shizukuManagerLabel = shizukuManagerLabel,
                                 rootSupported = uiState.rootSupported,
                                 rootState = uiState.rootState,
                                 overriddenByDhizuku = useDhizuku,
@@ -406,6 +416,18 @@ private fun SettingUi(
                                     checked = useDhizuku,
                                     onCheckedChange = onUseDhizukuChanged,
                                 )
+                            }
+                            // The service is installed but hasn't handed us a binder — offer the one
+                            // action that fixes it, aimed at the Shizuku the user actually has.
+                            if (uiState.shizukuState == ShizukuState.NOT_RUNNING &&
+                                shizukuManagerLabel != null
+                            ) {
+                                TextButton(
+                                    onClick = onOpenShizukuManager,
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                ) {
+                                    Text(stringResource(R.string.setting_shizuku_open_manager, shizukuManagerLabel))
+                                }
                             }
                             if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
                                 ListItem(
@@ -1003,6 +1025,7 @@ private fun InstallSourceItem(
 private fun InstallModeSelector(
     currentMode: InstallMode,
     shizukuState: ShizukuState,
+    shizukuManagerLabel: String?,
     rootSupported: Boolean,
     rootState: RootState,
     /** True while the Dhizuku switch is on, in which case this picker is not what runs installs. */
@@ -1064,7 +1087,9 @@ private fun InstallModeSelector(
             InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default_sub)
             InstallMode.SHIZUKU -> when (shizukuState) {
                 ShizukuState.NOT_INSTALLED -> stringResource(R.string.setting_shizuku_not_installed)
-                ShizukuState.NOT_RUNNING -> stringResource(R.string.setting_shizuku_not_running)
+                ShizukuState.NOT_RUNNING -> shizukuManagerLabel
+                    ?.let { stringResource(R.string.setting_shizuku_not_running_named, it) }
+                    ?: stringResource(R.string.setting_shizuku_not_running)
                 ShizukuState.UNSUPPORTED -> stringResource(R.string.setting_shizuku_unsupported)
                 ShizukuState.NO_PERMISSION -> stringResource(R.string.setting_shizuku_no_permission)
                 ShizukuState.READY -> stringResource(R.string.setting_shizuku_ready)

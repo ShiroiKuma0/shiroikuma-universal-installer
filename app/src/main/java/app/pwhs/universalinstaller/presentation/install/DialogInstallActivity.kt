@@ -351,6 +351,7 @@ class DialogInstallActivity : ComponentActivity() {
                             viewModel.clearDialogTarget()
                             finish()
                         },
+                        onPrivilegedUninstall = viewModel::uninstallConflictingApp,
                         onExistingAppUninstalled = {
                             viewModel.onConflictingAppUninstalled()
                             pendingRisks = pendingRisks.filterNot {

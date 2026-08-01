@@ -90,7 +90,7 @@ val appModule = module {
 
     viewModel {
         InstallViewModel(
-            get(), get(), get(), get(), get(), get(), get(), get(), get(),
+            get(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
             get(qualifier = org.koin.core.qualifier.named("appScope")),
         )
     }

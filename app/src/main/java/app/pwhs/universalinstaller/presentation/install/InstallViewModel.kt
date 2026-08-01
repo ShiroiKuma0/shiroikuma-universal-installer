@@ -39,6 +39,7 @@ import androidx.work.WorkManager
 import app.pwhs.universalinstaller.presentation.install.dialog.isDowngrade
 import app.pwhs.universalinstaller.util.SignatureCheck
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.core.util.RootShell
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.util.extension.getDisplayName
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +56,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.solrudev.ackpine.installer.PackageInstaller
+import ru.solrudev.ackpine.session.Session
+import ru.solrudev.ackpine.session.await
+import ru.solrudev.ackpine.session.parameters.Confirmation
+import ru.solrudev.ackpine.shizuku.shizuku
+import ru.solrudev.ackpine.uninstaller.PackageUninstaller
+import ru.solrudev.ackpine.uninstaller.createSession
 import ru.solrudev.ackpine.splits.Apk
 import ru.solrudev.ackpine.splits.CloseableSequence
 import ru.solrudev.ackpine.splits.ApkSplits.validate
@@ -79,6 +86,7 @@ class InstallViewModel(
     private val historyDao: InstallHistoryDao,
     private val downloadHistoryDao: app.pwhs.universalinstaller.data.local.DownloadHistoryDao,
     private val backendFactory: InstallerBackendFactory,
+    private val packageUninstaller: PackageUninstaller,
     private val appScope: kotlinx.coroutines.CoroutineScope,
 ) : ViewModel() {
 
@@ -1635,6 +1643,46 @@ class InstallViewModel(
             rikka.shizuku.Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
     } catch (t: Throwable) {
         Timber.w(t, "Shizuku readiness probe failed")
+        false
+    }
+
+    /**
+     * Remove the app that blocks this install, using the same backend the install itself will
+     * use. A Shizuku or root user should not be bounced to the system uninstaller dialog for
+     * something their privileged backend does silently.
+     *
+     * @return false when no privileged backend is active — the caller falls back to ACTION_DELETE.
+     */
+    suspend fun uninstallConflictingApp(packageName: String): Boolean {
+        if (packageName.isBlank()) return false
+        val controller = runCatching { activeController(_selectedProfileId.value) }.getOrNull()
+        val removed = when {
+            controller === shizukuController -> uninstallViaShizuku(packageName)
+            rootController != null && controller === rootController -> uninstallViaRoot(packageName)
+            else -> false
+        }
+        if (removed) onConflictingAppUninstalled()
+        return removed
+    }
+
+    /** Ackpine's Shizuku uninstall session — same mechanism the app manager already uses. */
+    private suspend fun uninstallViaShizuku(packageName: String): Boolean = try {
+        val session = packageUninstaller.createSession(packageName) {
+            confirmation = Confirmation.IMMEDIATE
+            shizuku {}
+        }
+        session.await() == Session.State.Succeeded
+    } catch (e: Exception) {
+        Timber.e(e, "Shizuku uninstall of $packageName failed")
+        false
+    }
+
+    private suspend fun uninstallViaRoot(packageName: String): Boolean = try {
+        // Plain `pm uninstall`, no -k: the risk text tells the user their data will be lost, so
+        // keeping it here would contradict what they just agreed to.
+        RootShell.exec("pm uninstall $packageName").isSuccess
+    } catch (e: Exception) {
+        Timber.e(e, "Root uninstall of $packageName failed")
         false
     }
 

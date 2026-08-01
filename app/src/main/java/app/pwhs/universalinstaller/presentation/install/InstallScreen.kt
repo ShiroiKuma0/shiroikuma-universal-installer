@@ -135,6 +135,7 @@ fun InstallScreen(
                 pendingAction = null
                 viewModel.dismissPendingInstall()
             },
+            onPrivilegedUninstall = viewModel::uninstallConflictingApp,
             onExistingAppUninstalled = {
                 viewModel.onConflictingAppUninstalled()
                 // Both of these only existed because the old copy was installed. Dropping them

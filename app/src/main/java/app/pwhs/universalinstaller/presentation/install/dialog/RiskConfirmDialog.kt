@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,6 +44,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.util.SignatureCheck
+import kotlinx.coroutines.launch
 
 /**
  * A risk the user must explicitly confirm before installing. We surface only items
@@ -112,6 +114,11 @@ fun RiskConfirmDialog(
     onCancel: () -> Unit,
     /** The conflicting app was actually removed — the caller should drop the risks it caused. */
     onExistingAppUninstalled: () -> Unit = {},
+    /**
+     * Remove the conflicting app through the backend this install will use. Returns false when no
+     * privileged backend is active, in which case we fall back to the system uninstaller.
+     */
+    onPrivilegedUninstall: (suspend (String) -> Boolean)? = null,
 ) {
     if (risks.isEmpty()) return
     val severe = risks.any { it is InstallRisk.VtMalicious }
@@ -144,7 +151,7 @@ fun RiskConfirmDialog(
                 // and without an identity Compose would reuse a card's slot — and its remembered
                 // activity-result launcher — for a different risk.
                 risks.forEach { risk ->
-                    key(risk) { RiskCard(risk, onExistingAppUninstalled) }
+                    key(risk) { RiskCard(risk, onExistingAppUninstalled, onPrivilegedUninstall) }
                 }
                 Text(
                     text = stringResource(R.string.dialog_risk_footer),
@@ -182,7 +189,11 @@ fun RiskConfirmDialog(
  * particular line — with two risks showing it was ambiguous which one it applied to.
  */
 @Composable
-private fun RiskCard(risk: InstallRisk, onExistingAppUninstalled: () -> Unit) {
+private fun RiskCard(
+    risk: InstallRisk,
+    onExistingAppUninstalled: () -> Unit,
+    onPrivilegedUninstall: (suspend (String) -> Boolean)?,
+) {
     val severe = risk is InstallRisk.VtMalicious
     val (icon: ImageVector, line: String) = when (risk) {
         is InstallRisk.Downgrade -> Icons.Rounded.Warning to
@@ -218,7 +229,7 @@ private fun RiskCard(risk: InstallRisk, onExistingAppUninstalled: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            RiskAction(risk, onExistingAppUninstalled)
+            RiskAction(risk, onExistingAppUninstalled, onPrivilegedUninstall)
         }
     }
 }
@@ -231,9 +242,14 @@ private fun RiskCard(risk: InstallRisk, onExistingAppUninstalled: () -> Unit) {
  * DialogInstallActivity get the actions without either having to pass anything in.
  */
 @Composable
-private fun RiskAction(risk: InstallRisk, onExistingAppUninstalled: () -> Unit) {
+private fun RiskAction(
+    risk: InstallRisk,
+    onExistingAppUninstalled: () -> Unit,
+    onPrivilegedUninstall: (suspend (String) -> Boolean)?,
+) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val scope = rememberCoroutineScope()
     val uninstallLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {

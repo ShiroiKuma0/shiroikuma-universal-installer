@@ -630,7 +630,8 @@
     <string name="installer_engine_root_unsupported">Für diesen Build nicht verfügbar</string>
     <string name="theme_preset_title">Farbschema</string>
     <string name="theme_preset_subtitle">Wähle ein primäres Farbschema für App-Akzente</string>
-    <string name="theme_preset_orange">Orange (Standard)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Standard)</string>
+    <string name="theme_preset_orange">Orange</string>
     <string name="theme_preset_blue">Ozeanblau</string>
     <string name="theme_preset_green">Waldgrün</string>
     <string name="theme_preset_red">Karmesinrot</string>

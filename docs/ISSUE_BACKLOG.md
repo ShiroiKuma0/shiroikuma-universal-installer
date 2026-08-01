@@ -21,7 +21,7 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
 
 ## Bug
 
-- [ ] **#100** — "Delete apk after installation" không chạy (Shizuku mode)
+- [x] **#100** — "Delete apk after installation" không chạy (Shizuku mode) — **ĐÃ ĐÓNG** 2026-08-01, fix ở `dd65b0e`
 
   Đã điều tra 2026-08-01. **Không liên quan gì tới Shizuku** — reporter nhầm biến số.
 

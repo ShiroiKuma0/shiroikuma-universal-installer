@@ -91,9 +91,34 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
   Root), và ảnh chụp đúng thông báo lỗi. Đừng sửa mò khi chưa có mấy thông tin này.
 
 - [ ] **#58** — Shizuku: `Session does not belong to uid` khi cài vào profile riêng (Android 11)
-  - Đường targeted: `ManualInstallController.installTargeted()` → `ManualTargetedInstaller`,
-    và `HiddenApiHacks.createPackageInstallerForUser()`.
-  - Nghi vấn: session tạo bằng uid này nhưng commit bằng uid khác. Cần máy Android 11.
+
+  Điều tra 2026-08-01. **Đã tìm ra nguyên nhân, đã sửa, CHƯA test được.**
+
+  Nghi vấn ban đầu (commit sai uid) **sai**. Lỗi nằm ở bước **ghi**, xảy ra trước commit:
+  - `ManualTargetedInstaller` gọi `targetedInstaller.openSession(sessionId)`. Hàm này của
+    framework làm `new Session(mInstaller.openSession(id))` — lời gọi *mở* đi qua binder đã bọc
+    Shizuku (chạy dưới shell), nhưng **session binder trả về được dùng thô**. Mọi lời gọi sau đó,
+    đặc biệt là `openWrite`, transact từ uid của app (10xxx) tới một session do shell (2000) sở
+    hữu → `PackageInstallerSession.assertCallerIsOwnerOrRoot()` ném
+    `SecurityException("Session does not belong to uid ...")`. Khớp đúng chuỗi lỗi reporter gửi.
+  - Workaround `pm install-commit` qua Shizuku shell đã có sẵn trong code là đúng hướng nhưng
+    **không bao giờ chạy tới** vì `openWrite` chết trước.
+
+  Bằng chứng: ackpine (thư viện app đang dùng, Shizuku install thường của nó chạy tốt) bọc
+  binder session **thêm lần nữa** — `PackageInstallerProxy.openSession()`:
+  ```kotlin
+  val remoteSession = IPackageInstallerSession.Stub.asInterface(
+      wrapBinder(remotePackageInstaller.openSession(sessionId).asBinder()))
+  ```
+  Danh sách hidden-API exemption của nó cũng có `Landroid/content/pm/IPackageInstallerSession`,
+  cái mà `HiddenApiHacks` đang thiếu.
+
+  Đã sửa: thêm `HiddenApiHacks.openWrappedSession()` bọc binder session qua `ShizukuBinderWrapper`
+  rồi dựng `PackageInstaller.Session` bằng reflection; `ManualTargetedInstaller` dùng hàm này.
+
+  **Chưa verify.** Cần Android 11 + Shizuku + work profile. Đường targeted chỉ chạy khi user chọn
+  profile cụ thể (`targetedUserId != null`, `InstallViewModel.kt:453`) nên không đụng luồng cài
+  thường — hiện tại nó hỏng 100%, sửa không thể làm tệ hơn.
 
 - [ ] **#30** — Đổi installation source không ăn, app info vẫn hiện "Universal Installer"
   - `InstallerOverrides.kt`, cờ `ROOT_SET_INSTALL_SOURCE` / `installerPackageName` trong

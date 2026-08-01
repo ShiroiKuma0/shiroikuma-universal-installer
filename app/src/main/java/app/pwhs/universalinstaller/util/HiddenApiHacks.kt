@@ -2,6 +2,7 @@ package app.pwhs.universalinstaller.util
 
 import android.content.Context
 import android.content.pm.IPackageInstaller
+import android.content.pm.IPackageInstallerSession
 import android.content.pm.IPackageManager
 import android.content.pm.PackageInstaller
 import android.os.Build
@@ -17,7 +18,7 @@ import timber.log.Timber
  */
 object HiddenApiHacks {
 
-    fun createPackageInstallerForUser(context: Context, userId: Int, overrideInstallerPackageName: String? = null): PackageInstaller? {
+    private fun addExemptions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             // Prefix match — keep trailing `;` off so e.g. `IPackageInstaller$Stub` is covered
             // too. With `;` the prefix terminates at the outer class and nested Stubs throw
@@ -26,17 +27,57 @@ object HiddenApiHacks {
             HiddenApiBypass.addHiddenApiExemptions(
                 "Landroid/content/pm/IPackageManager",
                 "Landroid/content/pm/IPackageInstaller",
+                "Landroid/content/pm/IPackageInstallerSession",
                 "Landroid/content/pm/PackageInstaller",
                 "Landroid/os/UserHandle",
             )
         }
+    }
+
+    /** The system PackageInstaller, reached over Shizuku so calls run as shell. */
+    private fun remotePackageInstaller(): IPackageInstaller {
+        val packageBinder = SystemServiceHelper.getSystemService("package")
+        val iPackageManager = IPackageManager.Stub.asInterface(ShizukuBinderWrapper(packageBinder))
+        return IPackageInstaller.Stub.asInterface(
+            ShizukuBinderWrapper(iPackageManager.packageInstaller.asBinder())
+        )
+    }
+
+    /**
+     * Open an existing session with **every** call on it routed back through Shizuku.
+     *
+     * [PackageInstaller.openSession] cannot be used for this. It does `new Session(mInstaller
+     * .openSession(id))` — the open call goes through our Shizuku-wrapped binder, but the session
+     * binder it returns is used raw, so later calls (`openWrite` above all) are transacted from
+     * our own uid. The session belongs to shell, so system_server rejects them with
+     * "Session does not belong to uid <ours>" — issue #58.
+     *
+     * Ackpine's own privileged installer wraps the session binder for exactly this reason
+     * (`PackageInstallerProxy.openSession`), which is why its non-targeted Shizuku installs work.
+     */
+    fun openWrappedSession(sessionId: Int): PackageInstaller.Session? {
+        addExemptions()
+        return try {
+            val remoteSession = IPackageInstallerSession.Stub.asInterface(
+                ShizukuBinderWrapper(remotePackageInstaller().openSession(sessionId).asBinder())
+            )
+            // Reflection rather than the stub's PackageInstallerHidden.SessionHidden: that relies
+            // on the `dev.rikka.tools.refine` bytecode rewriter, which this module doesn't apply.
+            PackageInstaller.Session::class.java
+                .getDeclaredConstructor(IPackageInstallerSession::class.java)
+                .apply { isAccessible = true }
+                .newInstance(remoteSession)
+        } catch (t: Throwable) {
+            Timber.e(t, "openWrappedSession failed (sessionId=$sessionId)")
+            null
+        }
+    }
+
+    fun createPackageInstallerForUser(context: Context, userId: Int, overrideInstallerPackageName: String? = null): PackageInstaller? {
+        addExemptions()
 
         return try {
-            val packageBinder = SystemServiceHelper.getSystemService("package")
-            val iPackageManager = IPackageManager.Stub.asInterface(ShizukuBinderWrapper(packageBinder))
-            val iPackageInstaller = IPackageInstaller.Stub.asInterface(
-                ShizukuBinderWrapper(iPackageManager.packageInstaller.asBinder())
-            )
+            val iPackageInstaller = remotePackageInstaller()
 
             val installerPackageName = overrideInstallerPackageName ?: if (rikka.shizuku.Shizuku.getUid() == 0) {
                 context.packageName

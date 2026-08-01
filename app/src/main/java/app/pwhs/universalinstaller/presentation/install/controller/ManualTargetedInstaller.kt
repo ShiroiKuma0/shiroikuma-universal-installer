@@ -32,7 +32,12 @@ object ManualTargetedInstaller {
             
             val sessionId = targetedInstaller.createSession(params)
             try {
-                targetedInstaller.openSession(sessionId).use { session ->
+                // Not targetedInstaller.openSession(): that hands back a raw session binder and
+                // openWrite below would then run as our own uid against a shell-owned session,
+                // which is the "Session does not belong to uid" failure in issue #58.
+                val opened = HiddenApiHacks.openWrappedSession(sessionId)
+                    ?: throw RuntimeException("Failed to open install session $sessionId")
+                opened.use { session ->
                     uris.forEachIndexed { index, uri ->
                         val name = "apk_$index.apk"
                         val pfd = context.contentResolver.openFileDescriptor(uri, "r")

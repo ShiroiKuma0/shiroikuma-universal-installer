@@ -17,14 +17,17 @@ side-by-side with the official app. The fork follows the same model as 白い熊
 | Code namespace (UNCHANGED) | `app.pwhs.universalinstaller` (R/BuildConfig/AIDL/FileProvider class names — never touch) |
 | App label | `白い熊 Universal installer` (`app_name`, `translatable="false"`, in **every** `app/src/main/res/values*/strings.xml`) |
 | What we build | single release (root + all features) → task `:app:buildFork` (`assembleRelease`) |
-| Fork version | `versionName = "<VERSION_NAME>+<BUILD_NUMBER>"`, `versionCode = VERSION_CODE*10000+BUILD_NUMBER` (`gradle.properties`) |
+| Fork version | `versionName = "<VERSION_NAME>+<BUILD_NUMBER zero-padded to 3, e.g. 1.9.11+013>"`, `versionCode = VERSION_CODE*10000+BUILD_NUMBER` (`gradle.properties`) |
 | Signing keystore | `~/.android-keystores/shiroikuma-universalinstaller.jks` (alias `universalinstaller`), via gitignored `key.properties` |
 | Build JDK | OpenJDK 21 at `/usr/lib/jvm/java-21-openjdk-amd64` (default `java` here is 11) |
 | APK output | `~/tmp/shiroikuma-universal-installer_<versionName>.apk`; on phone → `/sdcard/tmp/` |
 
 `VERSION_NAME` / `VERSION_CODE` track upstream; `BUILD_NUMBER` is our increment — it **resets to 1** on each
-new upstream version and **bumps by 1 on every build** (`buildFork` does the bump). Keep our customizations a
-small, legible layer on top of upstream (rebase, don't merge).
+new upstream version and **bumps by 1 on every build** (`buildFork` does the bump). It is stored unpadded in
+`gradle.properties` but always **written zero-padded to three digits** in the `versionName`, and therefore in
+the APK filename and release tags (`1.9.11+013`), so build artifacts sort in build order (`+10` would
+otherwise sort before `+3`). Builds made before 2026-08-01 keep their unpadded names — never rename them.
+Keep our customizations a small, legible layer on top of upstream (rebase, don't merge).
 
 **Hard rules (every session):** never `git commit` / `git push` unprompted — only when 白い熊 explicitly says
 **"Push"** (then commit + `git push origin custom`). Never `adb install` / `pm install` — at most `adb push`

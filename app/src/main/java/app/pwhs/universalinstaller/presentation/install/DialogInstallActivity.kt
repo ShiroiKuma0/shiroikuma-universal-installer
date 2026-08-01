@@ -55,6 +55,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
+import app.pwhs.universalinstaller.ui.theme.ForkUiDefaults
 
 class DialogInstallActivity : ComponentActivity() {
 
@@ -366,12 +367,14 @@ class DialogInstallActivity : ComponentActivity() {
                 dismissAndFinish()
             }
 
-            val themeModeName = prefs?.get(stringPreferencesKey("theme_mode")) ?: ThemeMode.System.name
-            val themeMode = ThemeMode.entries.find { it.name == themeModeName } ?: ThemeMode.System
-            val dynamicColor = prefs?.get(booleanPreferencesKey("dynamic_color")) ?: false
-            val amoledMode = prefs?.get(booleanPreferencesKey("amoled_mode")) ?: false
-            val presetName = prefs?.get(stringPreferencesKey("theme_preset")) ?: AppThemePreset.Orange.name
-            val themePreset = AppThemePreset.entries.find { it.name == presetName } ?: AppThemePreset.Orange
+            // Fork defaults (ForkUiDefaults), same as Preferences.toAppThemeState() — the install
+            // dialog reads the raw keys itself, so it has to agree with the rest of the app.
+            val themeModeName = prefs?.get(stringPreferencesKey("theme_mode")) ?: ForkUiDefaults.Mode.name
+            val themeMode = ThemeMode.entries.find { it.name == themeModeName } ?: ForkUiDefaults.Mode
+            val dynamicColor = prefs?.get(booleanPreferencesKey("dynamic_color")) ?: ForkUiDefaults.DynamicColor
+            val amoledMode = prefs?.get(booleanPreferencesKey("amoled_mode")) ?: ForkUiDefaults.Amoled
+            val presetName = prefs?.get(stringPreferencesKey("theme_preset")) ?: ForkUiDefaults.Preset.name
+            val themePreset = AppThemePreset.entries.find { it.name == presetName } ?: ForkUiDefaults.Preset
 
             DialogInstallContent(
                 uiState = uiState,

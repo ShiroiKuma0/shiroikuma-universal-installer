@@ -105,8 +105,8 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         .collectAsState(initial = ThemeMode.System.name)
 
     val themePresetName by context.dataStore.data
-        .map { it[stringPreferencesKey("theme_preset")] ?: AppThemePreset.Orange.name }
-        .collectAsState(initial = AppThemePreset.Orange.name)
+        .map { it[stringPreferencesKey("theme_preset")] ?: AppThemePreset.Yellow.name }
+        .collectAsState(initial = AppThemePreset.Yellow.name)
 
     LazyColumn(
         modifier = modifier

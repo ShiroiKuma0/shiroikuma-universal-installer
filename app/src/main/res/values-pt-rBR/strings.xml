@@ -633,7 +633,8 @@
     <string name="installer_engine_root_unsupported">Indisponível nesta versão</string>
     <string name="theme_preset_title">Tema de cores</string>
     <string name="theme_preset_subtitle">Selecione um esquema de cores primário para os destaques do app</string>
-    <string name="theme_preset_orange">Laranja (Padrão)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Padrão)</string>
+    <string name="theme_preset_orange">Laranja</string>
     <string name="theme_preset_blue">Azul oceano</string>
     <string name="theme_preset_green">Verde floresta</string>
     <string name="theme_preset_red">Vermelho carmesim</string>

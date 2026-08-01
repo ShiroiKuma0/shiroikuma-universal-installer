@@ -630,7 +630,8 @@
     <string name="installer_engine_root_unsupported">이 빌드에서는 사용할 수 없음</string>
     <string name="theme_preset_title">색상 테마</string>
     <string name="theme_preset_subtitle">앱 강조 색상의 기본 색 구성표 선택</string>
-    <string name="theme_preset_orange">오렌지 (기본값)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (기본값)</string>
+    <string name="theme_preset_orange">오렌지</string>
     <string name="theme_preset_blue">오션 블루</string>
     <string name="theme_preset_green">포레스트 그린</string>
     <string name="theme_preset_red">크림슨 레드</string>

@@ -660,7 +660,8 @@
     <string name="installer_engine_root_unsupported">Tidak tersedia di versi ini</string>
     <string name="theme_preset_title">Tema Warna</string>
     <string name="theme_preset_subtitle">Pilih skema warna utama untuk aksen aplikasi</string>
-    <string name="theme_preset_orange">Oranye (Default)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Default)</string>
+    <string name="theme_preset_orange">Oranye</string>
     <string name="theme_preset_blue">Biru Laut</string>
     <string name="theme_preset_green">Hijau Hutan</string>
     <string name="theme_preset_red">Merah Crimson</string>

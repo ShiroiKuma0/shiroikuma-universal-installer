@@ -6,11 +6,11 @@
 
 **A package installer you can theme down to the last button, border and progress line.**
 
-A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine, per-surface and per-element styling of the install dialog, custom imported fonts, a categorized **whole-app config export/import** with a one-tap export directory, **headless token-gated backup** for external automation, and a black/yellow kxkb-styled settings page.
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine that is **black-and-yellow out of the box**, per-surface and per-element styling of the install dialog, custom imported fonts, a categorized **whole-app config export/import** with a one-tap export directory, **headless token-gated backup** for external automation, and Shizuku that actually talks to **白い熊 雫**.
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.9.11+11`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.9.11+016`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -54,21 +54,21 @@ The 白い熊 Installer UI page follows the kxkb look: flat sections with yellow
 
 ---
 
-## ⚫🟡 Black-and-yellow branding
+## ⚫🟡 Black and yellow, out of the box
 
-A custom **black/yellow launcher icon**, and a splash with a black background, the black/yellow mark and a yellow title + tagline — so the fork is unmistakable in your launcher and app switcher.
+The 白い熊 look is **compiled in as the default**, not something you configure: a fresh install already opens black with yellow text, items and borders — its own **白い熊 Yellow** color preset, dark and AMOLED, **Material You off** so wallpaper colors can never repaint the app. Every UI preference simply *resolves* to it when nothing is stored, so the settings page shows real values instead of blanks and "reset" returns here rather than to stock Material. Anything you set still wins. Plus a custom **black/yellow launcher icon** and a black splash with a yellow title + tagline, so the fork is unmistakable in your launcher and app switcher.
 
 ---
 
 ## 🔑 Shizuku that works with 白い熊 雫
 
-Silent installs authorize against **白い熊 雫** (`shiroikuma.shizuku`) as well as stock Shizuku, with no Compat Hub stub in between. The app requests both `API_V23` permission names, so the server grants whichever one it actually defines — on stock Shizuku nothing changes at all.
+Silent installs authorize against **白い熊 雫** (`shiroikuma.shizuku`) as well as stock Shizuku, with no Compat Hub stub in between. The app requests both `API_V23` permission names, so the server grants whichever one it actually defines — and it accepts **both binder envelopes**, the modern `rikka.shizuku.BinderContainer` a current server sends first and the legacy one the last published client library (13.1.5, from 2023) knows. Without that, the hand-off threw `ClassNotFoundException`, the binder was silently dropped, and Shizuku read as "not running" forever with the service up and the permission granted. The picker also **names the Shizuku you actually have** — "白い熊 雫 is installed but its service isn't running" — and offers a button to open it, instead of a generic hint about an app it cannot identify.
 
 ---
 
-## 🔧 Install-flow fix
+## 🔧 Install-flow fixes
 
-Drops the false **"data may be wiped"** downgrade warning that stock shows even when it doesn't apply.
+Long version names — the `6.3.0-alpha.2026-07-30.g5c0ed6a3+002` kind our forks produce — used to tear the install dialog apart: the old version ate the full width and the new one wrapped into a one-character-per-line ribbon spilling past the card. The two are now measured first and, when they don't fit side by side, stacked with a downward arrow, each wrapping properly; the Details card wraps the full version too instead of ellipsising it mid-string. And the false **"data may be wiped"** downgrade warning stock shows even when it doesn't apply is gone.
 
 ---
 

@@ -34,3 +34,14 @@
 -keepclassmembers class rikka.shizuku.Shizuku {
     private static *** newProcess(...);
 }
+
+# rikka.shizuku.BinderContainer is OUR class (the library only ships the moe.shizuku.api one) and
+# it is resolved BY NAME: the Shizuku server writes the class name into the parcel and
+# Parcel.readParcelableCreator does Class.forName on it. Renaming it would resurrect exactly the
+# ClassNotFoundException this class exists to fix, and it would fail silently — the binder is
+# simply never delivered and Shizuku reads as "not running". Mirrors the rule the library ships
+# for its own container.
+-keepnames class rikka.shizuku.BinderContainer
+-keepclassmembers class rikka.shizuku.BinderContainer {
+    public static final android.os.Parcelable$Creator CREATOR;
+}

@@ -12,6 +12,7 @@ import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.ui.theme.AppSurface
 import app.pwhs.universalinstaller.ui.theme.BottomBarTheme
+import app.pwhs.universalinstaller.ui.theme.ForkUiDefaults
 import app.pwhs.universalinstaller.ui.theme.BottomBarThemeStore
 import app.pwhs.universalinstaller.ui.theme.SurfaceTheme
 import app.pwhs.universalinstaller.ui.theme.SurfaceThemeStore
@@ -44,7 +45,7 @@ data class InstallerUiState(
     val fontWeight: Int = 0,
     val fontScale: Float = 1f,
     val monoTechnical: Boolean = false,
-    val accentColor: Int = 0,
+    val accentColor: Int = ForkUiDefaults.Yellow,
     val cornerScale: Float = 1f,
 )
 
@@ -58,7 +59,7 @@ class InstallerUiViewModel(private val application: Application) : ViewModel() {
                 fontWeight = prefs[PreferencesKeys.UI_FONT_WEIGHT] ?: 0,
                 fontScale = prefs[PreferencesKeys.UI_FONT_SCALE] ?: 1f,
                 monoTechnical = prefs[PreferencesKeys.UI_MONO_TECHNICAL] ?: false,
-                accentColor = prefs[PreferencesKeys.UI_ACCENT_COLOR] ?: 0,
+                accentColor = prefs[PreferencesKeys.UI_ACCENT_COLOR] ?: ForkUiDefaults.Yellow,
                 cornerScale = prefs[PreferencesKeys.UI_CORNER_SCALE] ?: 1f,
             )
         }

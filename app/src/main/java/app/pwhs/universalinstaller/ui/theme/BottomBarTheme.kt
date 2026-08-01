@@ -14,12 +14,14 @@ import kotlinx.serialization.json.Json
  */
 @Serializable
 data class BottomBarTheme(
-    val container: Int? = null,        // bar background
-    val selectedIcon: Int? = null,
-    val selectedText: Int? = null,
-    val indicator: Int? = null,        // selected pill behind the icon
-    val unselectedIcon: Int? = null,
-    val unselectedText: Int? = null,
+    // Defaults are the compiled-in 白い熊 look (see [ForkUiDefaults]): black bar, yellow selection,
+    // dimmed yellow for the unselected tabs. A stored value still wins.
+    val container: Int? = ForkUiDefaults.Black,        // bar background
+    val selectedIcon: Int? = ForkUiDefaults.Yellow,
+    val selectedText: Int? = ForkUiDefaults.Yellow,
+    val indicator: Int? = ForkUiDefaults.Black,        // selected pill behind the icon
+    val unselectedIcon: Int? = ForkUiDefaults.YellowDim,
+    val unselectedText: Int? = ForkUiDefaults.YellowDim,
 ) {
     val hasOverride: Boolean
         get() = container != null || selectedIcon != null || selectedText != null ||

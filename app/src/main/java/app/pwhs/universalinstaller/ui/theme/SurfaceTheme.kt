@@ -43,16 +43,20 @@ val LocalTopIconColor = staticCompositionLocalOf<Color?> { null }
 
 @Serializable
 data class SurfaceTheme(
-    val accent: Int? = null,         // -> primary
-    val titleText: Int? = null,      // -> onSurface / onBackground
-    val secondaryText: Int? = null,  // -> onSurfaceVariant
-    val card: Int? = null,           // -> surfaceContainer* (cards + dialog card)
-    val background: Int? = null,     // -> background / surface
+    // Colour defaults are the compiled-in 白い熊 look (see [ForkUiDefaults]) rather than null:
+    // an unconfigured install must already be black/yellow, and "reset" in the Installer UI page
+    // has to land here, not on upstream's Material palette. Roles that carry meaning rather than
+    // identity — danger (red) and success — stay null so they inherit the app theme.
+    val accent: Int? = ForkUiDefaults.Yellow,         // -> primary
+    val titleText: Int? = ForkUiDefaults.Yellow,      // -> onSurface / onBackground
+    val secondaryText: Int? = ForkUiDefaults.YellowDim, // -> onSurfaceVariant
+    val card: Int? = ForkUiDefaults.Black,            // -> surfaceContainer* (cards + dialog card)
+    val background: Int? = ForkUiDefaults.Black,      // -> background / surface
     val danger: Int? = null,         // -> error
     val success: Int? = null,        // -> tertiary
     val highlight: Int? = null,      // -> primaryContainer
-    val borderColor: Int? = null,    // dialog card border colour
-    val borderWidth: Float? = null,  // dialog card border width in dp; null/0 = no border
+    val borderColor: Int? = ForkUiDefaults.Yellow,    // dialog card border colour
+    val borderWidth: Float? = ForkUiDefaults.BorderWidth, // dialog card border width in dp; 0 = none
     val progressColor: Int? = null,       // install-dialog progress line colour; null = accent/primary
     val progressThickness: Float? = null, // install-dialog progress line thickness in dp; null = default
     val successCircle: Int? = null,  // install-dialog success badge circle colour; null = yellow default
@@ -63,7 +67,7 @@ data class SurfaceTheme(
     val badgeText: Int? = null,           // backend badge text + icon colour; null = yellow default
     val badgeBorder: Int? = null,         // backend badge border colour; null = yellow default
     val badgeBorderWidth: Float? = null,  // backend badge border width in dp; null = default
-    val topIconColor: Int? = null,        // main page: top-bar action-icon tint; null = default content colour
+    val topIconColor: Int? = ForkUiDefaults.Yellow, // main page: top-bar action-icon tint
     val fontFamily: String? = null,  // null = inherit; "" = system; "@monospace"; else imported filename
     val fontWeight: Int? = null,     // null = inherit; else 100..900
     val fontScale: Float? = null,    // null/1f = inherit size
@@ -71,21 +75,10 @@ data class SurfaceTheme(
     val buttons: Map<String, ButtonStyle> = emptyMap(),
     // Per-text-category overrides (install dialog only), keyed by category (app_label/version/…).
     val texts: Map<String, TextStyleOverride> = emptyMap(),
-) {
-    val hasColorOverride: Boolean
-        get() = accent != null || titleText != null || secondaryText != null || card != null ||
-            background != null || danger != null || success != null || highlight != null
-
-    val hasAnyOverride: Boolean
-        get() = hasColorOverride || borderColor != null || borderWidth != null ||
-            progressColor != null || progressThickness != null || topIconColor != null ||
-            successCircle != null || successTick != null ||
-            successCircleThickness != null || successTickThickness != null ||
-            badgeBackground != null || badgeText != null ||
-            badgeBorder != null || badgeBorderWidth != null ||
-            fontFamily != null || fontWeight != null || fontScale != null ||
-            buttons.isNotEmpty() || texts.isNotEmpty()
-}
+)
+// (The old hasColorOverride / hasAnyOverride fast paths are gone: now that the fork defaults are
+// non-null, every surface always has a theme to apply, so the "nothing set, skip the wrapper"
+// short-circuits could never be taken.)
 
 /** Per-button style override; any null field inherits the button's default. */
 @Serializable
@@ -133,7 +126,6 @@ private fun onContainerFor(c: Color, dark: Boolean): Color =
 
 /** Overlay a surface's chosen colour roles onto this scheme; untouched roles inherit. */
 fun ColorScheme.applySurface(t: SurfaceTheme, isDark: Boolean): ColorScheme {
-    if (!t.hasColorOverride) return this
     var s = this
     t.accent?.let { Color(it).let { c -> s = s.copy(
         primary = c, onPrimary = onColorFor(c),
@@ -175,11 +167,6 @@ fun ThemedSurface(surface: AppSurface, content: @Composable () -> Unit) {
     }
     val flow = remember(surface) { context.dataStore.data.map { SurfaceThemeStore.from(it, surface) } }
     val theme by flow.collectAsState(initial = initial)
-
-    if (!theme.hasAnyOverride) {
-        content()
-        return
-    }
 
     val base = MaterialTheme.colorScheme
     val isDark = base.background.luminance() < 0.5f

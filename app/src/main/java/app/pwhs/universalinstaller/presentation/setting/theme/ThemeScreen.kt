@@ -23,6 +23,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
 import app.pwhs.core.domain.ThemeMode
 import app.pwhs.core.domain.AppThemePreset
+import app.pwhs.universalinstaller.ui.theme.ForkUiDefaults
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
@@ -64,7 +65,7 @@ private fun ThemeUi(
     themeMode: ThemeMode = ThemeMode.System,
     dynamicColor: Boolean = false,
     amoledMode: Boolean = false,
-    themePreset: AppThemePreset = AppThemePreset.Orange,
+    themePreset: AppThemePreset = ForkUiDefaults.Preset,
     onThemeChanged: (ThemeMode) -> Unit = {},
     onDynamicColorChanged: (Boolean) -> Unit = {},
     onAmoledModeChanged: (Boolean) -> Unit = {},
@@ -246,6 +247,7 @@ private fun ThemePresetCard(
     onClick: () -> Unit
 ) {
     val primaryColor = when (preset) {
+        AppThemePreset.Yellow -> Color(0xFFFFEB3B)
         AppThemePreset.Orange -> Color(0xFFEA580C)
         AppThemePreset.Blue -> Color(0xFF0284C7)
         AppThemePreset.Green -> Color(0xFF16A34A)
@@ -253,6 +255,7 @@ private fun ThemePresetCard(
         AppThemePreset.Purple -> Color(0xFF7C3AED)
     }
     val secondaryColor = when (preset) {
+        AppThemePreset.Yellow -> Color(0xFF000000)
         AppThemePreset.Orange -> Color(0xFF3B82F6)
         AppThemePreset.Blue -> Color(0xFF0F766E)
         AppThemePreset.Green -> Color(0xFF0891B2)
@@ -260,6 +263,7 @@ private fun ThemePresetCard(
         AppThemePreset.Purple -> Color(0xFFDB2777)
     }
     val nameRes = when (preset) {
+        AppThemePreset.Yellow -> R.string.theme_preset_yellow
         AppThemePreset.Orange -> R.string.theme_preset_orange
         AppThemePreset.Blue -> R.string.theme_preset_blue
         AppThemePreset.Green -> R.string.theme_preset_green

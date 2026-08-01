@@ -12,7 +12,9 @@ import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.setting.InstallMode
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
+import app.pwhs.universalinstaller.presentation.setting.ShizukuManagerApp
 import app.pwhs.universalinstaller.presentation.setting.ShizukuState
+import app.pwhs.universalinstaller.presentation.setting.UiMessage
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import app.pwhs.universalinstaller.util.DhizukuCompat
@@ -36,8 +38,52 @@ class SettingPrivilegeDelegate(
     private val scope: CoroutineScope,
     private val backendFactory: InstallerBackendFactory,
     private val emitEvent: (Int) -> Unit,
+    /** Like [emitEvent], but for messages that carry format args (e.g. the manager's label). */
+    private val emitMessage: (UiMessage) -> Unit,
 ) {
     private val dataStore = application.dataStore
+
+    /**
+     * Permission names that identify an installed Shizuku manager, in the order the fork's server
+     * (`BinderSender`) itself matches them: 白い熊 雫 defines the `af.shizuku.plus.*` name, stock
+     * Shizuku the `moe.shizuku.manager.*` one. Whichever package *defines* one of these is the
+     * manager app — the client API never names a package, so this lookup is the only way we can
+     * tell the user which Shizuku they actually have.
+     */
+    private val shizukuPermissionNames = listOf(
+        "af.shizuku.plus.permission.API_V23",
+        "af.shizuku.manager.permission.API_V23",
+        "moe.shizuku.manager.permission.API_V23",
+    )
+
+    /** Installed Shizuku manager (package id + app label), or null when none is installed. */
+    private val _shizukuManager = MutableStateFlow(findShizukuManager())
+    val shizukuManager: StateFlow<ShizukuManagerApp?> = _shizukuManager.asStateFlow()
+
+    private fun findShizukuManager(): ShizukuManagerApp? {
+        val pm = application.packageManager
+        val packageName = shizukuPermissionNames.firstNotNullOfOrNull { name ->
+            runCatching { pm.getPermissionInfo(name, 0).packageName }.getOrNull()
+        } ?: return null
+        val label = runCatching {
+            pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString()
+        }.getOrNull() ?: packageName
+        return ShizukuManagerApp(packageName, label)
+    }
+
+    /** Open the installed Shizuku manager so the user can start its service. */
+    fun openShizukuManager() {
+        val pkg = _shizukuManager.value?.packageName ?: return
+        val intent = application.packageManager.getLaunchIntentForPackage(pkg)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (intent == null) {
+            Timber.w("No launch intent for Shizuku manager %s", pkg)
+            return
+        }
+        runCatching { application.startActivity(intent) }
+            .onFailure { Timber.w(it, "Failed to open Shizuku manager %s", pkg) }
+    }
 
     private val _shizukuState = MutableStateFlow(ShizukuState.NOT_INSTALLED)
     val shizukuState: StateFlow<ShizukuState> = _shizukuState.asStateFlow()
@@ -106,7 +152,12 @@ class SettingPrivilegeDelegate(
 
     fun updateShizukuState() {
         _shizukuState.value = when {
-            !Shizuku.pingBinder() -> ShizukuState.NOT_RUNNING
+            !Shizuku.pingBinder() -> {
+                // Re-scan: the manager may have been installed or removed since the last check.
+                val manager = findShizukuManager()
+                _shizukuManager.value = manager
+                if (manager == null) ShizukuState.NOT_INSTALLED else ShizukuState.NOT_RUNNING
+            }
             Shizuku.getVersion() < 11 -> ShizukuState.UNSUPPORTED
             Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuState.NO_PERMISSION
             else -> ShizukuState.READY
@@ -152,15 +203,43 @@ class SettingPrivilegeDelegate(
             }
             return
         }
-        updateShizukuState()
-        when (_shizukuState.value) {
-            ShizukuState.READY -> scope.launch {
-                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
+        scope.launch {
+            // The Shizuku server PUSHES its binder into our process (BinderSender reacts to
+            // process/uid events); we never fetch it. So right after a cold start pingBinder() is
+            // false for a moment even when the service is perfectly healthy, and an instant verdict
+            // here used to report "not running" on a working setup. Give the push a moment to land
+            // before judging — same reasoning as BackendSelfHeal.awaitShizukuReady().
+            awaitShizukuBinder()
+            updateShizukuState()
+            when (_shizukuState.value) {
+                ShizukuState.READY ->
+                    dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
+                ShizukuState.NO_PERMISSION -> requestShizukuPermission()
+                ShizukuState.NOT_RUNNING -> emitMessage(notRunningMessage())
+                ShizukuState.NOT_INSTALLED -> emitEvent(R.string.setting_shizuku_install_hint)
+                ShizukuState.UNSUPPORTED -> emitEvent(R.string.setting_shizuku_unsupported)
             }
-            ShizukuState.NO_PERMISSION -> requestShizukuPermission()
-            ShizukuState.NOT_RUNNING -> emitEvent(R.string.setting_shizuku_start_service_hint)
-            ShizukuState.NOT_INSTALLED -> emitEvent(R.string.setting_shizuku_install_hint)
-            ShizukuState.UNSUPPORTED -> emitEvent(R.string.setting_shizuku_unsupported)
+        }
+    }
+
+    /** "Open 白い熊 雫 and start the service first" — names the manager when we know which it is. */
+    private fun notRunningMessage(): UiMessage {
+        val label = _shizukuManager.value?.label
+            ?: return UiMessage(R.string.setting_shizuku_start_service_hint)
+        return UiMessage(R.string.setting_shizuku_start_service_hint_named, listOf(label))
+    }
+
+    /**
+     * Poll until the Shizuku binder shows up, up to [timeoutMs]. Returns immediately when no
+     * manager app is installed at all — there is nothing that could deliver a binder then.
+     */
+    private suspend fun awaitShizukuBinder(timeoutMs: Long = 2000L, stepMs: Long = 100L) {
+        if (findShizukuManager() == null) return
+        var elapsed = 0L
+        while (elapsed <= timeoutMs) {
+            if (runCatching { Shizuku.pingBinder() }.getOrDefault(false)) return
+            kotlinx.coroutines.delay(stepMs)
+            elapsed += stepMs
         }
     }
 

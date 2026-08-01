@@ -1,18 +1,31 @@
 package app.pwhs.universalinstaller.presentation.setting
 
+import androidx.annotation.StringRes
 import app.pwhs.core.domain.AppThemePreset
 import app.pwhs.core.domain.ThemeMode
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
+import app.pwhs.universalinstaller.ui.theme.ForkUiDefaults
 
 const val DEFAULT_INSTALLER_PACKAGE_NAME = "com.android.vending"
 
 data class SettingThemeState(
-    val mode: ThemeMode = ThemeMode.System,
-    val dynamicColor: Boolean = false,
-    val amoledMode: Boolean = false,
-    val themePreset: AppThemePreset = AppThemePreset.Orange,
+    // Fork defaults: 白い熊 black/yellow, dark, AMOLED, no Material You (see ForkUiDefaults).
+    val mode: ThemeMode = ForkUiDefaults.Mode,
+    val dynamicColor: Boolean = ForkUiDefaults.DynamicColor,
+    val amoledMode: Boolean = ForkUiDefaults.Amoled,
+    val themePreset: AppThemePreset = ForkUiDefaults.Preset,
 )
+
+/** One-shot UI message: a string resource plus the format args it takes (empty for plain strings). */
+data class UiMessage(@StringRes val res: Int, val formatArgs: List<Any> = emptyList())
+
+/**
+ * The installed Shizuku manager app — 白い熊 雫, stock Shizuku, whichever package defines the
+ * Shizuku API permission. The client API is package-agnostic (it only ever waits for a binder to
+ * be pushed to it), so this is purely so the UI can name the app the user is supposed to open.
+ */
+data class ShizukuManagerApp(val packageName: String, val label: String)
 
 data class SyncOptions(
     val requirePin: Boolean = true,
@@ -137,10 +150,10 @@ data class RootOptions(
 
 data class SettingUiState(
     val isLoading: Boolean = true,
-    val themeMode: ThemeMode = ThemeMode.System,
-    val dynamicColor: Boolean = false,
-    val amoledMode: Boolean = false,
-    val themePreset: AppThemePreset = AppThemePreset.Orange,
+    val themeMode: ThemeMode = ForkUiDefaults.Mode,
+    val dynamicColor: Boolean = ForkUiDefaults.DynamicColor,
+    val amoledMode: Boolean = ForkUiDefaults.Amoled,
+    val themePreset: AppThemePreset = ForkUiDefaults.Preset,
     val useShizuku: Boolean = false,
     val useRoot: Boolean = false,
     val virusTotalApiKey: String = "",

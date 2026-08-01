@@ -264,6 +264,7 @@ internal fun InstallSourceItem(
 internal fun InstallModeSelector(
     currentMode: InstallMode,
     shizukuState: ShizukuState,
+    shizukuManagerLabel: String?,
     rootSupported: Boolean,
     rootState: RootState,
     /** True while the Dhizuku switch is on, in which case this picker is not what runs installs. */
@@ -325,7 +326,9 @@ internal fun InstallModeSelector(
             InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default_sub)
             InstallMode.SHIZUKU -> when (shizukuState) {
                 ShizukuState.NOT_INSTALLED -> stringResource(R.string.setting_shizuku_not_installed)
-                ShizukuState.NOT_RUNNING -> stringResource(R.string.setting_shizuku_not_running)
+                ShizukuState.NOT_RUNNING -> shizukuManagerLabel
+                    ?.let { stringResource(R.string.setting_shizuku_not_running_named, it) }
+                    ?: stringResource(R.string.setting_shizuku_not_running)
                 ShizukuState.UNSUPPORTED -> stringResource(R.string.setting_shizuku_unsupported)
                 ShizukuState.NO_PERMISSION -> stringResource(R.string.setting_shizuku_no_permission)
                 ShizukuState.READY -> stringResource(R.string.setting_shizuku_ready)

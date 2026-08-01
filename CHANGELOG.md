@@ -4,6 +4,40 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.9.11+016
+
+**New in this build:**
+
+### 🔑 Shizuku: the binder hand-off finally lands (the real fix)
+- On a phone running **白い熊 雫** with the service **up** and the permission **granted**, the app still reported *"Shizuku installed but not running"* — forever, on every launch.
+- Cause, straight from logcat: `BadParcelableException: ClassNotFoundException when unmarshalling: rikka.shizuku.BinderContainer at rikka.shizuku.ShizukuProvider.call`. A Shizuku server pushes the binder into the client's `ContentProvider` wrapped in a Parcelable whose **class name travels on the wire**. Current servers send `rikka.shizuku.BinderContainer` first and the legacy `moe.shizuku.api.BinderContainer` second — but `dev.rikka.shizuku:provider:13.1.5`, **the newest version ever published** (September 2023), only knows the legacy class. Reading *any* key unparcels the *whole* Bundle, so the modern envelope threw before the legacy path could run, the binder was dropped, and `pingBinder()` stayed false. No library upgrade exists to fix it.
+- Fix: the fork **declares `rikka.shizuku.BinderContainer` itself** (one strong binder — the same parcel layout in every flavour) and swaps the manifest's provider for **`ShizukuCompatProvider`**, which reads that envelope and delegates everything else, legacy envelope included, to the library. The authority is unchanged, so the server addresses us exactly as before. Both classes are resolved by name under R8, hence explicit `-keepnames` rules — a rename would silently resurrect the dropped binder.
+
+### 🔍 Shizuku: name the manager you actually have
+- The Shizuku client API is **package-agnostic** — it can't pick or ask a manager app, it only waits for a binder to be pushed to it. The app now at least identifies the installed manager by whichever package **defines** `af.shizuku.plus` / `af.shizuku.manager` / `moe.shizuku.manager` `.permission.API_V23` — the same three names the server's own `BinderSender` matches.
+- Selecting Shizuku now **waits ~2s for the binder** before judging, instead of toasting on the same frame: the push is asynchronous, so an instant verdict was often a false negative right after a cold start.
+- `NOT_INSTALLED` is finally reachable — it was unreachable in the state machine, so *"not running"* was the catch-all for every possible failure.
+- Messages read **"白い熊 雫 is installed but its service isn't running"**, the status line reads "白い熊 雫 installed but not running", and Settings offers an **"Open 白い熊 雫"** button that launches it. Events carry a resource + format args instead of a bare string id so a message can name the app.
+
+### ⚫🟡 Black and yellow is now the compiled-in default
+- Upstream ships every UI preference as "unset → inherit Material", so a **fresh install came up in upstream's orange** — and on Android 12+ in wallpaper-derived **Material You** colors — while the black/yellow theme existed only as DataStore values configured by hand and **lost on every clean install**.
+- New `ForkUiDefaults` holds the palette and the theme defaults, and every preference *resolves* to them when no key is stored. Nothing is seeded: the Installer UI page shows real values instead of blanks, and its **"reset" lands on the 白い熊 look** rather than on stock Material. A stored preference still wins over all of it.
+- `SurfaceTheme` defaults: yellow accent and title text, dimmed yellow secondary text, black background and cards, a yellow 2dp dialog border, yellow top-bar icons. `danger` / `success` stay inherited — those colors carry meaning, not identity.
+- `BottomBarTheme` defaults: black bar, yellow selection, dimmed yellow unselected.
+- New **`白い熊 Yellow` color preset**, now the default, with dark and light schemes, wired through the preset picker and the **Android TV** module (which shares the `theme_preset` key). Every accent-carrying role is overridden — **`surfaceTint` above all**, since Material tints every elevated surface with it and orange was leaking through *whatever* preset was selected — plus true black at every container level, so the scheme is black on its own rather than depending on AMOLED mode staying on.
+- **Material You is off by default.** This also fixes a split where `dynamicColor` defaulted to `true` in one reader and `false` in another, so a fresh install painted itself with wallpaper colors while the Settings toggle read "off".
+- `window_background` was upstream's light grey (navy at night); with the fork defaulting to Dark regardless of the system, a light-mode system **flashed white on every Activity transition**. Black in both.
+- The logo art still carried upstream's orange gradient while the launcher icon was already yellow-on-black — recolored, TV module included. The **"(Default)" marker moves from Orange to Yellow in all 18 translated locales**, each in its own wording.
+
+### 📐 Long version names no longer mangle the install dialog
+- The dialog's "old → new" line was a plain `Row`: the installed version was measured first, ate the whole dialog width, and left the new version a few pixels in which to wrap itself into a **one-character-per-line vertical ribbon spilling past the card edge**. Version names like `6.3.0-alpha.2026-07-30.g5c0ed6a3+002` hit it every time.
+- Both strings are now measured against the width actually available: they fit side by side → the row is unchanged; they don't → the pair **stacks with a downward arrow** and each version soft-wraps over as many lines as it needs. The measurement re-runs each composition on purpose, so a custom dialog font that resolves late corrects the verdict instead of freezing a stale one.
+- The Details card in the menu ellipsised the same version mid-string; the value is now weighted and wrapping, so the **full version reads out** there too.
+
+### 📦 Packaging: the build counter is zero-padded
+- `versionName` is now `<VERSION_NAME>+<NNN>` — `1.9.11+016` — and so are the APK filename and the release tag. Unpadded, file lists sort lexicographically wrong (`+10` before `+3`), burying the newest build in the middle of the downloads list and of the phone's file manager.
+- `versionCode` keeps the plain integer (`VERSION_CODE * 10000 + BUILD_NUMBER` = `310016`) and `gradle.properties` keeps `BUILD_NUMBER` unpadded; the padding is applied where the version string is built. **Earlier releases keep their unpadded tags** — nothing was renamed, so `1.9.11+016` sorts before `1.9.11+11` for a while.
+
 ## 1.9.11+11
 
 **New in this build:**

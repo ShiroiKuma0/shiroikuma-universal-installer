@@ -22,12 +22,42 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
 ## Bug
 
 - [ ] **#100** — "Delete apk after installation" không chạy (Shizuku mode)
-  - Reporter kèm log `JavaBinder: ibinderForJava`.
-  - Xoá file nằm ở `BaseInstallController.deleteSourceFileIfNeeded()` /
-    `deleteSourceDocument()`, dùng `DocumentsContract.deleteDocument`. Kiểm tra
-    `takePersistableUriPermission` có thật sự lấy được quyền ghi từ picker không.
-  - Lưu ý: `RootInstallController` và `ManualInstallController` **đi đường riêng**, không
-    qua `awaitSession` — kiểm tra cả ba đường.
+
+  Đã điều tra 2026-08-01. **Không liên quan gì tới Shizuku** — reporter nhầm biến số.
+
+  Đã xác minh bằng cách đọc code:
+  - Pref nối đúng: `SettingViewModel` ghi `delete_apk_after_install`,
+    `InstallViewModel.readDeleteApkPref()` (dòng 1631) đọc đúng key đó. Toggle không hỏng.
+  - Toàn bộ việc xoá nằm ở `BaseInstallController.deleteSourceFileIfNeeded()` và
+    `deleteSourceDocument()`, và **chỉ gọi `DocumentsContract.deleteDocument`** — không có
+    nhánh nào cho `file://`, không có fallback.
+  - `DialogInstallActivity.collectIncomingUris()` nhận cả `scheme == "file"`. URI `file://`
+    chắc chắn không xoá được bằng `deleteDocument` → **lỗi chắc chắn, không cần suy đoán**.
+  - URI từ intent ngoài **không bao giờ** đi qua `takePersistableUriPermission` lúc nhận;
+    chỉ picker trong app mới gọi.
+  - Picker 1 file (`InstallScreen.kt:298`) lấy `READ or WRITE` → đường này *có lẽ chạy được*.
+  - Picker nhiều file (`InstallScreen.kt:287`) chỉ lấy **READ**, nhưng batch install vẫn
+    truyền `deleteAfterInstall` (`InstallViewModel.kt:1019`) → nghi ngờ đường batch cũng hỏng.
+  - Log reporter có `VRI[DialogInstallActivity]` + `com.mixplorer` → họ cài từ file manager
+    ngoài, tức là đúng đường bị hỏng.
+  - Cả hai chỗ lỗi đều **nuốt exception** (`catch (_: Exception)` + `Timber.e`), nên user
+    không thấy gì và tưởng tính năng không hoạt động.
+
+  Suy đoán (chưa chạy thử):
+  - `DocumentsContract.deleteDocument` fail với URI của FileProvider bên thứ ba
+    (`content://com.mixplorer.fileprovider/...`) vì đó không phải document URI của một
+    DocumentsProvider.
+
+  Hướng sửa, cần chọn:
+  1. Thêm nhánh `file://` → `File.delete()`. App đã có `MANAGE_EXTERNAL_STORAGE`. Rẻ, chắc ăn.
+  2. Sửa picker batch lấy `READ or WRITE` như nhánh 1 file.
+  3. FileProvider bên thứ ba: **về nguyên tắc không xoá được**. Đừng đi dò `_data` column để
+     map ra đường dẫn thật rồi xoá — mong manh và là xoá file của app khác bằng cách đoán.
+  4. Dù chọn gì cũng nên **báo cho user khi xoá thất bại** thay vì im lặng.
+
+  Ghi riêng, không thuộc #100: `Timber` chỉ `plant` khi `BuildConfig.DEBUG`
+  (`Application.kt:45`), nên diagnostics report của bản release **không có một dòng log nào
+  của app**. Đó là lý do issue này không có bằng chứng nào để lần. Đáng mở issue riêng.
 
 - [ ] **#92** — Parsing error khi cài ReAppzuku 1.8.4
   - "Install with Options" cài được cùng file → parser của mình sai, không phải file hỏng.

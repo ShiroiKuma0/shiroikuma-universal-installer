@@ -351,6 +351,12 @@ class DialogInstallActivity : ComponentActivity() {
                             viewModel.clearDialogTarget()
                             finish()
                         },
+                        onExistingAppUninstalled = {
+                            viewModel.onConflictingAppUninstalled()
+                            pendingRisks = pendingRisks.filterNot {
+                                it is InstallRisk.SignatureMismatch || it is InstallRisk.Downgrade
+                            }
+                        },
                     )
                 }
 

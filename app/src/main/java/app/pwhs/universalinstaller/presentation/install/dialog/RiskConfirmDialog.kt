@@ -1,6 +1,8 @@
 package app.pwhs.universalinstaller.presentation.install.dialog
 
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,6 +42,7 @@ import androidx.core.net.toUri
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.VtStatus
+import app.pwhs.universalinstaller.util.SignatureCheck
 
 /**
  * A risk the user must explicitly confirm before installing. We surface only items
@@ -106,6 +110,8 @@ fun RiskConfirmDialog(
     risks: List<InstallRisk>,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
+    /** The conflicting app was actually removed — the caller should drop the risks it caused. */
+    onExistingAppUninstalled: () -> Unit = {},
 ) {
     if (risks.isEmpty()) return
     val severe = risks.any { it is InstallRisk.VtMalicious }
@@ -134,7 +140,12 @@ fun RiskConfirmDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                risks.forEach { risk -> RiskCard(risk) }
+                // Keyed: the list is mutated at runtime (resolving the mismatch removes entries),
+                // and without an identity Compose would reuse a card's slot — and its remembered
+                // activity-result launcher — for a different risk.
+                risks.forEach { risk ->
+                    key(risk) { RiskCard(risk, onExistingAppUninstalled) }
+                }
                 Text(
                     text = stringResource(R.string.dialog_risk_footer),
                     style = MaterialTheme.typography.bodySmall,
@@ -171,7 +182,7 @@ fun RiskConfirmDialog(
  * particular line — with two risks showing it was ambiguous which one it applied to.
  */
 @Composable
-private fun RiskCard(risk: InstallRisk) {
+private fun RiskCard(risk: InstallRisk, onExistingAppUninstalled: () -> Unit) {
     val severe = risk is InstallRisk.VtMalicious
     val (icon: ImageVector, line: String) = when (risk) {
         is InstallRisk.Downgrade -> Icons.Rounded.Warning to
@@ -207,7 +218,7 @@ private fun RiskCard(risk: InstallRisk) {
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            RiskAction(risk)
+            RiskAction(risk, onExistingAppUninstalled)
         }
     }
 }
@@ -220,9 +231,21 @@ private fun RiskCard(risk: InstallRisk) {
  * DialogInstallActivity get the actions without either having to pass anything in.
  */
 @Composable
-private fun RiskAction(risk: InstallRisk) {
+private fun RiskAction(risk: InstallRisk, onExistingAppUninstalled: () -> Unit) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val uninstallLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        // The result code is not dependable here — some OEM uninstallers report RESULT_CANCELED
+        // even on success, and the user can also uninstall and then back out. Ask PackageManager
+        // what actually happened instead of trusting the code.
+        if (risk is InstallRisk.SignatureMismatch &&
+            !SignatureCheck.isInstalled(context, risk.packageName)
+        ) {
+            onExistingAppUninstalled()
+        }
+    }
     val report = { sha: String -> uriHandler.openUri("$VT_FILE_REPORT_URL$sha") }
 
     val label: Int
@@ -236,7 +259,7 @@ private fun RiskAction(risk: InstallRisk) {
                 // ACTION_DELETE shows the platform's own uninstall confirmation — we are not
                 // removing anyone's app behind their back, and it needs no extra permission.
                 runCatching {
-                    context.startActivity(
+                    uninstallLauncher.launch(
                         Intent(Intent.ACTION_DELETE, "package:${risk.packageName}".toUri())
                     )
                 }

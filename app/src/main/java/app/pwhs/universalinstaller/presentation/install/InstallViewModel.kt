@@ -1638,6 +1638,24 @@ class InstallViewModel(
         false
     }
 
+    /**
+     * The user removed the conflicting app from the risk dialog. Clear the facts that were true
+     * only while it was installed, so re-tapping Install doesn't re-raise a mismatch (or a
+     * downgrade) against an app that is no longer there.
+     *
+     * No re-parse needed: with nothing installed under this package name there is by definition
+     * neither a signature to clash with nor a version to downgrade from.
+     */
+    fun onConflictingAppUninstalled() {
+        val info = _pendingApkInfo.value ?: return
+        if (SignatureCheck.isInstalled(application, info.packageName)) return
+        _pendingApkInfo.value = info.copy(
+            installedVersionName = null,
+            installedVersionCode = null,
+            signatureMismatch = false,
+        )
+    }
+
     private suspend fun readDeleteApkPref(): Boolean {
         return try {
             val prefs = application.dataStore.data.first()

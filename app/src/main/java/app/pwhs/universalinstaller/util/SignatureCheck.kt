@@ -69,6 +69,10 @@ object SignatureCheck {
         }
     }
 
+    /** Whether anything is installed under [packageName] right now. */
+    fun isInstalled(context: Context, packageName: String): Boolean =
+        packageName.isNotBlank() && isInstalled(context.packageManager, packageName)
+
     private fun isInstalled(pm: PackageManager, packageName: String): Boolean = try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0L))

@@ -135,6 +135,15 @@ fun InstallScreen(
                 pendingAction = null
                 viewModel.dismissPendingInstall()
             },
+            onExistingAppUninstalled = {
+                viewModel.onConflictingAppUninstalled()
+                // Both of these only existed because the old copy was installed. Dropping them
+                // closes the dialog when nothing else is left to warn about.
+                pendingRisks = pendingRisks.filterNot {
+                    it is app.pwhs.universalinstaller.presentation.install.dialog.InstallRisk.SignatureMismatch ||
+                        it is app.pwhs.universalinstaller.presentation.install.dialog.InstallRisk.Downgrade
+                }
+            },
         )
     }
 

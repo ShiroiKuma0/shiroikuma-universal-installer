@@ -660,7 +660,8 @@
     <string name="installer_engine_root_unsupported">غير متوفر في هذا الإصدار</string>
     <string name="theme_preset_title">نمط الألوان</string>
     <string name="theme_preset_subtitle">اختر نظام ألوان أساسي لتمييز التطبيق</string>
-    <string name="theme_preset_orange">برتقالي (افتراضي)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (افتراضي)</string>
+    <string name="theme_preset_orange">برتقالي</string>
     <string name="theme_preset_blue">أزرق محيطي</string>
     <string name="theme_preset_green">أخضر غابي</string>
     <string name="theme_preset_red">أحمر قرمزي</string>

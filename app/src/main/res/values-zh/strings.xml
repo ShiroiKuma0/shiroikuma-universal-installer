@@ -718,7 +718,8 @@
     <string name="installer_engine_root_unsupported">此版本不可用</string>
     <string name="theme_preset_title">颜色主题</string>
     <string name="theme_preset_subtitle">选择应用强调色的主配色方案</string>
-    <string name="theme_preset_orange">橙色（默认）</string>
+    <string name="theme_preset_yellow">白い熊 Yellow（默认）</string>
+    <string name="theme_preset_orange">橙色</string>
     <string name="theme_preset_blue">海洋蓝</string>
     <string name="theme_preset_green">森林绿</string>
     <string name="theme_preset_red">深红色</string>

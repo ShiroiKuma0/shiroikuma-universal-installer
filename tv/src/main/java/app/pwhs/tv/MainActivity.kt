@@ -83,10 +83,10 @@ class MainActivity : ComponentActivity() {
             }
 
             val themePresetName by dataStore.data
-                .map { it[stringPreferencesKey("theme_preset")] ?: AppThemePreset.Orange.name }
-                .collectAsState(initial = AppThemePreset.Orange.name)
+                .map { it[stringPreferencesKey("theme_preset")] ?: AppThemePreset.Yellow.name }
+                .collectAsState(initial = AppThemePreset.Yellow.name)
             val themePreset = remember(themePresetName) {
-                AppThemePreset.entries.find { it.name == themePresetName } ?: AppThemePreset.Orange
+                AppThemePreset.entries.find { it.name == themePresetName } ?: AppThemePreset.Yellow
             }
 
             UniversalInstallerTheme(themeMode = themeMode, themePreset = themePreset) {

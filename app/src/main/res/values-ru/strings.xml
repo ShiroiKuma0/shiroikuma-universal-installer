@@ -660,7 +660,8 @@
     <string name="installer_engine_root_unsupported">Недоступно в этой сборке</string>
     <string name="theme_preset_title">Цветовая тема</string>
     <string name="theme_preset_subtitle">Выберите основную цветовую схему для акцентов приложения</string>
-    <string name="theme_preset_orange">Оранжевый (По умолчанию)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (По умолчанию)</string>
+    <string name="theme_preset_orange">Оранжевый</string>
     <string name="theme_preset_blue">Океанский синий</string>
     <string name="theme_preset_green">Лесной зелёный</string>
     <string name="theme_preset_red">Тёмно-красный</string>

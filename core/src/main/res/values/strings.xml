@@ -11,6 +11,9 @@
     <string name="onboarding_page2_desc">Browse installed apps, uninstall unwanted ones, and manage your device effortlessly.</string>
     <string name="onboarding_page3_title">Allow Installation</string>
     <string name="onboarding_page3_desc">To install packages, the app needs permission to install from unknown sources. Tap the button below to grant it.</string>
+    <string name="onboarding_virustotal_title">Scan before you install</string>
+    <string name="onboarding_virustotal_desc">Any package you open can be checked against VirusTotal — 70+ antivirus engines — straight from the install screen. Tap \"Check with VirusTotal\" and the result appears before you commit. It needs a free API key: get one below, then paste it into Settings &gt; Advanced &gt; VirusTotal API Key.</string>
+    <string name="onboarding_virustotal_get_key">Get a free API key</string>
     <string name="onboarding_xiaomi_title">If an install fails on MIUI</string>
     <string name="onboarding_xiaomi_desc">MIUI/HyperOS optimization can block third-party installs without saying why. If that happens, open Developer options, turn off \"MIUI optimization\", install the app, then turn it back on. While it is off the system theme may look distorted — restarting the phone fixes that.</string>
     <string name="onboarding_xiaomi_open_developer_options">Open Developer options</string>

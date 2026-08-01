@@ -112,6 +112,7 @@ class MainActivity : ComponentActivity() {
                     AppRoute.Onboarding -> OnboardingScreen(
                         onFinish = { currentRoute = AppRoute.Main },
                         showXiaomiTip = DeviceCompat.isXiaomi,
+                        showVirusTotalTip = true,
                     )
                     AppRoute.Main -> {
                         LaunchedEffect(Unit) {

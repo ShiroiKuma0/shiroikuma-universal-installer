@@ -22,7 +22,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.GppGood
 import androidx.compose.material.icons.rounded.InstallMobile
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Tune
@@ -45,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -58,12 +61,16 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlinx.coroutines.launch
 
+/** Where a free VirusTotal API key comes from — the same URL the scanner error message cites. */
+private const val VIRUSTOTAL_API_KEY_URL = "https://www.virustotal.com/gui/my-apikey"
+
 private data class OnboardingPage(
     val icon: ImageVector,
     val title: String,
     val description: String,
     /** Optional secondary action rendered under the description (e.g. "Open Developer options"). */
     val actionLabel: String? = null,
+    val actionIcon: ImageVector? = null,
     val onAction: (() -> Unit)? = null,
 )
 
@@ -73,14 +80,18 @@ private data class OnboardingPage(
  * @param showXiaomiTip inserts an extra page warning about MIUI/HyperOS optimization silently
  *   blocking installs (issue #104). Callers gate it on [DeviceCompat.isXiaomi]; TV leaves it off
  *   because the toggle doesn't exist on Xiaomi's TV builds.
+ * @param showVirusTotalTip inserts a page explaining the VirusTotal scan. Mobile-only — the
+ *   scanner lives in the app module and TV has no Settings screen to paste an API key into.
  */
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
     showXiaomiTip: Boolean = false,
+    showVirusTotalTip: Boolean = false,
 ) {
     val context = LocalContext.current
     val activity = context as? android.app.Activity
+    val uriHandler = LocalUriHandler.current
     // Hide the shortcut when Developer options aren't reachable — the text alone still tells the
     // user what to look for.
     val developerOptions = remember(showXiaomiTip) {
@@ -102,6 +113,18 @@ fun OnboardingScreen(
                 description = stringResource(R.string.onboarding_page2_desc),
             )
         )
+        if (showVirusTotalTip) {
+            add(
+                OnboardingPage(
+                    icon = Icons.Rounded.GppGood,
+                    title = stringResource(R.string.onboarding_virustotal_title),
+                    description = stringResource(R.string.onboarding_virustotal_desc),
+                    actionLabel = stringResource(R.string.onboarding_virustotal_get_key),
+                    actionIcon = Icons.AutoMirrored.Rounded.OpenInNew,
+                    onAction = { uriHandler.openUri(VIRUSTOTAL_API_KEY_URL) },
+                )
+            )
+        }
         if (showXiaomiTip) {
             add(
                 OnboardingPage(
@@ -111,6 +134,7 @@ fun OnboardingScreen(
                     actionLabel = developerOptions?.let {
                         stringResource(R.string.onboarding_xiaomi_open_developer_options)
                     },
+                    actionIcon = Icons.Rounded.Tune,
                     onAction = developerOptions?.let { intent -> { context.startActivity(intent) } },
                 )
             )
@@ -306,12 +330,10 @@ private fun PageContent(
             val label = page.actionLabel ?: return@let
             Spacer(Modifier.height(32.dp))
             OutlinedButton(onClick = action) {
-                Icon(
-                    Icons.Rounded.Tune,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(Modifier.width(8.dp))
+                page.actionIcon?.let { icon ->
+                    Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                }
                 Text(label)
             }
         }

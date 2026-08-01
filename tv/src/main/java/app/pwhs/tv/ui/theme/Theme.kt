@@ -61,6 +61,14 @@ private val DarkColorScheme = darkColorScheme(
 // overridden; the navy/slate surfaces stay constant so contrast holds in every preset.
 @OptIn(ExperimentalTvMaterial3Api::class)
 private fun ColorScheme.withAccent(dark: Boolean, preset: AppThemePreset): ColorScheme = when (preset) {
+    // 白い熊 yellow — the fork default, shared with the phone through the `theme_preset` key.
+    AppThemePreset.Yellow -> if (dark) copy(
+        primary = Color(0xFFFFEB3B), primaryContainer = Color(0xFF3B3600), onPrimaryContainer = Color(0xFFFFEB3B),
+        secondary = Color(0xFFFFD54F), secondaryContainer = Color(0xFF3B3600), tertiary = Color(0xFFFFD54F),
+    ) else copy(
+        primary = Color(0xFF8A7A00), primaryContainer = Color(0xFFFFF7B2), onPrimaryContainer = Color(0xFF3B3600),
+        secondary = Color(0xFF8A7A00), secondaryContainer = Color(0xFFFFF7B2), tertiary = Color(0xFFB28900),
+    )
     AppThemePreset.Orange -> this
     AppThemePreset.Blue -> if (dark) copy(
         primary = Color(0xFF38BDF8), primaryContainer = Color(0xFF0369A1), onPrimaryContainer = Color(0xFFE0F2FE),
@@ -95,6 +103,7 @@ private fun ColorScheme.withAccent(dark: Boolean, preset: AppThemePreset): Color
 
 /** A vivid swatch color for the accent picker (independent of light/dark). */
 fun accentSwatchColor(preset: AppThemePreset): Color = when (preset) {
+    AppThemePreset.Yellow -> Color(0xFFFFEB3B)
     AppThemePreset.Orange -> Color(0xFFEA580C)
     AppThemePreset.Blue -> Color(0xFF0284C7)
     AppThemePreset.Green -> Color(0xFF16A34A)
@@ -106,7 +115,7 @@ fun accentSwatchColor(preset: AppThemePreset): Color = when (preset) {
 @Composable
 fun UniversalInstallerTheme(
     themeMode: ThemeMode = ThemeMode.System,
-    themePreset: AppThemePreset = AppThemePreset.Orange,
+    themePreset: AppThemePreset = AppThemePreset.Yellow,
     content: @Composable () -> Unit,
 ) {
     val isInDarkTheme = when (themeMode) {

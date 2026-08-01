@@ -321,7 +321,8 @@
     <string name="theme_amoled_mode_subtitle">Sử dụng nền đen tuyền trong chế độ tối</string>
     <string name="theme_preset_title">Tông màu ứng dụng</string>
     <string name="theme_preset_subtitle">Chọn tông màu chủ đạo cho các điểm nhấn của ứng dụng</string>
-    <string name="theme_preset_orange">Cam (Mặc định)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Mặc định)</string>
+    <string name="theme_preset_orange">Cam</string>
     <string name="theme_preset_blue">Xanh dương</string>
     <string name="theme_preset_green">Xanh lá cây</string>
     <string name="theme_preset_red">Đỏ</string>

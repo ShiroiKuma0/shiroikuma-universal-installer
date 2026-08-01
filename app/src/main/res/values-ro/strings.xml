@@ -685,7 +685,8 @@
     <string name="installer_engine_root_unsupported">Indisponibil pentru această versiune</string>
     <string name="theme_preset_title">Temă de culori</string>
     <string name="theme_preset_subtitle">Selectați o schemă de culori principale pentru accentele aplicației</string>
-    <string name="theme_preset_orange">Portocaliu (Implicit)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Implicit)</string>
+    <string name="theme_preset_orange">Portocaliu</string>
     <string name="theme_preset_blue">Albastru ocean</string>
     <string name="theme_preset_green">Verde pădure</string>
     <string name="theme_preset_red">Roșu carmin</string>

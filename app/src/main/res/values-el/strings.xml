@@ -685,7 +685,8 @@
     <string name="installer_engine_root_unsupported">Μη διαθέσιμο σε αυτή την έκδοση</string>
     <string name="theme_preset_title">Χρωματικό θέμα</string>
     <string name="theme_preset_subtitle">Επιλέξτε ένα κύριο χρωματικό σχήμα για τις εμφάσεις της εφαρμογής</string>
-    <string name="theme_preset_orange">Πορτοκαλί (Προεπιλογή)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (Προεπιλογή)</string>
+    <string name="theme_preset_orange">Πορτοκαλί</string>
     <string name="theme_preset_blue">Ωκεάνιο μπλε</string>
     <string name="theme_preset_green">Πράσινο δάσους</string>
     <string name="theme_preset_red">Βαθύ κόκκινο</string>

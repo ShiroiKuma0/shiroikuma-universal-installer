@@ -685,7 +685,8 @@
     <string name="installer_engine_root_unsupported">इस बिल्ड पर उपलब्ध नहीं</string>
     <string name="theme_preset_title">रंग थीम</string>
     <string name="theme_preset_subtitle">ऐप एक्सेंट के लिए प्राथमिक रंग योजना चुनें</string>
-    <string name="theme_preset_orange">नारंगी (डिफ़ॉल्ट)</string>
+    <string name="theme_preset_yellow">白い熊 Yellow (डिफ़ॉल्ट)</string>
+    <string name="theme_preset_orange">नारंगी</string>
     <string name="theme_preset_blue">ओशन ब्लू</string>
     <string name="theme_preset_green">फ़ॉरेस्ट ग्रीन</string>
     <string name="theme_preset_red">क्रिमसन रेड</string>

@@ -157,13 +157,52 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
   2. Gate/ghi rõ setting này cần Shizuku hoặc root.
 
 - [ ] **#93** — History hiện tên app **2 lần**; không xoá được log của lần cài lỗi
-  - Hai bug trong một issue, tách ra khi làm.
-  - Tên lặp: xem `BaseInstallController.saveHistory()` —
-    `sessionData.appName.ifEmpty { sessionData.name }` — và cách `HistoryCard.kt` render.
 
-- [ ] **#96** — Sai ký tự khi extract tên app: `DAVx⁵` → `DAVx_`
-  - Tái hiện bằng `at.bitfire.davdroid`.
-  - **Món dễ ăn nhất trong danh sách** — phạm vi hẹp, tái hiện được ngay. Chưa điều tra.
+  Điều tra 2026-08-01. Đúng là hai bug rời nhau.
+
+  **(b) Không xoá được lần cài lỗi — ĐÃ XÁC ĐỊNH, đọc code là thấy:**
+  - `SessionCard.kt` chỉ hiện nút huỷ khi `if (!hasError && sessionData.isCancellable && !isComplete)`.
+    Session lỗi vì thế **chỉ có nút Retry**, không có đường nào bỏ nó đi.
+  - `BaseInstallController.handleError()` chỉ gọi `setError()`, **không** `removeSessionData()`.
+    Nên card lỗi nằm lại trong list vĩnh viễn.
+  - Sửa: cho phép dismiss khi `hasError` (gọi `cancel()` hoặc `removeSessionData()` trực tiếp).
+
+  **(a) Tên hiện 2 lần — hai cơ chế khả dĩ, chưa phân định được:**
+  1. **Hai DÒNG trong history** (khớp nghĩa đen "shown 2 times"). Mỗi `InstallViewModel` tự dựng
+     controller riêng, nên map `activeSessions` là **per-instance**. `restoreSessionsFromSavedState()`
+     chạy trong `.onStart` của uiState (`InstallViewModel.kt:226`) ở **mọi** VM. Dialog flow chạy
+     session trên `appScope` nên nó sống lâu hơn VM của dialog; khi `InstallActivity` mở, VM thứ hai
+     restore đúng session đó và `awaitSession` lần nữa → `Succeeded` hai lần → **`saveHistory` hai
+     lần → hai dòng**. Guard `if (activeSessions.containsKey(...))` không chặn được vì khác instance.
+  2. **Một dòng nhưng hai dòng chữ giống nhau.** `saveHistory` dùng
+     `appName.ifEmpty { sessionData.name }`, còn `HistoryCard.kt:129,136` render `appName` rồi
+     `fileName`. Khi không parse được label, cả hai đều là tên file.
+
+  Chưa phân định được vì máy test không có `sqlite3`, và pull DB về là copy lịch sử cài đặt thật
+  của người dùng. **Cần hỏi reporter ảnh chụp history** — hai card riêng biệt hay một card hai dòng
+  chữ — là biết ngay đường nào.
+
+- [x] **#96** — Sai ký tự khi extract tên app: `DAVx⁵` → `DAVx_` — **ĐÃ TÌM RA NGUYÊN NHÂN**
+
+  `ApkExtractor.sanitize()` (`core/.../install/ApkExtractor.kt:322`) dùng whitelist:
+  ```kotlin
+  c.isLetterOrDigit() -> c
+  c == ' ' || c == '-' || c == '_' || c == '.' || c == '(' || c == ')' -> c
+  else -> '_'
+  ```
+  `⁵` là U+2075 SUPERSCRIPT FIVE, Unicode category **No** (Number-other), không phải **Nd**.
+  `Character.isDigit()` chỉ đúng với Nd. Kiểm chứng bằng Java thật:
+  ```
+  char=⁵ isLetter=false isDigit=false isLetterOrDigit=false
+  ```
+  → rơi vào `else` → `_`. Đúng y báo cáo.
+
+  Không chỉ mỗi `⁵`: mọi ký hiệu ngoài chữ-số đều bị nuốt (`™`, `®`, emoji, ký hiệu toán). CJK và
+  tiếng Việt thì an toàn vì chúng là **Lo/Ll** nên `isLetter()` = true.
+
+  Hướng sửa: **đảo lại thành blacklist**. Chỉ thay những ký tự thật sự bất hợp lệ trên filesystem
+  (`/ \ : * ? " < > |` và ký tự điều khiển), giữ nguyên phần còn lại. FAT32/exFAT/ext4 đều nhận
+  Unicode bình thường.
 
 ---
 

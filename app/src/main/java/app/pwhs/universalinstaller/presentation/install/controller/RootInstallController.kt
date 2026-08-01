@@ -55,6 +55,7 @@ class RootInstallController(
         context: Context?,
         originalUri: Uri?,
         deleteAfterInstall: Boolean,
+        allowDowngrade: Boolean,
         onSuccess: (suspend () -> Unit)?,
         onSessionCreated: ((UUID) -> Unit)?,
     ) {
@@ -82,6 +83,7 @@ class RootInstallController(
                 uris = uris,
                 userId = userId,
                 packageName = sessionData.packageName,
+                allowDowngrade = allowDowngrade,
                 onProgress = onProgress,
             )
             result.fold(
@@ -112,6 +114,7 @@ class RootInstallController(
         uris: List<Uri>,
         name: String,
         packageName: String,
+        allowDowngrade: Boolean,
     ): ProgressSession<InstallFailure> {
         val prefs = application.dataStore.data.first()
         
@@ -125,7 +128,7 @@ class RootInstallController(
                 // INSTALL_REPLACE_EXISTING when true; false makes an upgrade of an existing package
                 // fail with INSTALL_FAILED_ALREADY_EXISTS. Explicit user choice still honored.
                 replaceExisting = prefs[PreferencesKeys.ROOT_REPLACE_EXISTING] ?: true
-                requestDowngrade = prefs[PreferencesKeys.ROOT_REQUEST_DOWNGRADE] ?: false
+                requestDowngrade = allowDowngrade || (prefs[PreferencesKeys.ROOT_REQUEST_DOWNGRADE] ?: false)
                 grantAllRequestedPermissions = prefs[PreferencesKeys.ROOT_GRANT_ALL_PERMISSIONS] ?: false
                 allUsers = prefs[PreferencesKeys.ROOT_ALL_USERS] ?: false
                 if (prefs[PreferencesKeys.ROOT_SET_INSTALL_SOURCE] == true) {

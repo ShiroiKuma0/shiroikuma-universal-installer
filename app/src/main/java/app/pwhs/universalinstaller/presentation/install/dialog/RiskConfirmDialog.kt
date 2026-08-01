@@ -50,10 +50,20 @@ sealed interface InstallRisk {
     data object VtUnscanned : InstallRisk
 }
 
+/**
+ * True when installing [apkInfo] would replace a newer already-installed version.
+ *
+ * Shared with the install path on purpose: whether we *warn* about a downgrade and whether we
+ * *allow* one must be the same question, or the app ends up asking for consent it then ignores.
+ */
+fun isDowngrade(apkInfo: ApkInfo): Boolean {
+    val installedCode = apkInfo.installedVersionCode ?: return false
+    return installedCode > 0 && apkInfo.versionCode < installedCode
+}
+
 fun detectInstallRisks(apkInfo: ApkInfo, strictVirusTotal: Boolean = false): List<InstallRisk> {
     val risks = mutableListOf<InstallRisk>()
-    val installedCode = apkInfo.installedVersionCode
-    if (installedCode != null && installedCode > 0 && apkInfo.versionCode < installedCode) {
+    if (isDowngrade(apkInfo)) {
         risks += InstallRisk.Downgrade(
             installedVersionName = apkInfo.installedVersionName.orEmpty().ifBlank { "?" },
             newVersionName = apkInfo.versionName.ifBlank { "?" },

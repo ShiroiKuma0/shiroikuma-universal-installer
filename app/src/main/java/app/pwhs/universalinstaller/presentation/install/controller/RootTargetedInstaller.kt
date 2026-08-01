@@ -35,10 +35,11 @@ object RootTargetedInstaller {
         uris: List<Uri>,
         userId: Int,
         packageName: String = "",
+        allowDowngrade: Boolean = false,
         onProgress: (Float) -> Unit = {},
     ): Result<Unit> = withContext(Dispatchers.IO) {
         runCatching {
-            val createArgs = buildCreateArgs(context, packageName)
+            val createArgs = buildCreateArgs(context, packageName, allowDowngrade)
             // Stage each input URI into the app's cache dir under a chmod-readable file so
             // the root shell can read it without SELinux drama on content:// URIs.
             val stagingDir = File(context.cacheDir, "root_install_${UUID.randomUUID()}").apply {
@@ -85,11 +86,17 @@ object RootTargetedInstaller {
      * honours the same options as the UI/profiles (replace, downgrade, test, grant-all,
      * bypass-low-target-sdk, installer source) instead of only `-r`.
      */
-    private suspend fun buildCreateArgs(context: Context, packageName: String): List<String> {
+    private suspend fun buildCreateArgs(
+        context: Context,
+        packageName: String,
+        allowDowngrade: Boolean,
+    ): List<String> {
         val prefs = runCatching { context.dataStore.data.first() }.getOrNull()
         val args = mutableListOf<String>()
         if (prefs?.get(PreferencesKeys.ROOT_REPLACE_EXISTING) != false) args += "-r" // default ON
-        if (prefs?.get(PreferencesKeys.ROOT_REQUEST_DOWNGRADE) == true) args += "-d"
+        // `allowDowngrade` is this install's consent from the risk dialog; the pref is the
+        // standing setting. Either one is enough.
+        if (allowDowngrade || prefs?.get(PreferencesKeys.ROOT_REQUEST_DOWNGRADE) == true) args += "-d"
         if (prefs?.get(PreferencesKeys.ROOT_ALLOW_TEST) == true) args += "-t"
         if (prefs?.get(PreferencesKeys.ROOT_GRANT_ALL_PERMISSIONS) == true) args += "-g"
         // --bypass-low-target-sdk-block only exists on Android 14+; older pm rejects it.

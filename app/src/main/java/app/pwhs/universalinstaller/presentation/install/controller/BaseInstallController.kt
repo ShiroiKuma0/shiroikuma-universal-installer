@@ -45,10 +45,16 @@ abstract class BaseInstallController(
     private val deleteFlags = mutableMapOf<UUID, Boolean>()
     private val successHooks = mutableMapOf<UUID, suspend () -> Unit>()
 
+    /**
+     * @param allowDowngrade one-shot consent from the "downgrade detected" dialog. ORed with the
+     *   persisted flag rather than replacing it, and deliberately *not* written back to prefs —
+     *   accepting one downgrade must not silently flip the Settings toggle for every later install.
+     */
     protected abstract suspend fun createSession(
         uris: List<Uri>,
         name: String,
         packageName: String,
+        allowDowngrade: Boolean,
     ): ProgressSession<InstallFailure>
 
     open fun install(
@@ -58,11 +64,12 @@ abstract class BaseInstallController(
         context: Context? = null,
         originalUri: Uri? = null,
         deleteAfterInstall: Boolean = false,
+        allowDowngrade: Boolean = false,
         onSuccess: (suspend () -> Unit)? = null,
         onSessionCreated: ((UUID) -> Unit)? = null,
     ) {
         scope.launch {
-            val session = createSession(uris, sessionData.name, sessionData.packageName)
+            val session = createSession(uris, sessionData.name, sessionData.packageName, allowDowngrade)
             activeSessions[session.id] = session
             sessionUris[session.id] = uris
             if (originalUri != null) originalFileUris[session.id] = originalUri

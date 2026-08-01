@@ -43,6 +43,7 @@ class ManualInstallController(
         uris: List<Uri>,
         name: String,
         packageName: String,
+        allowDowngrade: Boolean,
     ): ProgressSession<InstallFailure> {
         // This is not used as we override the main install() method.
         throw UnsupportedOperationException("ManualInstallController uses targetedInstall instead")

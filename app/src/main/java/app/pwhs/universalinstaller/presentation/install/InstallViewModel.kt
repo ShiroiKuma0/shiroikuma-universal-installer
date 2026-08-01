@@ -36,6 +36,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import app.pwhs.universalinstaller.presentation.install.dialog.isDowngrade
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.util.extension.getDisplayName
@@ -480,6 +481,11 @@ class InstallViewModel(
                     context = application,
                     originalUri = originalUri,
                     deleteAfterInstall = deleteAfterInstall,
+                    // Reaching confirmInstall with a downgrade means the user already accepted
+                    // RiskConfirmDialog — both InstallScreen and DialogInstallActivity gate on
+                    // detectInstallRisks. Carry that consent into the session instead of making
+                    // them also find the Settings toggle (which the old error even misnamed).
+                    allowDowngrade = apkInfo != null && isDowngrade(apkInfo),
                     onSuccess = onSuccess,
                     onSessionCreated = if (trackDialogTarget) {
                         { realSessionId: UUID ->
@@ -1018,6 +1024,9 @@ class InstallViewModel(
                     context = application,
                     originalUri = entry.uri,
                     deleteAfterInstall = deleteAfterInstall,
+                    // Same consent rule as the single install — onBatchConfirm gates on the
+                    // risks of every selected entry before calling this.
+                    allowDowngrade = isDowngrade(entry.apkInfo),
                     onSuccess = null,  // batch install skips OBB flow — standalone APKs only
                 )
             }

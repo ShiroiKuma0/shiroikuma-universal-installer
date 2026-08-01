@@ -29,6 +29,7 @@ class ShizukuInstallController(
         uris: List<Uri>,
         name: String,
         packageName: String,
+        allowDowngrade: Boolean,
     ): ProgressSession<InstallFailure> {
         val prefs = application.dataStore.data.first()
         return packageInstaller.createSession(uris) {
@@ -43,7 +44,7 @@ class ShizukuInstallController(
                 // (the "package conflict" error). An explicit user choice is still honored — `?:`
                 // only fills the never-set case.
                 replaceExisting = prefs[PreferencesKeys.SHIZUKU_REPLACE_EXISTING] ?: true
-                requestDowngrade = prefs[PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE] ?: false
+                requestDowngrade = allowDowngrade || (prefs[PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE] ?: false)
                 grantAllRequestedPermissions = prefs[PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS] ?: false
                 allUsers = prefs[PreferencesKeys.SHIZUKU_ALL_USERS] ?: false
                 // Spoof installer package (shows in PackageManager.getInstallerPackageName).

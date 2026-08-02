@@ -1,5 +1,6 @@
 package app.pwhs.tv
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import app.pwhs.core.data.local.SharedPrefsKeys
+import androidx.lifecycle.lifecycleScope
+import app.pwhs.tv.presentation.receive.ExternalApkIntake
 import app.pwhs.core.data.local.dataStore
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.launch
@@ -39,8 +42,32 @@ class MainActivity : ComponentActivity() {
         super.attachBaseContext(LocaleHelper.wrap(newBase))
     }
 
+    /** singleTop: a second "Open with" while we're already running lands here, not in onCreate. */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        takeInExternalApks(intent)
+    }
+
+    /**
+     * Stage anything another app opened with us and publish it as the pending install (#94).
+     *
+     * The intent is marked consumed so an Activity recreate — a locale change, say — doesn't
+     * ingest the same APK a second time. TvReceiverState replays the last arrival, so this works
+     * even while onboarding is still on screen: the card is waiting once the receive tab appears.
+     */
+    private fun takeInExternalApks(intent: Intent?) {
+        val uris = ExternalApkIntake.urisFrom(intent)
+        if (uris.isEmpty()) return
+        ExternalApkIntake.markConsumed(intent)
+        lifecycleScope.launch {
+            uris.forEach { ExternalApkIntake.accept(applicationContext, it) }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        takeInExternalApks(intent)
 
         // Only play the brand splash on a genuine cold start — not on config-change/locale recreate,
         // which would otherwise replay the full splash and feel like a reset.

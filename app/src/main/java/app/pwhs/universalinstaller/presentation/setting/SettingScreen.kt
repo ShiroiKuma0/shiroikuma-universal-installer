@@ -113,6 +113,8 @@ fun SettingScreen(
         dhizukuState = dhizukuState,
         useDhizuku = useDhizuku,
         onUseDhizukuChanged = viewModel::setUseDhizuku,
+        onPrivilegedOptionChanged = viewModel::setPrivilegedOption,
+        onInstallerPackageChanged = viewModel::setInstallerPackageName,
         onReplayTutorial = {
             // Reuse MainActivity's onboarding route rather than clearing ONBOARDING_COMPLETED:
             // clearing it would also re-show the tour on the next cold start, which nobody asked
@@ -163,6 +165,8 @@ private fun SettingUi(
     dhizukuState: DhizukuState = DhizukuState.NOT_INSTALLED,
     useDhizuku: Boolean = false,
     onUseDhizukuChanged: (Boolean) -> Unit = {},
+    onPrivilegedOptionChanged: (SettingViewModel.PrivilegedOption, Boolean) -> Unit = { _, _ -> },
+    onInstallerPackageChanged: (String) -> Unit = {},
     onShizukuInstallerChanged: (String) -> Unit = {},
     onDeleteApkChanged: (Boolean) -> Unit = {},
     onAutoOpenAfterInstallChanged: (Boolean) -> Unit = {},
@@ -265,8 +269,10 @@ private fun SettingUi(
                 stringResource(R.string.setting_show_download_tab_title),
                 stringResource(R.string.setting_default_installer_title),
             )
-            val shizukuLabels = listOf(stringResource(R.string.setting_section_shizuku_options), "shizuku")
-            val rootLabels = listOf(stringResource(R.string.setting_section_root_options), "root")
+            val privilegedLabels = listOf(
+                stringResource(R.string.setting_section_install_options),
+                "shizuku", "root", "dhizuku", "downgrade", "replace",
+            )
             val profileLabels = listOf(
                 stringResource(R.string.setting_profiles_title),
                 stringResource(R.string.setting_profiles_subtitle), "profile",
@@ -287,8 +293,7 @@ private fun SettingUi(
             // Whether any (currently-applicable) section survives the filter — drives the
             // "no results" state. Shizuku/Root only count when they'd be shown at all.
             val anyVisible = matchesQuery(q, installLabels) ||
-                    (uiState.useShizuku && matchesQuery(q, shizukuLabels)) ||
-                    (uiState.rootSupported && uiState.useRoot && matchesQuery(q, rootLabels)) ||
+                    matchesQuery(q, privilegedLabels) ||
                     matchesQuery(q, profileLabels) ||
                     matchesQuery(q, interfaceLabels) ||
                     matchesQuery(q, securityLabels) ||
@@ -408,135 +413,101 @@ private fun SettingUi(
                 }
 
                 // ── Shizuku Options Section (visible only when Shizuku is the chosen backend) ──
-                // These are the *defaults* the install pipeline reads when no per-app profile
-                // overrides them. They were removed in the profile-screen refactor but the
-                // backend logic still reads these prefs, so without this UI the user has no way
-                // to flip them globally. Restored to match the same flag set ProfileEditScreen
-                // already exposes.
-                if (uiState.useShizuku && matchesQuery(q, shizukuLabels)) {
+                // ── Install options ──────────────────────────
+                // One section for Shizuku and Root: the flags are identical and the app already
+                // treats them as one value — writeProfileFlags() writes both keys from a single
+                // profile setting. Two sections meant the same switch appeared twice and could
+                // disagree with itself depending on which backend happened to be selected.
+                val privileged = uiState.useShizuku ||
+                    (uiState.rootSupported && uiState.useRoot) ||
+                    useDhizuku
+                if (privileged && matchesQuery(q, privilegedLabels)) {
                     item {
                         SettingsSection(
-                            title = stringResource(R.string.setting_section_shizuku_options),
+                            title = stringResource(R.string.setting_section_install_options),
                             icon = Icons.Rounded.AdminPanelSettings,
                             collapsible = true,
                             defaultExpanded = false,
                         ) {
+                            // Values are kept in sync across backends by setPrivilegedOption, so
+                            // reading either store gives the same answer. Root's is used when Root
+                            // is active purely so a pre-existing divergence shows the live one.
+                            val opts = if (uiState.useRoot && uiState.rootSupported) {
+                                uiState.rootOptions.asCommon()
+                            } else {
+                                uiState.shizukuOptions.asCommon()
+                            }
+                            if (useDhizuku) {
+                                Text(
+                                    text = stringResource(R.string.setting_install_options_dhizuku_note),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                )
+                            }
                             OptionGroupHeader(stringResource(R.string.setting_shizuku_options_install_group))
                             OptionSwitch(
                                 title = stringResource(R.string.setting_shizuku_replace),
                                 subtitle = stringResource(R.string.setting_shizuku_replace_sub),
-                                checked = uiState.shizukuOptions.replaceExisting,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_REPLACE_EXISTING, it) },
+                                checked = opts.replaceExisting,
+                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.ReplaceExisting, it) },
                             )
                             OptionSwitch(
                                 title = stringResource(R.string.setting_shizuku_downgrade),
                                 subtitle = stringResource(R.string.setting_shizuku_downgrade_sub),
-                                checked = uiState.shizukuOptions.requestDowngrade,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE, it) },
+                                checked = opts.requestDowngrade,
+                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.RequestDowngrade, it) },
                             )
                             OptionSwitch(
                                 title = stringResource(R.string.setting_shizuku_grant_permissions),
                                 subtitle = stringResource(R.string.setting_shizuku_grant_permissions_sub),
-                                checked = uiState.shizukuOptions.grantAllPermissions,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS, it) },
+                                checked = opts.grantAllPermissions,
+                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.GrantAllPermissions, it) },
                             )
                             OptionSwitch(
                                 title = stringResource(R.string.setting_shizuku_allow_test),
                                 subtitle = stringResource(R.string.setting_shizuku_allow_test_sub),
-                                checked = uiState.shizukuOptions.allowTest,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_ALLOW_TEST, it) },
+                                checked = opts.allowTest,
+                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllowTest, it) },
                             )
                             OptionSwitch(
                                 title = stringResource(R.string.setting_shizuku_bypass_sdk),
                                 subtitle = stringResource(R.string.setting_shizuku_bypass_sdk_sub),
-                                checked = uiState.shizukuOptions.bypassLowTargetSdk,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK, it) },
+                                checked = opts.bypassLowTargetSdk,
+                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.BypassLowTargetSdk, it) },
                             )
                             OptionSwitch(
                                 title = stringResource(R.string.setting_shizuku_all_users),
                                 subtitle = stringResource(R.string.setting_shizuku_all_users_sub),
-                                checked = uiState.shizukuOptions.allUsers,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_ALL_USERS, it) },
+                                checked = opts.allUsers,
+                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllUsers, it) },
                             )
                             InstallSourceItem(
                                 title = stringResource(R.string.setting_shizuku_set_source),
                                 subtitle = stringResource(R.string.setting_shizuku_set_source_sub),
-                                enabled = uiState.shizukuOptions.setInstallSource,
-                                installerPackageName = uiState.shizukuOptions.installerPackageName,
-                                onToggle = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_SET_INSTALL_SOURCE, it) },
-                                onInstallerChange = onShizukuInstallerChanged,
+                                enabled = opts.setInstallSource,
+                                installerPackageName = opts.installerPackageName,
+                                onToggle = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.SetInstallSource, it) },
+                                onInstallerChange = onInstallerPackageChanged,
                             )
 
-                            OptionGroupHeader(stringResource(R.string.setting_shizuku_options_uninstall_group))
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_uninstall_keep_data),
-                                subtitle = stringResource(R.string.setting_shizuku_uninstall_keep_data_sub),
-                                checked = uiState.shizukuOptions.uninstallKeepData,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_UNINSTALL_KEEP_DATA, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_uninstall_all_users),
-                                subtitle = stringResource(R.string.setting_shizuku_uninstall_all_users_sub),
-                                checked = uiState.shizukuOptions.uninstallAllUsers,
-                                onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_UNINSTALL_ALL_USERS, it) },
-                            )
-                        }
-                    }
-                }
-
-                // ── Root Options Section (full flavor only, visible when Root is the chosen backend) ──
-                if (uiState.rootSupported && uiState.useRoot && matchesQuery(q, rootLabels)) {
-                    item {
-                        SettingsSection(
-                            title = stringResource(R.string.setting_section_root_options),
-                            icon = Icons.Rounded.Key,
-                            collapsible = true,
-                            defaultExpanded = false,
-                        ) {
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_root_replace),
-                                subtitle = stringResource(R.string.setting_root_replace_sub),
-                                checked = uiState.rootOptions.replaceExisting,
-                                onCheckedChange = { onRootOptionChanged(PreferencesKeys.ROOT_REPLACE_EXISTING, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_root_downgrade),
-                                subtitle = stringResource(R.string.setting_root_downgrade_sub),
-                                checked = uiState.rootOptions.requestDowngrade,
-                                onCheckedChange = { onRootOptionChanged(PreferencesKeys.ROOT_REQUEST_DOWNGRADE, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_root_grant_permissions),
-                                subtitle = stringResource(R.string.setting_root_grant_permissions_sub),
-                                checked = uiState.rootOptions.grantAllPermissions,
-                                onCheckedChange = { onRootOptionChanged(PreferencesKeys.ROOT_GRANT_ALL_PERMISSIONS, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_root_allow_test),
-                                subtitle = stringResource(R.string.setting_root_allow_test_sub),
-                                checked = uiState.rootOptions.allowTest,
-                                onCheckedChange = { onRootOptionChanged(PreferencesKeys.ROOT_ALLOW_TEST, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_root_bypass_sdk),
-                                subtitle = stringResource(R.string.setting_root_bypass_sdk_sub),
-                                checked = uiState.rootOptions.bypassLowTargetSdk,
-                                onCheckedChange = { onRootOptionChanged(PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_root_all_users),
-                                subtitle = stringResource(R.string.setting_root_all_users_sub),
-                                checked = uiState.rootOptions.allUsers,
-                                onCheckedChange = { onRootOptionChanged(PreferencesKeys.ROOT_ALL_USERS, it) },
-                            )
-                            InstallSourceItem(
-                                title = stringResource(R.string.setting_root_set_source),
-                                subtitle = stringResource(R.string.setting_root_set_source_sub),
-                                enabled = uiState.rootOptions.setInstallSource,
-                                installerPackageName = uiState.rootOptions.installerPackageName,
-                                onToggle = { onRootOptionChanged(PreferencesKeys.ROOT_SET_INSTALL_SOURCE, it) },
-                                onInstallerChange = onRootInstallerChanged,
-                            )
+                            // Uninstall flags are genuinely Shizuku-only — ManageViewModel reads
+                            // the Shizuku keys and gates them on USE_SHIZUKU.
+                            if (uiState.useShizuku) {
+                                OptionGroupHeader(stringResource(R.string.setting_shizuku_options_uninstall_group))
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_uninstall_keep_data),
+                                    subtitle = stringResource(R.string.setting_shizuku_uninstall_keep_data_sub),
+                                    checked = uiState.shizukuOptions.uninstallKeepData,
+                                    onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_UNINSTALL_KEEP_DATA, it) },
+                                )
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_uninstall_all_users),
+                                    subtitle = stringResource(R.string.setting_shizuku_uninstall_all_users_sub),
+                                    checked = uiState.shizukuOptions.uninstallAllUsers,
+                                    onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_UNINSTALL_ALL_USERS, it) },
+                                )
+                            }
                         }
                     }
                 }

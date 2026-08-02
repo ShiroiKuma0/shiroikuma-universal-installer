@@ -312,6 +312,8 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">Bảo vệ dữ liệu người dùng và bộ nhớ cache khi gỡ cài đặt (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">Gỡ cài đặt cho tất cả người dùng</string>
     <string name="setting_shizuku_uninstall_all_users_sub">Xóa gói khỏi mọi người dùng trên thiết bị</string>
+    <string name="setting_section_install_options">Tuỳ chọn cài đặt</string>
+    <string name="setting_install_options_dhizuku_note">Dhizuku chỉ hỗ trợ \"Cho phép hạ cấp\". Các tuỳ chọn còn lại có tác dụng khi bạn quay lại Shizuku hoặc Root.</string>
     <string name="setting_section_root_options">Tùy chọn Root</string>
     <string name="setting_root_replace">Thay thế bản hiện có</string>
     <string name="setting_root_replace_sub">Thay thế các gói đã được cài đặt</string>

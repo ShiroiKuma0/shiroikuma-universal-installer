@@ -305,6 +305,8 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">卸载时保留用户数据和缓存 (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">为所有用户卸载</string>
     <string name="setting_shizuku_uninstall_all_users_sub">从设备上的每个用户中移除该包</string>
+    <string name="setting_section_install_options">安装选项</string>
+    <string name="setting_install_options_dhizuku_note">Dhizuku 仅支持\"允许降级\"。其余选项在切回 Shizuku 或 Root 后生效。</string>
     <string name="setting_section_root_options">Root 选项</string>
     <string name="setting_root_replace">替换现有</string>
     <string name="setting_root_replace_sub">替换已安装的包</string>

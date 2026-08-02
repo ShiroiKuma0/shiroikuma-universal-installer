@@ -162,6 +162,28 @@ data class SyncOptions(
  * one-time setup cost and a much smaller feature set, so it sits as its own switch rather than
  * as a fourth peer squeezed into the same row.
  */
+/** The install flags Shizuku and Root share, so the merged UI can read one shape. */
+data class CommonInstallOptions(
+    val replaceExisting: Boolean,
+    val requestDowngrade: Boolean,
+    val grantAllPermissions: Boolean,
+    val allowTest: Boolean,
+    val bypassLowTargetSdk: Boolean,
+    val allUsers: Boolean,
+    val setInstallSource: Boolean,
+    val installerPackageName: String,
+)
+
+fun ShizukuOptions.asCommon() = CommonInstallOptions(
+    replaceExisting, requestDowngrade, grantAllPermissions, allowTest,
+    bypassLowTargetSdk, allUsers, setInstallSource, installerPackageName,
+)
+
+fun RootOptions.asCommon() = CommonInstallOptions(
+    replaceExisting, requestDowngrade, grantAllPermissions, allowTest,
+    bypassLowTargetSdk, allUsers, setInstallSource, installerPackageName,
+)
+
 enum class InstallMode {
     DEFAULT, SHIZUKU, ROOT;
 
@@ -394,6 +416,61 @@ class SettingViewModel(
      * Activity result. Only commit the mode once it actually says yes — otherwise the user ends
      * up in a mode that silently falls back on every install.
      */
+    /**
+     * One install option, and the per-backend keys it maps onto.
+     *
+     * Shizuku and Root were never really two settings — [writeProfileFlags] has always written
+     * both from a single profile value. Only the Settings screen split them, which meant the same
+     * switch existed twice and could disagree with itself. Writing every backend's key keeps them
+     * from drifting.
+     */
+    enum class PrivilegedOption(
+        internal val shizukuKey: Preferences.Key<Boolean>,
+        internal val rootKey: Preferences.Key<Boolean>,
+        /** Dhizuku only supports downgrade; the rest have no equivalent there. */
+        internal val dhizukuKey: Preferences.Key<Boolean>? = null,
+    ) {
+        ReplaceExisting(PreferencesKeys.SHIZUKU_REPLACE_EXISTING, PreferencesKeys.ROOT_REPLACE_EXISTING),
+        RequestDowngrade(
+            PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE,
+            PreferencesKeys.ROOT_REQUEST_DOWNGRADE,
+            PreferencesKeys.DHIZUKU_REQUEST_DOWNGRADE,
+        ),
+        GrantAllPermissions(
+            PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS,
+            PreferencesKeys.ROOT_GRANT_ALL_PERMISSIONS,
+        ),
+        AllowTest(PreferencesKeys.SHIZUKU_ALLOW_TEST, PreferencesKeys.ROOT_ALLOW_TEST),
+        BypassLowTargetSdk(
+            PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK,
+            PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK,
+        ),
+        AllUsers(PreferencesKeys.SHIZUKU_ALL_USERS, PreferencesKeys.ROOT_ALL_USERS),
+        SetInstallSource(
+            PreferencesKeys.SHIZUKU_SET_INSTALL_SOURCE,
+            PreferencesKeys.ROOT_SET_INSTALL_SOURCE,
+        ),
+    }
+
+    fun setPrivilegedOption(option: PrivilegedOption, enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { p ->
+                p[option.shizukuKey] = enabled
+                p[option.rootKey] = enabled
+                option.dhizukuKey?.let { p[it] = enabled }
+            }
+        }
+    }
+
+    fun setInstallerPackageName(packageName: String) {
+        viewModelScope.launch {
+            dataStore.edit { p ->
+                p[PreferencesKeys.SHIZUKU_INSTALLER_PACKAGE_NAME] = packageName
+                p[PreferencesKeys.ROOT_INSTALLER_PACKAGE_NAME] = packageName
+            }
+        }
+    }
+
     fun setUseDhizuku(enabled: Boolean) {
         if (!enabled) {
             viewModelScope.launch {

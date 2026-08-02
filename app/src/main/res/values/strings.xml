@@ -490,6 +490,8 @@
     <string name="installer_engine_root_desc">Install with root (su)</string>
     <string name="installer_engine_root_request">Tap to grant root access</string>
     <string name="installer_engine_root_unsupported">Not available on this build</string>
+    <string name="setting_section_install_options">Install options</string>
+    <string name="setting_install_options_dhizuku_note">Dhizuku only supports \"Allow downgrade\". The rest apply when you switch back to Shizuku or Root.</string>
     <string name="setting_section_root_options">Root Options</string>
     <string name="setting_root_replace">Replace existing</string>
     <string name="setting_root_replace_sub">Replace already installed packages</string>

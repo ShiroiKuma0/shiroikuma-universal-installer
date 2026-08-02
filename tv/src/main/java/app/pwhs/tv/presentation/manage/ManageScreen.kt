@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -53,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -237,7 +239,13 @@ fun ManageScreen(
             Spacer(Modifier.height(24.dp))
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                // focusGroup + focusRestorer is what Compose for TV provides instead of
+                // Leanback's BrowseFrameLayout focus interception: leaving and re-entering the
+                // list restores the previous row directly rather than re-searching the tree.
+                modifier = Modifier
+                    .fillMaxSize()
+                    .focusRestorer()
+                    .focusGroup(),
                 contentPadding = PaddingValues(bottom = 64.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -259,9 +267,13 @@ fun ManageScreen(
                 } else {
                     val firstPackage = uiState.filteredApps.firstOrNull()?.packageName
                     items(uiState.filteredApps, key = { it.packageName }) { app ->
+                        // isSelected is passed as a lambda, not a Boolean. Reading focusedApp
+                        // here would make every D-pad move recompose the whole list — the item
+                        // block runs in the scope that reads the state. Deferring the read to
+                        // AppListRow limits it to the two rows whose selection actually flips.
                         AppListRow(
                             app = app,
-                            isSelected = focusedApp?.packageName == app.packageName,
+                            isSelected = { focusedApp?.packageName == app.packageName },
                             focusRequester = if (app.packageName == firstPackage) firstRowFocus else null,
                             onFocus = { focusedApp = app }
                         )
@@ -435,7 +447,7 @@ fun ManageScreen(
 @Composable
 private fun AppListRow(
     app: InstalledApp,
-    isSelected: Boolean,
+    isSelected: () -> Boolean,
     focusRequester: FocusRequester?,
     onFocus: () -> Unit
 ) {
@@ -454,7 +466,7 @@ private fun AppListRow(
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Color.Transparent,
             focusedContainerColor = MaterialTheme.colorScheme.onSurface,
-            contentColor = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            contentColor = if (isSelected()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
             focusedContentColor = MaterialTheme.colorScheme.surface
         )
     ) {
@@ -487,7 +499,7 @@ private fun AppListRow(
                 style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                fontWeight = if (isSelected()) FontWeight.Bold else FontWeight.Normal
             )
         }
     }

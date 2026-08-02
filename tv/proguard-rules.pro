@@ -19,3 +19,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# ── Project rules (R8 enabled 2026-08-02; this module previously shipped unminified) ──
+
+# NanoHTTPD serves the phone→TV upload endpoint. Its request handlers are resolved
+# reflectively and its optional SSL/websocket paths reference classes we do not ship.
+-keep class org.nanohttpd.** { *; }
+-dontwarn org.nanohttpd.**
+
+# Ackpine keeps install/uninstall session state in a Room database and restores sessions
+# across process death; the entities and the generated DAO impls are instantiated by name.
+-keep class ru.solrudev.ackpine.**.database.** { *; }
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
+-keepclassmembers class * { @androidx.room.* <methods>; }
+
+# Compose keeps its own rules, but the TV focus machinery resolves some modifiers through
+# reflection when restoring focus after a configuration change.
+-dontwarn androidx.tv.**

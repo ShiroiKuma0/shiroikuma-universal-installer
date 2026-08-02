@@ -102,6 +102,22 @@ abstract class BaseInstallController(
         }
     }
 
+    /**
+     * Drop a session the user is done with, without trying to cancel it.
+     *
+     * [cancel] is for a session still running; calling it on one that already failed asks ackpine
+     * to cancel a completed session, which is meaningless. This exists so a failed install can be
+     * cleared from the list — it previously had Retry and no way out at all (issue #93).
+     */
+    fun dismiss(id: UUID) {
+        activeSessions.remove(id)
+        sessionUris.remove(id)
+        originalFileUris.remove(id)
+        deleteFlags.remove(id)
+        successHooks.remove(id)
+        sessionDataRepository.removeSessionData(id)
+    }
+
     fun retry(id: UUID, scope: CoroutineScope) {
         val uris = sessionUris[id] ?: return
         val oldSession = sessionDataRepository.sessions.value.find { it.id == id } ?: return

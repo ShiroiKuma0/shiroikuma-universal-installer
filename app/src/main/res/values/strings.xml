@@ -212,6 +212,7 @@
     <string name="session_installed_success">Installed successfully</string>
     <string name="session_installing_progress">%d%% installing…</string>
     <string name="session_retry">Retry</string>
+    <string name="session_dismiss">Dismiss</string>
     <string name="apk_info_label_package">Package</string>
     <string name="apk_info_label_version">Version</string>
     <string name="apk_info_label_min_sdk">Min SDK</string>

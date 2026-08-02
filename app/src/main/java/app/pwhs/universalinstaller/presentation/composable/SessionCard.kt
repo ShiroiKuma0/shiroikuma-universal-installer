@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Error
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material3.ElevatedCard
@@ -26,6 +27,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -50,6 +52,9 @@ fun SessionCard(
     sessionProgress: SessionProgress?,
     onCancel: () -> Unit,
     onRetry: () -> Unit = {},
+    /** Clear a failed session from the list. Without this a failed install had Retry and no way
+     *  out at all — the card stayed for good (issue #93). */
+    onDismiss: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val errorText = sessionData.error.resolve(context)
@@ -159,17 +164,40 @@ fun SessionCard(
                     )
                 }
                 Spacer(Modifier.height(12.dp))
-                FilledTonalButton(
-                    onClick = onRetry,
+                Row(
                     modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Refresh,
-                        contentDescription = stringResource(R.string.session_retry),
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(stringResource(R.string.session_retry), style = MaterialTheme.typography.labelMedium)
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Close,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            stringResource(R.string.session_dismiss),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                    FilledTonalButton(
+                        onClick = onRetry,
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            stringResource(R.string.session_retry),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
                 }
             }
 

@@ -177,6 +177,7 @@ fun InstallScreen(
         onDismissPreview = viewModel::dismissPendingInstall,
         onCancel = viewModel::cancelSession,
         onRetry = viewModel::retrySession,
+        onDismissSession = viewModel::dismissSession,
         onClearHistory = viewModel::clearHistory,
         onCheckVirusTotal = { viewModel.scanVirusTotal(context) },
         onStartDeviceScan = { viewModel.startDeviceScan(context) },
@@ -247,6 +248,7 @@ private fun InstallUi(
     onDismissPreview: () -> Unit = {},
     onCancel: (java.util.UUID) -> Unit = {},
     onRetry: (java.util.UUID) -> Unit = {},
+    onDismissSession: (java.util.UUID) -> Unit = {},
     onClearHistory: () -> Unit = {},
     onCheckVirusTotal: () -> Unit = {},
     onStartDeviceScan: () -> Unit = {},
@@ -643,6 +645,7 @@ private fun InstallUi(
                         sessionProgress = sessionProgress,
                         onCancel = { onCancel(session.id) },
                         onRetry = { onRetry(session.id) },
+                        onDismiss = { onDismissSession(session.id) },
                         modifier = Modifier.animateItem(),
                     )
                 }

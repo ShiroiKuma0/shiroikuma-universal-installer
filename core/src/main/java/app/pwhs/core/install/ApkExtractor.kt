@@ -331,7 +331,7 @@ object ApkExtractor {
      * so `Character.isDigit` rejects it — and the same went for `\u2122`, `\u00ae`, emoji and
      * every math symbol. FAT32, exFAT and ext4 all store those bytes fine.
      */
-    internal fun sanitize(name: String): String {
+    private fun sanitize(name: String): String {
         val cleaned = name
             .map { c -> if (c in ILLEGAL_FILENAME_CHARS || c.isISOControl()) '_' else c }
             .joinToString("")

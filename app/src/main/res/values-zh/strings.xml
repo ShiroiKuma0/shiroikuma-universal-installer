@@ -27,6 +27,7 @@
     <string name="session_installed_success">安装成功</string>
     <string name="session_installing_progress">%d%% 安装中…</string>
     <string name="session_retry">重试</string>
+    <string name="session_dismiss">忽略</string>
     <string name="apk_info_label_package">包名</string>
     <string name="apk_info_label_version">版本</string>
     <string name="apk_info_label_min_sdk">Min SDK</string>

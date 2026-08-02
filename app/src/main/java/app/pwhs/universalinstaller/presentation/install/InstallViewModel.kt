@@ -1538,6 +1538,12 @@ class InstallViewModel(
         }
     }
 
+    fun dismissSession(id: UUID) {
+        viewModelScope.launch {
+            activeController().dismiss(id)
+        }
+    }
+
     fun retrySession(id: UUID) {
         viewModelScope.launch {
             activeController().retry(id, viewModelScope)

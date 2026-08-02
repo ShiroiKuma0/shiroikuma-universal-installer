@@ -27,6 +27,7 @@
     <string name="session_installed_success">Đã cài đặt thành công</string>
     <string name="session_installing_progress">Đang cài đặt %d%%…</string>
     <string name="session_retry">Thử lại</string>
+    <string name="session_dismiss">Bỏ qua</string>
     <string name="apk_info_label_package">Gói</string>
     <string name="apk_info_label_version">Phiên bản</string>
     <string name="apk_info_label_min_sdk">Min SDK</string>

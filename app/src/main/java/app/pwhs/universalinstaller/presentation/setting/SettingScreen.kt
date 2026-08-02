@@ -112,6 +112,7 @@ fun SettingScreen(
         onShizukuOptionChanged = viewModel::setShizukuOption,
         dhizukuState = dhizukuState,
         useDhizuku = useDhizuku,
+        onUseDhizukuChanged = viewModel::setUseDhizuku,
         onReplayTutorial = {
             // Reuse MainActivity's onboarding route rather than clearing ONBOARDING_COMPLETED:
             // clearing it would also re-show the tour on the next cold start, which nobody asked
@@ -161,6 +162,7 @@ private fun SettingUi(
     // renumbering every cast in the block.
     dhizukuState: DhizukuState = DhizukuState.NOT_INSTALLED,
     useDhizuku: Boolean = false,
+    onUseDhizukuChanged: (Boolean) -> Unit = {},
     onShizukuInstallerChanged: (String) -> Unit = {},
     onDeleteApkChanged: (Boolean) -> Unit = {},
     onAutoOpenAfterInstallChanged: (Boolean) -> Unit = {},
@@ -255,7 +257,7 @@ private fun SettingUi(
             // gates below — which aren't composable — can decide section visibility without
             // calling stringResource. `matchesQuery` returns true on a blank query, so the
             // full list renders when search is empty.
-            val installLabels = listOf(
+            val installLabels = listOf(stringResource(R.string.setting_use_dhizuku_title), "dhizuku", 
                 stringResource(R.string.setting_install_mode_title), "shizuku", "root", "default",
                 stringResource(R.string.setting_delete_apk_title),
                 stringResource(R.string.setting_auto_open_title),
@@ -318,15 +320,30 @@ private fun SettingUi(
                     SettingsSection(title = stringResource(R.string.setting_section_installation), icon = Icons.Rounded.SettingsApplications) {
                         SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku root default") {
                             InstallModeSelector(
-                                currentMode = InstallMode.from(
-                                    uiState.useShizuku, uiState.useRoot, useDhizuku,
-                                ),
+                                currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot),
                                 shizukuState = uiState.shizukuState,
                                 rootSupported = uiState.rootSupported,
                                 rootState = uiState.rootState,
-                                dhizukuState = dhizukuState,
+                                overriddenByDhizuku = useDhizuku,
                                 onModeChange = onInstallModeChanged,
                             )
+                            // Only offered when Dhizuku is actually on the device. A switch for
+                            // an app the user does not have is noise, and it cannot be turned on
+                            // below API 26 either.
+                            if (dhizukuState != DhizukuState.UNSUPPORTED &&
+                                dhizukuState != DhizukuState.NOT_INSTALLED
+                            ) {
+                                SwitchPreference(
+                                    title = stringResource(R.string.setting_use_dhizuku_title),
+                                    subtitle = if (useDhizuku) {
+                                        stringResource(R.string.setting_dhizuku_ready)
+                                    } else {
+                                        stringResource(R.string.setting_use_dhizuku_subtitle)
+                                    },
+                                    checked = useDhizuku,
+                                    onCheckedChange = onUseDhizukuChanged,
+                                )
+                            }
                             if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
                                 ListItem(
                                     headlineContent = { Text(stringResource(R.string.setting_retry_root)) },
@@ -900,18 +917,13 @@ private fun InstallModeSelector(
     shizukuState: ShizukuState,
     rootSupported: Boolean,
     rootState: RootState,
-    dhizukuState: DhizukuState,
+    /** True while the Dhizuku switch is on, in which case this picker is not what runs installs. */
+    overriddenByDhizuku: Boolean,
     onModeChange: (InstallMode) -> Unit,
 ) {
-    // Dhizuku is only offered where it can work at all — below API 26 the plugin cannot run,
-    // and an option that always fails is worse than an absent one.
-    val options: List<InstallMode> = remember(rootSupported, dhizukuState) {
-        buildList {
-            add(InstallMode.DEFAULT)
-            add(InstallMode.SHIZUKU)
-            if (rootSupported) add(InstallMode.ROOT)
-            if (dhizukuState != DhizukuState.UNSUPPORTED) add(InstallMode.DHIZUKU)
-        }
+    val options: List<InstallMode> = remember(rootSupported) {
+        if (rootSupported) listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU, InstallMode.ROOT)
+        else listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU)
     }
     Column(
         modifier = Modifier
@@ -934,7 +946,7 @@ private fun InstallModeSelector(
             (rootState == RootState.NOT_ROOTED || rootState == RootState.UNAVAILABLE)
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             options.forEachIndexed { index, mode ->
-                val dim = mode == InstallMode.ROOT && rootDimmed
+                val dim = overriddenByDhizuku || (mode == InstallMode.ROOT && rootDimmed)
                 SegmentedButton(
                     selected = mode == currentMode,
                     onClick = { if (mode != currentMode) onModeChange(mode) },
@@ -946,7 +958,6 @@ private fun InstallModeSelector(
                                 InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default)
                                 InstallMode.SHIZUKU -> stringResource(R.string.setting_install_mode_shizuku)
                                 InstallMode.ROOT -> stringResource(R.string.setting_install_mode_root)
-                                InstallMode.DHIZUKU -> stringResource(R.string.setting_install_mode_dhizuku)
                             },
                             color = if (dim)
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -957,7 +968,9 @@ private fun InstallModeSelector(
                 )
             }
         }
-        val statusText = when (currentMode) {
+        val statusText = if (overriddenByDhizuku) {
+            stringResource(R.string.setting_install_mode_overridden_by_dhizuku)
+        } else when (currentMode) {
             InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default_sub)
             InstallMode.SHIZUKU -> when (shizukuState) {
                 ShizukuState.NOT_INSTALLED -> stringResource(R.string.setting_shizuku_not_installed)
@@ -972,13 +985,6 @@ private fun InstallModeSelector(
                 RootState.DENIED -> "Denied"
                 RootState.READY -> "Ready"
                 else -> "Not Rooted"
-            }
-            InstallMode.DHIZUKU -> when (dhizukuState) {
-                DhizukuState.UNSUPPORTED -> stringResource(R.string.setting_dhizuku_unsupported)
-                DhizukuState.NOT_INSTALLED -> stringResource(R.string.setting_dhizuku_not_installed)
-                DhizukuState.NOT_RUNNING -> stringResource(R.string.setting_dhizuku_not_running)
-                DhizukuState.NOT_AUTHORIZED -> stringResource(R.string.setting_dhizuku_not_authorized)
-                DhizukuState.READY -> stringResource(R.string.setting_dhizuku_ready)
             }
         }
         Text(

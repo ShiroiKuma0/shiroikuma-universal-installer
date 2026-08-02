@@ -155,19 +155,22 @@ data class SyncOptions(
 
 /** Mutually exclusive install backend selection. Stored as two booleans in DataStore
  *  (USE_SHIZUKU, USE_ROOT) for backward compatibility — this enum is the UI-side view. */
+/**
+ * The three mutually exclusive privilege levels the picker offers.
+ *
+ * Dhizuku is deliberately not one of them. It is an alternative privilege *source* with a heavy
+ * one-time setup cost and a much smaller feature set, so it sits as its own switch rather than
+ * as a fourth peer squeezed into the same row.
+ */
 enum class InstallMode {
-    DEFAULT, SHIZUKU, ROOT, DHIZUKU;
+    DEFAULT, SHIZUKU, ROOT;
 
     companion object {
-        // Root wins over Shizuku wins over Dhizuku when more than one flag is somehow set —
-        // the order matches how much each backend can actually do.
-        fun from(useShizuku: Boolean, useRoot: Boolean, useDhizuku: Boolean = false): InstallMode =
-            when {
-                useRoot -> ROOT
-                useShizuku -> SHIZUKU
-                useDhizuku -> DHIZUKU
-                else -> DEFAULT
-            }
+        fun from(useShizuku: Boolean, useRoot: Boolean): InstallMode = when {
+            useRoot -> ROOT
+            useShizuku -> SHIZUKU
+            else -> DEFAULT
+        }
     }
 }
 
@@ -383,7 +386,6 @@ class SettingViewModel(
                     }
                 }
             }
-            InstallMode.DHIZUKU -> setUseDhizuku(true)
         }
     }
 

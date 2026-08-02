@@ -19,7 +19,26 @@ import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
+import android.util.Log
 import timber.log.Timber
+
+/**
+ * Forwards WARN and above to logcat in release builds.
+ *
+ * Deliberately not everything: `Timber.d` carries URIs and file names that are fine on a
+ * developer's machine but end up in a diagnostics report the user may paste into a public issue.
+ * Warnings and errors are what makes a report actionable, and they are written to be safe to
+ * share.
+ */
+private class ReleaseTree : Timber.Tree() {
+    override fun isLoggable(tag: String?, priority: Int): Boolean = priority >= Log.WARN
+
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        val resolvedTag = tag ?: "UniversalInstaller"
+        if (t != null) Log.println(priority, resolvedTag, "$message\n${Log.getStackTraceString(t)}")
+        else Log.println(priority, resolvedTag, message)
+    }
+}
 
 class App : Application(), SingletonImageLoader.Factory {
 
@@ -43,9 +62,11 @@ class App : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         CrashHandler.install(this)
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+        // Release builds used to plant nothing, so Settings -> Diagnostics collected a logcat
+        // dump containing not one line from this app. Issues #92 and #100 both arrived with a
+        // full report attached and no clue in it. Release now keeps warnings and errors — the
+        // lines that explain a failure — while debug keeps everything.
+        Timber.plant(if (BuildConfig.DEBUG) Timber.DebugTree() else ReleaseTree())
         startKoin{
             androidLogger()
             androidContext(this@App)

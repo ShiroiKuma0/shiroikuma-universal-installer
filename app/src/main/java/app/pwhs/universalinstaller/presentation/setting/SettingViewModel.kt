@@ -421,8 +421,16 @@ class SettingViewModel(
         }
     }
 
+    /**
+     * Called on every Settings resume, so it must not bind to Dhizuku — that prompts. Once the
+     * user is actually on the Dhizuku backend the binding already exists and asking is free.
+     */
     fun refreshDhizukuState() {
-        _dhizukuState.value = DhizukuCompat.state(application)
+        _dhizukuState.value = if (useDhizuku.value) {
+            DhizukuCompat.state(application)
+        } else {
+            DhizukuCompat.stateUnbound(application)
+        }
     }
 
     fun setUseShizuku(enabled: Boolean) {

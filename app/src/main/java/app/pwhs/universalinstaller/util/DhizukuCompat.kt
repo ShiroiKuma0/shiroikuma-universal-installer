@@ -41,8 +41,24 @@ object DhizukuCompat {
     val isSupported: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
     /**
+     * State without touching Dhizuku's service.
+     *
+     * [Dhizuku.init] binds to Dhizuku, and Dhizuku answers a bind from an unauthorized app by
+     * showing its own permission dialog. Probing with [state] on every Settings resume therefore
+     * threw that prompt at anyone who merely has Dhizuku installed and never asked to use it.
+     * Use this for passive checks — "should the picker offer Dhizuku at all" — and [state] only
+     * once the user has actually chosen the backend.
+     */
+    fun stateUnbound(context: Context): DhizukuState = when {
+        !isSupported -> DhizukuState.UNSUPPORTED
+        !isInstalled(context) -> DhizukuState.NOT_INSTALLED
+        else -> DhizukuState.NOT_AUTHORIZED
+    }
+
+    /**
      * [Dhizuku.init] binds to the Dhizuku service and must succeed before anything else works.
-     * Safe to call repeatedly — it returns true once bound.
+     * Safe to call repeatedly — it returns true once bound. Binding can prompt the user, so only
+     * call this in response to something they did; see [stateUnbound].
      */
     fun state(context: Context): DhizukuState {
         if (!isSupported) return DhizukuState.UNSUPPORTED

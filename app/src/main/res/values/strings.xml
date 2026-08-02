@@ -405,6 +405,22 @@
     <string name="language_screen_title">Language</string>
     <string name="back_cd">Back</string>
     <string name="done_cd">Done</string>
+    <string name="help_title">Help</string>
+    <string name="help_replay_tutorial">Replay the tutorial</string>
+    <string name="help_replay_tutorial_sub">Show the intro screens again from the start</string>
+    <string name="help_intro">Short answers to the settings that most often surprise people. Tap a topic to open it.</string>
+    <string name="help_modes_title">Install modes: Package Installer, Shizuku, Root</string>
+    <string name="help_modes_body">Package Installer is the default and needs no setup, but Android shows its own confirmation for every install. Shizuku and Root install silently and unlock the extra options below — Shizuku needs the Shizuku app running, Root needs a rooted device. Options that need one of those do nothing while you are on Package Installer.</string>
+    <string name="help_conflict_title">\"Already installed\" errors: which switch actually helps</string>
+    <string name="help_conflict_body">Three different problems produce a similar-looking error. Installing an older version needs \"Allow downgrade\" — \"Replace existing\" does not cover it. A normal update needs \"Replace existing\", which is on by default. And if the installed app was signed with a different key, no option helps: it has to be uninstalled first and its data is lost.</string>
+    <string name="help_profiles_title">Installer profiles</string>
+    <string name="help_profiles_body">A profile is a saved set of install options you can attach to specific apps, so you do not have to flip switches before each install. Without a profile the global options in this screen apply.</string>
+    <string name="help_virustotal_title">VirusTotal scanning</string>
+    <string name="help_virustotal_body">Any package can be checked against VirusTotal before you install it, but it needs a free API key from virustotal.com pasted into Advanced. Scanning is manual — tap \"Check with VirusTotal\" on the install screen. Turn on strict mode to be warned when you are about to install something that was never scanned.</string>
+    <string name="help_delete_title">Delete APK after installation</string>
+    <string name="help_delete_body">Works for files you pick inside the app. When another app hands the APK over — most file managers do — it usually shares it in a way that gives no permission to delete it, and you will get a message saying so. Deleting it from that file manager is the way around it.</string>
+    <string name="help_source_title">Changing the installation source</string>
+    <string name="help_source_body">Needs Shizuku or Root; on Package Installer the setting is ignored. It changes the installer this app is recorded under, which is what most app-info screens show. It cannot change who started the install, and it does not make the Play Store treat an app as installed from Play.</string>
     <string name="setting_section_about">About</string>
     <string name="setting_about_app_name" translatable="false">Universal Installer</string>
     <string name="setting_github_title" translatable="false">GitHub</string>

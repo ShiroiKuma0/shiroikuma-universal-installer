@@ -205,6 +205,10 @@
             android:name=".presentation.setting.diagnostics.DiagnosticsActivity"
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />
+        <activity
+            android:name=".presentation.setting.help.HelpActivity"
+            android:exported="false"
+            android:theme="@style/Theme.UniversalInstaller" />
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

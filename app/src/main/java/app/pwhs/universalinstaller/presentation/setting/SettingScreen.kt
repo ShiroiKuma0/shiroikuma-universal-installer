@@ -25,6 +25,8 @@ import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
+import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Language
@@ -98,6 +100,18 @@ fun SettingScreen(
         onVirusTotalKeyChanged = viewModel::setVirusTotalApiKey,
         onStrictVirusTotalCheckChanged = viewModel::setStrictVirusTotalCheck,
         onShizukuOptionChanged = viewModel::setShizukuOption,
+        onReplayTutorial = {
+            // Reuse MainActivity's onboarding route rather than clearing ONBOARDING_COMPLETED:
+            // clearing it would also re-show the tour on the next cold start, which nobody asked
+            // for. This shows it once, on demand.
+            context.startActivity(
+                android.content.Intent(context, app.pwhs.universalinstaller.MainActivity::class.java)
+                    .putExtra(
+                        app.pwhs.universalinstaller.presentation.splash.SplashActivity.EXTRA_SHOW_ONBOARDING,
+                        true,
+                    )
+            )
+        },
         onShizukuInstallerChanged = viewModel::setShizukuInstallerPackageName,
         onDeleteApkChanged = viewModel::setDeleteApkAfterInstall,
         onAutoOpenAfterInstallChanged = viewModel::setAutoOpenAfterInstall,
@@ -130,6 +144,7 @@ private fun SettingUi(
     onVirusTotalKeyChanged: (String) -> Unit = {},
     onStrictVirusTotalCheckChanged: (Boolean) -> Unit = {},
     onShizukuOptionChanged: (Preferences.Key<Boolean>, Boolean) -> Unit = { _, _ -> },
+    onReplayTutorial: () -> Unit = {},
     onShizukuInstallerChanged: (String) -> Unit = {},
     onDeleteApkChanged: (Boolean) -> Unit = {},
     onAutoOpenAfterInstallChanged: (Boolean) -> Unit = {},
@@ -246,7 +261,7 @@ private fun SettingUi(
             val securityLabels = listOf("security", "lock", "biometric", "fingerprint", "installations", "uninstalls")
             val syncLabels = listOf("sync", "port", "pin")
             val advancedLabels = listOf("advanced", "virustotal", "api key")
-            val aboutLabels = listOf(
+            val aboutLabels = listOf(stringResource(R.string.help_title), "help", "tutorial", 
                 "about", "diagnostics",
                 stringResource(R.string.setting_section_about),
             )
@@ -667,6 +682,23 @@ private fun SettingUi(
                 // ── About Section ────────────────────────────
                 if (matchesQuery(q, aboutLabels)) item {
                     SettingsSection(title = stringResource(R.string.setting_section_about), icon = Icons.Rounded.Info) {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.help_title)) },
+                            leadingContent = { Icon(Icons.AutoMirrored.Rounded.HelpOutline, null, tint = MaterialTheme.colorScheme.primary) },
+                            modifier = Modifier.clickable {
+                                context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.help.HelpActivity::class.java))
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                        // The onboarding tour is the other half of #102, and existing installs
+                        // have ONBOARDING_COMPLETED set, so it is unreachable without this.
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.help_replay_tutorial)) },
+                            supportingContent = { Text(stringResource(R.string.help_replay_tutorial_sub)) },
+                            leadingContent = { Icon(Icons.Rounded.Replay, null, tint = MaterialTheme.colorScheme.primary) },
+                            modifier = Modifier.clickable { onReplayTutorial() },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
                         ListItem(
                             headlineContent = { Text(stringResource(R.string.setting_section_about)) },
                             supportingContent = { Text("v${uiState.appVersion}") },

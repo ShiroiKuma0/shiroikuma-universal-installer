@@ -68,6 +68,8 @@ private data class OnboardingPage(
     val icon: ImageVector,
     val title: String,
     val description: String,
+    /** Renders a two-option security picker under the description. */
+    val securityPicker: Boolean = false,
     /** Optional secondary action rendered under the description (e.g. "Open Developer options"). */
     val actionLabel: String? = null,
     val actionIcon: ImageVector? = null,
@@ -119,6 +121,7 @@ fun OnboardingScreen(
                     icon = Icons.Rounded.GppGood,
                     title = stringResource(R.string.onboarding_virustotal_title),
                     description = stringResource(R.string.onboarding_virustotal_desc),
+                    securityPicker = true,
                     actionLabel = stringResource(R.string.onboarding_virustotal_get_key),
                     actionIcon = Icons.AutoMirrored.Rounded.OpenInNew,
                     onAction = { uriHandler.openUri(VIRUSTOTAL_API_KEY_URL) },
@@ -150,6 +153,8 @@ fun OnboardingScreen(
     }
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { pages.size })
+    // Normal by default — the level only becomes Strict if the user picks it here.
+    var strictSecurity by remember { mutableStateOf(false) }
 
     // Track install permission state — refreshes on resume
     var hasInstallPermission by remember {
@@ -201,6 +206,16 @@ fun OnboardingScreen(
                     .weight(1f),
             ) { page ->
                 PageContent(
+                    strictSecurity = strictSecurity,
+                    onStrictSecurityChange = { strict ->
+                        strictSecurity = strict
+                        scope.launch {
+                            context.dataStore.edit { prefs ->
+                                prefs[SharedPrefsKeys.SECURITY_LEVEL] = if (strict) "Strict" else "Normal"
+                                prefs[SharedPrefsKeys.STRICT_VIRUSTOTAL_CHECK] = strict
+                            }
+                        }
+                    },
                     page = pages[page],
                     isPermissionPage = page == pages.lastIndex,
                     hasPermission = hasInstallPermission,
@@ -287,6 +302,8 @@ private fun PageContent(
     isPermissionPage: Boolean,
     hasPermission: Boolean,
     onRequestPermission: () -> Unit,
+    strictSecurity: Boolean = false,
+    onStrictSecurityChange: (Boolean) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -325,6 +342,14 @@ private fun PageContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
+
+        if (page.securityPicker) {
+            Spacer(Modifier.height(28.dp))
+            OnboardingSecurityPicker(
+                strict = strictSecurity,
+                onChange = onStrictSecurityChange,
+            )
+        }
 
         page.onAction?.let { action ->
             val label = page.actionLabel ?: return@let
@@ -370,5 +395,45 @@ private fun PageContent(
                 }
             }
         }
+    }
+}
+
+
+/**
+ * Normal vs Strict, offered during onboarding.
+ *
+ * Worth asking here rather than defaulting silently: Strict changes the install screen for every
+ * install afterwards, and it needs a VirusTotal API key to be useful at all. Someone who never
+ * gets a key should not be left with Scan sitting in the primary button forever.
+ */
+@Composable
+private fun OnboardingSecurityPicker(
+    strict: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            listOf(
+                false to R.string.onboarding_security_normal,
+                true to R.string.onboarding_security_strict,
+            ).forEach { (value, labelRes) ->
+                    val selected = value == strict
+                    if (selected) {
+                        Button(onClick = { onChange(value) }) { Text(stringResource(labelRes)) }
+                    } else {
+                        OutlinedButton(onClick = { onChange(value) }) { Text(stringResource(labelRes)) }
+                    }
+                }
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(
+                if (strict) R.string.onboarding_security_strict_sub else R.string.onboarding_security_normal_sub
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
     }
 }

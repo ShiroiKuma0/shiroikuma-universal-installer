@@ -141,6 +141,8 @@ internal fun ApkInfoContent(
     onSelectUserId: (Int?) -> Unit = {},
     startCompact: Boolean = true,
     onUnblock: (String) -> Unit = {},
+    /** Strict security level: Scan takes the primary button until a verdict exists. */
+    strictSecurity: Boolean = false,
 ) {
     val context = LocalContext.current
     val currentMappingProfileId = appProfileMapping[apkInfo.packageName]
@@ -397,7 +399,10 @@ internal fun ApkInfoContent(
         if (isExpanded) {
             HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
         }
-        val isScanCompleted = apkInfo.vtResult?.status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS)
+        val hasVerdict = apkInfo.vtResult?.status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS)
+        // Strict makes Scan the primary action until a verdict exists. Normal never does — the
+        // scan is still reachable from the VirusTotal card in the details.
+        val isScanCompleted = hasVerdict || !strictSecurity
         val isScanning = apkInfo.vtResult?.status in setOf(VtStatus.SCANNING, VtStatus.UPLOADING, VtStatus.QUEUED, VtStatus.ANALYZING)
         
         Column(

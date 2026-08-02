@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.util.BiometricGate
 import kotlinx.coroutines.flow.map
@@ -91,9 +92,14 @@ fun InstallScreen(
         }
     }.collectAsState(initial = true)
 
+    // Strict is the only level that treats an unscanned file as a risk and lets the Scan button
+    // take the primary slot; Normal keeps VirusTotal available without pushing it.
     val strictVirusTotalCheck by remember(context) {
         context.dataStore.data.map {
-            it[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] ?: false
+            SecurityLevel.from(
+                stored = it[PreferencesKeys.SECURITY_LEVEL],
+                legacyStrict = it[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] ?: false,
+            ) == SecurityLevel.Strict
         }
     }.collectAsState(initial = false)
 
@@ -179,6 +185,7 @@ fun InstallScreen(
         onRetry = viewModel::retrySession,
         onDismissSession = viewModel::dismissSession,
         onUnblock = viewModel::unblockPackage,
+        strictSecurity = strictVirusTotalCheck,
         onClearHistory = viewModel::clearHistory,
         onCheckVirusTotal = { viewModel.scanVirusTotal(context) },
         onStartDeviceScan = { viewModel.startDeviceScan(context) },
@@ -251,6 +258,7 @@ private fun InstallUi(
     onRetry: (java.util.UUID) -> Unit = {},
     onDismissSession: (java.util.UUID) -> Unit = {},
     onUnblock: (String) -> Unit = {},
+    strictSecurity: Boolean = false,
     onClearHistory: () -> Unit = {},
     onCheckVirusTotal: () -> Unit = {},
     onStartDeviceScan: () -> Unit = {},
@@ -493,6 +501,7 @@ private fun InstallUi(
                 onSelectUserId = onSelectUserId,
                 startCompact = true,
                 onUnblock = onUnblock,
+                strictSecurity = strictSecurity,
             )
         }
     }

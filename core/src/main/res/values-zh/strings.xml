@@ -11,6 +11,10 @@
     <string name="onboarding_page3_desc">要安装软件包，应用程序需要从未知来源安装的权限。点击下面的按钮以授予它。</string>
     <string name="onboarding_virustotal_title">安装前先扫描</string>
     <string name="onboarding_virustotal_desc">您打开的任何安装包都可以直接在安装界面用 VirusTotal（70 多个杀毒引擎）检查。点击\"使用 VirusTotal 检查\"，结果会在您确认安装前显示。此功能需要免费的 API 密钥：在下方获取，然后粘贴到设置 &gt; 高级 &gt; VirusTotal API 密钥。</string>
+    <string name="onboarding_security_normal">普通</string>
+    <string name="onboarding_security_strict">严格</string>
+    <string name="onboarding_security_normal_sub">安装是主按钮。需要时仍可在详情中使用 VirusTotal。</string>
+    <string name="onboarding_security_strict_sub">在文件有扫描结果之前，VirusTotal 扫描会成为主按钮；安装未扫描的文件时会要求确认。需要 API 密钥。</string>
     <string name="onboarding_virustotal_get_key">获取免费 API 密钥</string>
     <string name="onboarding_xiaomi_title">如果在 MIUI 上安装失败</string>
     <string name="onboarding_xiaomi_desc">MIUI/HyperOS 优化可能会在不给出原因的情况下阻止第三方安装。若遇到这种情况，请进入开发者选项，关闭\"MIUI 优化\"，安装应用后再重新打开。关闭期间系统主题可能显示异常，重启手机即可恢复。</string>

@@ -61,6 +61,7 @@ object PreferencesKeys {
     val INSTALL_USER_ID = intPreferencesKey("install_user_id")
     val VIRUSTOTAL_API_KEY = stringPreferencesKey("virustotal_api_key")
     val STRICT_VIRUSTOTAL_CHECK = booleanPreferencesKey("strict_virustotal_check")
+    val SECURITY_LEVEL = stringPreferencesKey("security_level")
     val DELETE_APK_AFTER_INSTALL = booleanPreferencesKey("delete_apk_after_install")
 
     /** Open the app automatically after a successful install (with a 3-second cancellable countdown). */
@@ -185,6 +186,30 @@ fun RootOptions.asCommon() = CommonInstallOptions(
     bypassLowTargetSdk, allUsers, setInstallSource, installerPackageName,
 )
 
+/**
+ * How hard the app pushes VirusTotal.
+ *
+ * [Normal] is the default: scanning stays available but never takes over the UI, and installing
+ * an unscanned file is not treated as a risk. [Strict] is the previous behaviour — Scan becomes
+ * the primary action until a verdict exists, and an unscanned file raises the risk dialog.
+ *
+ * Replaces the old STRICT_VIRUSTOTAL_CHECK boolean, which only covered the risk gate and left the
+ * pushy button behaviour on for everyone, including people with no API key.
+ */
+enum class SecurityLevel {
+    Normal, Strict;
+
+    companion object {
+        /**
+         * @param legacyStrict the old STRICT_VIRUSTOTAL_CHECK value, honoured when the new key
+         *   has never been written — someone who opted into strict checking keeps it.
+         */
+        fun from(stored: String?, legacyStrict: Boolean = false): SecurityLevel =
+            entries.firstOrNull { it.name == stored }
+                ?: if (legacyStrict) Strict else Normal
+    }
+}
+
 enum class InstallMode {
     DEFAULT, SHIZUKU, ROOT;
 
@@ -243,7 +268,6 @@ data class SettingUiState(
     val useShizuku: Boolean = false,
     val useRoot: Boolean = false,
     val virusTotalApiKey: String = "",
-    val strictVirusTotalCheck: Boolean = false,
     val deleteApkAfterInstall: Boolean = false,
     val autoOpenAfterInstall: Boolean = false,
     val shizukuState: ShizukuState = ShizukuState.NOT_INSTALLED,
@@ -468,6 +492,30 @@ class SettingViewModel(
             dataStore.edit { p ->
                 p[PreferencesKeys.SHIZUKU_INSTALLER_PACKAGE_NAME] = packageName
                 p[PreferencesKeys.ROOT_INSTALLER_PACKAGE_NAME] = packageName
+            }
+        }
+    }
+
+    /**
+     * Normal vs Strict. Its own flow rather than a SettingUiState field: that state is assembled
+     * by an index-based combine whose interfaceFlags slot is a List<Boolean>, and this is neither
+     * a boolean nor worth renumbering the block for.
+     */
+    val securityLevel: StateFlow<SecurityLevel> = dataStore.data
+        .map {
+            SecurityLevel.from(
+                stored = it[PreferencesKeys.SECURITY_LEVEL],
+                legacyStrict = it[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] ?: false,
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, SecurityLevel.Normal)
+
+    fun setSecurityLevel(level: SecurityLevel) {
+        viewModelScope.launch {
+            dataStore.edit { prefs ->
+                prefs[PreferencesKeys.SECURITY_LEVEL] = level.name
+                // Keep the legacy key in step so anything still reading it agrees.
+                prefs[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] = level == SecurityLevel.Strict
             }
         }
     }
@@ -982,7 +1030,6 @@ class SettingViewModel(
             useShizuku = useShizuku,
             useRoot = useRoot && (rootState == RootState.READY || rootState == RootState.UNKNOWN),
             virusTotalApiKey = vtKey,
-            strictVirusTotalCheck = strictVirusTotal,
             deleteApkAfterInstall = deleteApk,
             autoOpenAfterInstall = autoOpen,
             shizukuState = shizukuState,

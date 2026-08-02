@@ -101,6 +101,7 @@ fun SettingScreen(
     val dhizukuState by viewModel.dhizukuState.collectAsState()
     val useDhizuku by viewModel.useDhizuku.collectAsState()
     val blacklist by viewModel.blacklist.collectAsState()
+    val securityLevel by viewModel.securityLevel.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     // Dhizuku can be granted or revoked in its own app while we are backgrounded.
@@ -120,7 +121,8 @@ fun SettingScreen(
         uiState = uiState,
         onInstallModeChanged = viewModel::setInstallMode,
         onVirusTotalKeyChanged = viewModel::setVirusTotalApiKey,
-        onStrictVirusTotalCheckChanged = viewModel::setStrictVirusTotalCheck,
+        securityLevel = securityLevel,
+        onSecurityLevelChanged = viewModel::setSecurityLevel,
         onShizukuOptionChanged = viewModel::setShizukuOption,
         dhizukuState = dhizukuState,
         useDhizuku = useDhizuku,
@@ -170,7 +172,8 @@ private fun SettingUi(
     uiState: SettingUiState = SettingUiState(),
     onInstallModeChanged: (InstallMode) -> Unit = {},
     onVirusTotalKeyChanged: (String) -> Unit = {},
-    onStrictVirusTotalCheckChanged: (Boolean) -> Unit = {},
+    securityLevel: SecurityLevel = SecurityLevel.Normal,
+    onSecurityLevelChanged: (SecurityLevel) -> Unit = {},
     onShizukuOptionChanged: (Preferences.Key<Boolean>, Boolean) -> Unit = { _, _ -> },
     onReplayTutorial: () -> Unit = {},
     // Not in SettingUiState: that is built by an index-based combine() and extending it means
@@ -691,11 +694,9 @@ private fun SettingUi(
                             placeholder = { Text(stringResource(R.string.setting_vt_api_key_placeholder)) },
                             singleLine = true,
                         )
-                        SwitchPreference(
-                            title = stringResource(R.string.setting_vt_strict_check_title),
-                            subtitle = stringResource(R.string.setting_vt_strict_check_summary),
-                            checked = uiState.strictVirusTotalCheck,
-                            onCheckedChange = onStrictVirusTotalCheckChanged
+                        SecurityLevelSelector(
+                            current = securityLevel,
+                            onChange = onSecurityLevelChanged,
                         )
                     }
                 }
@@ -991,6 +992,59 @@ private fun InstallModeSelector(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 8.dp),
+        )
+    }
+}
+
+
+/**
+ * Normal vs Strict, as a segmented pair rather than a switch.
+ *
+ * A switch labelled "strict check" said nothing about what normal was, and the pushy Scan button
+ * was on regardless — including for the many users with no API key at all. Two named levels make
+ * the trade explicit and let Normal actually mean "stay out of the way".
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SecurityLevelSelector(
+    current: SecurityLevel,
+    onChange: (SecurityLevel) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text(
+            text = stringResource(R.string.setting_security_level_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            SecurityLevel.entries.forEachIndexed { index, level ->
+                SegmentedButton(
+                    selected = level == current,
+                    onClick = { if (level != current) onChange(level) },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = SecurityLevel.entries.size,
+                    ),
+                    label = {
+                        Text(
+                            when (level) {
+                                SecurityLevel.Normal -> stringResource(R.string.setting_security_normal)
+                                SecurityLevel.Strict -> stringResource(R.string.setting_security_strict)
+                            }
+                        )
+                    },
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = when (current) {
+                SecurityLevel.Normal -> stringResource(R.string.setting_security_normal_sub)
+                SecurityLevel.Strict -> stringResource(R.string.setting_security_strict_sub)
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

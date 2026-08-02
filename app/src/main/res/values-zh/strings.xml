@@ -769,6 +769,11 @@
     <string name="scan_virustotal_btn">扫描 VirusTotal</string>
     <string name="skip_and_install_btn">跳过并安装</string>
     <string name="scanning_progress">正在扫描…</string>
+    <string name="setting_security_level_title">安全级别</string>
+    <string name="setting_security_normal">普通</string>
+    <string name="setting_security_strict">严格</string>
+    <string name="setting_security_normal_sub">安装是主按钮。需要时仍可在详情中使用 VirusTotal。</string>
+    <string name="setting_security_strict_sub">在文件有扫描结果之前，VirusTotal 扫描会成为主按钮；安装未扫描的文件时会要求确认。需要 API 密钥。</string>
     <string name="setting_vt_strict_check_title">严格的 VirusTotal 检查</string>
     <string name="setting_vt_strict_check_summary">如果文件未扫描，在安装前警告</string>
 </resources>

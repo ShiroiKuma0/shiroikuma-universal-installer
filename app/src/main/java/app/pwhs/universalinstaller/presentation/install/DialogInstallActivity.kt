@@ -70,6 +70,7 @@ import androidx.compose.ui.window.DialogProperties
 import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogFailedContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallingContent
@@ -217,7 +218,10 @@ class DialogInstallActivity : ComponentActivity() {
             val prefs by context.dataStore.data.collectAsState(initial = null)
             val autoOpenAfterInstall = prefs?.get(PreferencesKeys.AUTO_OPEN_AFTER_INSTALL) ?: false
             val autoConfirmExternalInstall = prefs?.get(PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL) ?: false
-            val strictVirusTotalCheck = prefs?.get(PreferencesKeys.STRICT_VIRUSTOTAL_CHECK) ?: false
+            val strictVirusTotalCheck = SecurityLevel.from(
+                stored = prefs?.get(PreferencesKeys.SECURITY_LEVEL),
+                legacyStrict = prefs?.get(PreferencesKeys.STRICT_VIRUSTOTAL_CHECK) ?: false,
+            ) == SecurityLevel.Strict
 
             // Tracks whether we've actually observed the captured session in the repository.
             // The session is added inside controller.install() AFTER createSession() suspends,

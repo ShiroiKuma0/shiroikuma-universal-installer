@@ -728,6 +728,11 @@
     <string name="setting_section_advanced">Nâng cao</string>
     <string name="setting_vt_api_key_title">Khóa API VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Dán khóa API vào đây…</string>
+    <string name="setting_security_level_title">Mức bảo mật</string>
+    <string name="setting_security_normal">Bình thường</string>
+    <string name="setting_security_strict">Nghiêm ngặt</string>
+    <string name="setting_security_normal_sub">Cài đặt là nút chính. VirusTotal vẫn nằm trong phần chi tiết khi bạn cần.</string>
+    <string name="setting_security_strict_sub">Quét VirusTotal trở thành nút chính cho tới khi file có kết quả, và cài thứ chưa quét sẽ phải xác nhận. Cần API key.</string>
     <string name="setting_vt_strict_check_title">Kiểm tra VirusTotal nghiêm ngặt</string>
     <string name="setting_vt_strict_check_summary">Cảnh báo trước khi cài đặt nếu tệp chưa được quét</string>
     <string name="setting_diagnostics_title">Chẩn đoán</string>

@@ -754,6 +754,11 @@
     <string name="setting_section_advanced">Advanced</string>
     <string name="setting_vt_api_key_title">VirusTotal API Key</string>
     <string name="setting_vt_api_key_placeholder">Paste API key here…</string>
+    <string name="setting_security_level_title">Security level</string>
+    <string name="setting_security_normal">Normal</string>
+    <string name="setting_security_strict">Strict</string>
+    <string name="setting_security_normal_sub">Install is the main button. VirusTotal is still there in the details when you want it.</string>
+    <string name="setting_security_strict_sub">Scan with VirusTotal becomes the main button until a file has a verdict, and installing something unscanned asks for confirmation. Needs an API key.</string>
     <string name="setting_vt_strict_check_title">Strict VirusTotal check</string>
     <string name="setting_vt_strict_check_summary">Warn before installing if the file has not been scanned</string>    <string name="setting_diagnostics_title">Diagnostics</string>
     <string name="setting_installer_package_title">Installer Package</string>

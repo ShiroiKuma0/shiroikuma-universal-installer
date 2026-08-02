@@ -11,6 +11,10 @@
     <string name="onboarding_page3_desc">Để cài đặt các gói, ứng dụng cần có quyền cài đặt từ các nguồn không xác định. Nhấn vào nút bên dưới để cấp nó.</string>
     <string name="onboarding_virustotal_title">Quét trước khi cài</string>
     <string name="onboarding_virustotal_desc">Mọi gói bạn mở đều có thể kiểm tra bằng VirusTotal — hơn 70 engine diệt virus — ngay trong màn hình cài đặt. Nhấn \"Kiểm tra bằng VirusTotal\" và kết quả hiện ra trước khi bạn xác nhận. Tính năng này cần API key miễn phí: lấy ở nút bên dưới rồi dán vào Cài đặt &gt; Nâng cao &gt; VirusTotal API Key.</string>
+    <string name="onboarding_security_normal">Bình thường</string>
+    <string name="onboarding_security_strict">Nghiêm ngặt</string>
+    <string name="onboarding_security_normal_sub">Cài đặt là nút chính. VirusTotal vẫn nằm trong phần chi tiết khi bạn cần.</string>
+    <string name="onboarding_security_strict_sub">Quét VirusTotal trở thành nút chính cho tới khi file có kết quả, và cài thứ chưa quét sẽ phải xác nhận. Cần API key.</string>
     <string name="onboarding_virustotal_get_key">Lấy API key miễn phí</string>
     <string name="onboarding_xiaomi_title">Nếu cài đặt thất bại trên MIUI</string>
     <string name="onboarding_xiaomi_desc">Tối ưu hóa MIUI/HyperOS có thể chặn cài đặt từ bên thứ ba mà không báo lý do. Nếu gặp trường hợp đó, hãy mở Tùy chọn nhà phát triển, tắt \"Tối ưu hóa MIUI\", cài đặt ứng dụng rồi bật lại. Khi đang tắt, giao diện hệ thống có thể bị lỗi hiển thị — khởi động lại điện thoại sẽ khắc phục.</string>

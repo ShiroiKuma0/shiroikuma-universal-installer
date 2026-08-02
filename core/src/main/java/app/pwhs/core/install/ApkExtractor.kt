@@ -23,6 +23,10 @@ object ApkExtractor {
 
     private const val SUBFOLDER = "UniversalInstaller/Extracted"
     private const val COPY_BUFFER = 64 * 1024
+    private const val MAX_NAME_LENGTH = 80
+
+    /** Characters no common filesystem accepts inside a name. */
+    private val ILLEGAL_FILENAME_CHARS = charArrayOf('/', '\\', ':', '*', '?', '"', '<', '>', '|')
 
     /** Any "{...}" token — used to strip template tags we don't recognise. */
     private val UNRESOLVED_TAG = Regex("\\{[^}]*\\}")
@@ -319,15 +323,32 @@ object ApkExtractor {
         return size
     }
 
-    private fun sanitize(name: String): String {
-        val cleaned = name.map { c ->
-            when {
-                c.isLetterOrDigit() -> c
-                c == ' ' || c == '-' || c == '_' || c == '.' || c == '(' || c == ')' -> c
-                else -> '_'
-            }
-        }.joinToString("").trim().ifBlank { "app" }
-        return cleaned.take(80)
+    /**
+     * Replace only what a filesystem actually rejects.
+     *
+     * This used to whitelist `isLetterOrDigit()`, which quietly mangled any app name containing a
+     * symbol: `DAVx\u2075` came out as `DAVx_` (issue #96). U+2075 is Unicode category No, not Nd,
+     * so `Character.isDigit` rejects it — and the same went for `\u2122`, `\u00ae`, emoji and
+     * every math symbol. FAT32, exFAT and ext4 all store those bytes fine.
+     */
+    internal fun sanitize(name: String): String {
+        val cleaned = name
+            .map { c -> if (c in ILLEGAL_FILENAME_CHARS || c.isISOControl()) '_' else c }
+            .joinToString("")
+            // Trailing dots and spaces are legal on ext4 but break when the file is copied to
+            // exFAT or pulled over MTP, so drop them rather than hand the user a landmine.
+            .trim()
+            .trimEnd('.', ' ')
+        // "." and ".." are directory entries, not names.
+        if (cleaned.isBlank() || cleaned.all { it == '.' }) return "app"
+        return cleaned.takeSafely(MAX_NAME_LENGTH)
+    }
+
+    /** [String.take] that will not cut a surrogate pair in half and leave a broken glyph. */
+    private fun String.takeSafely(n: Int): String {
+        if (length <= n) return this
+        val end = if (Character.isHighSurrogate(this[n - 1])) n - 1 else n
+        return substring(0, end)
     }
 
     private fun resolveTemplate(

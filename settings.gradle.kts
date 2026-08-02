@@ -29,3 +29,4 @@ rootProject.name = "Universal Installer"
 include(":app")
 include(":core")
 include(":tv")
+include(":tv-baselineprofile")

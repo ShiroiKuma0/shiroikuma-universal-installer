@@ -9,6 +9,9 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+# Any module's build dir — /build alone only covered the root, so a new module
+# (tv-baselineprofile) leaked its outputs into git status.
+**/build/
 /captures
 .externalNativeBuild
 .cxx
@@ -26,3 +29,5 @@ fastlane/README.md
 Gemfile.lock
 vendor/downloads/
 InstallerX-Revived-main
+# android-re: decompiled APKs and analysis output (large, regenerable)
+android-re-workspace/

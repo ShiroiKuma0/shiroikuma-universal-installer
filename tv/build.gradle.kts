@@ -5,6 +5,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Consumer side: packages the profile that :tv-baselineprofile generates into the APK.
+    // Without this the profile is produced but never shipped.
+    alias(libs.plugins.androidx.baselineprofile)
 }
 
 android {
@@ -71,6 +74,10 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    // Installs the packaged profile at first run on API 28-30, where the platform does not do
+    // it itself. Already on the classpath transitively; declared so the dependency is explicit.
+    implementation(libs.androidx.profileinstaller)
+    baselineProfile(project(":tv-baselineprofile"))
     implementation(libs.zxing.core)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

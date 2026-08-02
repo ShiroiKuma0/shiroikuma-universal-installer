@@ -24,6 +24,7 @@ room = "2.8.4"
 shizuku = "13.1.5"
 dhizuku = "2.5.4"
 rikka-stub = "4.4.0"
+benchmark = "1.4.1"
 libsu = "6.0.0"
 timber = "5.0.1"
 coreSplashscreen = "1.2.0"
@@ -107,6 +108,12 @@ ackpine-libsu-ktx = { module = "ru.solrudev.ackpine:ackpine-libsu-ktx", version.
 # optional - testing utilities
 ackpine-test = { module = "ru.solrudev.ackpine:ackpine-test", version.ref = "ackpine" }
 
+# Baseline profile generation — used only by the :tv-baselineprofile module.
+androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version = "1.4.1" }
+androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version = "2.3.0" }
+
 shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 rikka-stub = { module = "dev.rikka.hidden:stub", version.ref = "rikka-stub" }
@@ -140,6 +147,8 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
+android-test = { id = "com.android.test" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 
 [bundles]

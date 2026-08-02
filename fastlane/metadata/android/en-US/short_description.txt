@@ -1,1 +1,1 @@
-Premium APK/XAPK installer with expressive animations, Shizuku & URL downloads.
+APK/XAPK installer with silent installs via Shizuku, Root or Dhizuku.

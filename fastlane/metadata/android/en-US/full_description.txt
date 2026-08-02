@@ -27,11 +27,13 @@ OBB Support
 - Foreground Worker: Keeps copying even if you leave the app, with progress notifications.
 - Smart fallback: Uses direct I/O, Shizuku, or SAF (per-package folder grant) as needed.
 
-Root & Shizuku Power User Features
+Silent Installs: Shizuku, Root or Dhizuku
+- Shizuku: silent installs with no root, started over wireless debugging.
+- Root: silent installs on rooted devices, with the full set of flags.
+- Dhizuku: silent installs with neither root nor ADB. It runs as device owner, so it survives a reboot without being restarted — setup requires a device with no accounts signed in, and it supports downgrade only.
 - Targeted User Installs: Install apps to specific profiles (Work, Island, etc.) or all users at once.
-- Silent Operations: Install or uninstall without system confirmation prompts.
 - Advanced flags: Replace existing, allow downgrade, grant all permissions, bypass low target SDK blocks.
-- Set Install Source: Spoof the installer package name so apps accept your sideload as a "Play Store" install.
+- Set Install Source: Record a different installer package, so apps that check where they came from see what you choose.
 
 App Manager & Extractor
 - Full list with APK size, install date, and last-used time.
@@ -48,7 +50,7 @@ Sync & Share (LAN File Server)
 - PIN protection: Secure your file sharing sessions from unauthorized access.
 
 Security & Privacy
-- VirusTotal: Automatic hash lookup for every file; optional full upload for unknown files (up to 650 MB).
+- VirusTotal: Hash lookup and optional full upload for unknown files (up to 650 MB), using your own free API key.
 - Clear Verdicts: See malicious, suspicious, and harmless engine counts at a glance.
 - Offline First: No internet required for core functionality.
 - No Ads/Tracking: Fully open source with no data collection or analytics.

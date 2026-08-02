@@ -96,7 +96,7 @@
     <string name="help_replay_tutorial_sub">从头再看一遍介绍页</string>
     <string name="help_intro">针对最容易让人困惑的设置的简短说明。点击主题展开。</string>
     <string name="help_modes_title">安装方式：系统安装器、Shizuku、Root</string>
-    <string name="help_modes_body">系统安装器是默认方式，无需设置，但每次安装 Android 都会弹出自己的确认框。Shizuku 和 Root 可以静默安装，并解锁下面的额外选项 — Shizuku 需要 Shizuku 应用运行中，Root 需要已 root 的设备。使用系统安装器时，依赖这两者的选项不会起作用。</string>
+    <string name="help_modes_body">系统安装器是默认方式，无需设置，但每次安装 Android 都会弹出自己的确认框。Shizuku 和 Root 可以静默安装，并解锁下面的额外选项 — Shizuku 需要 Shizuku 应用运行中，Root 需要已 root 的设备。Dhizuku 是第三种选择，以独立开关显示：它同样静默安装，且重启后无需重新启动，但必须设为设备所有者（要求设备未登录任何账号），并且仅支持\"允许降级\"。使用系统安装器时，依赖特权后端的选项不会起作用。</string>
     <string name="help_conflict_title">\"已安装\"类错误：到底该开哪个开关</string>
     <string name="help_conflict_body">三种不同的问题会产生看起来相似的错误。安装旧版本需要\"允许降级\"，\"替换现有应用\"解决不了。普通更新需要\"替换现有应用\"，它默认开启。如果已安装的应用使用了不同的签名密钥，任何选项都无济于事：必须先卸载，其数据会丢失。</string>
     <string name="help_profiles_title">安装器配置</string>

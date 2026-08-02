@@ -60,6 +60,9 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
   hề nhận** `originalUri`/`deleteAfterInstall` — đường này chưa bao giờ xoá file dù bật toggle.
   Sửa cần đổi chữ ký hàm + chỗ gọi, nằm ngoài phạm vi đã thống nhất.
 
+  Reporter xác nhận 2026-08-01: file manager là **MiXplorer** → đúng trường hợp (3) không xoá
+  được. Họ sẽ chỉ nhận được toast báo, không phải file bị xoá. Đã comment nói rõ.
+
   Ghi riêng, không thuộc #100: `Timber` chỉ `plant` khi `BuildConfig.DEBUG`
   (`Application.kt:45`), nên diagnostics report của bản release **không có một dòng log nào
   của app**. Đó là lý do issue này không có bằng chứng nào để lần. Đáng mở issue riêng.
@@ -90,9 +93,15 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
   **Cần hỏi reporter:** phiên bản Android, install mode đang dùng (Package Installer / Shizuku /
   Root), và ảnh chụp đúng thông báo lỗi. Đừng sửa mò khi chưa có mấy thông tin này.
 
-- [ ] **#58** — Shizuku: `Session does not belong to uid` khi cài vào profile riêng (Android 11)
+- [x] **#58** — Shizuku: `Session does not belong to uid` khi cài vào profile riêng (Android 11)
+  — **ĐÃ ĐÓNG** 2026-08-02. Reporter test bản debug: *"the issues are resolved and the app is
+  working perfectly"*. Fix ở `d0bad0f`.
 
-  Điều tra 2026-08-01. **Đã tìm ra nguyên nhân, đã sửa, CHƯA test được.**
+  Follow-up từ **solrudev** (tác giả ackpine) trong issue: *"Ackpine now supports targeted installs
+  for privileged backends."* → có thể **bỏ hẳn** `HiddenApiHacks` + `ManualTargetedInstaller` và
+  dùng API sẵn có. Xoá luôn cả lớp bug này. Đáng làm, xem mục dưới.
+
+  Điều tra 2026-08-01. Nguyên nhân:
 
   Nghi vấn ban đầu (commit sai uid) **sai**. Lỗi nằm ở bước **ghi**, xảy ra trước commit:
   - `ManualTargetedInstaller` gọi `targetedInstaller.openSession(sessionId)`. Hàm này của
@@ -252,3 +261,40 @@ Con trỏ code bên dưới chỉ ghi ở những issue đã thực sự mở fi
   chưa verify. User muốn banner / lên tiếng phản đối.
   - Đây là quyết định lập trường của maintainer, không phải bug. Trả lời rồi đóng, hoặc
     chuyển sang Discussions.
+
+---
+
+## Chưa có issue — tìm ra trong lúc làm (2026-08-01/02)
+
+- [ ] **Bỏ `HiddenApiHacks` + `ManualTargetedInstaller`, dùng targeted install của ackpine.**
+  solrudev xác nhận trong #58 là ackpine đã hỗ trợ targeted install cho privileged backend. Hiện
+  mình tự reflection vào `IPackageInstaller`. Bỏ được thì xoá luôn cả lớp bug kiểu #58, và có thể
+  cả hai lỗ hổng của `installTargeted` bên dưới.
+
+- [ ] **`ManualInstallController.installTargeted()` thiếu `originalUri`/`deleteAfterInstall`/
+  `allowDowngrade`** (dòng 58-65). Cài vào profile riêng: không bao giờ xoá file nguồn dù bật
+  toggle, và không nhận consent downgrade. Cả hai fix hôm qua đều không với tới đường này.
+
+- [ ] **Double-await cross-VM → history ghi 2 lần.** `activeSessions` là `private val` per-instance
+  (`BaseInstallController.kt:42`), mà guard `if (activeSessions.containsKey(...)) continue`
+  (dòng 167) dựa vào nó. Hai `InstallViewModel` cùng restore một session → cùng `awaitSession` →
+  `saveHistory` hai lần. Đây là giả thuyết số 1 của **#93**; fix retry (`65ba753`) **không** chạm
+  tới nó.
+
+- [ ] **`Timber` chỉ plant ở debug** (`Application.kt:45`) → Diagnostics report của bản release
+  không có dòng log nào của app. Là lý do #100 và #92 gửi kèm nguyên trang log mà không manh mối.
+
+- [ ] **Spoof install source thất bại im lặng** (#30) — không có Shizuku/root thì rơi về default
+  installer, chỉ `Timber.w`, tức vô hình ở release.
+
+- [ ] **CI "Build and Test" chỉ chạy `assembleDebug`.** Unit test không configure được trên JDK 24
+  (`Type T not present`, kể cả `ExampleUnitTest` có sẵn).
+
+## Fix đã lên main nhưng CHƯA verify
+
+| Fix | Cần gì để verify |
+|---|---|
+| Uninstall qua Shizuku/root (`4f9fa83`) | Máy có Shizuku hoặc root |
+| `allowDowngrade` consent (`5c79a08`) | Shizuku hoặc root |
+| Dismiss + Retry (`bb9edb5`, `65ba753`) | Chỉ cần cắm máy — verify được ngay |
+| MIUI hint (`d92ba4d`, #104) | Máy Xiaomi/Redmi/POCO |

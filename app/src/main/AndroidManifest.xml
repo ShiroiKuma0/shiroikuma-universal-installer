@@ -50,6 +50,12 @@
         android:name="android.permission.ENFORCE_UPDATE_OWNERSHIP"
         tools:node="remove" />
 
+    <!-- ackpine's Dhizuku plugin declares minSdk 26. Overriding beats raising the app's own
+         minSdk 24: that would drop Android 7.x users for a backend they could never use anyway,
+         since Dhizuku itself needs API 26. Every entry point is gated on Build.VERSION — see
+         DhizukuCompat.isSupported. -->
+    <uses-sdk tools:overrideLibrary="ru.solrudev.ackpine.dhizuku, ru.solrudev.ackpine.dhizuku.ktx, com.rosan.dhizuku.api" />
+
     <!-- Require QUERY_ALL_PACKAGES to see background services without launcher intents -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
 

@@ -37,6 +37,8 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import app.pwhs.universalinstaller.presentation.install.dialog.isDowngrade
+import app.pwhs.universalinstaller.util.DhizukuCompat
+import app.pwhs.universalinstaller.presentation.install.controller.DhizukuInstallController
 import app.pwhs.universalinstaller.util.SignatureCheck
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.util.RootShell
@@ -93,6 +95,13 @@ class InstallViewModel(
     private val defaultController = DefaultInstallController(application, packageInstaller, sessionDataRepository, historyDao)
     private val shizukuController = ShizukuInstallController(application, packageInstaller, sessionDataRepository, historyDao)
     private val manualController = ManualInstallController(application, packageInstaller, sessionDataRepository, historyDao, backendFactory)
+
+    // Lazy and nullable: the class references ackpine's Dhizuku plugin, which declares minSdk 26.
+    // The app ships minSdk 24, so below O we must never load it — see DhizukuCompat.isSupported.
+    private val dhizukuController: BaseInstallController? by lazy {
+        if (!DhizukuCompat.isSupported) null
+        else DhizukuInstallController(application, packageInstaller, sessionDataRepository, historyDao)
+    }
 
     // Null on the store flavor — activeController() silently skips the Root branch there.
     private val rootController: BaseInstallController? = backendFactory.createRootController(
@@ -1569,6 +1578,9 @@ class InstallViewModel(
                     if (finalState == RootState.READY) return rootController
                 }
                 "Shizuku" -> if (isShizukuReadyForInstall()) return shizukuController
+                "Dhizuku" -> dhizukuController?.let {
+                    if (DhizukuCompat.isReady(application)) return it
+                }
                 "Default" -> return defaultController
             }
         }
@@ -1609,6 +1621,14 @@ class InstallViewModel(
         if (useShizuku || spoofShizuku) {
             Timber.w("Shizuku prioritized but not ready — falling back to default installer")
         }
+
+        val useDhizuku = prefs?.get(PreferencesKeys.USE_DHIZUKU) ?: false
+        if (useDhizuku) {
+            val controller = dhizukuController
+            if (controller != null && DhizukuCompat.isReady(application)) return controller
+            Timber.w("Dhizuku selected but not ready — falling back to default installer")
+        }
+
         return defaultController
     }
 

@@ -568,6 +568,12 @@
     <string name="setting_install_mode_title">安装模式</string>
     <string name="setting_install_mode_default">默认</string>
     <string name="setting_install_mode_shizuku">Shizuku</string>
+    <string name="setting_dhizuku_unsupported">Dhizuku 需要 Android 8.0 或更高版本</string>
+    <string name="setting_dhizuku_not_installed">此设备未安装 Dhizuku</string>
+    <string name="setting_dhizuku_not_running">已安装 Dhizuku 但未激活 — 请打开它并确认已设为设备所有者</string>
+    <string name="setting_dhizuku_not_authorized">正在等待 Dhizuku 授权</string>
+    <string name="setting_dhizuku_denied">Dhizuku 拒绝了授权请求</string>
+    <string name="setting_dhizuku_ready">已就绪 — 可静默安装。注意 Dhizuku 仅支持\"允许降级\"，其他安装选项只对 Shizuku 和 Root 有效。</string>
     <string name="setting_install_mode_root">Root</string>
     <string name="setting_install_mode_default_sub">系统安装程序（显示确认对话框）</string>
     <string name="setting_show_download_tab_title">显示下载选项卡</string>

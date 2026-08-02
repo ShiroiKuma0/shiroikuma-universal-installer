@@ -75,6 +75,8 @@ import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.presentation.composable.UniversalSearchBar
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.setting.profile.PackageNamePickerDialog
 import androidx.datastore.preferences.core.Preferences
 import org.koin.androidx.compose.koinViewModel
@@ -85,7 +87,15 @@ fun SettingScreen(
     viewModel: SettingViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val dhizukuState by viewModel.dhizukuState.collectAsState()
+    val useDhizuku by viewModel.useDhizuku.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
+
+    // Dhizuku can be granted or revoked in its own app while we are backgrounded.
+    LifecycleResumeEffect(Unit) {
+        viewModel.refreshDhizukuState()
+        onPauseOrDispose {}
+    }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { stringRes ->
@@ -100,6 +110,8 @@ fun SettingScreen(
         onVirusTotalKeyChanged = viewModel::setVirusTotalApiKey,
         onStrictVirusTotalCheckChanged = viewModel::setStrictVirusTotalCheck,
         onShizukuOptionChanged = viewModel::setShizukuOption,
+        dhizukuState = dhizukuState,
+        useDhizuku = useDhizuku,
         onReplayTutorial = {
             // Reuse MainActivity's onboarding route rather than clearing ONBOARDING_COMPLETED:
             // clearing it would also re-show the tour on the next cold start, which nobody asked
@@ -145,6 +157,10 @@ private fun SettingUi(
     onStrictVirusTotalCheckChanged: (Boolean) -> Unit = {},
     onShizukuOptionChanged: (Preferences.Key<Boolean>, Boolean) -> Unit = { _, _ -> },
     onReplayTutorial: () -> Unit = {},
+    // Not in SettingUiState: that is built by an index-based combine() and extending it means
+    // renumbering every cast in the block.
+    dhizukuState: DhizukuState = DhizukuState.NOT_INSTALLED,
+    useDhizuku: Boolean = false,
     onShizukuInstallerChanged: (String) -> Unit = {},
     onDeleteApkChanged: (Boolean) -> Unit = {},
     onAutoOpenAfterInstallChanged: (Boolean) -> Unit = {},
@@ -302,10 +318,13 @@ private fun SettingUi(
                     SettingsSection(title = stringResource(R.string.setting_section_installation), icon = Icons.Rounded.SettingsApplications) {
                         SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku root default") {
                             InstallModeSelector(
-                                currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot),
+                                currentMode = InstallMode.from(
+                                    uiState.useShizuku, uiState.useRoot, useDhizuku,
+                                ),
                                 shizukuState = uiState.shizukuState,
                                 rootSupported = uiState.rootSupported,
                                 rootState = uiState.rootState,
+                                dhizukuState = dhizukuState,
                                 onModeChange = onInstallModeChanged,
                             )
                             if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
@@ -881,11 +900,18 @@ private fun InstallModeSelector(
     shizukuState: ShizukuState,
     rootSupported: Boolean,
     rootState: RootState,
+    dhizukuState: DhizukuState,
     onModeChange: (InstallMode) -> Unit,
 ) {
-    val options: List<InstallMode> = remember(rootSupported) {
-        if (rootSupported) listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU, InstallMode.ROOT)
-        else listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU)
+    // Dhizuku is only offered where it can work at all — below API 26 the plugin cannot run,
+    // and an option that always fails is worse than an absent one.
+    val options: List<InstallMode> = remember(rootSupported, dhizukuState) {
+        buildList {
+            add(InstallMode.DEFAULT)
+            add(InstallMode.SHIZUKU)
+            if (rootSupported) add(InstallMode.ROOT)
+            if (dhizukuState != DhizukuState.UNSUPPORTED) add(InstallMode.DHIZUKU)
+        }
     }
     Column(
         modifier = Modifier
@@ -920,6 +946,7 @@ private fun InstallModeSelector(
                                 InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default)
                                 InstallMode.SHIZUKU -> stringResource(R.string.setting_install_mode_shizuku)
                                 InstallMode.ROOT -> stringResource(R.string.setting_install_mode_root)
+                                InstallMode.DHIZUKU -> stringResource(R.string.setting_install_mode_dhizuku)
                             },
                             color = if (dim)
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
@@ -945,6 +972,13 @@ private fun InstallModeSelector(
                 RootState.DENIED -> "Denied"
                 RootState.READY -> "Ready"
                 else -> "Not Rooted"
+            }
+            InstallMode.DHIZUKU -> when (dhizukuState) {
+                DhizukuState.UNSUPPORTED -> stringResource(R.string.setting_dhizuku_unsupported)
+                DhizukuState.NOT_INSTALLED -> stringResource(R.string.setting_dhizuku_not_installed)
+                DhizukuState.NOT_RUNNING -> stringResource(R.string.setting_dhizuku_not_running)
+                DhizukuState.NOT_AUTHORIZED -> stringResource(R.string.setting_dhizuku_not_authorized)
+                DhizukuState.READY -> stringResource(R.string.setting_dhizuku_ready)
             }
         }
         Text(

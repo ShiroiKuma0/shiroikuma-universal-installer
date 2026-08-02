@@ -22,6 +22,7 @@ coroutines = "1.10.2"
 zxingEmbedded = "4.3.0"
 room = "2.8.4"
 shizuku = "13.1.5"
+dhizuku = "2.5.4"
 rikka-stub = "4.4.0"
 libsu = "6.0.0"
 timber = "5.0.1"
@@ -88,6 +89,14 @@ ackpine-shizuku = { module = "ru.solrudev.ackpine:ackpine-shizuku", version.ref 
 
 # optional - Kotlin extensions for Shizuku plugin
 ackpine-shizuku-ktx = { module = "ru.solrudev.ackpine:ackpine-shizuku-ktx", version.ref = "ackpine" }
+
+# optional - plugin enabling installs/uninstalls through Dhizuku (device-owner delegation)
+ackpine-dhizuku = { module = "ru.solrudev.ackpine:ackpine-dhizuku", version.ref = "ackpine" }
+
+# optional - Kotlin extensions for Dhizuku plugin
+ackpine-dhizuku-ktx = { module = "ru.solrudev.ackpine:ackpine-dhizuku-ktx", version.ref = "ackpine" }
+
+dhizuku-api = { module = "io.github.iamr0s:Dhizuku-API", version.ref = "dhizuku" }
 
 # optional - plugin enabling installs/uninstalls under root user
 ackpine-libsu = { module = "ru.solrudev.ackpine:ackpine-libsu", version.ref = "ackpine" }

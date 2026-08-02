@@ -112,6 +112,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.bundles.ackpine)
+    // Kept out of the shared ackpine bundle: :tv consumes that bundle too, and these declare
+    // minSdk 26 against the modules' minSdk 24. Only the phone app offers Dhizuku.
+    implementation(libs.ackpine.dhizuku)
+    implementation(libs.ackpine.dhizuku.ktx)
+    implementation(libs.dhizuku.api)
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)

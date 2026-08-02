@@ -20,12 +20,15 @@ import app.pwhs.core.domain.AppThemePreset
 
 import androidx.lifecycle.viewModelScope
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
+import app.pwhs.universalinstaller.util.DhizukuCompat
+import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -76,6 +79,8 @@ object PreferencesKeys {
     val SHIZUKU_ALLOW_TEST = booleanPreferencesKey("shizuku_allow_test")
     val SHIZUKU_REPLACE_EXISTING = booleanPreferencesKey("shizuku_replace_existing")
     val SHIZUKU_REQUEST_DOWNGRADE = booleanPreferencesKey("shizuku_request_downgrade")
+    val USE_DHIZUKU = booleanPreferencesKey("use_dhizuku")
+    val DHIZUKU_REQUEST_DOWNGRADE = booleanPreferencesKey("dhizuku_request_downgrade")
     val SHIZUKU_GRANT_ALL_PERMISSIONS = booleanPreferencesKey("shizuku_grant_all_permissions")
     val SHIZUKU_ALL_USERS = booleanPreferencesKey("shizuku_all_users")
     val SHIZUKU_SET_INSTALL_SOURCE = booleanPreferencesKey("shizuku_set_install_source")
@@ -151,14 +156,18 @@ data class SyncOptions(
 /** Mutually exclusive install backend selection. Stored as two booleans in DataStore
  *  (USE_SHIZUKU, USE_ROOT) for backward compatibility — this enum is the UI-side view. */
 enum class InstallMode {
-    DEFAULT, SHIZUKU, ROOT;
+    DEFAULT, SHIZUKU, ROOT, DHIZUKU;
 
     companion object {
-        fun from(useShizuku: Boolean, useRoot: Boolean): InstallMode = when {
-            useRoot -> ROOT
-            useShizuku -> SHIZUKU
-            else -> DEFAULT
-        }
+        // Root wins over Shizuku wins over Dhizuku when more than one flag is somehow set —
+        // the order matches how much each backend can actually do.
+        fun from(useShizuku: Boolean, useRoot: Boolean, useDhizuku: Boolean = false): InstallMode =
+            when {
+                useRoot -> ROOT
+                useShizuku -> SHIZUKU
+                useDhizuku -> DHIZUKU
+                else -> DEFAULT
+            }
     }
 }
 
@@ -247,6 +256,13 @@ class SettingViewModel(
     private val dataStore = application.dataStore
 
     private val _shizukuState = MutableStateFlow(ShizukuState.NOT_INSTALLED)
+    // Deliberately not folded into SettingUiState: that is assembled by a large index-based
+    // combine() and adding entries there means renumbering every cast below it.
+    private val _dhizukuState = MutableStateFlow(DhizukuState.NOT_INSTALLED)
+    val dhizukuState: StateFlow<DhizukuState> = _dhizukuState.asStateFlow()
+    val useDhizuku: StateFlow<Boolean> = dataStore.data
+        .map { it[PreferencesKeys.USE_DHIZUKU] ?: false }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
     private val _rootState = MutableStateFlow(
         if (backendFactory.rootSupportCompiledIn) RootState.UNKNOWN else RootState.UNAVAILABLE,
     )
@@ -278,6 +294,10 @@ class SettingViewModel(
 
     // One-shot UI events (toast/snackbar). Channel so events fire once per send, even
     // when the screen is briefly unmounted, without coalescing or being missed.
+    private fun emitEvent(stringRes: Int) {
+        viewModelScope.launch { _events.send(stringRes) }
+    }
+
     private val _events = Channel<Int>(Channel.BUFFERED)
     val events: Flow<Int> = _events.receiveAsFlow()
 
@@ -339,11 +359,15 @@ class SettingViewModel(
                 dataStore.edit { p ->
                     p[PreferencesKeys.USE_SHIZUKU] = false
                     p[PreferencesKeys.USE_ROOT] = false
+                    p[PreferencesKeys.USE_DHIZUKU] = false
                 }
             }
             InstallMode.SHIZUKU -> {
                 viewModelScope.launch {
-                    dataStore.edit { p -> p[PreferencesKeys.USE_ROOT] = false }
+                    dataStore.edit { p ->
+                        p[PreferencesKeys.USE_ROOT] = false
+                        p[PreferencesKeys.USE_DHIZUKU] = false
+                    }
                 }
                 // Reuses the existing permission-prompt / state-check ladder.
                 setUseShizuku(true)
@@ -354,11 +378,51 @@ class SettingViewModel(
                 if (state == RootState.READY) {
                     dataStore.edit { p ->
                         p[PreferencesKeys.USE_SHIZUKU] = false
+                        p[PreferencesKeys.USE_DHIZUKU] = false
                         p[PreferencesKeys.USE_ROOT] = true
                     }
                 }
             }
+            InstallMode.DHIZUKU -> setUseDhizuku(true)
         }
+    }
+
+    /**
+     * Dhizuku has its own permission prompt, handed to us through a listener rather than an
+     * Activity result. Only commit the mode once it actually says yes — otherwise the user ends
+     * up in a mode that silently falls back on every install.
+     */
+    fun setUseDhizuku(enabled: Boolean) {
+        if (!enabled) {
+            viewModelScope.launch {
+                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_DHIZUKU] = false }
+            }
+            return
+        }
+        val state = DhizukuCompat.state(application)
+        _dhizukuState.value = state
+        when (state) {
+            DhizukuState.UNSUPPORTED -> emitEvent(R.string.setting_dhizuku_unsupported)
+            DhizukuState.NOT_INSTALLED -> emitEvent(R.string.setting_dhizuku_not_installed)
+            DhizukuState.NOT_RUNNING -> emitEvent(R.string.setting_dhizuku_not_running)
+            DhizukuState.NOT_AUTHORIZED -> DhizukuCompat.requestPermission(application) { granted ->
+                _dhizukuState.value = if (granted) DhizukuState.READY else DhizukuState.NOT_AUTHORIZED
+                if (granted) commitDhizukuMode() else emitEvent(R.string.setting_dhizuku_denied)
+            }
+            DhizukuState.READY -> commitDhizukuMode()
+        }
+    }
+
+    private fun commitDhizukuMode() = viewModelScope.launch {
+        dataStore.edit { p ->
+            p[PreferencesKeys.USE_SHIZUKU] = false
+            p[PreferencesKeys.USE_ROOT] = false
+            p[PreferencesKeys.USE_DHIZUKU] = true
+        }
+    }
+
+    fun refreshDhizukuState() {
+        _dhizukuState.value = DhizukuCompat.state(application)
     }
 
     fun setUseShizuku(enabled: Boolean) {

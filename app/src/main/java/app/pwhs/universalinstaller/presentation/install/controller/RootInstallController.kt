@@ -60,7 +60,13 @@ class RootInstallController(
         onSessionCreated: ((UUID) -> Unit)?,
     ) {
         val sessionId = UUID.randomUUID()
-        val data = sessionData.copy(id = sessionId)
+        val data = sessionData.copy(
+            id = sessionId,
+            uris = uris,
+            originalUri = originalUri,
+            deleteAfterInstall = deleteAfterInstall,
+            allowDowngrade = allowDowngrade,
+        )
         scope.launch {
             sessionDataRepository.addSessionData(data)
             onSessionCreated?.invoke(sessionId)

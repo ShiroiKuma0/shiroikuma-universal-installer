@@ -1546,7 +1546,7 @@ class InstallViewModel(
 
     fun retrySession(id: UUID) {
         viewModelScope.launch {
-            activeController().retry(id, viewModelScope)
+            activeController().retry(id, viewModelScope, application)
         }
     }
 

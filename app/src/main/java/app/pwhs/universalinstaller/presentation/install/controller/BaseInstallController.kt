@@ -75,7 +75,13 @@ abstract class BaseInstallController(
             if (originalUri != null) originalFileUris[session.id] = originalUri
             deleteFlags[session.id] = deleteAfterInstall
             if (onSuccess != null) successHooks[session.id] = onSuccess
-            val data = sessionData.copy(id = session.id)
+            val data = sessionData.copy(
+                id = session.id,
+                uris = uris,
+                originalUri = originalUri,
+                deleteAfterInstall = deleteAfterInstall,
+                allowDowngrade = allowDowngrade,
+            )
             sessionDataRepository.addSessionData(data)
             // Hand the real ackpine session ID back to the caller. The dialog flow keys its
             // Installing/Success/Failed watchers off this — using the caller-passed id won't
@@ -118,9 +124,20 @@ abstract class BaseInstallController(
         sessionDataRepository.removeSessionData(id)
     }
 
-    fun retry(id: UUID, scope: CoroutineScope) {
-        val uris = sessionUris[id] ?: return
-        val oldSession = sessionDataRepository.sessions.value.find { it.id == id } ?: return
+    /**
+     * @param context must be non-null for the retry to be able to report a second failure —
+     *   awaitSession bails out of its Failed branch without one, which would leave the user with
+     *   a card that silently reverts to idle.
+     */
+    fun retry(id: UUID, scope: CoroutineScope, context: Context? = null) {
+        // Read from the repository, not from sessionUris: those maps are per controller instance
+        // and empty for a session another instance created or that was restored after a restart.
+        val old = sessionDataRepository.sessions.value.find { it.id == id } ?: return
+        val uris = old.uris.ifEmpty { sessionUris[id].orEmpty() }
+        if (uris.isEmpty()) {
+            Timber.w("Retry for $id has no source uris — nothing to reinstall")
+            return
+        }
 
         activeSessions.remove(id)
         sessionUris.remove(id)
@@ -130,11 +147,16 @@ abstract class BaseInstallController(
             uris = uris,
             sessionData = SessionData(
                 id = UUID.randomUUID(),
-                name = oldSession.name,
-                appName = oldSession.appName,
-                iconPath = oldSession.iconPath,
+                name = old.name,
+                appName = old.appName,
+                packageName = old.packageName,
+                iconPath = old.iconPath,
             ),
             scope = scope,
+            context = context,
+            originalUri = old.originalUri,
+            deleteAfterInstall = old.deleteAfterInstall,
+            allowDowngrade = old.allowDowngrade,
         )
     }
 

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Replay
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Language
@@ -40,6 +42,7 @@ import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -52,6 +55,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -62,6 +66,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -69,6 +74,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
@@ -76,6 +86,7 @@ import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.presentation.composable.UniversalSearchBar
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import app.pwhs.universalinstaller.util.AppIconData
 import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.setting.profile.PackageNamePickerDialog
 import androidx.datastore.preferences.core.Preferences
@@ -89,6 +100,7 @@ fun SettingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val dhizukuState by viewModel.dhizukuState.collectAsState()
     val useDhizuku by viewModel.useDhizuku.collectAsState()
+    val blacklist by viewModel.blacklist.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     // Dhizuku can be granted or revoked in its own app while we are backgrounded.
@@ -115,6 +127,7 @@ fun SettingScreen(
         onUseDhizukuChanged = viewModel::setUseDhizuku,
         onPrivilegedOptionChanged = viewModel::setPrivilegedOption,
         onInstallerPackageChanged = viewModel::setInstallerPackageName,
+        blacklist = blacklist,
         onReplayTutorial = {
             // Reuse MainActivity's onboarding route rather than clearing ONBOARDING_COMPLETED:
             // clearing it would also re-show the tour on the next cold start, which nobody asked
@@ -167,6 +180,7 @@ private fun SettingUi(
     onUseDhizukuChanged: (Boolean) -> Unit = {},
     onPrivilegedOptionChanged: (SettingViewModel.PrivilegedOption, Boolean) -> Unit = { _, _ -> },
     onInstallerPackageChanged: (String) -> Unit = {},
+    blacklist: List<String> = emptyList(),
     onShizukuInstallerChanged: (String) -> Unit = {},
     onDeleteApkChanged: (Boolean) -> Unit = {},
     onAutoOpenAfterInstallChanged: (Boolean) -> Unit = {},
@@ -285,7 +299,7 @@ private fun SettingUi(
             val securityLabels = listOf("security", "lock", "biometric", "fingerprint", "installations", "uninstalls")
             val syncLabels = listOf("sync", "port", "pin")
             val advancedLabels = listOf("advanced", "virustotal", "api key")
-            val aboutLabels = listOf(stringResource(R.string.help_title), "help", "tutorial", 
+            val aboutLabels = listOf(stringResource(R.string.setting_blacklist_title), "blacklist", "block", stringResource(R.string.help_title), "help", "tutorial", 
                 "about", "diagnostics",
                 stringResource(R.string.setting_section_about),
             )
@@ -712,6 +726,20 @@ private fun SettingUi(
                             leadingContent = { Icon(Icons.Rounded.Info, null, tint = MaterialTheme.colorScheme.primary) },
                             modifier = Modifier.clickable {
                                 context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.about.AboutActivity::class.java))
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.setting_blacklist_title)) },
+                            supportingContent = {
+                                Text(
+                                    if (blacklist.isEmpty()) stringResource(R.string.setting_blacklist_empty)
+                                    else stringResource(R.string.setting_blacklist_count, blacklist.size)
+                                )
+                            },
+                            leadingContent = { Icon(Icons.Rounded.Block, null, tint = MaterialTheme.colorScheme.primary) },
+                            modifier = Modifier.clickable {
+                                context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.blacklist.BlacklistActivity::class.java))
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )

@@ -565,12 +565,23 @@ private fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
                 )
             },
             onClick = {
-                if (vtResult?.status in listOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS)) {
-                    if (apkInfo.sha256.isNotBlank()) {
-                        uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
+                when {
+                    vtResult?.status in listOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS) -> {
+                        if (apkInfo.sha256.isNotBlank()) {
+                            uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
+                        }
                     }
-                } else {
-                    onCheckVirusTotal()
+                    // Without a key, tapping Check only rewrites the same "no key" line the user
+                    // is already reading. Send them where the key is entered instead.
+                    vtResult?.status == VtStatus.NO_API_KEY -> {
+                        context.startActivity(
+                            android.content.Intent(
+                                context,
+                                app.pwhs.universalinstaller.presentation.setting.SettingActivity::class.java,
+                            ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                    else -> onCheckVirusTotal()
                 }
             },
         )

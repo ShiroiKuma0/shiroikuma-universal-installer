@@ -401,6 +401,7 @@ class DialogInstallActivity : ComponentActivity() {
                                 finish()
                             },
                             onMenu = viewModel::dialogShowMenu,
+                            onUnblock = viewModel::unblockPackage,
                             onMenuBack = viewModel::dialogBackToPrepare,
                             onCheckVirusTotal = {
                                 viewModel.scanVirusTotal(this@DialogInstallActivity)

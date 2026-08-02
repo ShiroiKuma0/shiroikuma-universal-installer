@@ -39,6 +39,7 @@ import androidx.work.WorkManager
 import app.pwhs.universalinstaller.presentation.install.dialog.isDowngrade
 import app.pwhs.universalinstaller.util.DhizukuCompat
 import app.pwhs.universalinstaller.presentation.install.controller.DhizukuInstallController
+import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import app.pwhs.universalinstaller.util.SignatureCheck
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.util.RootShell
@@ -48,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -119,6 +121,18 @@ class InstallViewModel(
     private val _batchDetailUri = MutableStateFlow<android.net.Uri?>(null)
     private val _dialogStage = MutableStateFlow<DialogStage>(DialogStage.None)
     private val _mergeSplits = MutableStateFlow(false)
+    /**
+     * Blocked package names, kept hot so [confirmInstall] can check them without suspending.
+     * Empty on a read failure — failing open beats making every install impossible.
+     */
+    private val blacklist: StateFlow<Set<String>> = application.dataStore.data
+        .map { InstallBlacklist.read(it) }
+        .catch { e ->
+            Timber.w(e, "Could not read the install blacklist")
+            emit(emptySet())
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+
     private val _selectedProfileId = MutableStateFlow<String?>(null)
 
     /**
@@ -404,6 +418,21 @@ class InstallViewModel(
             ).show()
             return
         }
+        // Blacklist gate. Deliberately inside confirmInstall rather than at each caller: this is
+        // the single funnel every install path reaches, so a new entry point cannot bypass it.
+        // Reads the cached set, not DataStore — this runs on the main thread.
+        val blockedPackage = apkInfo?.packageName.orEmpty()
+        if (blockedPackage.isNotBlank() && blockedPackage in blacklist.value) {
+            Timber.w("Install of $blockedPackage blocked by the user's blacklist")
+            android.widget.Toast.makeText(
+                application,
+                application.getString(R.string.install_blocked_by_blacklist, blockedPackage),
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
+            dismissPendingInstall()
+            return
+        }
+
         val fn = pendingFileName ?: return
         val originalUri = pendingOriginalUri
         val obbEntries = pendingObbEntries
@@ -1547,6 +1576,24 @@ class InstallViewModel(
         }
     }
 
+    /**
+     * Take a package off the never-install list from the install screen itself.
+     *
+     * Reachable here as well as in Settings on purpose: the moment the user learns something is
+     * blocked is when they try to install it, and making them hunt through Settings to undo a
+     * decision they are questioning right now is the wrong shape.
+     */
+    fun unblockPackage(packageName: String) {
+        if (packageName.isBlank()) return
+        viewModelScope.launch {
+            application.dataStore.edit { p ->
+                p[InstallBlacklist.KEY] = InstallBlacklist.remove(InstallBlacklist.read(p), packageName)
+            }
+            // Repaint the sheet that is on screen right now.
+            _pendingApkInfo.value = _pendingApkInfo.value?.copy(isBlocked = false)
+        }
+    }
+
     fun dismissSession(id: UUID) {
         viewModelScope.launch {
             activeController().dismiss(id)
@@ -2131,6 +2178,7 @@ class InstallViewModel(
             supportedAbis = supportedAbis.distinct(),
             splitEntries = splitEntries,
             signatureMismatch = signatureMismatch,
+            isBlocked = ackpinePackageName in blacklist.value,
         )
     }
 

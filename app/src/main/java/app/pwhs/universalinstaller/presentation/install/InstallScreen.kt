@@ -178,6 +178,7 @@ fun InstallScreen(
         onCancel = viewModel::cancelSession,
         onRetry = viewModel::retrySession,
         onDismissSession = viewModel::dismissSession,
+        onUnblock = viewModel::unblockPackage,
         onClearHistory = viewModel::clearHistory,
         onCheckVirusTotal = { viewModel.scanVirusTotal(context) },
         onStartDeviceScan = { viewModel.startDeviceScan(context) },
@@ -249,6 +250,7 @@ private fun InstallUi(
     onCancel: (java.util.UUID) -> Unit = {},
     onRetry: (java.util.UUID) -> Unit = {},
     onDismissSession: (java.util.UUID) -> Unit = {},
+    onUnblock: (String) -> Unit = {},
     onClearHistory: () -> Unit = {},
     onCheckVirusTotal: () -> Unit = {},
     onStartDeviceScan: () -> Unit = {},
@@ -490,6 +492,7 @@ private fun InstallUi(
                 onToggleAllUsers = onToggleAllUsers,
                 onSelectUserId = onSelectUserId,
                 startCompact = true,
+                onUnblock = onUnblock,
             )
         }
     }

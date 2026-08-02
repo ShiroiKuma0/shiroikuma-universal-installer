@@ -19,6 +19,7 @@ import app.pwhs.universalinstaller.presentation.install.controller.ShizukuShellE
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,7 +47,11 @@ enum class SortDirection { Asc, Desc }
  * Disabled wins over System / User because a disabled app has its main entry point gone
  * regardless of where its APK lives.
  */
-enum class AppFilter { User, System, Disabled }
+/**
+ * User/System are a pair — with neither selected, both types show. Disabled and Blocked are
+ * independent switches layered on top, each narrowing the list to that state.
+ */
+enum class AppFilter { User, System, Disabled, Blocked }
 enum class GroupBy { None, Installer }
 
 data class StorageBreakdown(
@@ -182,10 +188,20 @@ class ManageViewModel(
 
     private var extractJob: kotlinx.coroutines.Job? = null
 
+    /**
+     * Blocked package names. Kept as its own flow rather than a field on [InstalledApp]: the
+     * blacklist changes independently of the app scan, and folding it into the model would mean
+     * re-scanning every package just to repaint one badge.
+     */
+    val blacklist: StateFlow<Set<String>> = application.dataStore.data
+        .map { InstallBlacklist.read(it) }
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptySet())
+
     val uiState: StateFlow<ManageUiState> = combine(
         listOf(_apps, _searchQuery, _isLoading, _appFilter, _selectedPackages,
             _sortBy, _sortDirection, _usageAccess, _systemAppPrompt, _extractState,
-            _privilegedReady, _privilegedActionResult, _groupBy, _batchExtractState, _isRefreshing)
+            _privilegedReady, _privilegedActionResult, _groupBy, _batchExtractState, _isRefreshing,
+            blacklist)
     ) { flows ->
         @Suppress("UNCHECKED_CAST")
         val apps = flows[0] as List<InstalledApp>
@@ -205,6 +221,8 @@ class ManageViewModel(
         val groupBy = flows[12] as GroupBy
         val batchExtract = flows[13] as BatchExtractState
         val refreshing = flows[14] as Boolean
+        @Suppress("UNCHECKED_CAST")
+        val blocked = flows[15] as Set<String>
         val filtered = apps
             .filter { app ->
                 val typeFilters = appFilter.filter { it == AppFilter.User || it == AppFilter.System }
@@ -220,6 +238,10 @@ class ManageViewModel(
                 } else {
                     app.enabled
                 }
+
+                // Independent of type/state: narrows to blocked packages when on, and never
+                // hides them otherwise — a blocked app still belongs in the normal list.
+                if (AppFilter.Blocked in appFilter && app.packageName !in blocked) return@filter false
 
                 if (!(matchesType && matchesState)) return@filter false
 
@@ -926,6 +948,36 @@ class ManageViewModel(
                 )
             } else {
                 SystemAppPrompt.Batch(systemApps = systemApps, userApps = userApps)
+            }
+        }
+    }
+
+    /**
+     * Add or remove [packageName] from the never-install list. Does not uninstall — the two are
+     * separate actions, and blocking something you have not removed yet is legitimate.
+     */
+    fun toggleBlockPackage(packageName: String) {
+        if (packageName.isBlank()) return
+        val wasBlocked = packageName in blacklist.value
+        viewModelScope.launch {
+            application.dataStore.edit { p ->
+                val current = InstallBlacklist.read(p)
+                p[InstallBlacklist.KEY] = if (wasBlocked) {
+                    InstallBlacklist.remove(current, packageName)
+                } else {
+                    InstallBlacklist.add(current, packageName)
+                }
+            }
+            withContext(Dispatchers.Main) {
+                android.widget.Toast.makeText(
+                    application,
+                    application.getString(
+                        if (wasBlocked) R.string.manage_unblocked_toast
+                        else R.string.manage_blocked_toast,
+                        packageName,
+                    ),
+                    android.widget.Toast.LENGTH_LONG,
+                ).show()
             }
         }
     }

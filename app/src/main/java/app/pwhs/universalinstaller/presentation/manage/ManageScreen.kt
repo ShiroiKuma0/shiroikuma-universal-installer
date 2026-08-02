@@ -145,6 +145,7 @@ fun ManageScreen(
     viewModel: ManageViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val blockedPackages by viewModel.blacklist.collectAsState()
 
     val context = LocalContext.current
     UninstallUi(
@@ -154,6 +155,8 @@ fun ManageScreen(
         onToggleAppFilter = viewModel::toggleAppFilter,
         onOpenAppPrivileged = viewModel::openAppPrivileged,
         onUninstall = viewModel::uninstallApp,
+        onBlockPackage = viewModel::toggleBlockPackage,
+        blockedPackages = blockedPackages,
         onExtract = viewModel::extractApp,
         onShare = viewModel::shareApp,
         onReinstall = viewModel::reinstallApp,
@@ -211,6 +214,8 @@ private fun UninstallUi(
     onToggleAppFilter: (AppFilter) -> Unit = {},
     onOpenAppPrivileged: (String, String) -> Unit = { _, _ -> },
     onUninstall: (String) -> Unit = {},
+    onBlockPackage: (String) -> Unit = {},
+    blockedPackages: Set<String> = emptySet(),
     onExtract: (String, String) -> Unit = { _, _ -> },
     onShare: (String, String) -> Unit = { _, _ -> },
     onReinstall: (String, String) -> Unit = { _, _ -> },
@@ -346,6 +351,11 @@ private fun UninstallUi(
                 if (target.isSystemApp) gatedUninstall(target.packageName)
                 else confirmUninstallTarget = target
             },
+            onBlockPackage = {
+                actionTarget = null
+                onBlockPackage(target.packageName)
+            },
+            isBlocked = target.packageName in blockedPackages,
             onDismiss = { actionTarget = null },
         )
     }
@@ -1002,6 +1012,7 @@ private fun UninstallUi(
                                         app = app,
                                         isSelectionMode = uiState.isSelectionMode,
                                         isSelected = app.packageName in uiState.selectedPackages,
+                                        isBlocked = app.packageName in blockedPackages,
                                         onShowActions = { actionTarget = app },
                                         onLongClick = { onToggleSelection(app.packageName) },
                                         onToggleSelect = { onToggleSelection(app.packageName) },
@@ -1018,6 +1029,7 @@ private fun UninstallUi(
                                     app = app,
                                     isSelectionMode = uiState.isSelectionMode,
                                     isSelected = app.packageName in uiState.selectedPackages,
+                                    isBlocked = app.packageName in blockedPackages,
                                     onShowActions = { actionTarget = app },
                                     onLongClick = { onToggleSelection(app.packageName) },
                                     onToggleSelect = { onToggleSelection(app.packageName) },
@@ -1265,6 +1277,7 @@ private fun AppCard(
     app: InstalledApp,
     isSelectionMode: Boolean,
     isSelected: Boolean,
+    isBlocked: Boolean,
     onShowActions: () -> Unit,
     onLongClick: () -> Unit,
     onToggleSelect: () -> Unit,
@@ -1353,6 +1366,20 @@ private fun AppCard(
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f, fill = false),
                     )
+                    // Error colours, unlike the neutral System/Split badges: this one means
+                    // "installing this is blocked", which is a state the user chose and should
+                    // be able to spot without opening the row.
+                    if (isBlocked) {
+                        Text(
+                            text = stringResource(R.string.manage_blocked_badge),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.small)
+                                .background(MaterialTheme.colorScheme.errorContainer)
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                        )
+                    }
                     if (app.isSystemApp) {
                         Text(
                             text = stringResource(R.string.uninstall_system_badge),
@@ -1697,6 +1724,8 @@ private fun AppActionSheet(
     queryStorage: suspend (String) -> StorageBreakdown?,
     queryUsage: suspend (String) -> List<UsageBucket>,
     onUninstall: () -> Unit,
+    onBlockPackage: () -> Unit,
+    isBlocked: Boolean,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -2004,6 +2033,22 @@ private fun AppActionSheet(
             onClick = onUninstall,
         )
 
+        // Sits next to Uninstall on purpose: the case this exists for is "I removed this and it
+        // came back", so the block action belongs where the user just uninstalled from. Same row
+        // unblocks, so the list is reachable from where it was added.
+        ActionRow(
+            icon = Icons.Rounded.Block,
+            iconTint = if (isBlocked) MaterialTheme.colorScheme.primary
+                       else MaterialTheme.colorScheme.error,
+            label = stringResource(
+                if (isBlocked) R.string.manage_action_unblock else R.string.manage_action_block
+            ),
+            subtitle = stringResource(
+                if (isBlocked) R.string.manage_action_unblock_sub else R.string.manage_action_block_sub
+            ),
+            onClick = onBlockPackage,
+        )
+
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -2153,6 +2198,7 @@ private fun appFilterLabel(filter: AppFilter): Int = when (filter) {
     AppFilter.User -> R.string.manage_filter_user
     AppFilter.System -> R.string.manage_filter_system
     AppFilter.Disabled -> R.string.manage_filter_disabled
+    AppFilter.Blocked -> R.string.manage_filter_blocked
 }
 
 /**

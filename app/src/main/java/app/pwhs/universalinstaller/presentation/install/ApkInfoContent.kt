@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Badge
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.Delete
@@ -139,6 +140,7 @@ internal fun ApkInfoContent(
     onToggleAllUsers: (Boolean) -> Unit = {},
     onSelectUserId: (Int?) -> Unit = {},
     startCompact: Boolean = true,
+    onUnblock: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
     val currentMappingProfileId = appProfileMapping[apkInfo.packageName]
@@ -332,6 +334,15 @@ internal fun ApkInfoContent(
                 fileSizeBytes = apkInfo.fileSizeBytes, 
                 sha256 = apkInfo.sha256, 
                 onCheck = onCheckVirusTotal,
+                onOpenSettings = {
+                    context.startActivity(
+                        android.content.Intent(
+                            context,
+                            app.pwhs.universalinstaller.presentation.setting.SettingActivity::class.java,
+                        )
+                    )
+                },
+                onGetKey = { uriHandler.openUri("https://www.virustotal.com/gui/my-apikey") },
                 onOpenLink = {
                     if (apkInfo.vtResult?.status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS) && apkInfo.sha256.isNotBlank()) {
                         uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
@@ -346,6 +357,40 @@ internal fun ApkInfoContent(
 
         Spacer(Modifier.height(16.dp))
       } // end scroll area
+
+        // Blocked banner sits above the footer, not in the scroll area: the Install button below
+        // is disabled and the user needs to see why without scrolling back up.
+        if (apkInfo.isBlocked) {
+            Surface(
+                color = MaterialTheme.colorScheme.errorContainer,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        Icons.Rounded.Block,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        text = stringResource(R.string.install_blocked_banner),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = { onUnblock(apkInfo.packageName) }) {
+                        Text(
+                            stringResource(R.string.install_blocked_unblock),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                    }
+                }
+            }
+        }
 
         // Fixed footer — sits outside the scroll so the action row is always on screen.
         // A hairline divider hints there's scrollable content above it when expanded.
@@ -387,6 +432,7 @@ internal fun ApkInfoContent(
                         onClick = onInstall,
                         modifier = Modifier.weight(1f),
                         shape = MaterialTheme.shapes.medium,
+                        enabled = !apkInfo.isBlocked,
                         colors = if (isDowngrade) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
                     ) {
                         if (confirmText == null) {
@@ -397,7 +443,14 @@ internal fun ApkInfoContent(
                     }
                 } else {
                     Button(
-                        onClick = onCheckVirusTotal,
+                        onClick = {
+                            // The VirusTotal card lives inside the scroll area, which only exists
+                            // when expanded. Tapping this from the compact sheet used to change
+                            // state with nothing on screen to show it — no key, no result, no
+                            // error, just a dead button. Expand first so the outcome is visible.
+                            if (!isExpanded) isExpanded = true
+                            onCheckVirusTotal()
+                        },
                         modifier = Modifier.weight(1f),
                         shape = MaterialTheme.shapes.medium,
                         enabled = !isScanning
@@ -418,7 +471,8 @@ internal fun ApkInfoContent(
             if (!isScanCompleted) {
                 TextButton(
                     onClick = onInstall,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !apkInfo.isBlocked,
                 ) {
                     Text(stringResource(R.string.skip_and_install_btn))
                 }
@@ -530,7 +584,15 @@ private fun AbisCard(abis: List<String>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun VirusTotalCard(vt: VtResult?, fileSizeBytes: Long, sha256: String = "", onCheck: () -> Unit, onOpenLink: () -> Unit = {}) {
+private fun VirusTotalCard(
+    vt: VtResult?,
+    fileSizeBytes: Long,
+    sha256: String = "",
+    onCheck: () -> Unit,
+    onOpenSettings: () -> Unit = {},
+    onGetKey: () -> Unit = {},
+    onOpenLink: () -> Unit = {},
+) {
     val extendedColors = LocalExtendedColors.current
     val status = vt?.status
     val inProgress = status == VtStatus.SCANNING || status == VtStatus.UPLOADING || status == VtStatus.QUEUED || status == VtStatus.ANALYZING
@@ -573,6 +635,32 @@ private fun VirusTotalCard(vt: VtResult?, fileSizeBytes: Long, sha256: String = 
             if (hasResult && vt != null) {
                 Spacer(Modifier.height(12.dp))
                 VtBreakdownSection(vt = vt, warningColor = extendedColors.warning)
+            }
+            // Telling someone their key is missing is only half an answer — the fix is two
+            // screens away and they are mid-install. Offer both steps here.
+            if (status == VtStatus.NO_API_KEY) {
+                Spacer(Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilledTonalButton(
+                        onClick = onOpenSettings,
+                        shape = MaterialTheme.shapes.medium,
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.apk_info_vt_add_key),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                    TextButton(
+                        onClick = onGetKey,
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.apk_info_vt_get_key),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
             }
         }
     }

@@ -20,6 +20,7 @@ import app.pwhs.core.domain.AppThemePreset
 
 import androidx.lifecycle.viewModelScope
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
+import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import app.pwhs.universalinstaller.util.DhizukuCompat
 import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
@@ -467,6 +468,29 @@ class SettingViewModel(
             dataStore.edit { p ->
                 p[PreferencesKeys.SHIZUKU_INSTALLER_PACKAGE_NAME] = packageName
                 p[PreferencesKeys.ROOT_INSTALLER_PACKAGE_NAME] = packageName
+            }
+        }
+    }
+
+    /** Packages the user has blocked from ever being installed. */
+    val blacklist: StateFlow<List<String>> = dataStore.data
+        .map { InstallBlacklist.read(it).sorted() }
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun addToBlacklist(packageName: String) {
+        val trimmed = packageName.trim()
+        if (trimmed.isBlank()) return
+        viewModelScope.launch {
+            dataStore.edit { p ->
+                p[InstallBlacklist.KEY] = InstallBlacklist.add(InstallBlacklist.read(p), trimmed)
+            }
+        }
+    }
+
+    fun removeFromBlacklist(packageName: String) {
+        viewModelScope.launch {
+            dataStore.edit { p ->
+                p[InstallBlacklist.KEY] = InstallBlacklist.remove(InstallBlacklist.read(p), packageName)
             }
         }
     }

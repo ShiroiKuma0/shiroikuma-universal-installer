@@ -40,6 +40,7 @@ fun generateDialogParams(
     onInstall: () -> Unit,
     onCancel: () -> Unit,
     onMenu: () -> Unit,
+    onUnblock: (String) -> Unit = {},
     onMenuBack: () -> Unit,
     onCheckVirusTotal: () -> Unit,
     onRemoveObb: (AttachedObb) -> Unit,
@@ -122,6 +123,7 @@ fun generateDialogParams(
                             onInstall = onInstall,
                             onMenu = onMenu,
                             onCancel = onCancel,
+                            onUnblock = onUnblock,
                         )
                     }
                 )

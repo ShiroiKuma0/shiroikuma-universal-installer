@@ -40,4 +40,6 @@ data class ApkInfo(
      * a mismatch. See [app.pwhs.universalinstaller.util.SignatureCheck].
      */
     val signatureMismatch: Boolean? = null,
+    /** The user put this package on the never-install list; the Install button is disabled. */
+    val isBlocked: Boolean = false,
 )

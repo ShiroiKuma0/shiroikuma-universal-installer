@@ -23,4 +23,10 @@ object SharedPrefsKeys {
 
     /** Legacy companion to [SECURITY_LEVEL], kept in step so older read sites still agree. */
     val STRICT_VIRUSTOTAL_CHECK = booleanPreferencesKey("strict_virustotal_check")
+
+    /**
+     * The VirusTotal API key. Onboarding writes it and the phone app's Settings screen reads and
+     * writes the same preference, so the key name must match `SettingViewModel.PreferencesKeys`.
+     */
+    val VIRUSTOTAL_API_KEY = stringPreferencesKey("virustotal_api_key")
 }

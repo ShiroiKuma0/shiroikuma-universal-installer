@@ -174,6 +174,14 @@
     <string name="apk_info_vt_uploading">正在上传至 VirusTotal… %d%%</string>
     <string name="apk_info_vt_add_key">添加 API 密钥</string>
     <string name="apk_info_vt_get_key">获取免费密钥</string>
+    <string name="apk_info_vt_tally">%2$d 个引擎中有 %1$d 个标记了此文件</string>
+    <string name="apk_info_vt_engines_show">各引擎结果</string>
+    <string name="apk_info_vt_engines_hide">隐藏各引擎结果</string>
+    <string name="apk_info_vt_open_web">在 VirusTotal 中查看</string>
+    <string name="apk_info_vt_chip_clean">VirusTotal：安全</string>
+    <string name="apk_info_vt_chip_flagged">VirusTotal：%1$d 个引擎标记</string>
+    <string name="apk_info_vt_chip_scanning">VirusTotal：扫描中…</string>
+    <string name="apk_info_vt_chip_no_result">VirusTotal：暂无结果</string>
     <string name="apk_info_vt_check_button">使用 VirusTotal 检查</string>
     <string name="apk_info_vt_rescan_button">重新扫描</string>
     <string name="vt_notif_channel_name">VirusTotal 扫描</string>

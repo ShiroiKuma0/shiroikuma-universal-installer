@@ -177,6 +177,14 @@
     <string name="apk_info_vt_uploading">Đang tải lên VirusTotal… %d%%</string>
     <string name="apk_info_vt_add_key">Thêm API key</string>
     <string name="apk_info_vt_get_key">Lấy key miễn phí</string>
+    <string name="apk_info_vt_tally">%1$d trên %2$d engine đánh dấu file này</string>
+    <string name="apk_info_vt_engines_show">Kết quả từng engine</string>
+    <string name="apk_info_vt_engines_hide">Ẩn kết quả từng engine</string>
+    <string name="apk_info_vt_open_web">Xem trên VirusTotal</string>
+    <string name="apk_info_vt_chip_clean">VirusTotal: sạch</string>
+    <string name="apk_info_vt_chip_flagged">VirusTotal: %1$d engine đánh dấu</string>
+    <string name="apk_info_vt_chip_scanning">VirusTotal: đang quét…</string>
+    <string name="apk_info_vt_chip_no_result">VirusTotal: chưa có kết quả</string>
     <string name="apk_info_vt_check_button">Kiểm tra với VirusTotal</string>
     <string name="apk_info_vt_rescan_button">Quét lại</string>
     <string name="vt_notif_channel_name">Quét VirusTotal</string>

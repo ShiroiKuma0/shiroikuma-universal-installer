@@ -253,6 +253,14 @@
     <string name="apk_info_vt_too_large">File too large for VirusTotal (%s)</string>
     <string name="apk_info_vt_add_key">Add API key</string>
     <string name="apk_info_vt_get_key">Get a free key</string>
+    <string name="apk_info_vt_tally">%1$d of %2$d engines flagged this file</string>
+    <string name="apk_info_vt_engines_show">Engine results</string>
+    <string name="apk_info_vt_engines_hide">Hide engine results</string>
+    <string name="apk_info_vt_open_web">View on VirusTotal</string>
+    <string name="apk_info_vt_chip_clean">VirusTotal: clean</string>
+    <string name="apk_info_vt_chip_flagged">VirusTotal: %1$d flagged</string>
+    <string name="apk_info_vt_chip_scanning">VirusTotal: scanning…</string>
+    <string name="apk_info_vt_chip_no_result">VirusTotal: no result</string>
     <string name="apk_info_vt_check_button">Check with VirusTotal</string>
     <string name="apk_info_vt_rescan_button">Scan again</string>
     <string name="vt_notif_channel_name">VirusTotal scans</string>

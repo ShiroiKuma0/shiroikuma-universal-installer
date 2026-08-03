@@ -2,6 +2,7 @@ package app.pwhs.universalinstaller.presentation.install
 
 import android.text.format.Formatter
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.GppGood
 import androidx.compose.material.icons.rounded.InstallMobile
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Menu
@@ -48,7 +50,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -277,6 +279,9 @@ internal fun ApkInfoContent(
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 )
             }
+            // Scan state belongs in the compact sheet too — this is the row the user confirms from,
+            // and the verdict used to be visible only after opening App Details.
+            apkInfo.vtResult?.let { vt -> VtStatusChip(vt) }
             if (isExpanded) {
                 if (apkInfo.versionName.isNotBlank()) {
                     InfoChip(label = stringResource(R.string.apk_info_version_chip, apkInfo.versionName))
@@ -630,22 +635,76 @@ private fun VirusTotalCard(
         VtStatus.ANALYZING -> stringResource(R.string.apk_info_vt_analyzing)
         null -> null
     }
-    ElevatedCard(onClick = onOpenLink, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.elevatedCardColors(containerColor = if (status == VtStatus.MALICIOUS) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow)) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    // A malicious verdict keeps a filled container — that one is meant to shout. Everything else
+    // uses the flat outlined shell the other sections use.
+    val isAlarming = status == VtStatus.MALICIOUS
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = if (isAlarming) MaterialTheme.colorScheme.errorContainer else Color.Transparent,
+        ),
+        border = if (isAlarming) {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+        } else {
+            sectionCardBorder()
+        },
+    ) {
+        Column(modifier = Modifier.padding(16.dp).animateContentSize()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.Security, null, tint = vtColor, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.apk_info_vt_scan_title), style = MaterialTheme.typography.labelLarge, color = vtColor)
                 if (inProgress) { Spacer(Modifier.width(8.dp)); CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = vtColor) }
             }
-            // Don't duplicate the count line when the breakdown bar already conveys it.
-            if (vtDesc != null && !hasResult) {
+            // Always state the verdict. This used to be hidden whenever there was a result, on the
+            // assumption the breakdown bar conveyed it — but the bar carries no words, and a clean
+            // file colours none of its segments, so a finished scan rendered a silent grey card.
+            if (vtDesc != null) {
                 Spacer(Modifier.height(8.dp))
                 Text(vtDesc, style = MaterialTheme.typography.bodySmall, color = vtColor)
             }
             if (hasResult && vt != null) {
+                val total = vt.malicious + vt.suspicious + vt.harmless + vt.undetected
                 Spacer(Modifier.height(12.dp))
-                VtBreakdownSection(vt = vt, warningColor = extendedColors.warning)
+                VtBreakdownSection(vt = vt, warningColor = extendedColors.warning, cleanColor = extendedColors.success)
+                if (total > 0) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(
+                            R.string.apk_info_vt_tally,
+                            vt.malicious + vt.suspicious,
+                            total,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                // The per-engine results were already being parsed and thrown away; the only way to
+                // see any detail was the card's own click opening a browser, which nothing signposted.
+                if (vt.engineResults.isNotEmpty()) {
+                    VtEngineList(
+                        engines = vt.engineResults,
+                        warningColor = extendedColors.warning,
+                    )
+                }
+                if (sha256.isNotBlank()) {
+                    TextButton(
+                        onClick = onOpenLink,
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.apk_info_vt_open_web),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Icon(
+                            Icons.AutoMirrored.Rounded.OpenInNew,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
+                }
             }
             // Telling someone their key is missing is only half an answer — the fix is two
             // screens away and they are mid-install. Offer both steps here.
@@ -677,23 +736,89 @@ private fun VirusTotalCard(
     }
 }
 
+/**
+ * The malicious / suspicious / clean split as a single bar.
+ *
+ * `undetected` counts as clean: for files VirusTotal reports engines that found nothing under
+ * `undetected` and leaves `harmless` at 0, so colouring only `harmless` left every clean scan
+ * showing a fully grey bar.
+ */
 @Composable
-private fun VtBreakdownSection(vt: VtResult, warningColor: Color) {
+private fun VtBreakdownSection(vt: VtResult, warningColor: Color, cleanColor: Color) {
     val total = (vt.malicious + vt.suspicious + vt.harmless + vt.undetected).coerceAtLeast(1)
     val malFraction = vt.malicious.toFloat() / total
     val susFraction = vt.suspicious.toFloat() / total
-    val harmFraction = vt.harmless.toFloat() / total
+    val cleanFraction = (vt.harmless + vt.undetected).toFloat() / total
+    val errorColor = MaterialTheme.colorScheme.error
     Canvas(modifier = Modifier.fillMaxWidth().height(8.dp).clip(MaterialTheme.shapes.small)) {
         val w = size.width
         val h = size.height
         var x = 0f
         val malW = w * malFraction
-        if (malW > 0f) { drawRect(color = Color.Red, topLeft = Offset(x, 0f), size = Size(malW, h)); x += malW }
+        if (malW > 0f) { drawRect(color = errorColor, topLeft = Offset(x, 0f), size = Size(malW, h)); x += malW }
         val susW = w * susFraction
         if (susW > 0f) { drawRect(color = warningColor, topLeft = Offset(x, 0f), size = Size(susW, h)); x += susW }
-        val harmW = w * harmFraction
-        if (harmW > 0f) { drawRect(color = Color.Green, topLeft = Offset(x, 0f), size = Size(harmW, h)); x += harmW }
+        val cleanW = w * cleanFraction
+        if (cleanW > 0f) { drawRect(color = cleanColor, topLeft = Offset(x, 0f), size = Size(cleanW, h)); x += cleanW }
+        // Only reached when the stats add up to nothing — grey means "no data", not "clean".
         drawRect(color = Color.Gray.copy(alpha = 0.3f), topLeft = Offset(x, 0f), size = Size(w - x, h))
+    }
+}
+
+/**
+ * Per-engine verdicts, collapsed to just the engines that flagged the file.
+ *
+ * Expanding shows all engines VirusTotal returned — for a clean file the collapsed list is empty,
+ * so the toggle is the only thing on screen until it is opened.
+ */
+@Composable
+private fun VtEngineList(engines: List<VtEngineResult>, warningColor: Color) {
+    var expanded by remember { mutableStateOf(false) }
+    val flagged = engines.filter { it.category == "malicious" || it.category == "suspicious" }
+    val visible = if (expanded) engines else flagged
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (visible.isNotEmpty()) Spacer(Modifier.height(8.dp))
+        visible.forEach { engine ->
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = engine.engineName,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = engine.result ?: engine.category,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = when (engine.category) {
+                        "malicious" -> MaterialTheme.colorScheme.error
+                        "suspicious" -> warningColor
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        TextButton(
+            onClick = { expanded = !expanded },
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+        ) {
+            Text(
+                // Deliberately uncounted: this list includes engines that could not scan the file
+                // at all, so its size contradicts the "n of m flagged" ratio just above it.
+                text = if (expanded) {
+                    stringResource(R.string.apk_info_vt_engines_hide)
+                } else {
+                    stringResource(R.string.apk_info_vt_engines_show)
+                },
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
     }
 }
 
@@ -741,10 +866,25 @@ private fun SplitsCard(splits: List<SplitEntry>, onToggle: (Int) -> Unit) {
     }
 }
 
+/**
+ * The one border every install-detail section shares.
+ *
+ * These used to be [androidx.compose.material3.ElevatedCard]s: inside the detail sheet the shadow
+ * plus a lighter fill stacked surface on surface on surface, which read as muddy floating boxes on
+ * a dark background. Flat outlines keep the grouping without the layering.
+ */
+@Composable
+private fun sectionCardBorder() = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+
 @Composable
 private fun SectionCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, summary: String? = null, badge: String? = null, defaultExpanded: Boolean = true, content: @Composable () -> Unit) {
     var expanded by remember { mutableStateOf(defaultExpanded) }
-    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
+        border = sectionCardBorder(),
+    ) {
         Column(modifier = Modifier.animateContentSize()) {
             Row(modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
@@ -758,6 +898,61 @@ private fun SectionCard(icon: androidx.compose.ui.graphics.vector.ImageVector, t
             }
             if (expanded) Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) { content() }
         }
+    }
+}
+
+/**
+ * One-chip VirusTotal state for the chip row, shown collapsed and expanded alike.
+ *
+ * [ApkInfo.vtResult] stays null until a scan is asked for, so this never claims anything about a
+ * package nobody scanned.
+ */
+@Composable
+private fun VtStatusChip(vt: VtResult) {
+    val extendedColors = LocalExtendedColors.current
+    when (vt.status) {
+        VtStatus.CLEAN -> InfoChip(
+            label = stringResource(R.string.apk_info_vt_chip_clean),
+            leadingIcon = {
+                Icon(Icons.Rounded.GppGood, null, modifier = Modifier.size(16.dp), tint = extendedColors.success)
+            },
+            contentColor = extendedColors.success,
+        )
+        VtStatus.MALICIOUS, VtStatus.SUSPICIOUS -> {
+            val alarming = vt.status == VtStatus.MALICIOUS
+            InfoChip(
+                label = stringResource(R.string.apk_info_vt_chip_flagged, vt.malicious + vt.suspicious),
+                leadingIcon = {
+                    Icon(
+                        Icons.Rounded.Warning,
+                        null,
+                        modifier = Modifier.size(16.dp),
+                        tint = if (alarming) MaterialTheme.colorScheme.onErrorContainer else extendedColors.warning,
+                    )
+                },
+                containerColor = if (alarming) MaterialTheme.colorScheme.errorContainer else extendedColors.warningContainer,
+                contentColor = if (alarming) MaterialTheme.colorScheme.onErrorContainer else extendedColors.warning,
+            )
+        }
+        VtStatus.SCANNING, VtStatus.UPLOADING, VtStatus.QUEUED, VtStatus.ANALYZING -> InfoChip(
+            label = stringResource(R.string.apk_info_vt_chip_scanning),
+            leadingIcon = {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(12.dp),
+                    strokeWidth = 1.5.dp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            },
+        )
+        // Every remaining state is a scan that produced no verdict — missing key, bad key, quota
+        // spent, file too big, unknown to VirusTotal. Say so rather than showing nothing.
+        else -> InfoChip(
+            label = stringResource(R.string.apk_info_vt_chip_no_result),
+            leadingIcon = {
+                Icon(Icons.Rounded.Security, null, modifier = Modifier.size(16.dp), tint = extendedColors.warning)
+            },
+            contentColor = extendedColors.warning,
+        )
     }
 }
 
@@ -785,7 +980,12 @@ internal fun sdkToAndroid(sdk: Int): String = when {
 
 @Composable
 private fun ObbAttachCard(attached: List<AttachedObb>, onAttach: () -> Unit, onRemove: (AttachedObb) -> Unit) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.extraLarge, colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
+        border = sectionCardBorder(),
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(stringResource(R.string.apk_info_obb_attach_title), style = MaterialTheme.typography.titleSmall)
             attached.forEach { obb ->

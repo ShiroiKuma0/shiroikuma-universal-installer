@@ -535,6 +535,10 @@ private fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
             VtStatus.QUEUED -> stringResource(R.string.apk_info_vt_queued)
             VtStatus.ANALYZING -> stringResource(R.string.apk_info_vt_analyzing)
             VtStatus.NO_API_KEY -> stringResource(R.string.apk_info_vt_no_api_key)
+            VtStatus.INVALID_API_KEY -> stringResource(R.string.apk_info_vt_invalid_key)
+            VtStatus.RATE_LIMITED -> vtErrorMsg?.takeIf { it.isNotBlank() }
+                ?.let { stringResource(R.string.apk_info_vt_rate_limited_retry, it) }
+                ?: stringResource(R.string.apk_info_vt_rate_limited)
             VtStatus.TOO_LARGE -> stringResource(R.string.apk_info_vt_too_large, vtErrorMsg.orEmpty())
             VtStatus.ERROR -> vtErrorMsg ?: stringResource(R.string.apk_info_vt_error)
             else -> stringResource(R.string.dialog_menu_virustotal_desc)
@@ -547,6 +551,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
             // and crucially not the neutral grey that made the no-key state invisible.
             VtStatus.SUSPICIOUS,
             VtStatus.NO_API_KEY,
+            VtStatus.INVALID_API_KEY,
+            VtStatus.RATE_LIMITED,
             VtStatus.TOO_LARGE -> extendedColors.warning
             else -> MaterialTheme.colorScheme.onSurfaceVariant
         }
@@ -573,7 +579,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
                     }
                     // Without a key, tapping Check only rewrites the same "no key" line the user
                     // is already reading. Send them where the key is entered instead.
-                    vtResult?.status == VtStatus.NO_API_KEY -> {
+                    vtResult?.status == VtStatus.NO_API_KEY ||
+                        vtResult?.status == VtStatus.INVALID_API_KEY -> {
                         context.startActivity(
                             android.content.Intent(
                                 context,

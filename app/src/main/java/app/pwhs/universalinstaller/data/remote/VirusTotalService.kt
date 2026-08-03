@@ -61,10 +61,7 @@ class VirusTotalService(
             when (response.status.value) {
                 200 -> parseFileStats(response.bodyAsText())
                 404 -> VtResult(status = VtStatus.NOT_FOUND)
-                else -> VtResult(
-                    status = VtStatus.ERROR,
-                    errorMessage = "HTTP ${response.status.value}: ${response.status.description}",
-                )
+                else -> httpFailure(response)
             }
         }.getOrElse { e ->
             Timber.e(e, "VirusTotal hash lookup failed")
@@ -108,7 +105,7 @@ class VirusTotalService(
             }
         }
         if (response.status.value !in 200..299) {
-            error("upload_url HTTP ${response.status.value}: ${response.status.description}")
+            throwTyped(response, "upload_url")
         }
         return JSONObject(response.bodyAsText()).getString("data")
     }
@@ -167,11 +164,14 @@ class VirusTotalService(
                     }
                 }
                 if (response.status.value !in 200..299) {
-                    error("Upload HTTP ${response.status.value}: ${response.status.description}")
+                    throwTyped(response, "Upload")
                 }
                 return JSONObject(response.bodyAsText()).getJSONObject("data").getString("id")
             } catch (e: java.io.IOException) {
                 // Transient I/O error (EOFException, SocketException, etc.) — retry
+                // A rejected key or an exhausted quota will not fix itself on retry, and each
+                // attempt costs another request against the same quota.
+                if (e is VtHttpException) throw e
                 Timber.w(e, "Upload I/O error on attempt ${attempt + 1}")
                 lastException = e
             }
@@ -211,11 +211,10 @@ class VirusTotalService(
                     }
                 }
                 if (response.status.value !in 200..299) {
-                    return@runCatching VtResult(
-                        status = VtStatus.ERROR,
-                        errorMessage = "Poll HTTP ${response.status.value}",
-                        analysisId = analysisId,
-                    )
+                    // Polling burns a request each time, so this is where the free tier's
+                    // 4/minute is most likely to bite; report it as such rather than as a
+                    // nameless poll failure.
+                    return@runCatching httpFailure(response).copy(analysisId = analysisId)
                 }
                 parseAnalysisResponse(response.bodyAsText(), analysisId)
             }.getOrElse { e ->
@@ -319,6 +318,45 @@ class VirusTotalService(
             undetected = undetected,
             status = status,
             engineResults = engines,
+        )
+    }
+
+    /**
+     * Throw a [VtHttpException] carrying the mapped status. Retrying an upload after a 401 or a
+     * 429 only burns the remaining quota, so these must be distinguishable from an I/O failure.
+     */
+    private fun throwTyped(response: HttpResponse, what: String): Nothing {
+        val mapped = httpFailure(response)
+        throw VtHttpException(
+            vtStatus = mapped.status,
+            message = "$what HTTP ${response.status.value}: ${response.status.description}",
+        )
+    }
+
+    /** Carries an actionable [VtStatus] out of the upload path, which returns Result<String>. */
+    class VtHttpException(val vtStatus: VtStatus, message: String) : java.io.IOException(message)
+
+    /**
+     * Map an unsuccessful response to a status the UI can act on.
+     *
+     * 401/403 and 429 used to fall into the generic ERROR branch and surface as
+     * "HTTP 429: Too Many Requests", which tells the user nothing they can do. Both are common:
+     * the free tier allows only 4 requests a minute, which a batch install trips immediately, and
+     * a key with one wrong character looks identical to a broken service.
+     */
+    private fun httpFailure(response: HttpResponse): VtResult = when (response.status.value) {
+        401, 403 -> VtResult(status = VtStatus.INVALID_API_KEY)
+        429 -> VtResult(
+            status = VtStatus.RATE_LIMITED,
+            // Retry-After is optional and may be an HTTP date rather than a delay in seconds.
+            // The UI phrases it as "in N seconds", so pass it on only when it really is N.
+            errorMessage = response.headers["Retry-After"]
+                ?.takeIf { it.isNotBlank() && it.all(Char::isDigit) }
+                .orEmpty(),
+        )
+        else -> VtResult(
+            status = VtStatus.ERROR,
+            errorMessage = "HTTP ${response.status.value}: ${response.status.description}",
         )
     }
 

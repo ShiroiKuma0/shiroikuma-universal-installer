@@ -605,7 +605,8 @@ private fun VirusTotalCard(
     val vtColor = when (status) {
         VtStatus.CLEAN -> MaterialTheme.colorScheme.primary
         VtStatus.MALICIOUS, VtStatus.ERROR -> MaterialTheme.colorScheme.error
-        VtStatus.SUSPICIOUS, VtStatus.NO_API_KEY, VtStatus.TOO_LARGE -> extendedColors.warning
+        VtStatus.SUSPICIOUS, VtStatus.NO_API_KEY, VtStatus.INVALID_API_KEY,
+        VtStatus.RATE_LIMITED, VtStatus.TOO_LARGE -> extendedColors.warning
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
     // Status line — without this, NO_API_KEY / ERROR / TOO_LARGE left the card silent
@@ -616,6 +617,11 @@ private fun VirusTotalCard(
         VtStatus.SUSPICIOUS -> stringResource(R.string.apk_info_vt_suspicious, vt.suspicious)
         VtStatus.NOT_FOUND -> stringResource(R.string.apk_info_vt_not_found)
         VtStatus.NO_API_KEY -> stringResource(R.string.apk_info_vt_no_api_key)
+        VtStatus.INVALID_API_KEY -> stringResource(R.string.apk_info_vt_invalid_key)
+        // The Retry-After header is optional, so the countdown wording is too.
+        VtStatus.RATE_LIMITED -> vt.errorMessage.takeIf { it.isNotBlank() }
+            ?.let { stringResource(R.string.apk_info_vt_rate_limited_retry, it) }
+            ?: stringResource(R.string.apk_info_vt_rate_limited)
         VtStatus.ERROR -> vt.errorMessage.takeIf { it.isNotBlank() } ?: stringResource(R.string.apk_info_vt_error)
         VtStatus.TOO_LARGE -> stringResource(R.string.apk_info_vt_too_large, vt.errorMessage.orEmpty())
         VtStatus.SCANNING -> stringResource(R.string.apk_info_vt_scanning)
@@ -643,7 +649,7 @@ private fun VirusTotalCard(
             }
             // Telling someone their key is missing is only half an answer — the fix is two
             // screens away and they are mid-install. Offer both steps here.
-            if (status == VtStatus.NO_API_KEY) {
+            if (status == VtStatus.NO_API_KEY || status == VtStatus.INVALID_API_KEY) {
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilledTonalButton(

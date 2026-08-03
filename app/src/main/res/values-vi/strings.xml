@@ -776,4 +776,7 @@
     <string name="manage_action_installer_source_sub">Cài thủ công / Nguồn không xác định</string>
     <string name="installer_engine_root_request">Nhấn để cấp quyền root</string>
     <string name="dialog_failed_fallback_install">Cài đặt qua trình cài đặt hệ thống</string>
+    <string name="apk_info_vt_invalid_key">VirusTotal từ chối khóa API này. Mở Cài đặt → Advanced → Khóa API VirusTotal và kiểm tra xem đã dán đầy đủ chưa.</string>
+    <string name="apk_info_vt_rate_limited">Đã đạt giới hạn của VirusTotal — gói miễn phí chỉ cho 4 yêu cầu mỗi phút. Hãy thử lại sau giây lát.</string>
+    <string name="apk_info_vt_rate_limited_retry">Đã đạt giới hạn của VirusTotal — gói miễn phí chỉ cho 4 yêu cầu mỗi phút. Hãy thử lại sau %1$s giây.</string>
 </resources>

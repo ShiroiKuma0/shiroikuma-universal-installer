@@ -6,6 +6,10 @@ enum class VtStatus {
     SUSPICIOUS,
     NOT_FOUND,
     NO_API_KEY,
+    /** HTTP 401/403 — the key is wrong, revoked, or lacks access. Distinct from a missing key. */
+    INVALID_API_KEY,
+    /** HTTP 429 — free tier allows 4 requests/minute and 500/day. Retrying later works. */
+    RATE_LIMITED,
     ERROR,
     TOO_LARGE,
     SCANNING,    // hashing + hash lookup

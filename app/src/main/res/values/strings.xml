@@ -782,4 +782,7 @@
     <string name="manage_action_check_vt_sub">Scan the installed APK</string>
     <string name="manage_action_installer_source">Installed by %1$s</string>
     <string name="manage_action_installer_source_sub">Sideloaded / Unknown source</string>
+    <string name="apk_info_vt_invalid_key">VirusTotal rejected this API key. Open Settings → Advanced → VirusTotal API Key and check it was pasted in full.</string>
+    <string name="apk_info_vt_rate_limited">VirusTotal rate limit reached — the free tier allows 4 requests per minute. Try again shortly.</string>
+    <string name="apk_info_vt_rate_limited_retry">VirusTotal rate limit reached — the free tier allows 4 requests per minute. Try again in %1$s seconds.</string>
 </resources>

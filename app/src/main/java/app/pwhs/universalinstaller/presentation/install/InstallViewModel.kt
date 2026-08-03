@@ -1499,7 +1499,15 @@ class InstallViewModel(
                     virusTotalNotifier.notifyUploading(scanNotifId, fileName, pct)
                 }
                 val analysisId = uploadResult.getOrElse { e ->
-                    finishScanWithError(e.message ?: "Upload failed", fileName)
+                    // A rejected key or an exhausted quota is actionable; anything else is not.
+                    if (e is VirusTotalService.VtHttpException) {
+                        finishScan(
+                            VtResult(status = e.vtStatus, errorMessage = e.message.orEmpty()),
+                            fileName,
+                        )
+                    } else {
+                        finishScanWithError(e.message ?: "Upload failed", fileName)
+                    }
                     return@launch
                 }
 

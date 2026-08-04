@@ -571,8 +571,14 @@ class InstallViewModel(
         if (uris.isNullOrEmpty()) return null
         val fileName = pendingFileName ?: return null
 
+        // Copy now, while the grant is still alive. What the parse leaves in pendingApkUris is
+        // the caller's own URI for a plain APK (only archives get extracted into our cache), and
+        // that URI dies with this activity — installing from it later fails with
+        // "Permission Denial: opening provider <their>.FileProvider ... not exported".
+        val installableUris = copyForLaterInstall(uris) ?: return null
+
         val entry = PendingInstallStore.put(
-            apkUris = uris,
+            apkUris = installableUris,
             originalUri = pendingOriginalUri,
             fileName = fileName,
             packageName = apkInfo.packageName,
@@ -591,6 +597,47 @@ class InstallViewModel(
         pendingObbEntries = emptyList()
         _attachedObbFiles.value = emptyList()
         return entry
+    }
+
+    /**
+     * Duplicate [uris] into our own cache and hand back FileProvider URIs for the copies.
+     *
+     * Needed because a pending install outlives the activity that received the intent, and with
+     * it the one-shot read grant on the source. Copies go through our own provider rather than
+     * `file://` so every install backend sees a URI it can open.
+     *
+     * @return null if any copy fails — a partial split set would install as a broken app.
+     */
+    private suspend fun copyForLaterInstall(uris: List<Uri>): List<Uri>? = withContext(Dispatchers.IO) {
+        runCatching {
+            val dir = File(application.cacheDir, "$PENDING_INSTALL_DIR/${System.currentTimeMillis()}")
+            if (!dir.mkdirs() && !dir.isDirectory) error("Could not create $dir")
+            prunePendingInstallCache()
+            uris.mapIndexed { index, uri ->
+                val target = File(dir, "$index.apk")
+                application.contentResolver.openInputStream(uri)?.use { input ->
+                    target.outputStream().use { output -> input.copyTo(output) }
+                } ?: error("Could not read $uri")
+                FileProvider.getUriForFile(
+                    application,
+                    "${application.packageName}.fileprovider",
+                    target,
+                )
+            }
+        }.onFailure { Timber.e(it, "Could not stage APKs for a pending install") }.getOrNull()
+    }
+
+    /**
+     * Drop staged copies older than [PENDING_INSTALL_TTL_MS]. They are only needed until the
+     * notification is answered, and a prompt nobody answers should not cost disk forever.
+     */
+    private fun prunePendingInstallCache() {
+        val root = File(application.cacheDir, PENDING_INSTALL_DIR)
+        val cutoff = System.currentTimeMillis() - PENDING_INSTALL_TTL_MS
+        root.listFiles()?.forEach { dir ->
+            val stamp = dir.name.toLongOrNull() ?: return@forEach
+            if (stamp < cutoff) dir.deleteRecursively()
+        }
     }
 
     /**
@@ -1257,6 +1304,12 @@ class InstallViewModel(
     companion object {
         /** User-facing folder under /sdcard/Download/ so downloads are easy to browse. */
         const val DOWNLOADS_SUBFOLDER = "UniversalInstaller"
+
+        /** Cache subfolder holding APKs staged for a notification the user has not answered. */
+        private const val PENDING_INSTALL_DIR = "pending_install"
+
+        /** How long a staged copy is kept before being swept. */
+        private const val PENDING_INSTALL_TTL_MS = 60 * 60 * 1000L
 
         private val ABI_TOKENS = setOf(
             "armeabi_v7a", "arm64_v8a", "x86_64", "armeabi", "x86", "mips64", "mips",

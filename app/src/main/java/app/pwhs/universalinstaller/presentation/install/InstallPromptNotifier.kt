@@ -30,7 +30,7 @@ import java.io.File
  *  - **Cancel** is a broadcast to [InstallActionReceiver], which needs no window at all.
  *
  * The channel is deliberately its own: this is the only install notification that expects an
- * answer, so it takes DEFAULT importance while progress stays quiet on LOW.
+ * answer, so it takes HIGH importance and arrives as a heads-up, while progress stays quiet on LOW.
  */
 class InstallPromptNotifier(
     private val context: Context,
@@ -66,8 +66,12 @@ class InstallPromptNotifier(
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            // A question needs to arrive, not wait in the shade to be discovered. HIGH + a
+            // full-screen-less heads-up is what makes it pop over the current app; DEFAULT only
+            // added a shade row, which meant swiping down to find it.
             .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setOnlyAlertOnce(true)
             .setAutoCancel(false)
             // A prompt nobody answers must not linger as a dead button: swiping it away is
@@ -147,7 +151,7 @@ class InstallPromptNotifier(
         val channel = NotificationChannel(
             CHANNEL_ID,
             context.getString(R.string.install_prompt_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT,
+            NotificationManager.IMPORTANCE_HIGH,
         ).apply {
             description = context.getString(R.string.install_prompt_channel_desc)
             setShowBadge(true)
@@ -157,7 +161,11 @@ class InstallPromptNotifier(
     }
 
     private companion object {
-        const val CHANNEL_ID = "install_prompt"
+        /**
+         * Versioned: Android ignores importance changes to a channel that already exists, so the
+         * v1 channel would stay on DEFAULT for anyone who had already received a prompt.
+         */
+        const val CHANNEL_ID = "install_prompt_v2"
         const val NOTIF_ID_BASE = 43000
     }
 }

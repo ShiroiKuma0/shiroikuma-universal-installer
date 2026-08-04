@@ -4,6 +4,17 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.9.11+019
+
+**New in this build:**
+
+### 🔻 The launcher glyph sits smaller in its tile
+- The black/yellow download mark spanned **68.4% of the icon's height** (and 57.8% of its width) — just over the **66.7% safe zone** (72dp of the 108dp canvas) that Android reserves for adaptive icons, the region a launcher guarantees it will not crop. Under an aggressive mask, the circular one above all, the arrow and tray ran close to the edge.
+- The mark is now scaled to **85.74%** of its former size — three successive 5% passes, `0.95³` — about the icon centre, bringing it to 58.6% of the height and 49.6% of the width, comfortably inside the safe zone.
+- The transform lives on a `<group>`, so the **stroke weight scales with the geometry**: the yellow outline stays proportional instead of reading heavier as the mark shrinks.
+- Applied to the adaptive **foreground** and the **monochrome/themed** vector, then re-rendered into every raster from the same path data — the legacy square and round mipmaps at all five densities, their foreground siblings, and the Play-Store image. Each legacy tile reuses **its own alpha channel** as the mask, so the rounded-square and circle silhouettes are byte-identical to before: only the glyph inside them moved.
+- The splash screen draws that same foreground vector, so its logo shrinks to match within its fixed 140dp box.
+
 ## 1.9.11+016
 
 **New in this build:**

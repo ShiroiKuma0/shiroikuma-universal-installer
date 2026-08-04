@@ -47,12 +47,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -132,6 +135,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
  * - Cancel button → same.
  * - Install button → starts install; dialog shows progress then result.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 class DialogInstallActivity : ComponentActivity() {
 
     private val viewModel: InstallViewModel by viewModel()
@@ -182,6 +186,32 @@ class DialogInstallActivity : ComponentActivity() {
 
     /** Track whether system took us to a confirmation activity. */
     private var wentToSystemConfirm = false
+
+    /**
+     * The parts that make a sheet a sheet rather than a lowered dialog: a drag handle to grab, and
+     * content kept clear of the gesture bar so the action row is not sitting on the system inset.
+     *
+     * Mirrors what InstallerX Revived's sheet does — its own action row carries
+     * `navigationBarsPadding()` plus extra bottom padding under gesture navigation.
+     */
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun SheetChrome(enabled: Boolean, content: @Composable () -> Unit) {
+        if (!enabled) {
+            content()
+            return
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            BottomSheetDefaults.DragHandle()
+            content()
+        }
+    }
 
     /**
      * Slides the sheet up on first composition. The dialog style is left untouched — it already
@@ -617,11 +647,15 @@ class DialogInstallActivity : ComponentActivity() {
                             .pointerInput(Unit) {
                                 detectTapGestures(onTap = { /* consume clicks */ })
                             },
-                        shape = if (isSheet) SHEET_SHAPE else AlertDialogDefaults.shape,
-                        color = AlertDialogDefaults.containerColor,
-                        tonalElevation = AlertDialogDefaults.TonalElevation,
-                        shadowElevation = 12.dp,
+                        // A sheet is attached to the edge, not floating over the screen: it takes
+                        // the sheet container colour and no drop shadow. Lowering a dialog card to
+                        // the bottom without this still reads as a dialog.
+                        shape = if (isSheet) BottomSheetDefaults.ExpandedShape else AlertDialogDefaults.shape,
+                        color = if (isSheet) BottomSheetDefaults.ContainerColor else AlertDialogDefaults.containerColor,
+                        tonalElevation = if (isSheet) BottomSheetDefaults.Elevation else AlertDialogDefaults.TonalElevation,
+                        shadowElevation = if (isSheet) 0.dp else 12.dp,
                     ) {
+                      SheetChrome(enabled = isSheet) {
                         val params = generateDialogParams(
                             uiState = uiState,
                             dialogTarget = dialogTarget,
@@ -701,6 +735,7 @@ class DialogInstallActivity : ComponentActivity() {
                             centerContent = dialogInnerWidget(params.content),
                             centerButton = dialogInnerWidget(params.buttons)
                         )
+                      }
                     }
                   }
                 }

@@ -624,7 +624,9 @@ class InstallViewModel(
                     target,
                 )
             }
-        }.onFailure { Timber.e(it, "Could not stage APKs for a pending install") }.getOrNull()
+        }.onSuccess { Timber.i("NotifInstall: staged ${it.size} apk(s) under $PENDING_INSTALL_DIR") }
+            .onFailure { Timber.e(it, "NotifInstall: could not stage APKs for a pending install") }
+            .getOrNull()
     }
 
     /**

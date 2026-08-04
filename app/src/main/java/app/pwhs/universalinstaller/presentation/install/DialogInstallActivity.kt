@@ -154,6 +154,13 @@ class DialogInstallActivity : ComponentActivity() {
         /** Headless parse budget. Exceeding it falls back to the dialog rather than hanging. */
         private const val PARSE_TIMEOUT_MS = 30_000L
 
+        /**
+         * One grep-able tag for the whole notification-install path. The flow crosses an activity,
+         * a store, a notifier and a broadcast receiver, so "which branch did it take" is otherwise
+         * not answerable from a log.
+         */
+        private const val LOG = "NotifInstall"
+
         /** Rounded at the top only — the bottom edge runs off the screen. */
         private val SHEET_SHAPE = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     }
@@ -225,6 +232,7 @@ class DialogInstallActivity : ComponentActivity() {
      * as they do from the dialog.
      */
     private fun installFromNotificationAction() {
+        Timber.i("$LOG: firing install from the notification action")
         viewModel.confirmInstall(trackDialogTarget = true)
         lifecycleScope.launch {
             // confirmInstall publishes the real session id asynchronously (ackpine mints it).
@@ -267,8 +275,9 @@ class DialogInstallActivity : ComponentActivity() {
     private fun HeadlessNotificationInstall(mode: ExternalOpenMode, uri: Uri) {
         val context = LocalContext.current
         LaunchedEffect(uri) {
+            Timber.i("$LOG: mode=$mode, parsing $uri")
             runCatching { parseAndPush(context, uri) }.onFailure { e ->
-                Timber.e(e, "Headless parse failed for $uri")
+                Timber.e(e, "$LOG: parse threw - giving up")
                 finish()
                 return@LaunchedEffect
             }
@@ -277,24 +286,32 @@ class DialogInstallActivity : ComponentActivity() {
                 viewModel.uiState.map { it.pendingApkInfo }.filterNotNull().first()
             }
             if (apkInfo == null) {
-                Timber.w("Headless parse produced nothing — falling back to the dialog")
+                Timber.w("$LOG: no parse result within ${PARSE_TIMEOUT_MS}ms - falling back to the dialog")
                 skipInitialParse = true
                 fallbackToDialog()
                 return@LaunchedEffect
             }
 
+            Timber.i("$LOG: parsed ${apkInfo.packageName}, ${apkInfo.splitEntries.size} split(s)")
+
             // Auto mode installs without asking, but not past a risk the user has never seen.
             // A downgrade or a signature mismatch still gets the prompt.
             val risks = detectInstallRisks(apkInfo)
             if (mode == ExternalOpenMode.AutoNotification && risks.isEmpty()) {
+                Timber.i("$LOG: auto mode, no risks - installing without asking")
                 installFromNotificationAction()
                 return@LaunchedEffect
             }
 
             // Checked before stashing: a prompt that cannot be posted would strand the install
             // with nothing on screen, and the dialog is the only fallback left.
-            val entry = if (promptNotifier.canPost()) viewModel.stashPendingInstall() else null
+            if (risks.isNotEmpty()) Timber.i("$LOG: ${risks.size} risk(s) - asking rather than auto-installing")
+            val canPost = promptNotifier.canPost()
+            if (!canPost) Timber.w("$LOG: notifications unavailable")
+            val entry = if (canPost) viewModel.stashPendingInstall() else null
+            if (canPost && entry == null) Timber.w("$LOG: nothing to stash - staging the APKs must have failed")
             if (entry == null || !promptNotifier.prompt(entry)) {
+                Timber.w("$LOG: falling back to the dialog")
                 entry?.let {
                     viewModel.restorePendingInstall(it)
                     PendingInstallStore.consume(it.id)
@@ -303,6 +320,7 @@ class DialogInstallActivity : ComponentActivity() {
                 fallbackToDialog()
                 return@LaunchedEffect
             }
+            Timber.i("$LOG: prompt ${entry.id} posted for ${entry.packageName}, ${entry.apkUris.size} staged uri(s)")
             finish()
         }
     }
@@ -324,6 +342,7 @@ class DialogInstallActivity : ComponentActivity() {
         if (pendingId != null) {
             val entry = PendingInstallStore.consume(pendingId)
             promptNotifier.cancel(pendingId)
+            Timber.i("$LOG: resuming $pendingId, found=${entry != null}")
             if (entry == null) {
                 // The process died while the prompt sat in the shade, taking the parse with it.
                 // Nothing installable is left, so don't pretend otherwise.

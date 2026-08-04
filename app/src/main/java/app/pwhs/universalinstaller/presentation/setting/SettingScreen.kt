@@ -54,6 +54,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
@@ -81,6 +82,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.presentation.composable.UniversalSearchBar
@@ -102,6 +104,7 @@ fun SettingScreen(
     val useDhizuku by viewModel.useDhizuku.collectAsState()
     val blacklist by viewModel.blacklist.collectAsState()
     val securityLevel by viewModel.securityLevel.collectAsState()
+    val externalOpenMode by viewModel.externalOpenMode.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     // Dhizuku can be granted or revoked in its own app while we are backgrounded.
@@ -122,6 +125,8 @@ fun SettingScreen(
         onInstallModeChanged = viewModel::setInstallMode,
         onVirusTotalKeyChanged = viewModel::setVirusTotalApiKey,
         securityLevel = securityLevel,
+        externalOpenMode = externalOpenMode,
+        onExternalOpenModeChanged = viewModel::setExternalOpenMode,
         onSecurityLevelChanged = viewModel::setSecurityLevel,
         onShizukuOptionChanged = viewModel::setShizukuOption,
         dhizukuState = dhizukuState,
@@ -173,6 +178,8 @@ private fun SettingUi(
     onInstallModeChanged: (InstallMode) -> Unit = {},
     onVirusTotalKeyChanged: (String) -> Unit = {},
     securityLevel: SecurityLevel = SecurityLevel.Normal,
+    externalOpenMode: ExternalOpenMode = ExternalOpenMode.Dialog,
+    onExternalOpenModeChanged: (ExternalOpenMode) -> Unit = {},
     onSecurityLevelChanged: (SecurityLevel) -> Unit = {},
     onShizukuOptionChanged: (Preferences.Key<Boolean>, Boolean) -> Unit = { _, _ -> },
     onReplayTutorial: () -> Unit = {},
@@ -397,6 +404,12 @@ private fun SettingUi(
                                 subtitle = stringResource(R.string.setting_auto_confirm_subtitle),
                                 checked = uiState.autoConfirmExternalInstall,
                                 onCheckedChange = onAutoConfirmExternalInstallChanged,
+                            )
+                        }
+                        SearchableItem(q, stringResource(R.string.setting_external_open_title), stringResource(R.string.setting_external_open_notification_sub)) {
+                            ExternalOpenModeSelector(
+                                current = externalOpenMode,
+                                onChange = onExternalOpenModeChanged,
                             )
                         }
                         SearchableItem(q, stringResource(R.string.setting_show_download_tab_title), stringResource(R.string.setting_show_download_tab_subtitle)) {
@@ -1046,5 +1059,54 @@ private fun SecurityLevelSelector(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+
+/**
+ * Dialog / Notification / Notification-and-install, for packages opened by another app.
+ *
+ * A list of radio rows rather than the segmented control used elsewhere: each option needs a line
+ * of explanation, and "installs without asking" is not a choice to make from a two-word label.
+ */
+@Composable
+private fun ExternalOpenModeSelector(
+    current: ExternalOpenMode,
+    onChange: (ExternalOpenMode) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text(
+            text = stringResource(R.string.setting_external_open_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        listOf(
+            Triple(ExternalOpenMode.Dialog, R.string.setting_external_open_dialog, R.string.setting_external_open_dialog_sub),
+            Triple(ExternalOpenMode.Notification, R.string.setting_external_open_notification, R.string.setting_external_open_notification_sub),
+            Triple(ExternalOpenMode.AutoNotification, R.string.setting_external_open_auto_notification, R.string.setting_external_open_auto_notification_sub),
+        ).forEach { (mode, titleRes, subRes) ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { if (mode != current) onChange(mode) }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                RadioButton(
+                    selected = mode == current,
+                    onClick = { if (mode != current) onChange(mode) },
+                )
+                Spacer(Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(titleRes), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = stringResource(subRes),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
     }
 }

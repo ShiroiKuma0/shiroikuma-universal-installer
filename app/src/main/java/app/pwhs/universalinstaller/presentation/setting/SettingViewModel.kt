@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.domain.manager.ProfileManager
 import rikka.shizuku.Shizuku
@@ -66,6 +67,13 @@ object PreferencesKeys {
 
     /** Open the app automatically after a successful install (with a 3-second cancellable countdown). */
     val AUTO_OPEN_AFTER_INSTALL = booleanPreferencesKey("auto_open_after_install")
+
+    /**
+     * How a package opened by another app asks for confirmation — dialog over the caller, or a
+     * notification. Values are [app.pwhs.universalinstaller.domain.model.ExternalOpenMode.value];
+     * missing / unknown reads back as Dialog, which is the behaviour that predates the setting.
+     */
+    val EXTERNAL_OPEN_MODE = stringPreferencesKey("external_open_mode")
 
     /**
      * Per-package installer-source overrides. Stored as one entry per line
@@ -509,6 +517,20 @@ class SettingViewModel(
             )
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, SecurityLevel.Normal)
+
+    /**
+     * How a package opened by another app asks for confirmation. Defaults to Dialog, so existing
+     * installs keep the behaviour they already had.
+     */
+    val externalOpenMode: StateFlow<ExternalOpenMode> = dataStore.data
+        .map { ExternalOpenMode.from(it[PreferencesKeys.EXTERNAL_OPEN_MODE]) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExternalOpenMode.Dialog)
+
+    fun setExternalOpenMode(mode: ExternalOpenMode) {
+        viewModelScope.launch {
+            dataStore.edit { prefs -> prefs[PreferencesKeys.EXTERNAL_OPEN_MODE] = mode.value }
+        }
+    }
 
     fun setSecurityLevel(level: SecurityLevel) {
         viewModelScope.launch {

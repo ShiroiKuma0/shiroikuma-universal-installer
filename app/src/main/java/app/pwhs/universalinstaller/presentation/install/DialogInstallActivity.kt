@@ -17,7 +17,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
@@ -55,6 +60,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,6 +75,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.core.data.local.dataStore
@@ -126,6 +133,24 @@ class DialogInstallActivity : ComponentActivity() {
 
     private val viewModel: InstallViewModel by viewModel()
     private val installNotifier: InstallProgressNotifier by inject()
+    private val promptNotifier: InstallPromptNotifier by inject()
+
+    companion object {
+        /** Set by [InstallPromptNotifier]: a parse waiting in [PendingInstallStore]. */
+        const val EXTRA_PENDING_ID = "pending_install_id"
+
+        /**
+         * With [EXTRA_PENDING_ID]: show the dialog instead of installing. This is the
+         * notification body tap — "let me look first" — as opposed to its Install action.
+         */
+        const val EXTRA_PENDING_SHOW_UI = "pending_install_show_ui"
+
+        /** How long to wait for the real session id before giving up on the progress notification. */
+        private const val SESSION_ID_TIMEOUT_MS = 3_000L
+
+        /** Headless parse budget. Exceeding it falls back to the dialog rather than hanging. */
+        private const val PARSE_TIMEOUT_MS = 30_000L
+    }
 
     // POST_NOTIFICATIONS gates the background-install notification on Android 13+. We ask
     // on first open of the dialog (not at Background-tap time) so the user has already
@@ -145,6 +170,110 @@ class DialogInstallActivity : ComponentActivity() {
     /** Track whether system took us to a confirmation activity. */
     private var wentToSystemConfirm = false
 
+    /**
+     * True when the parse was restored from [PendingInstallStore] instead of read from the
+     * intent. The dialog must not re-parse in that case: the source URI's read grant died with
+     * the activity that received it, and re-parsing an archive from its extracted members would
+     * silently lose the split set.
+     */
+    private var skipInitialParse = false
+
+    /**
+     * Flips the headless path back to the visible dialog. Set when a notification prompt cannot
+     * be posted or the parse yields nothing — the install must still be answerable.
+     */
+    private val forceDialogUi = MutableStateFlow(false)
+
+    private fun fallbackToDialog() {
+        forceDialogUi.value = true
+    }
+
+    /**
+     * The Install action on a prompt notification. No window is drawn — the install is fired and
+     * handed to [InstallProgressNotifier], which is already the app's background-install
+     * reporter, then this activity goes away.
+     *
+     * Runs through [InstallViewModel.confirmInstall] rather than talking to a controller
+     * directly, so the blacklist gate, profile flags and targeted-user handling all apply exactly
+     * as they do from the dialog.
+     */
+    private fun installFromNotificationAction() {
+        viewModel.confirmInstall(trackDialogTarget = true)
+        lifecycleScope.launch {
+            // confirmInstall publishes the real session id asynchronously (ackpine mints it).
+            // The install itself runs in the process-scoped appScope, so a timeout here costs
+            // the progress notification, never the install.
+            val target = withTimeoutOrNull(SESSION_ID_TIMEOUT_MS) {
+                viewModel.dialogTarget.filterNotNull().first()
+            }
+            if (target != null) {
+                installNotifier.track(
+                    sessionId = target.sessionId,
+                    packageName = target.packageName,
+                    appName = target.appName,
+                    iconPath = target.iconPath,
+                )
+            } else {
+                Timber.w("No session id within ${SESSION_ID_TIMEOUT_MS}ms — install continues untracked")
+            }
+            viewModel.clearDialogTarget()
+            finish()
+        }
+    }
+
+    private suspend fun readExternalOpenMode(): ExternalOpenMode = runCatching {
+        ExternalOpenMode.from(dataStore.data.first()[PreferencesKeys.EXTERNAL_OPEN_MODE])
+    }.getOrDefault(ExternalOpenMode.Dialog)
+
+    /**
+     * The no-window path for [ExternalOpenMode.Notification] / [ExternalOpenMode.AutoNotification]: parse,
+     * then either ask in a notification or install straight away. Nothing is ever drawn, so the
+     * app the user opened the file from stays in front the whole time.
+     *
+     * A composable only because it needs to observe the parse; it emits no UI.
+     */
+    @Composable
+    private fun HeadlessNotificationInstall(mode: ExternalOpenMode, uri: Uri) {
+        val context = LocalContext.current
+        LaunchedEffect(uri) {
+            runCatching { parseAndPush(context, uri) }.onFailure { e ->
+                Timber.e(e, "Headless parse failed for $uri")
+                finish()
+                return@LaunchedEffect
+            }
+
+            val apkInfo = withTimeoutOrNull(PARSE_TIMEOUT_MS) {
+                viewModel.uiState.map { it.pendingApkInfo }.filterNotNull().first()
+            }
+            if (apkInfo == null) {
+                Timber.w("Headless parse produced nothing — falling back to the dialog")
+                skipInitialParse = true
+                fallbackToDialog()
+                return@LaunchedEffect
+            }
+
+            // Auto mode installs without asking, but not past a risk the user has never seen.
+            // A downgrade or a signature mismatch still gets the prompt.
+            val risks = detectInstallRisks(apkInfo)
+            if (mode == ExternalOpenMode.AutoNotification && risks.isEmpty()) {
+                installFromNotificationAction()
+                return@LaunchedEffect
+            }
+
+            val entry = viewModel.stashPendingInstall()
+            if (entry == null || !promptNotifier.prompt(entry)) {
+                // Notifications are off, or there was nothing to stash. Either way the user must
+                // still be able to answer, so show the dialog rather than dropping the install.
+                entry?.let { viewModel.restorePendingInstall(it) }
+                entry?.let { PendingInstallStore.consume(it.id) }
+                skipInitialParse = entry != null
+                fallbackToDialog()
+                return@LaunchedEffect
+            }
+            finish()
+        }
+    }
+
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.wrap(newBase))
     }
@@ -154,7 +283,31 @@ class DialogInstallActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         maybeRequestNotificationPermission()
 
-        val incomingUris = collectIncomingUris(intent)
+        // Arriving from an install-prompt notification: the package was parsed by an earlier
+        // instance of this activity, so there is no intent URI to read — the parse is in the
+        // store. Handled before the URI check for exactly that reason.
+        val pendingId = intent.getStringExtra(EXTRA_PENDING_ID)
+        var restoredEntry: PendingInstallStore.Entry? = null
+        if (pendingId != null) {
+            val entry = PendingInstallStore.consume(pendingId)
+            promptNotifier.cancel(pendingId)
+            if (entry == null) {
+                // The process died while the prompt sat in the shade, taking the parse with it.
+                // Nothing installable is left, so don't pretend otherwise.
+                Timber.w("Install prompt $pendingId is stale — parse no longer in memory")
+                finish()
+                return
+            }
+            viewModel.restorePendingInstall(entry)
+            if (!intent.getBooleanExtra(EXTRA_PENDING_SHOW_UI, false)) {
+                installFromNotificationAction()
+                return
+            }
+            restoredEntry = entry
+        }
+
+        val incomingUris = restoredEntry?.let { listOf(it.apkUris.first()) }
+            ?: collectIncomingUris(intent)
         if (incomingUris.isEmpty()) {
             Timber.w("DialogInstallActivity launched without any content URIs — bailing")
             finish()
@@ -177,8 +330,21 @@ class DialogInstallActivity : ComponentActivity() {
 
         // Start in Loading stage
         viewModel.dialogStartLoading()
+        skipInitialParse = restoredEntry != null
 
         setContent {
+            // Nothing is drawn until the mode is known, so the notification modes never flash a
+            // dialog. The window is translucent and empty in the meantime.
+            val mode by produceState<ExternalOpenMode?>(null) { value = readExternalOpenMode() }
+            val forcedToDialog by forceDialogUi.collectAsState()
+            val resolvedMode = mode
+            if (resolvedMode == null && !forcedToDialog) return@setContent
+            // A restored parse already means the user asked to see the dialog.
+            if (!forcedToDialog && restoredEntry == null && resolvedMode != ExternalOpenMode.Dialog) {
+                HeadlessNotificationInstall(resolvedMode!!, incomingUri)
+                return@setContent
+            }
+
             val uiState by viewModel.uiState.collectAsState()
             val resource = LocalResources.current
             val context = LocalContext.current
@@ -197,6 +363,7 @@ class DialogInstallActivity : ComponentActivity() {
             // Dispatch parsing once. Keyed on the URI so a config-change recomposition
             // doesn't re-parse — the VM's pendingApkInfo state survives the recomposition.
             LaunchedEffect(incomingUri) {
+                if (skipInitialParse) return@LaunchedEffect
                 runCatching { parseAndPush(context, incomingUri) }.onFailure { e ->
                     Timber.e(e, "Parse failed for $incomingUri")
                     Toast.makeText(

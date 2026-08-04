@@ -550,6 +550,63 @@ class InstallViewModel(
         }
     }
 
+    /**
+     * Move the finished parse into [PendingInstallStore] and clear it from this ViewModel.
+     *
+     * Used by the notification install modes: the activity that received the file-open intent
+     * finishes immediately, so the parse has to outlive it somewhere. Everything stashed is
+     * either app-private cache (the APK copies, the cached icon) or plain metadata, so it stays
+     * readable with no URI grant.
+     *
+     * @return null when there is nothing parsed to stash, which the caller must treat as "fall
+     *   back to the dialog" rather than "nothing to do".
+     */
+    suspend fun stashPendingInstall(): PendingInstallStore.Entry? {
+        val apkInfo = _pendingApkInfo.value ?: return null
+        val uris = if (apkInfo.splitEntries.isNotEmpty()) {
+            apkInfo.splitEntries.filter { it.selected }.map { it.uri }
+        } else {
+            pendingApkUris
+        }
+        if (uris.isNullOrEmpty()) return null
+        val fileName = pendingFileName ?: return null
+
+        val entry = PendingInstallStore.put(
+            apkUris = uris,
+            originalUri = pendingOriginalUri,
+            fileName = fileName,
+            packageName = apkInfo.packageName,
+            appName = apkInfo.appName.ifBlank { fileName },
+            iconPath = cacheIcon(apkInfo),
+            obbEntries = pendingObbEntries,
+            attachedObbs = _attachedObbFiles.value,
+            isDowngrade = isDowngrade(apkInfo),
+            apkInfo = apkInfo,
+        )
+
+        _pendingApkInfo.value = null
+        pendingApkUris = null
+        pendingFileName = null
+        pendingOriginalUri = null
+        pendingObbEntries = emptyList()
+        _attachedObbFiles.value = emptyList()
+        return entry
+    }
+
+    /**
+     * Put a stashed parse back so [confirmInstall] — and the dialog, if it is being shown — see
+     * exactly the state that produced the notification. No re-parse, so split selection and OBB
+     * members survive.
+     */
+    fun restorePendingInstall(entry: PendingInstallStore.Entry) {
+        _pendingApkInfo.value = entry.apkInfo
+        pendingApkUris = entry.apkUris
+        pendingFileName = entry.fileName
+        pendingOriginalUri = entry.originalUri
+        pendingObbEntries = entry.obbEntries
+        _attachedObbFiles.value = entry.attachedObbs
+    }
+
     private fun applyProfileToController(
         controller: BaseInstallController,
         profile: InstallerProfile?,

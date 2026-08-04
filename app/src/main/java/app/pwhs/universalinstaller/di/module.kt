@@ -87,6 +87,7 @@ val appModule = module {
     single { VirusTotalNotifier(get()) }
     single { PackageDownloadService(get()) }
     single { InstallProgressNotifier(get(), get(), get()) }
+    single { app.pwhs.universalinstaller.presentation.install.InstallPromptNotifier(get()) }
 
     viewModel {
         InstallViewModel(

@@ -96,6 +96,18 @@
     <string name="cancel">Cancel</string>
     <string name="fab_install">Install Package</string>
     <string name="uninstall">Uninstall</string>
+    <!-- Install mode / confirm-from-notification -->
+    <string name="install_prompt_channel_name">Install confirmation</string>
+    <string name="install_prompt_channel_desc">Asks whether to install a package you opened, without covering the app you opened it from.</string>
+    <string name="install_prompt_notif_text">Ready to install. Tap to review, or install straight away.</string>
+    <string name="install_prompt_notif_downgrade">This replaces a newer version with an older one. Tap to review before installing.</string>
+    <string name="setting_external_open_title">When another app opens a package</string>
+    <string name="setting_external_open_dialog">Dialog</string>
+    <string name="setting_external_open_dialog_sub">Show the install dialog over the app you opened it from.</string>
+    <string name="setting_external_open_notification">Notification</string>
+    <string name="setting_external_open_notification_sub">Ask in a notification instead — nothing covers the other app.</string>
+    <string name="setting_external_open_auto_notification">Notification, install right away</string>
+    <string name="setting_external_open_auto_notification_sub">Install without asking and report it in a notification. Risky packages still ask first.</string>
     <string name="uninstall_notif_channel_name">Uninstall progress</string>
     <string name="uninstall_notif_channel_description">Shows progress while apps are being uninstalled</string>
     <string name="uninstall_notif_single_title">Uninstalling…</string>

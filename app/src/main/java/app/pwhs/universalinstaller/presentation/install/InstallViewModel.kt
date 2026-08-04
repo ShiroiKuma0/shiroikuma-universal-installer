@@ -563,19 +563,37 @@ class InstallViewModel(
      */
     suspend fun stashPendingInstall(): PendingInstallStore.Entry? {
         val apkInfo = _pendingApkInfo.value ?: return null
-        val uris = if (apkInfo.splitEntries.isNotEmpty()) {
-            apkInfo.splitEntries.filter { it.selected }.map { it.uri }
-        } else {
-            pendingApkUris
-        }
-        if (uris.isNullOrEmpty()) return null
+        val splits = apkInfo.splitEntries
         val fileName = pendingFileName ?: return null
 
-        // Copy now, while the grant is still alive. What the parse leaves in pendingApkUris is
-        // the caller's own URI for a plain APK (only archives get extracted into our cache), and
-        // that URI dies with this activity — installing from it later fails with
-        // "Permission Denial: opening provider <their>.FileProvider ... not exported".
-        val installableUris = copyForLaterInstall(uris) ?: return null
+        // Copy now, while the grant is still alive. What the parse leaves behind is the caller's
+        // own URI for a plain APK (only archives get extracted into our cache), and that URI dies
+        // with this activity — installing from it later fails with "Permission Denial: opening
+        // provider <their>.FileProvider ... not exported".
+        //
+        // Every split is staged, not just the selected ones, because opening the dialog from the
+        // notification lets the selection change afterwards; an unselected split left pointing at
+        // the dead source would fail the moment it was ticked.
+        val sourceUris = if (splits.isNotEmpty()) splits.map { it.uri } else pendingApkUris
+        if (sourceUris.isNullOrEmpty()) return null
+        val stagedUris = copyForLaterInstall(sourceUris) ?: return null
+
+        // Rewrite the parse to point at the copies. [confirmInstall] reads the URIs off
+        // apkInfo.splitEntries whenever there are any, and only falls back to pendingApkUris
+        // otherwise — so staging without this rewrite installs from the dead source anyway.
+        val stagedInfo = if (splits.isNotEmpty()) {
+            apkInfo.copy(
+                splitEntries = splits.mapIndexed { index, entry -> entry.copy(uri = stagedUris[index]) },
+            )
+        } else {
+            apkInfo
+        }
+        val installableUris = if (splits.isNotEmpty()) {
+            stagedInfo.splitEntries.filter { it.selected }.map { it.uri }
+        } else {
+            stagedUris
+        }
+        if (installableUris.isEmpty()) return null
 
         val entry = PendingInstallStore.put(
             apkUris = installableUris,
@@ -587,7 +605,7 @@ class InstallViewModel(
             obbEntries = pendingObbEntries,
             attachedObbs = _attachedObbFiles.value,
             isDowngrade = isDowngrade(apkInfo),
-            apkInfo = apkInfo,
+            apkInfo = stagedInfo,
         )
 
         _pendingApkInfo.value = null

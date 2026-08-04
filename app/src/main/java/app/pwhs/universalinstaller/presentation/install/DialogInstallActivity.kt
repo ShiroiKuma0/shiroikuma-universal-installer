@@ -291,12 +291,14 @@ class DialogInstallActivity : ComponentActivity() {
                 return@LaunchedEffect
             }
 
-            val entry = viewModel.stashPendingInstall()
+            // Checked before stashing: a prompt that cannot be posted would strand the install
+            // with nothing on screen, and the dialog is the only fallback left.
+            val entry = if (promptNotifier.canPost()) viewModel.stashPendingInstall() else null
             if (entry == null || !promptNotifier.prompt(entry)) {
-                // Notifications are off, or there was nothing to stash. Either way the user must
-                // still be able to answer, so show the dialog rather than dropping the install.
-                entry?.let { viewModel.restorePendingInstall(it) }
-                entry?.let { PendingInstallStore.consume(it.id) }
+                entry?.let {
+                    viewModel.restorePendingInstall(it)
+                    PendingInstallStore.consume(it.id)
+                }
                 skipInitialParse = entry != null
                 fallbackToDialog()
                 return@LaunchedEffect

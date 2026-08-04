@@ -94,6 +94,18 @@ class InstallPromptNotifier(
         }
     }
 
+    /**
+     * Whether a prompt can be posted at all. Checked before the caller commits to the headless
+     * path, since after that there is no window left to fall back to.
+     */
+    fun canPost(): Boolean {
+        if (!nm.areNotificationsEnabled()) return false
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
+        return ContextCompat.checkSelfPermission(
+            context, Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
     fun cancel(pendingId: String) = nm.cancel(notificationId(pendingId))
 
     /** Stable id per pending install so two queued prompts don't collapse into one. */
@@ -138,14 +150,6 @@ class InstallPromptNotifier(
         )
     }
 
-    private fun canPost(): Boolean {
-        if (!nm.areNotificationsEnabled()) return false
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
-        return ContextCompat.checkSelfPermission(
-            context, Manifest.permission.POST_NOTIFICATIONS,
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
     private fun ensureChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val channel = NotificationChannel(
@@ -167,5 +171,6 @@ class InstallPromptNotifier(
          */
         const val CHANNEL_ID = "install_prompt_v2"
         const val NOTIF_ID_BASE = 43000
+
     }
 }

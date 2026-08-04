@@ -108,6 +108,10 @@
     <string name="setting_external_open_notification_sub">Ask in a notification instead — nothing covers the other app.</string>
     <string name="setting_external_open_auto_notification">Notification, install right away</string>
     <string name="setting_external_open_auto_notification_sub">Install without asking and report it in a notification. Risky packages still ask first.</string>
+    <string name="setting_install_ui_style_title">Install UI style</string>
+    <string name="setting_install_ui_style_dialog">Dialog</string>
+    <string name="setting_install_ui_style_sheet">Bottom sheet</string>
+    <string name="setting_install_ui_style_sub">Where the install card sits — floating in the middle, or anchored at the bottom within thumb reach.</string>
     <string name="uninstall_notif_channel_name">Uninstall progress</string>
     <string name="uninstall_notif_channel_description">Shows progress while apps are being uninstalled</string>
     <string name="uninstall_notif_single_title">Uninstalling…</string>

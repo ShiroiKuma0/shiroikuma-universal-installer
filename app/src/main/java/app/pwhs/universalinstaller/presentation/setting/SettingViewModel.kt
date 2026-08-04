@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
+import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.domain.manager.ProfileManager
 import rikka.shizuku.Shizuku
@@ -74,6 +75,13 @@ object PreferencesKeys {
      * missing / unknown reads back as Dialog, which is the behaviour that predates the setting.
      */
     val EXTERNAL_OPEN_MODE = stringPreferencesKey("external_open_mode")
+
+    /**
+     * Dialog or bottom sheet for the install UI. Values are
+     * [app.pwhs.universalinstaller.domain.model.InstallUiStyle.value]; missing reads back as
+     * Dialog, the style that predates the setting.
+     */
+    val INSTALL_UI_STYLE = stringPreferencesKey("install_ui_style")
 
     /**
      * Per-package installer-source overrides. Stored as one entry per line
@@ -525,6 +533,16 @@ class SettingViewModel(
     val externalOpenMode: StateFlow<ExternalOpenMode> = dataStore.data
         .map { ExternalOpenMode.from(it[PreferencesKeys.EXTERNAL_OPEN_MODE]) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExternalOpenMode.Dialog)
+
+    val installUiStyle: StateFlow<InstallUiStyle> = dataStore.data
+        .map { InstallUiStyle.from(it[PreferencesKeys.INSTALL_UI_STYLE]) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InstallUiStyle.Dialog)
+
+    fun setInstallUiStyle(style: InstallUiStyle) {
+        viewModelScope.launch {
+            dataStore.edit { prefs -> prefs[PreferencesKeys.INSTALL_UI_STYLE] = style.value }
+        }
+    }
 
     fun setExternalOpenMode(mode: ExternalOpenMode) {
         viewModelScope.launch {

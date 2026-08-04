@@ -83,6 +83,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
+import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.universalinstaller.presentation.composable.UniversalSearchBar
@@ -105,6 +106,7 @@ fun SettingScreen(
     val blacklist by viewModel.blacklist.collectAsState()
     val securityLevel by viewModel.securityLevel.collectAsState()
     val externalOpenMode by viewModel.externalOpenMode.collectAsState()
+    val installUiStyle by viewModel.installUiStyle.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     // Dhizuku can be granted or revoked in its own app while we are backgrounded.
@@ -127,6 +129,8 @@ fun SettingScreen(
         securityLevel = securityLevel,
         externalOpenMode = externalOpenMode,
         onExternalOpenModeChanged = viewModel::setExternalOpenMode,
+        installUiStyle = installUiStyle,
+        onInstallUiStyleChanged = viewModel::setInstallUiStyle,
         onSecurityLevelChanged = viewModel::setSecurityLevel,
         onShizukuOptionChanged = viewModel::setShizukuOption,
         dhizukuState = dhizukuState,
@@ -180,6 +184,8 @@ private fun SettingUi(
     securityLevel: SecurityLevel = SecurityLevel.Normal,
     externalOpenMode: ExternalOpenMode = ExternalOpenMode.Dialog,
     onExternalOpenModeChanged: (ExternalOpenMode) -> Unit = {},
+    installUiStyle: InstallUiStyle = InstallUiStyle.Dialog,
+    onInstallUiStyleChanged: (InstallUiStyle) -> Unit = {},
     onSecurityLevelChanged: (SecurityLevel) -> Unit = {},
     onShizukuOptionChanged: (Preferences.Key<Boolean>, Boolean) -> Unit = { _, _ -> },
     onReplayTutorial: () -> Unit = {},
@@ -404,6 +410,12 @@ private fun SettingUi(
                                 subtitle = stringResource(R.string.setting_auto_confirm_subtitle),
                                 checked = uiState.autoConfirmExternalInstall,
                                 onCheckedChange = onAutoConfirmExternalInstallChanged,
+                            )
+                        }
+                        SearchableItem(q, stringResource(R.string.setting_install_ui_style_title), stringResource(R.string.setting_install_ui_style_sub)) {
+                            InstallUiStyleSelector(
+                                current = installUiStyle,
+                                onChange = onInstallUiStyleChanged,
                             )
                         }
                         SearchableItem(q, stringResource(R.string.setting_external_open_title), stringResource(R.string.setting_external_open_notification_sub)) {
@@ -1108,5 +1120,46 @@ private fun ExternalOpenModeSelector(
                 }
             }
         }
+    }
+}
+
+
+/**
+ * Dialog or bottom sheet. A segmented control, matching the security-level picker — two options
+ * whose labels say everything, unlike the external-open modes which need a line of warning each.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InstallUiStyleSelector(
+    current: InstallUiStyle,
+    onChange: (InstallUiStyle) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Text(
+            text = stringResource(R.string.setting_install_ui_style_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        val options = listOf(
+            InstallUiStyle.Dialog to R.string.setting_install_ui_style_dialog,
+            InstallUiStyle.Sheet to R.string.setting_install_ui_style_sheet,
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            options.forEachIndexed { index, (style, labelRes) ->
+                SegmentedButton(
+                    selected = style == current,
+                    onClick = { if (style != current) onChange(style) },
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    label = { Text(stringResource(labelRes)) },
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.setting_install_ui_style_sub),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }

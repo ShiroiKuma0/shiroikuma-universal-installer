@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -37,6 +38,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -76,6 +78,7 @@ import androidx.compose.ui.window.DialogProperties
 import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
+import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.core.data.local.dataStore
@@ -150,6 +153,9 @@ class DialogInstallActivity : ComponentActivity() {
 
         /** Headless parse budget. Exceeding it falls back to the dialog rather than hanging. */
         private const val PARSE_TIMEOUT_MS = 30_000L
+
+        /** Rounded at the top only — the bottom edge runs off the screen. */
+        private val SHEET_SHAPE = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     }
 
     // POST_NOTIFICATIONS gates the background-install notification on Android 13+. We ask
@@ -169,6 +175,27 @@ class DialogInstallActivity : ComponentActivity() {
 
     /** Track whether system took us to a confirmation activity. */
     private var wentToSystemConfirm = false
+
+    /**
+     * Slides the sheet up on first composition. The dialog style is left untouched — it already
+     * arrives with the activity's own window animation, and a second one on top reads as a stutter.
+     */
+    @Composable
+    private fun SheetEntryAnimation(enabled: Boolean, content: @Composable () -> Unit) {
+        if (!enabled) {
+            content()
+            return
+        }
+        var visible by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) { visible = true }
+        AnimatedVisibility(
+            visible = visible,
+            enter = slideInVertically { it } + fadeIn(),
+            exit = slideOutVertically { it } + fadeOut(),
+        ) {
+            content()
+        }
+    }
 
     /**
      * True when the parse was restored from [PendingInstallStore] instead of read from the
@@ -220,6 +247,10 @@ class DialogInstallActivity : ComponentActivity() {
             finish()
         }
     }
+
+    private suspend fun readInstallUiStyle(): InstallUiStyle = runCatching {
+        InstallUiStyle.from(dataStore.data.first()[PreferencesKeys.INSTALL_UI_STYLE])
+    }.getOrDefault(InstallUiStyle.Dialog)
 
     private suspend fun readExternalOpenMode(): ExternalOpenMode = runCatching {
         ExternalOpenMode.from(dataStore.data.first()[PreferencesKeys.EXTERNAL_OPEN_MODE])
@@ -337,6 +368,7 @@ class DialogInstallActivity : ComponentActivity() {
             // dialog. The window is translucent and empty in the meantime.
             val mode by produceState<ExternalOpenMode?>(null) { value = readExternalOpenMode() }
             val forcedToDialog by forceDialogUi.collectAsState()
+            val uiStyle by produceState(InstallUiStyle.Dialog) { value = readInstallUiStyle() }
             val resolvedMode = mode
             if (resolvedMode == null && !forcedToDialog) return@setContent
             // A restored parse already means the user asked to see the dialog.
@@ -532,6 +564,9 @@ class DialogInstallActivity : ComponentActivity() {
                     )
                 }
 
+                // Dialog and sheet differ only in where the same card sits and what shape it
+                // takes. The stage content below is identical for both — see [InstallUiStyle].
+                val isSheet = uiStyle == InstallUiStyle.Sheet
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -544,17 +579,24 @@ class DialogInstallActivity : ComponentActivity() {
                                 finish()
                             })
                         },
-                    contentAlignment = Alignment.Center
+                    contentAlignment = if (isSheet) Alignment.BottomCenter else Alignment.Center
                 ) {
+                  SheetEntryAnimation(enabled = isSheet) {
                     Surface(
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .widthIn(max = 480.dp)
-                            .heightIn(max = maxDialogHeight)
+                        modifier = (if (isSheet) {
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = screenHeight * 0.9f)
+                        } else {
+                            Modifier
+                                .padding(24.dp)
+                                .widthIn(max = 480.dp)
+                                .heightIn(max = maxDialogHeight)
+                        })
                             .pointerInput(Unit) {
                                 detectTapGestures(onTap = { /* consume clicks */ })
                             },
-                        shape = AlertDialogDefaults.shape,
+                        shape = if (isSheet) SHEET_SHAPE else AlertDialogDefaults.shape,
                         color = AlertDialogDefaults.containerColor,
                         tonalElevation = AlertDialogDefaults.TonalElevation,
                         shadowElevation = 12.dp,
@@ -639,6 +681,7 @@ class DialogInstallActivity : ComponentActivity() {
                             centerButton = dialogInnerWidget(params.buttons)
                         )
                     }
+                  }
                 }
             }
         }

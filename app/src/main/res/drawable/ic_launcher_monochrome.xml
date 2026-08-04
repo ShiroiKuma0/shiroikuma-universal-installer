@@ -4,18 +4,26 @@
     android:viewportWidth="512"
     android:viewportHeight="512">
   <!-- Monochrome (themed icon): same arrow + tray outline; the system tints it. -->
-  <path
-      android:pathData="M212,92 L300,92 L300,214 L372,214 L256,298 L140,214 L212,214 Z"
-      android:fillColor="#00000000"
-      android:strokeColor="#000000"
-      android:strokeWidth="16"
-      android:strokeLineJoin="round"
-      android:strokeLineCap="round" />
-  <path
-      android:pathData="M116,328 L116,382 Q116,426 160,426 L352,426 Q396,426 396,382 L396,328"
-      android:fillColor="#00000000"
-      android:strokeColor="#000000"
-      android:strokeWidth="16"
-      android:strokeLineJoin="round"
-      android:strokeLineCap="round" />
+  <!-- Whole glyph scaled to 85.74% about the icon centre (three 5% shrinks);
+       scales the strokes with it. -->
+  <group
+      android:pivotX="256"
+      android:pivotY="256"
+      android:scaleX="0.857375"
+      android:scaleY="0.857375">
+    <path
+        android:pathData="M212,92 L300,92 L300,214 L372,214 L256,298 L140,214 L212,214 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M116,328 L116,382 Q116,426 160,426 L352,426 Q396,426 396,382 L396,328"
+        android:fillColor="#00000000"
+        android:strokeColor="#000000"
+        android:strokeWidth="16"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round" />
+  </group>
 </vector>

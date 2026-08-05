@@ -389,3 +389,92 @@ fun DialogFailedContent(
         }
     }
 }
+
+/**
+ * A problem that stopped the install before it started: the file could not be read, it is not a
+ * package, or the permission to install is missing.
+ *
+ * Separate from [DialogFailedContent], which reports an install session that ran and failed. The
+ * distinction matters to the person reading it — "we never got your file" and "Android refused
+ * the install" call for different actions, and the old code collapsed both into one message (or,
+ * for read and parse errors, into a toast and a vanished dialog).
+ */
+@Composable
+fun DialogProblemContent(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    explanation: String,
+    detail: String? = null,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    onClose: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(56.dp),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = explanation,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+
+        // The raw cause, kept out of the main sentence: useful when reporting a bug, noise
+        // otherwise. Scrollable because provider exceptions run long.
+        if (!detail.isNullOrBlank()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 120.dp)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                Text(
+                    text = detail,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        if (onAction != null && actionLabel != null) {
+            Button(onClick = onAction, modifier = Modifier.fillMaxWidth()) {
+                Text(actionLabel)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            androidx.compose.material3.OutlinedButton(
+                onClick = onClose,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.dialog_failed_close))
+            }
+        } else {
+            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.dialog_failed_close))
+            }
+        }
+    }
+}

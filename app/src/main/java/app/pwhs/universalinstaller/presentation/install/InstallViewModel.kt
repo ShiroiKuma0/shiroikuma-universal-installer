@@ -300,6 +300,15 @@ class InstallViewModel(
     /** Install failed. */
     fun dialogInstallFailed(error: String) { _dialogStage.value = DialogStage.Failed(error) }
 
+    /** The source could not be read — see [DialogStage.ReadFailed]. */
+    fun dialogReadFailed(reason: String) { _dialogStage.value = DialogStage.ReadFailed(reason) }
+
+    /** The source is not an installable package — see [DialogStage.ParseFailed]. */
+    fun dialogParseFailed(reason: String) { _dialogStage.value = DialogStage.ParseFailed(reason) }
+
+    /** Install-from-unknown-sources is missing — see [DialogStage.PermissionRequired]. */
+    fun dialogPermissionRequired() { _dialogStage.value = DialogStage.PermissionRequired }
+
     /** Close dialog entirely. */
     fun dialogClose() { _dialogStage.value = DialogStage.None }
 

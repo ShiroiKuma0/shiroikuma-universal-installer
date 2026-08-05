@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.activity.ComponentActivity
@@ -85,6 +86,7 @@ import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.util.PermissionMonitor
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogFailedContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallingContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogMenuContent
@@ -108,6 +110,8 @@ import ru.solrudev.ackpine.splits.ApkSplits.validate
 import ru.solrudev.ackpine.splits.SplitPackage.Companion.toSplitPackage
 import ru.solrudev.ackpine.splits.ZippedApkSplits
 import timber.log.Timber
+import java.io.FileNotFoundException
+import java.io.IOException
 import app.pwhs.core.domain.ThemeMode
 import app.pwhs.core.domain.AppThemePreset
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -165,8 +169,8 @@ class DialogInstallActivity : ComponentActivity() {
          */
         private const val LOG = "NotifInstall"
 
-        /** Rounded at the top only — the bottom edge runs off the screen. */
-        private val SHEET_SHAPE = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        /** All four corners: the sheet floats inside the window rather than meeting its edge. */
+        private val FLOATING_SHEET_SHAPE = RoundedCornerShape(28.dp)
     }
 
     // POST_NOTIFICATIONS gates the background-install notification on Android 13+. We ask
@@ -188,6 +192,36 @@ class DialogInstallActivity : ComponentActivity() {
     private var wentToSystemConfirm = false
 
     /**
+     * Decide which of the two failures the user is looking at.
+     *
+     * A SecurityException or a missing file means the bytes never arrived — the sending app's
+     * grant expired, or the file moved. Anything else got past reading and fell over on the
+     * package itself. Blaming the package for the first case is what the old single message did.
+     */
+    private fun reportParseProblem(cause: Throwable) {
+        val unreadable = cause is SecurityException ||
+            cause is FileNotFoundException ||
+            cause is IOException
+        val detail = cause.message.orEmpty()
+        if (unreadable) viewModel.dialogReadFailed(detail) else viewModel.dialogParseFailed(detail)
+    }
+
+    /** Whether Android will let us install at all. False means the install would fail instantly. */
+    private fun canInstallPackages(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+            packageManager.canRequestPackageInstalls()
+
+    private fun openInstallPermissionSettings() {
+        PermissionMonitor.start(this) { packageManager.canRequestPackageInstalls() }
+        startActivity(
+            Intent(
+                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:$packageName"),
+            )
+        )
+    }
+
+    /**
      * The parts that make a sheet a sheet rather than a lowered dialog: a drag handle to grab, and
      * content kept clear of the gesture bar so the action row is not sitting on the system inset.
      *
@@ -204,7 +238,6 @@ class DialogInstallActivity : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .navigationBarsPadding()
                 .padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -449,12 +482,10 @@ class DialogInstallActivity : ComponentActivity() {
                 if (skipInitialParse) return@LaunchedEffect
                 runCatching { parseAndPush(context, incomingUri) }.onFailure { e ->
                     Timber.e(e, "Parse failed for $incomingUri")
-                    Toast.makeText(
-                        context,
-                        resource.getString(R.string.install_unsupported_file),
-                        Toast.LENGTH_LONG,
-                    ).show()
-                    finish()
+                    // Was a toast and finish(): the dialog vanished and the user was told
+                    // "unsupported file" even when the real problem was that we never got to
+                    // read it. Show which of the two it was, and stay on screen to say so.
+                    reportParseProblem(e)
                 }
             }
 
@@ -515,10 +546,13 @@ class DialogInstallActivity : ComponentActivity() {
             val handleInstallTap = {
                 val info = uiState.pendingApkInfo
                 val risks = if (info != null) detectInstallRisks(info, strictVirusTotalCheck) else emptyList()
-                if (risks.isNotEmpty()) {
-                    pendingRisks = risks
-                } else {
-                    proceedInstall()
+                when {
+                    // Checked before anything else: without this the install starts, fails
+                    // somewhere inside the system installer, and the failure gets reported as if
+                    // the package were at fault.
+                    !canInstallPackages() -> viewModel.dialogPermissionRequired()
+                    risks.isNotEmpty() -> pendingRisks = risks
+                    else -> proceedInstall()
                 }
             }
 
@@ -635,8 +669,14 @@ class DialogInstallActivity : ComponentActivity() {
                   SheetEntryAnimation(enabled = isSheet) {
                     Surface(
                         modifier = (if (isSheet) {
+                            // Floating rather than flush: inset from the edges and rounded on all
+                            // four corners, the way InstallerX Revived's miuix sheet sits. A sheet
+                            // glued to the bottom edge leaves two square corners against the
+                            // gesture bar, which is what prompted this.
                             Modifier
                                 .fillMaxWidth()
+                                .navigationBarsPadding()
+                                .padding(horizontal = 12.dp, vertical = 12.dp)
                                 .heightIn(max = screenHeight * 0.9f)
                         } else {
                             Modifier
@@ -650,7 +690,7 @@ class DialogInstallActivity : ComponentActivity() {
                         // A sheet is attached to the edge, not floating over the screen: it takes
                         // the sheet container colour and no drop shadow. Lowering a dialog card to
                         // the bottom without this still reads as a dialog.
-                        shape = if (isSheet) BottomSheetDefaults.ExpandedShape else AlertDialogDefaults.shape,
+                        shape = if (isSheet) FLOATING_SHEET_SHAPE else AlertDialogDefaults.shape,
                         color = if (isSheet) BottomSheetDefaults.ContainerColor else AlertDialogDefaults.containerColor,
                         tonalElevation = if (isSheet) BottomSheetDefaults.Elevation else AlertDialogDefaults.TonalElevation,
                         shadowElevation = if (isSheet) 0.dp else 12.dp,
@@ -671,6 +711,7 @@ class DialogInstallActivity : ComponentActivity() {
                             onMenu = viewModel::dialogShowMenu,
                             onUnblock = viewModel::unblockPackage,
                             onMenuBack = viewModel::dialogBackToPrepare,
+                            onGrantInstallPermission = { openInstallPermissionSettings() },
                             onCheckVirusTotal = {
                                 viewModel.scanVirusTotal(this@DialogInstallActivity)
                             },
@@ -769,11 +810,7 @@ class DialogInstallActivity : ComponentActivity() {
         lifecycleScope.launch {
             runCatching { parseAndPush(context, uri) }.onFailure { e ->
                 Timber.e(e, "Parse failed for new intent $uri")
-                Toast.makeText(
-                    context,
-                    getString(R.string.install_unsupported_file),
-                    Toast.LENGTH_LONG,
-                ).show()
+                reportParseProblem(e)
             }
         }
     }

@@ -29,6 +29,25 @@ sealed interface DialogStage {
     /** Install failed — show error + retry/close buttons. */
     data class Failed(val errorMessage: String = "") : DialogStage
 
+    /**
+     * The file could not be read at all: the grant died, it was moved, or the source app's
+     * provider refused us. Distinct from [ParseFailed] because the fix is different — nothing
+     * about the package is wrong, we just never got its bytes.
+     */
+    data class ReadFailed(val reason: String = "") : DialogStage
+
+    /**
+     * The bytes arrived but are not an installable package — wrong format, truncated download,
+     * an archive with no APK inside.
+     */
+    data class ParseFailed(val reason: String = "") : DialogStage
+
+    /**
+     * Installing from unknown sources is not granted, so the install would fail the moment it
+     * started. Asks for the permission instead of failing and blaming the package.
+     */
+    data object PermissionRequired : DialogStage
+
     /** No dialog should be shown. */
     data object None : DialogStage
 }

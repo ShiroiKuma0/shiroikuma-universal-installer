@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.res.stringResource
 import app.pwhs.universalinstaller.R
+import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.Security
 import app.pwhs.universalinstaller.presentation.install.AttachedObb
 import app.pwhs.universalinstaller.presentation.install.DialogStage
 import app.pwhs.universalinstaller.presentation.install.DialogTarget
@@ -54,6 +56,7 @@ fun generateDialogParams(
     onSelectUserId: (Int?) -> Unit,
     onSkipParse: (() -> Unit)? = null,
     onFallbackInstall: (() -> Unit)? = null,
+    onGrantInstallPermission: () -> Unit = {},
 ): DialogParams {
     return when (val stage = uiState.dialogStage) {
         DialogStage.Loading -> {
@@ -226,6 +229,43 @@ fun generateDialogParams(
                 )
             }
         }
+
+        is DialogStage.ReadFailed -> DialogParams(
+            content = DialogInnerParams("read_failed") {
+                DialogProblemContent(
+                    icon = Icons.Rounded.ErrorOutline,
+                    title = stringResource(R.string.dialog_read_failed_title),
+                    explanation = stringResource(R.string.dialog_read_failed_text),
+                    detail = stage.reason,
+                    onClose = onCloseAfterResult,
+                )
+            }
+        )
+
+        is DialogStage.ParseFailed -> DialogParams(
+            content = DialogInnerParams("parse_failed") {
+                DialogProblemContent(
+                    icon = Icons.Rounded.ErrorOutline,
+                    title = stringResource(R.string.dialog_parse_failed_title),
+                    explanation = stringResource(R.string.dialog_parse_failed_text),
+                    detail = stage.reason,
+                    onClose = onCloseAfterResult,
+                )
+            }
+        )
+
+        DialogStage.PermissionRequired -> DialogParams(
+            content = DialogInnerParams("permission_required") {
+                DialogProblemContent(
+                    icon = Icons.Rounded.Security,
+                    title = stringResource(R.string.dialog_permission_title),
+                    explanation = stringResource(R.string.dialog_permission_text),
+                    actionLabel = stringResource(R.string.dialog_permission_grant),
+                    onAction = onGrantInstallPermission,
+                    onClose = onCancel,
+                )
+            }
+        )
 
         DialogStage.None -> DialogParams()
     }

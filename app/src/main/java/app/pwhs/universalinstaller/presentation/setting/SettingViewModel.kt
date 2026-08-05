@@ -333,6 +333,18 @@ class SettingViewModel(
         if (backendFactory.rootSupportCompiledIn) RootState.UNKNOWN else RootState.UNAVAILABLE,
     )
 
+    /**
+     * Kept up here, with the rest of the state [init] touches, because it has to exist before the
+     * constructor reaches that block.
+     *
+     * It used to be declared 480 lines below, and `updateDefaultInstallerStatus()` — launched from
+     * init — assigned it from a coroutine. Property initializers run in declaration order, so the
+     * flow was still null whenever that coroutine won the race, and the process died with an NPE
+     * on a background thread. Physical devices hid it: resolveActivity's IPC took long enough for
+     * the constructor to finish first. An emulator returns fast enough to lose the race.
+     */
+    private val _isDefaultInstaller = MutableStateFlow(false)
+
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
         Timber.d("Shizuku binder received")
         updateShizukuState()
@@ -846,8 +858,6 @@ class SettingViewModel(
             }
         }
     }
-
-    private val _isDefaultInstaller = MutableStateFlow(false)
 
     /**
      * Toggles Universal Installer's DialogInstallActivity as the preferred handler for APK

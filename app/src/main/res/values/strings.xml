@@ -109,6 +109,11 @@
     <string name="install_prompt_channel_desc">Asks whether to install a package you opened, without covering the app you opened it from.</string>
     <string name="install_prompt_notif_text">Ready to install. Tap to review, or install straight away.</string>
     <string name="install_prompt_notif_downgrade">This replaces a newer version with an older one. Tap to review before installing.</string>
+    <string name="install_ui_screen_title">Install screen</string>
+    <string name="install_ui_entry_subtitle">How you are asked, and where the install card appears</string>
+    <string name="install_ui_card_group">The install card</string>
+    <string name="install_ui_main_screen_group">Main screen</string>
+    <string name="install_ui_auto_confirm_sub">Start installing as soon as the card appears, without waiting for you to tap Install</string>
     <string name="setting_external_open_title">When another app opens an APK</string>
     <string name="setting_external_open_dialog">Ask on screen</string>
     <string name="setting_external_open_dialog_sub">Show the install card over the app you opened it from.</string>

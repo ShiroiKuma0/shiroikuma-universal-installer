@@ -268,6 +268,11 @@
             android:exported="false"
             android:launchMode="singleTop" />
 
+        <activity
+            android:name=".presentation.setting.installui.InstallUiActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
         <!-- Answers the Cancel action on an install-prompt notification without opening a
              window. Reachable only through our own PendingIntents. -->
         <receiver

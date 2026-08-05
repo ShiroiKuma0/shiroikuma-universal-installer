@@ -44,6 +44,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.SettingsApplications
 import androidx.compose.material.icons.rounded.Terminal
+import androidx.compose.material.icons.rounded.Wallpaper
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -417,46 +418,32 @@ private fun SettingUi(
                             )
                         }
 
-                        // Auto-confirm moved up next to the external-open modes: it only applies
-                        // to APKs opened from another app, so it belongs to that question rather
-                        // than sitting among the after-install toggles it used to follow.
-                        if (q.isBlank()) OptionGroupHeader(stringResource(R.string.setting_external_open_title))
-                        SearchableItem(q, stringResource(R.string.setting_external_open_title), stringResource(R.string.setting_external_open_notification_sub)) {
-                            ExternalOpenModeSelector(
-                                current = externalOpenMode,
-                                onChange = onExternalOpenModeChanged,
-                            )
-                        }
-                        SearchableItem(q, stringResource(R.string.setting_auto_confirm_title), stringResource(R.string.setting_auto_confirm_subtitle)) {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_auto_confirm_title),
-                                subtitle = stringResource(R.string.setting_auto_confirm_subtitle),
-                                checked = uiState.autoConfirmExternalInstall,
-                                onCheckedChange = onAutoConfirmExternalInstallChanged,
-                            )
-                        }
-
-                        if (q.isBlank()) OptionGroupHeader(stringResource(R.string.setting_install_ui_style_title))
-                        SearchableItem(q, stringResource(R.string.setting_install_ui_style_title), stringResource(R.string.setting_install_ui_style_sub)) {
-                            InstallUiStyleSelector(
-                                current = installUiStyle,
-                                onChange = onInstallUiStyleChanged,
-                            )
-                        }
-
-                        // Divider only makes sense when the full (unfiltered) list shows.
-                        // Below it sit the two settings that belong to no group above — they
-                        // change what the rest of the system sees, not how a single install runs.
+                        // Everything about how the installer looks — the external-open modes, the
+                        // card position, auto-confirm, the Download tab — now lives on its own
+                        // screen. The keyword list keeps this row findable by what moved.
                         if (q.isBlank()) {
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
                         }
-
-                        SearchableItem(q, stringResource(R.string.setting_show_download_tab_title), stringResource(R.string.setting_show_download_tab_subtitle)) {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_show_download_tab_title),
-                                subtitle = stringResource(R.string.setting_show_download_tab_subtitle),
-                                checked = uiState.showDownloadTab,
-                                onCheckedChange = onShowDownloadTabChanged,
+                        SearchableItem(
+                            q,
+                            stringResource(R.string.install_ui_screen_title),
+                            "dialog notification bottom sheet position card download tab appearance",
+                        ) {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.install_ui_screen_title)) },
+                                supportingContent = { Text(stringResource(R.string.install_ui_entry_subtitle)) },
+                                leadingContent = {
+                                    Icon(Icons.Rounded.Wallpaper, null, tint = MaterialTheme.colorScheme.primary)
+                                },
+                                modifier = Modifier.clickable {
+                                    context.startActivity(
+                                        android.content.Intent(
+                                            context,
+                                            app.pwhs.universalinstaller.presentation.setting.installui.InstallUiActivity::class.java,
+                                        )
+                                    )
+                                },
+                                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                             )
                         }
                         SearchableItem(q, stringResource(R.string.setting_default_installer_title), stringResource(R.string.setting_default_installer_subtitle)) {
@@ -1097,170 +1084,7 @@ private fun SecurityLevelSelector(
 }
 
 
-/**
- * Dialog / Notification / Notification-and-install, for packages opened by another app.
- *
- * A list of radio rows rather than the segmented control used elsewhere: each option needs a line
- * of explanation, and "installs without asking" is not a choice to make from a two-word label.
- */
-@Composable
-private fun ExternalOpenModeSelector(
-    current: ExternalOpenMode,
-    onChange: (ExternalOpenMode) -> Unit,
-) {
-    // No title of its own: the group header above already reads "When another app opens an APK",
-    // and repeating it here was the second of the two headings this control used to carry.
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        listOf(
-            Triple(ExternalOpenMode.Dialog, R.string.setting_external_open_dialog, R.string.setting_external_open_dialog_sub),
-            Triple(ExternalOpenMode.Notification, R.string.setting_external_open_notification, R.string.setting_external_open_notification_sub),
-            Triple(ExternalOpenMode.AutoNotification, R.string.setting_external_open_auto_notification, R.string.setting_external_open_auto_notification_sub),
-        ).forEach { (mode, titleRes, subRes) ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { if (mode != current) onChange(mode) }
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.Top,
-            ) {
-                RadioButton(
-                    selected = mode == current,
-                    onClick = { if (mode != current) onChange(mode) },
-                )
-                Spacer(Modifier.width(8.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(titleRes), style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = stringResource(subRes),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-    }
-}
 
 
-/**
- * Where the install card sits: centered, or anchored at the bottom.
- *
- * Two thumbnails rather than the segmented control this used to be. The setting decides what the
- * install UI *looks like*, and "Dialog | Bottom sheet" asked the user to picture two Material
- * component names — the only way to find out was to pick one and install something. A drawn
- * mock-up answers the question at a glance, and drops the paragraph of prose that stood in for it.
- *
- * The card idiom (fixed-size tile, primary border and a check when selected) is the one
- * [app.pwhs.universalinstaller.presentation.setting.theme.ThemeScreen] already uses for its theme
- * presets, so the two visual pickers in Settings look like the same control.
- */
-@Composable
-private fun InstallUiStyleSelector(
-    current: InstallUiStyle,
-    onChange: (InstallUiStyle) -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        listOf(
-            InstallUiStyle.Dialog to R.string.setting_install_ui_style_dialog,
-            InstallUiStyle.Sheet to R.string.setting_install_ui_style_sheet,
-        ).forEach { (style, labelRes) ->
-            InstallUiStyleCard(
-                style = style,
-                label = stringResource(labelRes),
-                selected = style == current,
-                onClick = { if (style != current) onChange(style) },
-            )
-        }
-    }
-}
 
-/**
- * One thumbnail: a phone-shaped frame with a miniature install card drawn where the real one lands.
- */
-@Composable
-private fun InstallUiStyleCard(
-    style: InstallUiStyle,
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    val accent = MaterialTheme.colorScheme.primary
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Surface(
-            // selectable(), not clickable(): this is one of a set of mutually exclusive choices,
-            // and TalkBack should announce it as such rather than as a plain button.
-            modifier = Modifier
-                .size(width = 92.dp, height = 124.dp)
-                .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            border = BorderStroke(
-                width = if (selected) 2.dp else 1.dp,
-                color = if (selected) accent else MaterialTheme.colorScheme.outlineVariant,
-            ),
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(10.dp),
-                // The whole point of the thumbnail: the mini card sits where the real one will.
-                contentAlignment = if (style == InstallUiStyle.Sheet) {
-                    Alignment.BottomCenter
-                } else {
-                    Alignment.Center
-                },
-            ) {
-                Column(
-                    modifier = Modifier
-                        // A sheet spans the width; a centered card is inset on both sides.
-                        .fillMaxWidth(if (style == InstallUiStyle.Sheet) 1f else 0.82f)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(horizontal = 6.dp, vertical = 7.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    MiniCardLine(0.7f, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f))
-                    MiniCardLine(1f, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-                    Spacer(Modifier.height(1.dp))
-                    // Stands in for the Install button, in the accent color so the mock-up reads
-                    // as this app's card rather than a generic grey box.
-                    MiniCardLine(0.45f, accent, height = 6.dp)
-                }
-            }
-        }
-        Spacer(Modifier.height(6.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (selected) {
-                Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = null,
-                    tint = accent,
-                    modifier = Modifier.size(14.dp),
-                )
-                Spacer(Modifier.width(4.dp))
-            }
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (selected) accent else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
 
-/** A single bar inside the thumbnail, standing in for a line of text or a button. */
-@Composable
-private fun MiniCardLine(
-    widthFraction: Float,
-    color: Color,
-    height: Dp = 4.dp,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(widthFraction)
-            .height(height)
-            .clip(RoundedCornerShape(2.dp))
-            .background(color),
-    )
-}

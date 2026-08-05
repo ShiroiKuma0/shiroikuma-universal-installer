@@ -566,7 +566,7 @@
     <string name="uninstall_search_open_cd">Tìm kiếm</string>
     <string name="uninstall_search_close_cd">Đóng tìm kiếm</string>
     <string name="setting_auto_confirm_title">Tự động xác nhận cài đặt bên ngoài</string>
-    <string name="setting_auto_confirm_subtitle">Bỏ qua hộp thoại xác nhận khi tệp APK được mở từ một ứng dụng khác</string>
+    <string name="setting_auto_confirm_subtitle">Cài đặt ngay, không hỏi bạn xác nhận trước</string>
     <string name="setting_default_installer_title">Đặt làm trình cài đặt mặc định</string>
     <string name="setting_default_installer_subtitle">Vô hiệu hóa trình cài đặt hệ thống để luôn sử dụng Universal Installer cho các tệp APK (yêu cầu Shizuku hoặc Root)</string>
     <string name="setting_default_installer_needs_backend">Hãy bật Shizuku hoặc Root trước để thay đổi trình cài đặt mặc định</string>
@@ -623,7 +623,7 @@
     <string name="setting_dhizuku_denied">Dhizuku đã từ chối yêu cầu cấp quyền</string>
     <string name="setting_dhizuku_ready">Sẵn sàng — cài im lặng. Lưu ý Dhizuku chỉ hỗ trợ \"Cho phép hạ cấp\"; các tuỳ chọn cài đặt khác chỉ áp dụng cho Shizuku và Root.</string>
     <string name="setting_install_mode_root">Root</string>
-    <string name="setting_install_mode_default_sub">Trình cài đặt hệ thống (hiển thị hộp thoại xác nhận)</string>
+    <string name="setting_install_mode_default_sub">Trình cài đặt của Android — sẽ hỏi bạn xác nhận từng ứng dụng</string>
     <string name="setting_show_download_tab_title">Hiển thị Tab Tải xuống</string>
     <string name="setting_show_download_tab_subtitle">Hiển thị tab Tải xuống trên màn hình chính để cài đặt APK từ xa</string>
     <string name="manage_batch_action_force_stop">Buộc dừng</string>

@@ -16,7 +16,7 @@ side-by-side with the official app. The fork follows the same model as 白い熊
 | Fork applicationId | `shiroikuma.universalinstaller` (`APP_ID` in `gradle.properties`) |
 | Code namespace (UNCHANGED) | `app.pwhs.universalinstaller` (R/BuildConfig/AIDL/FileProvider class names — never touch) |
 | App label | `白い熊 Universal installer` (`app_name`, `translatable="false"`, in **every** `app/src/main/res/values*/strings.xml`) |
-| What we build | single release (root + all features) → task `:app:buildFork` (`assembleRelease`) |
+| What we build | single release (root + all features, no telemetry) → task `:app:buildFork` (`assembleOpensourceRelease`) |
 | Fork version | `versionName = "<VERSION_NAME>+<BUILD_NUMBER zero-padded to 3, e.g. 1.9.11+013>"`, `versionCode = VERSION_CODE*10000+BUILD_NUMBER` (`gradle.properties`) |
 | Signing keystore | `~/.android-keystores/shiroikuma-universalinstaller.jks` (alias `universalinstaller`), via gitignored `key.properties` |
 | Build JDK | OpenJDK 21 at `/usr/lib/jvm/java-21-openjdk-amd64` (default `java` here is 11) |
@@ -47,9 +47,10 @@ Universal Installer (`app.pwhs.universalinstaller`) — an Android package manag
 # Build verification — MANDATORY before declaring any task complete.
 ./gradlew assembleDebug
 
-# Release builds (single distribution — no product flavors since 1.8.3)
-./gradlew assembleRelease         # signed APK if key.properties exists, else unsigned
-./gradlew bundleRelease           # AAB
+# Release builds. Since 1.9.12 there is a `distribution` dimension (opensource / play);
+# with no google-services.json the `play` variants are disabled, so these build only opensource.
+./gradlew assembleOpensourceRelease   # signed APK if key.properties exists, else unsigned
+./gradlew bundleOpensourceRelease     # AAB
 
 # Tests
 ./gradlew test                                         # all unit tests
@@ -65,13 +66,22 @@ bundle exec fastlane bump_version version_name:"2.0"
 
 Release builds only sign when a `key.properties` exists at repo root (gitignored, CI-supplied); otherwise they build unsigned. `local.properties` is also gitignored.
 
-## Single distribution (no product flavors)
+## The `distribution` flavors (opensource / play) — telemetry only
 
-Upstream **removed the old `store`/`full` flavor split in 1.8.3.** There is now one build that always ships libsu for real root installs, alongside Shizuku and the default system installer. No `distribution` flavor dimension, no `BuildConfig.HAS_ROOT_SUPPORT`, no `BuildConfig.FLAVOR`, no `app/src/store/` or `app/src/full/` source sets — everything lives in `app/src/main/`.
+Upstream removed the old `store`/`full` split in 1.8.3, and in **1.9.12 added a different one**: a
+`distribution` dimension with `opensource` (default) and `play`. It exists purely to keep Firebase
+Analytics + Crashlytics out of the open-source APK — **both flavors ship the same installer
+backends** (libsu root, Shizuku, Dhizuku, default). There is no `BuildConfig.HAS_ROOT_SUPPORT` and
+no `app/src/store/` or `app/src/full/`.
+
+The Firebase config (`app/src/play/google-services.json`) is untracked and **the fork does not have
+one**, so `beforeVariants` disables every `play` variant: `assembleRelease` resolves to the single
+opensource APK, the Firebase Gradle plugins are never applied, and no telemetry code is linked in.
+`app/src/opensource/.../TelemetrySinkFactory.kt` is a no-op sink. **Our build must stay on the
+opensource flavor** — `buildFork` depends on `assembleOpensourceRelease` and reads
+`build/outputs/apk/opensource/release`. Never add a `google-services.json` to this fork.
 
 All install backends live in `app/src/main/.../install/controller/`. `InstallerBackendFactory` (`.../install/controller/InstallerBackendFactory.kt`) is the install-backend interface; its single implementation `FullInstallerBackendFactory` — plus `RootInstallController` / `RootTargetedInstaller` and `PrivilegedRootService` (a libsu RootService running as UID 0 for hidden `IPackageManager` calls) — is bound by Koin in `di/FlavorModule.kt`.
-
-The fork distributes on GitHub with the full feature set, so the single libsu-bearing release is exactly what we want. (Upstream's rationale for dropping the split: apps in this category on Play routinely ship root/Shizuku/default together, so the static-analysis "device abuse" concern that originally drove the split didn't pan out.)
 
 ## Architecture
 
@@ -101,7 +111,7 @@ Layered packages under `app/src/main/java/app/pwhs/universalinstaller/`: `data/`
 ## Conventions & gotchas
 
 - String resources: `fix_strings.py` escapes unescaped apostrophes inside `<string>` tags across `values-*/strings.xml`; `check_escapes.py` flags invalid backslash escapes. Run these after editing translation files. The app ships ~17 locales — keep keys in sync.
-- Release changelogs live in `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` and **must be ≤ 500 characters** (Play API rejects longer). Since 1.8.3 the single release ships libsu (root); upstream's Play-safe `store` flavor is gone. This is a non-issue for the fork — we distribute on GitHub, not Play.
+- Release changelogs live in `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` and **must be ≤ 500 characters** (Play API rejects longer). This is a non-issue for the fork — we distribute on GitHub, not Play.
 - Hidden-API access uses `hiddenapibypass` + `rikka.stub` (`compileOnly`); logging is Timber.
 
 ## Gemini CLI skills (also usable as workflow references)

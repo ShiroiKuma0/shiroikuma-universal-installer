@@ -1,101 +1,188 @@
+#!/usr/bin/env node
+/**
+ * Import translated strings from a CSV into Android values-<locale>/strings.xml.
+ *
+ * Usage: node import_translations.cjs <csv_path> <res_dir> [--dry-run] [--allow-placeholder-mismatch]
+ *
+ * The CSV needs "locale", "name" and "translated_value" columns. A
+ * "default_value" column is optional; when present it is used to check that
+ * the translation kept the same format placeholders.
+ *
+ * Values in the CSV are raw text. Android escaping (\', \", &amp;, leading @)
+ * is applied here, so do not pre-escape anything in the CSV.
+ */
+
 const fs = require('fs');
 const path = require('path');
+const { parseCsvRecords } = require('./csv.cjs');
 
-function escapeAndroidString(val) {
-    if (!val) return '';
-    return val
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/'/g, "\\'")
-        .replace(/"/g, '\\"');
+/** Map a BCP 47 style tag onto an Android resource qualifier. */
+function androidLocale(locale) {
+    const tag = locale.trim().replace(/_/g, '-');
+    // Legacy codes Android still expects.
+    const legacy = { id: 'in', he: 'iw', yi: 'ji' };
+    const parts = tag.split('-');
+    const lang = legacy[parts[0].toLowerCase()] || parts[0].toLowerCase();
+    if (parts.length === 1) return lang;
+    // Already in Android's region form (pt-rBR), keep it.
+    if (/^r[A-Z]{2}$/.test(parts[1])) return `${lang}-${parts[1]}`;
+    if (/^[A-Za-z]{2}$/.test(parts[1])) return `${lang}-r${parts[1].toUpperCase()}`;
+    // Script or BCP47 extension (zh-Hans) needs the b+ form.
+    return `b+${[lang, ...parts.slice(1)].join('+')}`;
 }
 
-function importTranslations(csvPath, resDir) {
-    const content = fs.readFileSync(csvPath, 'utf8');
-    const lines = content.split('\n');
-    const header = lines[0].split(',');
-    
-    // Assume columns: locale, name, default_value, translated_value
-    const localeIdx = header.indexOf('locale');
-    const nameIdx = header.indexOf('name');
-    const transIdx = header.indexOf('translated_value');
+/** Escape raw text for use as an Android string resource value. */
+function escapeAndroidString(value) {
+    let s = String(value);
+    // Escape bare ampersands but leave existing entities (&amp; &#39; &#x27;) alone.
+    s = s.replace(/&(?!(?:[a-zA-Z][a-zA-Z0-9]*|#\d+|#x[0-9a-fA-F]+);)/g, '&amp;');
+    s = s.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    s = s.replace(/'/g, "\\'").replace(/"/g, '\\"');
+    s = s.replace(/\r\n|\r|\n/g, '\\n').replace(/\t/g, '\\t');
+    // A leading @ or ? would be read as a resource reference.
+    s = s.replace(/^([@?])/, '\\$1');
+    return s;
+}
 
-    if (localeIdx === -1 || nameIdx === -1 || transIdx === -1) {
-        console.error('CSV must have "locale", "name", and "translated_value" columns.');
+/** Format placeholders, as a sorted multiset, for comparing source vs translation. */
+function placeholders(value) {
+    const found = String(value).match(/%(?:\d+\$)?[-+ 0#,(]*\d*(?:\.\d+)?[a-zA-Z]|%%/g) || [];
+    return found.sort();
+}
+
+function escapeRegExp(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Detect the indentation used by <string> entries in a file. */
+function detectIndent(fileContent) {
+    const m = fileContent.match(/^([ \t]+)<string\b/m);
+    return m ? m[1] : '    ';
+}
+
+function importTranslations(csvPath, resDir, opts) {
+    const { header, records } = parseCsvRecords(fs.readFileSync(csvPath, 'utf8'));
+
+    for (const required of ['locale', 'name', 'translated_value']) {
+        if (!header.includes(required)) {
+            console.error(`CSV must have a "${required}" column. Found: ${header.join(', ')}`);
+            process.exit(1);
+        }
+    }
+    const hasDefault = header.includes('default_value');
+
+    const byLocale = new Map();
+    const problems = [];
+    const seen = new Set();
+
+    for (const rec of records) {
+        const locale = rec.locale.trim();
+        const name = rec.name.trim();
+        const value = rec.translated_value;
+
+        if (!locale || !name) {
+            problems.push(`line ${rec.__line}: missing locale or name`);
+            continue;
+        }
+        if (value === undefined || value.trim() === '') {
+            problems.push(`line ${rec.__line}: ${locale}/${name} has an empty translation`);
+            continue;
+        }
+        const key = `${locale}\u0000${name}`;
+        if (seen.has(key)) {
+            problems.push(`line ${rec.__line}: ${locale}/${name} is duplicated`);
+            continue;
+        }
+        seen.add(key);
+
+        if (hasDefault && rec.default_value) {
+            const want = placeholders(rec.default_value).join(' ');
+            const got = placeholders(value).join(' ');
+            if (want !== got) {
+                const msg = `line ${rec.__line}: ${locale}/${name} placeholders differ — source [${want}] vs translation [${got}]`;
+                if (opts.allowPlaceholderMismatch) console.warn(`warning: ${msg}`);
+                else problems.push(msg);
+            }
+        }
+
+        if (!byLocale.has(locale)) byLocale.set(locale, []);
+        byLocale.get(locale).push({ name, value });
+    }
+
+    if (problems.length) {
+        console.error(`Refusing to import, ${problems.length} problem(s) found:`);
+        problems.forEach(p => console.error(`  ${p}`));
+        console.error('Fix the CSV, or pass --allow-placeholder-mismatch if the placeholder change is intended.');
         process.exit(1);
     }
 
-    const translations = {};
+    let totalAdded = 0;
+    let totalReplaced = 0;
 
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-        
-        const parts = [];
-        let current = '';
-        let inQuotes = false;
-        for (let char of line) {
-            if (char === '"') inQuotes = !inQuotes;
-            else if (char === ',' && !inQuotes) {
-                parts.push(current);
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        parts.push(current);
-        
-        const locale = parts[localeIdx];
-        const name = parts[nameIdx];
-        const value = parts[transIdx];
-
-        if (!translations[locale]) translations[locale] = [];
-        translations[locale].push({ name, value });
-    }
-
-    for (const [locale, items] of Object.entries(translations)) {
-        // Handle Android locale mapping (e.g., pt-rBR)
-        let androidLocale = locale;
-        if (locale === 'pt-BR' || locale === 'pt-rBR') androidLocale = 'pt-rBR';
-        
-        const targetDir = path.join(resDir, `values-${androidLocale}`);
+    for (const [locale, items] of byLocale) {
+        const targetDir = path.join(resDir, `values-${androidLocale(locale)}`);
         const targetFile = path.join(targetDir, 'strings.xml');
 
-        if (!fs.existsSync(targetDir)) {
-            console.log(`Creating directory: ${targetDir}`);
-            fs.mkdirSync(targetDir, { recursive: true });
-        }
-
-        let fileContent = '';
+        let fileContent;
         if (fs.existsSync(targetFile)) {
             fileContent = fs.readFileSync(targetFile, 'utf8');
         } else {
-            fileContent = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>';
+            fileContent = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n';
+        }
+        if (!/<\/resources>/.test(fileContent)) {
+            console.error(`${targetFile} has no </resources> close tag, skipping.`);
+            continue;
         }
 
-        items.forEach(item => {
-            const escapedValue = escapeAndroidString(item.value);
-            const entry = `    <string name="${item.name}">${escapedValue}</string>`;
-            
-            // If entry already exists, replace it; otherwise, insert before </resources>
-            const regex = new RegExp(`    <string name="${item.name}">[\\s\\S]*?</string>`);
-            if (regex.test(fileContent)) {
-                fileContent = fileContent.replace(regex, entry);
-            } else {
-                fileContent = fileContent.replace('</resources>', `${entry}\n</resources>`);
-            }
-        });
+        const indent = detectIndent(fileContent);
+        let added = 0;
+        let replaced = 0;
 
-        fs.writeFileSync(targetFile, fileContent);
-        console.log(`Updated ${targetFile} with ${items.length} translations.`);
+        for (const item of items) {
+            const escaped = escapeAndroidString(item.value);
+            // Match at any indentation, and keep whatever attributes the entry already had.
+            const existing = new RegExp(
+                `([ \\t]*)<string(\\s[^>]*?)?\\sname="${escapeRegExp(item.name)}"([^>]*)>[\\s\\S]*?</string>`
+            );
+            const m = fileContent.match(existing);
+            if (m) {
+                const before = m[2] || '';
+                const after = m[3] || '';
+                fileContent = fileContent.replace(
+                    existing,
+                    `${m[1]}<string${before} name="${item.name}"${after}>${escaped}</string>`
+                );
+                replaced++;
+            } else {
+                fileContent = fileContent.replace(
+                    /([ \t]*)<\/resources>/,
+                    `${indent}<string name="${item.name}">${escaped}</string>\n$1</resources>`
+                );
+                added++;
+            }
+        }
+
+        if (!opts.dryRun) {
+            fs.mkdirSync(targetDir, { recursive: true });
+            fs.writeFileSync(targetFile, fileContent);
+        }
+        totalAdded += added;
+        totalReplaced += replaced;
+        console.log(`${opts.dryRun ? '[dry-run] ' : ''}${targetFile}: ${added} added, ${replaced} replaced`);
     }
+
+    console.log(`\n${opts.dryRun ? '[dry-run] ' : ''}${byLocale.size} locale(s), ${totalAdded} added, ${totalReplaced} replaced.`);
 }
 
 const args = process.argv.slice(2);
-if (args.length < 2) {
-    console.log('Usage: node import_translations.cjs <csv_path> <res_dir>');
+const opts = {
+    dryRun: args.includes('--dry-run'),
+    allowPlaceholderMismatch: args.includes('--allow-placeholder-mismatch'),
+};
+const positional = args.filter(a => !a.startsWith('--'));
+if (positional.length < 2) {
+    console.log('Usage: node import_translations.cjs <csv_path> <res_dir> [--dry-run] [--allow-placeholder-mismatch]');
     process.exit(1);
 }
 
-importTranslations(args[0], args[1]);
+importTranslations(positional[0], positional[1], opts);

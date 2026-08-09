@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">Ειδοποίηση για επιστροφή στην εφαρμογή μετά τη χορήγηση άδειας στις ρυθμίσεις συστήματος.</string>
     <string name="permission_return_title">Χορηγήθηκε άδεια</string>
     <string name="permission_return_body">Πατήστε για να επιστρέψετε στο Universal Installer.</string>
+    <string name="onboarding_analytics_title">Βοηθήστε να διορθωθούν τα προβλήματα</string>
+    <string name="onboarding_analytics_desc">Η εγκατάσταση εφαρμογών λειτουργεί διαφορετικά σε κάθε τηλέφωνο και μαθαίνουμε τι αποτυγχάνει μόνο όταν μας το πει η εφαρμογή. Αναφέρει αν μια εγκατάσταση πέτυχε και τι πήγε στραβά — ποτέ ποια εφαρμογή εγκαταστήσατε.</string>
+    <string name="onboarding_analytics_switch">Κοινοποίηση ανώνυμων διαγνωστικών</string>
+    <string name="onboarding_analytics_switch_sub">Μπορείτε να το αλλάξετε ανά πάσα στιγμή στις Ρυθμίσεις.</string>
 </resources>

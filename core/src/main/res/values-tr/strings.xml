@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">Sistem ayarlarında izin verildikten sonra uygulamaya dönme bildirimi.</string>
     <string name="permission_return_title">İzin verildi</string>
     <string name="permission_return_body">Evrensel Yükleyiciye dönmek için dokunun.</string>
+    <string name="onboarding_analytics_title">Bozulanları düzeltmeye yardım edin</string>
+    <string name="onboarding_analytics_desc">Uygulama yükleme her telefonda farklı çalışır ve neyin başarısız olduğunu ancak uygulama bildirdiğinde öğreniriz. Bir yüklemenin başarılı olup olmadığını ve neyin ters gittiğini bildirir — hangi uygulamayı yüklediğinizi asla bildirmez.</string>
+    <string name="onboarding_analytics_switch">Anonim tanılama verilerini paylaş</string>
+    <string name="onboarding_analytics_switch_sub">Bunu istediğiniz zaman Ayarlar\'dan değiştirebilirsiniz.</string>
 </resources>

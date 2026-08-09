@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">Notification pour revenir à \'application après avoir accordé une autorisation dans les paramètres système.</string>
     <string name="permission_return_title">Autorisation accordée</string>
     <string name="permission_return_body">Appuyez pour revenir à Universal Installer.</string>
+    <string name="onboarding_analytics_title">Aidez à corriger ce qui casse</string>
+    <string name="onboarding_analytics_desc">L\'installation d\'applications se comporte différemment sur chaque téléphone, et nous ne savons ce qui échoue que si l\'application nous le signale. Elle indique si une installation a réussi et ce qui a échoué — jamais quelle application vous avez installée.</string>
+    <string name="onboarding_analytics_switch">Partager des diagnostics anonymes</string>
+    <string name="onboarding_analytics_switch_sub">Vous pouvez changer cela à tout moment dans les Paramètres.</string>
 </resources>

@@ -28,4 +28,8 @@
     <string name="permission_return_channel_desc">Thông báo quay lại ứng dụng sau khi cấp quyền trong cài đặt hệ thống.</string>
     <string name="permission_return_title">Đã cấp quyền</string>
     <string name="permission_return_body">Nhấn để quay lại Trình cài đặt chung.</string>
+    <string name="onboarding_analytics_title">Giúp sửa những chỗ hỏng</string>
+    <string name="onboarding_analytics_desc">Việc cài ứng dụng chạy khác nhau trên mỗi máy, và chỉ khi ứng dụng báo về thì mới biết chỗ nào hỏng. Nó gửi kết quả cài đặt thành công hay thất bại và lỗi gì — không bao giờ gửi bạn đã cài ứng dụng nào.</string>
+    <string name="onboarding_analytics_switch">Chia sẻ chẩn đoán ẩn danh</string>
+    <string name="onboarding_analytics_switch_sub">Bạn có thể đổi bất cứ lúc nào trong Cài đặt.</string>
 </resources>

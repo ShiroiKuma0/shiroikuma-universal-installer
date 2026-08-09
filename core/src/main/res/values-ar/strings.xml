@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">إشعار بالعودة إلى التطبيق بعد منح الإذن في إعدادات النظام.</string>
     <string name="permission_return_title">تم منح الإذن</string>
     <string name="permission_return_body">انقر للعودة إلى Universal Installer.</string>
+    <string name="onboarding_analytics_title">ساعدنا في إصلاح ما يتعطل</string>
+    <string name="onboarding_analytics_desc">يعمل تثبيت التطبيقات بشكل مختلف على كل هاتف، ولا نعرف ما الذي يفشل إلا إذا أبلغنا التطبيق. يُبلغ عمّا إذا نجح التثبيت وما الذي أخفق — ولا يُبلغ أبدًا عن التطبيق الذي ثبّته.</string>
+    <string name="onboarding_analytics_switch">مشاركة تشخيصات مجهولة الهوية</string>
+    <string name="onboarding_analytics_switch_sub">يمكنك تغيير ذلك في أي وقت من الإعدادات.</string>
 </resources>

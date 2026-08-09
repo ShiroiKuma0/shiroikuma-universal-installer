@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">Notifica per tornare al\'app dopo aver concesso u\'autorizzazione nelle impostazioni di sistema.</string>
     <string name="permission_return_title">Autorizzazione concessa</string>
     <string name="permission_return_body">Tocca per tornare a Universal Installer.</string>
+    <string name="onboarding_analytics_title">Aiuta a sistemare ciò che non funziona</string>
+    <string name="onboarding_analytics_desc">L\'installazione delle app funziona in modo diverso su ogni telefono e scopriamo cosa non va solo se l\'app ce lo comunica. Segnala se un\'installazione è riuscita e cosa è andato storto — mai quale app hai installato.</string>
+    <string name="onboarding_analytics_switch">Condividi diagnostica anonima</string>
+    <string name="onboarding_analytics_switch_sub">Puoi cambiarlo in qualsiasi momento nelle Impostazioni.</string>
 </resources>

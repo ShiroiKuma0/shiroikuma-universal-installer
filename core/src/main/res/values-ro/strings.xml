@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">Notificare pentru a reveni la aplicație după acordarea unei permisiuni în setările sistemului.</string>
     <string name="permission_return_title">Permisiune acordată</string>
     <string name="permission_return_body">Atingeți pentru a reveni la Universal Installer.</string>
+    <string name="onboarding_analytics_title">Ajută la remedierea problemelor</string>
+    <string name="onboarding_analytics_desc">Instalarea aplicațiilor funcționează diferit pe fiecare telefon, iar aflăm ce eșuează doar dacă aplicația ne spune. Raportează dacă o instalare a reușit și ce nu a mers — niciodată ce aplicație ai instalat.</string>
+    <string name="onboarding_analytics_switch">Trimite diagnostice anonime</string>
+    <string name="onboarding_analytics_switch_sub">Poți schimba asta oricând în Setări.</string>
 </resources>

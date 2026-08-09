@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">सिस्टम सेटिंग्स में अनुमति देने के बाद ऐप पर वापस लौटने की अधिसूचना।</string>
     <string name="permission_return_title">की अनुमति दी</string>
     <string name="permission_return_body">यूनिवर्सल इंस्टालर पर लौटने के लिए टैप करें।</string>
+    <string name="onboarding_analytics_title">जो टूटता है उसे ठीक करने में मदद करें</string>
+    <string name="onboarding_analytics_desc">हर फ़ोन पर ऐप इंस्टॉल करना अलग तरह से काम करता है, और क्या विफल होता है यह हमें तभी पता चलता है जब ऐप बताता है। यह बताता है कि इंस्टॉल सफल हुआ या नहीं और क्या ग़लत हुआ — यह कभी नहीं बताता कि आपने कौन-सा ऐप इंस्टॉल किया।</string>
+    <string name="onboarding_analytics_switch">अनाम डायग्नोस्टिक्स साझा करें</string>
+    <string name="onboarding_analytics_switch_sub">आप इसे कभी भी सेटिंग में बदल सकते हैं।</string>
 </resources>

@@ -28,4 +28,8 @@
     <string name="permission_return_channel_desc">在系统设置中授予权限后返回应用程序的通知。</string>
     <string name="permission_return_title">已获得许可</string>
     <string name="permission_return_body">点击返回通用安装程序。</string>
+    <string name="onboarding_analytics_title">帮助修复问题</string>
+    <string name="onboarding_analytics_desc">在每台手机上安装应用的表现都不一样，只有应用把问题报告回来，我们才知道哪里出了错。它会报告安装是否成功以及失败原因，绝不会报告你安装了哪个应用。</string>
+    <string name="onboarding_analytics_switch">共享匿名诊断信息</string>
+    <string name="onboarding_analytics_switch_sub">你可以随时在设置中更改。</string>
 </resources>

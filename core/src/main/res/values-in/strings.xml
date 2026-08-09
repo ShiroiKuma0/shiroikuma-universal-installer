@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">Pemberitahuan untuk kembali ke aplikasi setelah memberikan izin dalam pengaturan sistem.</string>
     <string name="permission_return_title">Izin diberikan</string>
     <string name="permission_return_body">Ketuk untuk kembali ke Penginstal Universal.</string>
+    <string name="onboarding_analytics_title">Bantu perbaiki yang rusak</string>
+    <string name="onboarding_analytics_desc">Pemasangan aplikasi bekerja berbeda di setiap ponsel, dan kami baru tahu apa yang gagal jika aplikasi melaporkannya. Aplikasi melaporkan apakah pemasangan berhasil dan apa yang salah — tidak pernah aplikasi apa yang Anda pasang.</string>
+    <string name="onboarding_analytics_switch">Bagikan diagnostik anonim</string>
+    <string name="onboarding_analytics_switch_sub">Anda dapat mengubahnya kapan saja di Setelan.</string>
 </resources>

@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">Benachrichtigung, zur App zurückzukehren, nachdem in den Systemeinstellungen eine Berechtigung erteilt wurde.</string>
     <string name="permission_return_title">Erlaubnis erteilt</string>
     <string name="permission_return_body">Tippen Sie hier, um zum Universal Installer zurückzukehren.</string>
+    <string name="onboarding_analytics_title">Hilf mit, Fehler zu beheben</string>
+    <string name="onboarding_analytics_desc">Das Installieren von Apps funktioniert auf jedem Gerät anders, und was fehlschlägt, erfahren wir nur, wenn die App es meldet. Sie meldet, ob eine Installation geklappt hat und was schiefging — nie, welche App du installiert hast.</string>
+    <string name="onboarding_analytics_switch">Anonyme Diagnosedaten teilen</string>
+    <string name="onboarding_analytics_switch_sub">Du kannst das jederzeit in den Einstellungen ändern.</string>
 </resources>

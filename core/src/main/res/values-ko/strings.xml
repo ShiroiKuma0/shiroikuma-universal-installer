@@ -13,4 +13,8 @@
     <string name="permission_return_channel_desc">시스템 설정에서 권한 허용 후 앱으로 복귀하도록 안내합니다.</string>
     <string name="permission_return_title">허가가 부여되었습니다</string>
     <string name="permission_return_body">Universal Installer로 돌아가려면 누르세요.</string>
+    <string name="onboarding_analytics_title">문제 해결에 도움 주기</string>
+    <string name="onboarding_analytics_desc">앱 설치는 기기마다 다르게 동작하며, 무엇이 실패하는지는 앱이 알려줄 때에만 알 수 있습니다. 설치 성공 여부와 무엇이 잘못됐는지를 보냅니다. 어떤 앱을 설치했는지는 절대 보내지 않습니다.</string>
+    <string name="onboarding_analytics_switch">익명 진단 정보 공유</string>
+    <string name="onboarding_analytics_switch_sub">설정에서 언제든지 변경할 수 있습니다.</string>
 </resources>

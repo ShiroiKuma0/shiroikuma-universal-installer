@@ -784,4 +784,7 @@
     <string name="setting_install_ui_style_sheet">底部</string>
     <string name="setting_group_installing">安装时</string>
     <string name="setting_group_after_install">安装完成后</string>
+    <string name="setting_section_privacy">隐私</string>
+    <string name="setting_analytics_title">共享使用数据</string>
+    <string name="setting_analytics_subtitle">报告使用了哪种安装方式以及是否成功，还有崩溃报告。绝不会上报你安装的软件包。</string>
 </resources>

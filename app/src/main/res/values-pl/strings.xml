@@ -760,4 +760,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal odrzucił ten klucz API. Otwórz Ustawienia → Zaawansowane → Klucz API VirusTotal i sprawdź, czy został wklejony w całości.</string>
     <string name="apk_info_vt_rate_limited">Osiągnięto limit zapytań VirusTotal — darmowy plan pozwala na 4 zapytania na minutę. Spróbuj ponownie za chwilę.</string>
     <string name="apk_info_vt_rate_limited_retry">Osiągnięto limit zapytań VirusTotal — darmowy plan pozwala na 4 zapytania na minutę. Spróbuj ponownie za %1$s s.</string>
+    <string name="setting_section_privacy">Prywatność</string>
+    <string name="setting_analytics_title">Udostępniaj dane o użytkowaniu</string>
+    <string name="setting_analytics_subtitle">Zgłasza, której metody instalacji użyto i czy zadziałała, oraz raporty o awariach. Nigdy pakietów, które instalujesz.</string>
 </resources>

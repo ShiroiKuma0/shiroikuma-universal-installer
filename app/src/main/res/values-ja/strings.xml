@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal がこのAPIキーを拒否しました。設定 → 詳細 → VirusTotal APIキー を開き、全体が貼り付けられているか確認してください。</string>
     <string name="apk_info_vt_rate_limited">VirusTotal のレート制限に達しました — 無料プランでは 1 分あたり 4 リクエストまでです。しばらくしてからもう一度お試しください。</string>
     <string name="apk_info_vt_rate_limited_retry">VirusTotal のレート制限に達しました — 無料プランでは 1 分あたり 4 リクエストまでです。%1$s 秒後にもう一度お試しください。</string>
+    <string name="setting_section_privacy">プライバシー</string>
+    <string name="setting_analytics_title">利用データを共有</string>
+    <string name="setting_analytics_subtitle">どのインストール方法が使われ、成功したかどうかを報告します。クラッシュレポートも含みます。インストールしたパッケージが送信されることはありません。</string>
 </resources>

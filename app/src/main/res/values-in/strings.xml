@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal menolak kunci API ini. Buka Pengaturan → Lanjutan → Kunci API VirusTotal dan periksa apakah kuncinya tertempel utuh.</string>
     <string name="apk_info_vt_rate_limited">Batas permintaan VirusTotal tercapai — paket gratis hanya mengizinkan 4 permintaan per menit. Coba lagi sebentar lagi.</string>
     <string name="apk_info_vt_rate_limited_retry">Batas permintaan VirusTotal tercapai — paket gratis hanya mengizinkan 4 permintaan per menit. Coba lagi dalam %1$s detik.</string>
+    <string name="setting_section_privacy">Privasi</string>
+    <string name="setting_analytics_title">Bagikan data penggunaan</string>
+    <string name="setting_analytics_subtitle">Melaporkan metode pemasangan yang dipakai dan apakah berhasil, ditambah laporan error. Tidak pernah paket yang kamu pasang.</string>
 </resources>

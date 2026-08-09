@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal ने यह API कुंजी अस्वीकार कर दी। सेटिंग्स → उन्नत → VirusTotal API कुंजी खोलें और जाँचें कि वह पूरी चिपकाई गई थी।</string>
     <string name="apk_info_vt_rate_limited">VirusTotal की सीमा पूरी हो गई — मुफ़्त प्लान में प्रति मिनट 4 अनुरोध ही मिलते हैं। थोड़ी देर बाद फिर कोशिश करें।</string>
     <string name="apk_info_vt_rate_limited_retry">VirusTotal की सीमा पूरी हो गई — मुफ़्त प्लान में प्रति मिनट 4 अनुरोध ही मिलते हैं। %1$s सेकंड बाद फिर कोशिश करें।</string>
+    <string name="setting_section_privacy">गोपनीयता</string>
+    <string name="setting_analytics_title">उपयोग डेटा साझा करें</string>
+    <string name="setting_analytics_subtitle">बताता है कि कौन-सा इंस्टॉल तरीका इस्तेमाल हुआ और वह काम आया या नहीं, साथ ही क्रैश रिपोर्ट। आप जो पैकेज इंस्टॉल करते हैं, वे कभी नहीं।</string>
 </resources>

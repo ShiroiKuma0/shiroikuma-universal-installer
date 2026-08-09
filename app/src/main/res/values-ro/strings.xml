@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal a respins această cheie API. Deschide Setări → Avansat → Cheie API VirusTotal și verifică dacă a fost lipită integral.</string>
     <string name="apk_info_vt_rate_limited">Limita de cereri VirusTotal a fost atinsă — planul gratuit permite 4 cereri pe minut. Încearcă din nou în scurt timp.</string>
     <string name="apk_info_vt_rate_limited_retry">Limita de cereri VirusTotal a fost atinsă — planul gratuit permite 4 cereri pe minut. Încearcă din nou peste %1$s secunde.</string>
+    <string name="setting_section_privacy">Confidențialitate</string>
+    <string name="setting_analytics_title">Partajează datele de utilizare</string>
+    <string name="setting_analytics_subtitle">Raportează ce metodă de instalare a fost folosită și dacă a funcționat, plus rapoartele de eroare. Niciodată pachetele pe care le instalezi.</string>
 </resources>

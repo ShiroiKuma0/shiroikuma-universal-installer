@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">رفض VirusTotal مفتاح API هذا. افتح الإعدادات → متقدم → مفتاح VirusTotal API وتأكد من لصقه كاملًا.</string>
     <string name="apk_info_vt_rate_limited">تم بلوغ حد طلبات VirusTotal — تسمح الخطة المجانية بـ 4 طلبات في الدقيقة. أعد المحاولة بعد قليل.</string>
     <string name="apk_info_vt_rate_limited_retry">تم بلوغ حد طلبات VirusTotal — تسمح الخطة المجانية بـ 4 طلبات في الدقيقة. أعد المحاولة بعد %1$s ثانية.</string>
+    <string name="setting_section_privacy">الخصوصية</string>
+    <string name="setting_analytics_title">مشاركة بيانات الاستخدام</string>
+    <string name="setting_analytics_subtitle">يُبلغ عن طريقة التثبيت المستخدمة وما إذا كانت قد نجحت، إضافة إلى تقارير الأعطال. ولا يُبلغ أبدًا عن الحزم التي تثبّتها.</string>
 </resources>

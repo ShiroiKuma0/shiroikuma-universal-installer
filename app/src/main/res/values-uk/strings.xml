@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal відхилив цей ключ API. Відкрийте Налаштування → Додатково → Ключ API VirusTotal і перевірте, чи його вставлено повністю.</string>
     <string name="apk_info_vt_rate_limited">Досягнуто ліміт запитів VirusTotal — безкоштовний тариф дозволяє 4 запити на хвилину. Спробуйте ще раз незабаром.</string>
     <string name="apk_info_vt_rate_limited_retry">Досягнуто ліміт запитів VirusTotal — безкоштовний тариф дозволяє 4 запити на хвилину. Спробуйте ще раз через %1$s с.</string>
+    <string name="setting_section_privacy">Конфіденційність</string>
+    <string name="setting_analytics_title">Надсилати дані про використання</string>
+    <string name="setting_analytics_subtitle">Повідомляє, який спосіб встановлення було використано і чи спрацював він, а також звіти про збої. Ніколи — пакети, які ви встановлюєте.</string>
 </resources>

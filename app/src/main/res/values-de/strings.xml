@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal hat diesen API-Schlüssel abgelehnt. Öffne Einstellungen → Erweitert → VirusTotal API-Schlüssel und prüfe, ob er vollständig eingefügt wurde.</string>
     <string name="apk_info_vt_rate_limited">VirusTotal-Ratenlimit erreicht — die kostenlose Stufe erlaubt 4 Anfragen pro Minute. Versuche es gleich noch einmal.</string>
     <string name="apk_info_vt_rate_limited_retry">VirusTotal-Ratenlimit erreicht — die kostenlose Stufe erlaubt 4 Anfragen pro Minute. Versuche es in %1$s Sekunden erneut.</string>
+    <string name="setting_section_privacy">Datenschutz</string>
+    <string name="setting_analytics_title">Nutzungsdaten teilen</string>
+    <string name="setting_analytics_subtitle">Meldet, welche Installationsmethode verwendet wurde und ob sie funktioniert hat, dazu Absturzberichte. Nie die Pakete, die du installierst.</string>
 </resources>

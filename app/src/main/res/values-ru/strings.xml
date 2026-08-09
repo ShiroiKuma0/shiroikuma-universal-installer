@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal отклонил этот API-ключ. Откройте Настройки → Дополнительно → API-ключ VirusTotal и проверьте, что он вставлен полностью.</string>
     <string name="apk_info_vt_rate_limited">Достигнут лимит запросов VirusTotal — бесплатный тариф допускает 4 запроса в минуту. Повторите попытку чуть позже.</string>
     <string name="apk_info_vt_rate_limited_retry">Достигнут лимит запросов VirusTotal — бесплатный тариф допускает 4 запроса в минуту. Повторите попытку через %1$s с.</string>
+    <string name="setting_section_privacy">Конфиденциальность</string>
+    <string name="setting_analytics_title">Отправлять данные об использовании</string>
+    <string name="setting_analytics_subtitle">Сообщает, какой способ установки использовался и сработал ли он, а также отчёты о сбоях. Никогда — пакеты, которые вы устанавливаете.</string>
 </resources>

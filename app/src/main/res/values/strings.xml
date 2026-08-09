@@ -754,6 +754,9 @@
     <string name="setting_biometric_unavailable">No biometric or device lock set up on this device.</string>
     <string name="setting_section_sync_short">Sync</string>
     <string name="setting_sync_control_panel">Sync Control Panel</string>
+    <string name="setting_section_privacy">Privacy</string>
+    <string name="setting_analytics_title">Share usage data</string>
+    <string name="setting_analytics_subtitle">Reports which install method was used and whether it worked, plus crash reports. Never the packages you install.</string>
     <string name="setting_section_advanced">Advanced</string>
     <string name="setting_vt_api_key_title">VirusTotal API Key</string>
     <string name="setting_vt_api_key_placeholder">Paste API key here…</string>

@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal rechazó esta clave API. Abre Configuración → Avanzado → Clave API de VirusTotal y comprueba que se pegó completa.</string>
     <string name="apk_info_vt_rate_limited">Se alcanzó el límite de peticiones de VirusTotal — el plan gratuito permite 4 peticiones por minuto. Inténtalo de nuevo en un momento.</string>
     <string name="apk_info_vt_rate_limited_retry">Se alcanzó el límite de peticiones de VirusTotal — el plan gratuito permite 4 peticiones por minuto. Inténtalo de nuevo en %1$s segundos.</string>
+    <string name="setting_section_privacy">Privacidad</string>
+    <string name="setting_analytics_title">Compartir datos de uso</string>
+    <string name="setting_analytics_subtitle">Informa de qué método de instalación se usó y si funcionó, además de los informes de fallos. Nunca los paquetes que instalas.</string>
 </resources>

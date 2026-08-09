@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">VirusTotal bu API anahtarını reddetti. Ayarlar → Gelişmiş → VirusTotal API Anahtarı bölümünü açın ve tam olarak yapıştırıldığını doğrulayın.</string>
     <string name="apk_info_vt_rate_limited">VirusTotal istek sınırına ulaşıldı — ücretsiz kademe dakikada 4 isteğe izin verir. Kısa süre sonra yeniden deneyin.</string>
     <string name="apk_info_vt_rate_limited_retry">VirusTotal istek sınırına ulaşıldı — ücretsiz kademe dakikada 4 isteğe izin verir. %1$s saniye sonra yeniden deneyin.</string>
+    <string name="setting_section_privacy">Gizlilik</string>
+    <string name="setting_analytics_title">Kullanım verilerini paylaş</string>
+    <string name="setting_analytics_subtitle">Hangi yükleme yönteminin kullanıldığını ve işe yarayıp yaramadığını, ayrıca çökme raporlarını bildirir. Yüklediğiniz paketleri asla bildirmez.</string>
 </resources>

@@ -784,4 +784,7 @@
     <string name="setting_install_ui_style_sheet">Dưới cùng</string>
     <string name="setting_group_installing">Khi cài đặt</string>
     <string name="setting_group_after_install">Sau khi cài đặt</string>
+    <string name="setting_section_privacy">Quyền riêng tư</string>
+    <string name="setting_analytics_title">Chia sẻ dữ liệu sử dụng</string>
+    <string name="setting_analytics_subtitle">Báo cáo phương thức cài đặt đã dùng và nó có hoạt động hay không, cùng với báo cáo sự cố. Không bao giờ gửi các gói bạn cài đặt.</string>
 </resources>

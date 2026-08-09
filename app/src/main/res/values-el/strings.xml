@@ -784,4 +784,7 @@
     <string name="apk_info_vt_invalid_key">Το VirusTotal απέρριψε αυτό το κλειδί API. Ανοίξτε Ρυθμίσεις → Για προχωρημένους → Κλειδί API VirusTotal και ελέγξτε ότι επικολλήθηκε ολόκληρο.</string>
     <string name="apk_info_vt_rate_limited">Συμπληρώθηκε το όριο αιτημάτων του VirusTotal — η δωρεάν βαθμίδα επιτρέπει 4 αιτήματα ανά λεπτό. Δοκιμάστε ξανά σε λίγο.</string>
     <string name="apk_info_vt_rate_limited_retry">Συμπληρώθηκε το όριο αιτημάτων του VirusTotal — η δωρεάν βαθμίδα επιτρέπει 4 αιτήματα ανά λεπτό. Δοκιμάστε ξανά σε %1$s δευτερόλεπτα.</string>
+    <string name="setting_section_privacy">Απόρρητο</string>
+    <string name="setting_analytics_title">Κοινή χρήση δεδομένων χρήσης</string>
+    <string name="setting_analytics_subtitle">Αναφέρει ποια μέθοδος εγκατάστασης χρησιμοποιήθηκε και αν λειτούργησε, καθώς και αναφορές σφαλμάτων. Ποτέ τα πακέτα που εγκαθιστάτε.</string>
 </resources>

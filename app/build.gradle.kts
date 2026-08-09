@@ -138,6 +138,23 @@ android {
     }
 }
 
+// The Crashlytics plugin attaches to the project, not to a flavor, so it injects its
+// mapping_file_id and version_control_info string resources into *every* variant — opensource
+// included. Two extra resources shift every resource ID, which moves resources.arsc, the binary
+// manifest, all of res/, and classes.dex through inlined R constants.
+//
+// F-Droid rebuilds the opensource APK from a checkout that has no google-services.json and
+// requires a byte-for-byte match against the one we publish. Disabling these tasks makes the
+// artifact identical either way, so it no longer matters whether the config happens to be
+// present — on CI, or on the machine of whoever builds a release by hand.
+if (hasFirebaseConfig) {
+    tasks.matching {
+        it.name.startsWith("injectCrashlytics") && it.name.contains("Opensource")
+    }.configureEach {
+        enabled = false
+    }
+}
+
 androidComponents {
     // Drop the `play` variants when there is no google-services.json to build them against.
     // A contributor cloning the repo then sees exactly the task list they saw before this

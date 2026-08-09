@@ -34,6 +34,9 @@ material = "1.10.0"
 tvFoundation = "1.0.0"
 tvMaterial = "1.0.0"
 navigationCompose = "2.9.7"
+firebaseBom = "34.17.0"
+googleServices = "4.5.0"
+firebaseCrashlyticsPlugin = "3.0.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -140,6 +143,12 @@ androidx-tv-foundation = { group = "androidx.tv", name = "tv-foundation", versio
 androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.ref = "tvMaterial" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
+# Firebase — pulled in by the `play` flavor only. The `opensource` flavor must stay free of
+# Google Play Services libraries, so never move these to a plain `implementation(...)`.
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -150,6 +159,8 @@ kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
 android-test = { id = "com.android.test" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
 
 [bundles]
 # Shared across both flavors — no libsu here so the `store` build is libsu-free.

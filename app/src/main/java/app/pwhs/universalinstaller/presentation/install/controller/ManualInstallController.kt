@@ -5,6 +5,7 @@ import android.net.Uri
 import app.pwhs.universalinstaller.data.local.InstallHistoryDao
 import app.pwhs.universalinstaller.domain.model.SessionData
 import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.solrudev.ackpine.installer.InstallFailure
@@ -39,6 +40,10 @@ class ManualInstallController(
 
     enum class TargetedBackend { SHIZUKU, ROOT }
 
+    // Never reported bare: installTargeted appends the backend, since this controller drives
+    // both of them.
+    override val telemetryMethod = "manual"
+
     override suspend fun createSession(
         uris: List<Uri>,
         name: String,
@@ -65,10 +70,12 @@ class ManualInstallController(
     ) {
         val sessionId = UUID.randomUUID()
         val data = sessionData.copy(id = sessionId)
+        val method = "${telemetryMethod}_${backend.name.lowercase()}"
 
         scope.launch {
             sessionDataRepository.addSessionData(data)
             onSessionCreated?.invoke(sessionId)
+            reportInstallStarted(uris.size, method)
 
             val onProgress: (Float) -> Unit = { fraction ->
                 val progress = Progress((fraction * 100).toInt().coerceIn(0, 100), 100)
@@ -94,12 +101,16 @@ class ManualInstallController(
                 onSuccess = {
                     sessionDataRepository.updateSessionProgress(sessionId, Progress(100, 100))
                     kotlinx.coroutines.delay(500)
+                    reportInstallResult(TelemetryEvents.RESULT_SUCCESS, method)
                     saveHistory(data, success = true)
                     sessionDataRepository.removeSessionData(sessionId)
                 },
                 onFailure = { e ->
                     Timber.e(e, "Manual targeted install failed (backend=$backend)")
                     val errorMsg = ResolvableString.raw(e.message ?: "Installation failed")
+                    // This path never produces an ackpine InstallFailure — it shells out — so
+                    // there is no failure kind to report beyond "it failed".
+                    reportInstallResult(TelemetryEvents.RESULT_FAILURE, method)
                     saveHistory(data, success = false, errorMessage = e.message)
                     sessionDataRepository.setError(sessionId, errorMsg)
                 }

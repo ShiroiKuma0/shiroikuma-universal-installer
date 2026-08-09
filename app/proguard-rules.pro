@@ -12,13 +12,11 @@
 #   public *;
 #}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Line numbers survive R8 so Crashlytics can point at a line rather than a method. The mapping
+# file uploaded alongside the `play` build is what turns the renamed classes back into ours; the
+# renamed source file name is of no use to anyone, so it goes.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
 # libsu (com.topjohnwu.superuser) — full flavor only. Harmless on store (no-op when
 # the class is absent). Kept defensively because JitPack-built artifacts occasionally

@@ -24,6 +24,8 @@ class ShizukuInstallController(
     historyDao: InstallHistoryDao,
 ) : BaseInstallController(application, packageInstaller, sessionDataRepository, historyDao) {
 
+    override val telemetryMethod = "shizuku"
+
     @OptIn(DelicateAckpineApi::class)
     override suspend fun createSession(
         uris: List<Uri>,

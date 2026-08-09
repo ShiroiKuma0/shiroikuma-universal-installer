@@ -12,6 +12,8 @@ import app.pwhs.universalinstaller.presentation.install.InstallErrorHelper
 import app.pwhs.universalinstaller.data.local.InstallHistoryEntity
 import app.pwhs.universalinstaller.domain.model.SessionData
 import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
+import app.pwhs.universalinstaller.telemetry.Telemetry
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,43 @@ abstract class BaseInstallController(
     protected val sessionDataRepository: SessionDataRepository,
     protected val historyDao: InstallHistoryDao,
 ) {
+    /**
+     * Name this backend goes by in telemetry — see [TelemetryEvents.PARAM_METHOD].
+     *
+     * Spelled out per subclass rather than derived from the class name because R8 renames
+     * these classes, and a metric that changes shape between debug and release is worthless.
+     */
+    protected abstract val telemetryMethod: String
+
+    /**
+     * @param method overridden only where one controller drives more than one backend, as
+     *   `ManualInstallController` does.
+     */
+    protected fun reportInstallStarted(apkCount: Int, method: String = telemetryMethod) {
+        // Set from the backend that actually ran rather than from the Settings preference: a
+        // crash report wants to know which code path was live, and the two disagree whenever
+        // the chosen backend was unavailable and we fell back.
+        Telemetry.setUserProperty(TelemetryEvents.PROPERTY_INSTALL_METHOD, method)
+        Telemetry.event(
+            TelemetryEvents.INSTALL_STARTED,
+            TelemetryEvents.PARAM_METHOD to method,
+            TelemetryEvents.PARAM_APK_COUNT to apkCount,
+        )
+    }
+
+    protected fun reportInstallResult(
+        result: String,
+        method: String = telemetryMethod,
+        failureKey: String? = null,
+    ) {
+        Telemetry.event(
+            TelemetryEvents.INSTALL_RESULT,
+            TelemetryEvents.PARAM_METHOD to method,
+            TelemetryEvents.PARAM_RESULT to result,
+            TelemetryEvents.PARAM_FAILURE to failureKey,
+        )
+    }
+
     private val activeSessions = mutableMapOf<UUID, ProgressSession<InstallFailure>>()
     private val sessionUris = mutableMapOf<UUID, List<Uri>>()
     private val originalFileUris = mutableMapOf<UUID, Uri>()
@@ -87,6 +126,7 @@ abstract class BaseInstallController(
             // Installing/Success/Failed watchers off this — using the caller-passed id won't
             // match because addSessionData stores the data under session.id, not sessionData.id.
             onSessionCreated?.invoke(session.id)
+            reportInstallStarted(uris.size)
             awaitSession(session, scope, context)
         }
     }
@@ -189,6 +229,7 @@ abstract class BaseInstallController(
                 val sessionData = sessionDataRepository.sessions.value.find { it.id == session.id }
                 when (val result = session.await()) {
                     Session.State.Succeeded -> {
+                        reportInstallResult(TelemetryEvents.RESULT_SUCCESS)
                         saveHistory(sessionData, success = true)
                         // Hook runs BEFORE source deletion so the hook can still read the original
                         // zip (e.g. to extract OBB entries). Errors are caller-reported; we don't
@@ -207,6 +248,12 @@ abstract class BaseInstallController(
                         deleteFlags.remove(session.id)
                     }
                     is Session.State.Failed -> {
+                        // Reported before the null-context bail-out below, so failures on a
+                        // session restored after a process death still show up in the numbers.
+                        reportInstallResult(
+                            TelemetryEvents.RESULT_FAILURE,
+                            failureKey = InstallErrorHelper.failureKey(result.failure),
+                        )
                         if (context == null) return@launch
                         val errorInfo = InstallErrorHelper.getErrorInfo(context, result.failure)
                         saveHistory(
@@ -221,6 +268,7 @@ abstract class BaseInstallController(
                     }
                 }
             } catch (e: CancellationException) {
+                reportInstallResult(TelemetryEvents.RESULT_CANCELLED)
                 sessionDataRepository.removeSessionData(session.id)
                 activeSessions.remove(session.id)
                 sessionUris.remove(session.id)

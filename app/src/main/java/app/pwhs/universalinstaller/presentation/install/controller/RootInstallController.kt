@@ -8,6 +8,7 @@ import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
 import app.pwhs.universalinstaller.presentation.install.dialog.InstallerOverrides
 import app.pwhs.universalinstaller.presentation.setting.DEFAULT_INSTALLER_PACKAGE_NAME
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.domain.model.SessionData
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +39,8 @@ class RootInstallController(
     sessionDataRepository: SessionDataRepository,
     historyDao: InstallHistoryDao,
 ) : BaseInstallController(application, packageInstaller, sessionDataRepository, historyDao) {
+
+    override val telemetryMethod = "root"
 
     /**
      * Install via the root shell (`pm install-create/write/commit`) instead of ackpine's libsu
@@ -70,6 +73,7 @@ class RootInstallController(
         scope.launch {
             sessionDataRepository.addSessionData(data)
             onSessionCreated?.invoke(sessionId)
+            reportInstallStarted(uris.size)
 
             val onProgress: (Float) -> Unit = { fraction ->
                 sessionDataRepository.updateSessionProgress(
@@ -95,6 +99,7 @@ class RootInstallController(
             result.fold(
                 onSuccess = {
                     sessionDataRepository.updateSessionProgress(sessionId, Progress(100, 100))
+                    reportInstallResult(TelemetryEvents.RESULT_SUCCESS)
                     saveHistory(data, success = true)
                     runCatching { onSuccess?.invoke() }
                         .onFailure { Timber.e(it, "Install success hook failed") }
@@ -105,6 +110,9 @@ class RootInstallController(
                 },
                 onFailure = { e ->
                     Timber.e(e, "Root shell install failed")
+                    // `pm` failures come back as a shell exit code, not an ackpine
+                    // InstallFailure, so there's no failure kind to attach here.
+                    reportInstallResult(TelemetryEvents.RESULT_FAILURE)
                     saveHistory(data, success = false, errorMessage = e.message)
                     sessionDataRepository.setError(
                         sessionId,

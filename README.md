@@ -153,8 +153,19 @@ The project is a multi-module Gradle build:
 | `:tv`     | application | The Android TV (10-foot, D-pad) app                                   |
 | `:core`   | library     | Shared, UI-agnostic install/manage engine consumed by `:app`/`:tv` |
 
-> A single distribution ships Shizuku, Root (libsu), and the default system
-> installer together — the old `store` / `full` product flavors were removed.
+> Shizuku, Root (libsu), and the default system installer ship together in every
+> build — the old `store` / `full` product flavors were removed.
+
+`:app` has two flavors on a `distribution` dimension, differing only in telemetry:
+
+| Flavor       | Firebase Analytics + Crashlytics | Ships as                             |
+|--------------|----------------------------------|--------------------------------------|
+| `opensource` | no                               | GitHub release APK — and the default |
+| `play`       | yes                              | Play Store AAB                       |
+
+The `play` flavor needs `app/src/play/google-services.json`, which is not in the
+repository. Without it those variants don't exist and everything below builds the
+`opensource` flavor. See [docs/FIREBASE.md](docs/FIREBASE.md).
 
 ### Steps
 
@@ -170,16 +181,16 @@ The project is a multi-module Gradle build:
 ### Gradle
 
 ```bash
-# Phone app
-./gradlew :app:assembleDebug
-./gradlew :app:assembleRelease
+# Phone app (open-source flavor)
+./gradlew :app:assembleOpensourceDebug
+./gradlew :app:assembleOpensourceRelease
+
+# Phone app (Play flavor — needs app/src/play/google-services.json)
+./gradlew :app:bundlePlayRelease
 
 # Android TV app
 ./gradlew :tv:assembleDebug
 ./gradlew :tv:assembleRelease
-
-# Release App Bundle (phone + TV)
-./gradlew assembleBundleRelease
 
 # Everything at once
 ./gradlew assembleDebug
@@ -197,7 +208,7 @@ bundle exec fastlane build_debug
 # Build release APK
 bundle exec fastlane build_release
 
-# Deploy beta to Firebase App Distribution
+# Deploy to Play Store closed testing track
 bundle exec fastlane beta
 
 # Deploy to Play Store internal track

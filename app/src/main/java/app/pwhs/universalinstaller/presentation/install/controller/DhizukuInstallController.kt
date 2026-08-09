@@ -31,6 +31,8 @@ class DhizukuInstallController(
     historyDao: InstallHistoryDao,
 ) : BaseInstallController(application, packageInstaller, sessionDataRepository, historyDao) {
 
+    override val telemetryMethod = "dhizuku"
+
     @OptIn(DelicateAckpineApi::class)
     override suspend fun createSession(
         uris: List<Uri>,

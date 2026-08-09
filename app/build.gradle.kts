@@ -1,3 +1,7 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import com.google.gms.googleservices.GoogleServicesPlugin.GoogleServicesPluginConfig
+import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
+import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -8,6 +12,25 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlinx.serialization)
     id("kotlin-parcelize")
+}
+
+// Firebase (Analytics + Crashlytics) ships in the `play` flavor only. Its config file carries
+// our Firebase project's keys, so it is deliberately untracked — see docs/FIREBASE.md. Without
+// it the `play` variants are switched off entirely and the Firebase plugins are never applied,
+// which is what keeps a fresh open-source checkout building exactly as it did before.
+val firebaseConfig = file("src/play/google-services.json")
+val hasFirebaseConfig = firebaseConfig.exists()
+
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+
+    configure<GoogleServicesPluginConfig> {
+        // `opensource` variants have no google-services.json by design. The plugin's default is
+        // to fail the build when it can't find one for a variant, which would take the whole
+        // open-source build down with it.
+        missingGoogleServicesStrategy = MissingGoogleServicesStrategy.IGNORE
+    }
 }
 
 android {
@@ -56,10 +79,32 @@ android {
         }
     }
 
-    // Single distribution: ships libsu for real Root install support alongside Shizuku
-    // and the default system installer. The previous store/full split was removed —
-    // apps in this category on Play routinely ship Root/Shizuku/Default together, so
-    // the static-analysis concern that drove the split didn't pan out.
+    // Both flavors ship the same installer backends — libsu for Root alongside Shizuku and the
+    // default system installer. The dimension exists purely to keep Google's proprietary
+    // Analytics/Crashlytics libraries out of the build we publish as open source. (An earlier
+    // store/full split over libsu was removed for unrelated reasons; this is not that split.)
+    flavorDimensions += "distribution"
+    productFlavors {
+        // What `assembleDebug` / `assembleRelease` and the IDE pick by default, and the build
+        // the GitHub release APK comes from. No Firebase, no Google Play Services.
+        create("opensource") {
+            dimension = "distribution"
+            isDefault = true
+            if (hasFirebaseConfig) {
+                // This flavor has no Firebase app id to upload a mapping file against, so the
+                // upload task would fail at the end of every `assembleOpensourceRelease`.
+                (this as ExtensionAware).extensions
+                    .configure<CrashlyticsExtension>("firebaseCrashlytics") {
+                        mappingFileUploadEnabled = false
+                    }
+            }
+        }
+        // The Play Store build: same app plus Firebase Analytics and Crashlytics.
+        create("play") {
+            dimension = "distribution"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -80,6 +125,16 @@ android {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+}
+
+androidComponents {
+    // Drop the `play` variants when there is no google-services.json to build them against.
+    // A contributor cloning the repo then sees exactly the task list they saw before this
+    // dimension existed, and `assemblePlayRelease` fails with "task not found" rather than
+    // producing a Play build with Firebase silently missing.
+    beforeVariants(selector().withFlavor("distribution" to "play")) { variant ->
+        variant.enable = hasFirebaseConfig
     }
 }
 
@@ -140,6 +195,12 @@ dependencies {
     implementation(libs.bundles.ackpine.libsu)
     implementation(libs.libsu.core)
     implementation(libs.libsu.service)
+
+    // Firebase, `play` flavor only. Quoted configuration names because type-safe accessors for
+    // flavor configurations aren't generated for the script that declares the flavor.
+    "playImplementation"(platform(libs.firebase.bom))
+    "playImplementation"(libs.firebase.analytics)
+    "playImplementation"(libs.firebase.crashlytics)
 
     implementation(libs.nanohttpd)
     implementation(libs.zxing.core)

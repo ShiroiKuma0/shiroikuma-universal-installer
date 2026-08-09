@@ -17,6 +17,8 @@ class DefaultInstallController(
     historyDao: InstallHistoryDao,
 ) : BaseInstallController(context, packageInstaller, sessionDataRepository, historyDao) {
 
+    override val telemetryMethod = "default"
+
     override suspend fun createSession(
         uris: List<Uri>,
         name: String,

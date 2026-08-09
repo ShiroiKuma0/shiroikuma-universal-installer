@@ -7,6 +7,8 @@ import app.pwhs.universalinstaller.di.appModule
 import app.pwhs.universalinstaller.di.flavorModule
 import app.pwhs.universalinstaller.presentation.install.controller.BackendSelfHeal
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
+import app.pwhs.universalinstaller.telemetry.Telemetry
+import app.pwhs.universalinstaller.telemetry.createTelemetrySink
 import app.pwhs.universalinstaller.util.ApkFileIconFetcher
 import app.pwhs.universalinstaller.util.AppIconFetcher
 import app.pwhs.universalinstaller.util.CrashHandler
@@ -40,6 +42,25 @@ private class ReleaseTree : Timber.Tree() {
     }
 }
 
+/**
+ * Feeds the same warnings and errors [ReleaseTree] writes to logcat into the crash reporter,
+ * so a report arrives with the run-up to the failure attached rather than a bare stack trace.
+ *
+ * A no-op on `opensource`, where [Telemetry] has no sink. The WARN floor is the same one
+ * [ReleaseTree] uses and for the same reason: debug-level lines carry URIs and file names.
+ */
+private class TelemetryTree : Timber.Tree() {
+    override fun isLoggable(tag: String?, priority: Int): Boolean = priority >= Log.WARN
+
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        Telemetry.breadcrumb("${tag ?: "UniversalInstaller"}: $message")
+        // Timber.e(throwable) is how this codebase reports a failure it recovered from. Those
+        // are exactly the non-fatals worth seeing; warnings stay breadcrumbs so a device that
+        // warns in a loop can't drown out the crash reports.
+        if (priority >= Log.ERROR && t != null) Telemetry.recordException(t)
+    }
+}
+
 class App : Application(), SingletonImageLoader.Factory {
 
     init {
@@ -61,12 +82,17 @@ class App : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
+        // Before CrashHandler.install: that one chains to whatever handler is already default,
+        // which on `play` is Crashlytics'. Binding the sink first also means a crash during the
+        // rest of onCreate is still reported.
+        Telemetry.install(createTelemetrySink(this))
         CrashHandler.install(this)
         // Release builds used to plant nothing, so Settings -> Diagnostics collected a logcat
         // dump containing not one line from this app. Issues #92 and #100 both arrived with a
         // full report attached and no clue in it. Release now keeps warnings and errors — the
         // lines that explain a failure — while debug keeps everything.
         Timber.plant(if (BuildConfig.DEBUG) Timber.DebugTree() else ReleaseTree())
+        if (Telemetry.isCollecting) Timber.plant(TelemetryTree())
         startKoin{
             androidLogger()
             androidContext(this@App)

@@ -119,4 +119,24 @@ object InstallErrorHelper {
         val info = getErrorInfo(context, failure)
         return "${info.title}: ${info.guidance}"
     }
+
+    /**
+     * A stable, non-localised name for a failure kind, for telemetry.
+     *
+     * Deliberately not `failure::class.simpleName`: R8 renames ackpine's classes, so release
+     * builds would report a different — and meaningless — name than debug ones. Never include
+     * `failure.message`; it carries package and file names.
+     */
+    fun failureKey(failure: InstallFailure): String = when (failure) {
+        is InstallFailure.Aborted -> "aborted"
+        is InstallFailure.Blocked -> "blocked"
+        is InstallFailure.Conflict -> "conflict"
+        is InstallFailure.Incompatible -> "incompatible"
+        is InstallFailure.Invalid -> "invalid"
+        is InstallFailure.Storage -> "storage"
+        is InstallFailure.Timeout -> "timeout"
+        is InstallFailure.Exceptional -> "exceptional"
+        is InstallFailure.Generic -> "generic"
+        else -> "unknown"
+    }
 }

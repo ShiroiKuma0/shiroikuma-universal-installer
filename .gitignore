@@ -31,3 +31,12 @@ vendor/downloads/
 InstallerX-Revived-main
 # android-re: decompiled APKs and analysis output (large, regenerable)
 android-re-workspace/
+
+# Firebase config for the `play` flavor — carries our project's API key and app id, and its
+# presence is what enables the play variants at all. Kept out of the public repo; CI writes it
+# from the GOOGLE_SERVICES_JSON secret. See docs/FIREBASE.md.
+app/src/play/google-services.json
+# The module root is also on the plugin's search path, and a file there applies to *every*
+# flavor — which would put the config into the open-source build too. Ignored so it can't be
+# committed by accident; the only supported location is app/src/play/ above.
+app/google-services.json

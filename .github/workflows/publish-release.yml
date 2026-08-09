@@ -62,6 +62,13 @@ jobs:
       - name: Decode Play Store key
         run: echo "${{ secrets.PLAY_STORE_CONFIG_JSON }}" | base64 --decode > fastlane/play-store-key.json
 
+      # Enables the `play` flavor. Without this file :app has no play variants at all and every
+      # bundlePlayRelease below fails with "task not found" — see docs/FIREBASE.md.
+      - name: Decode Firebase config
+        run: |
+          mkdir -p app/src/play
+          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/src/play/google-services.json
+
       # Build & Deploy
       - name: Grant execute permission
         run: chmod +x gradlew
@@ -86,10 +93,11 @@ jobs:
         continue-on-error: true
         run: bundle exec fastlane beta --fastlane_dir=fastlane_tv
 
-      # Both Play and GitHub now get the same artifact — Play gets the AAB built above
-      # via fastlane, GitHub gets a side-loadable APK from the same single build.
+      # Play got its AAB from the fastlane lanes above, built from the `play` flavor. GitHub
+      # gets the `opensource` flavor instead: same app, minus Firebase Analytics and
+      # Crashlytics, which is the build we distribute as open source.
       - name: Build release APK & AAB
-        run: ./gradlew assembleRelease bundleRelease
+        run: ./gradlew :app:assembleOpensourceRelease :app:bundleOpensourceRelease :tv:assembleRelease :tv:bundleRelease
 
       # Artifacts
       - name: Upload release AAB & APK
@@ -97,8 +105,8 @@ jobs:
         with:
           name: release-build
           path: |
-            app/build/outputs/bundle/release/app-release.aab
-            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/opensourceRelease/app-opensource-release.aab
+            app/build/outputs/apk/opensource/release/app-opensource-release.apk
             tv/build/outputs/bundle/release/tv-release.aab
             tv/build/outputs/apk/release/tv-release.apk
           retention-days: 30
@@ -111,8 +119,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            app/build/outputs/apk/release/app-release.apk
-            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/apk/opensource/release/app-opensource-release.apk
+            app/build/outputs/bundle/opensourceRelease/app-opensource-release.aab
             tv/build/outputs/apk/release/tv-release.apk
             tv/build/outputs/bundle/release/tv-release.aab
           token: ${{ secrets.GITHUB_TOKEN }}

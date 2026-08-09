@@ -181,13 +181,18 @@ androidComponents {
 
 // Build the release APK, copy it to ~/tmp under our canonical name, and bump BUILD_NUMBER
 // for the next build. Mirrors the buildFoss/fork-build pattern used across the shiroikuma forks.
-// (Upstream v1.8.3 dropped the store/full flavor split — single release artifact now.)
+//
+// Upstream 1.9.12 reintroduced a `distribution` dimension (opensource / play) purely to keep
+// Firebase out of the open-source build. The fork ships no google-services.json, so the `play`
+// variants are disabled and `assembleRelease` produces exactly one APK — the opensource one,
+// under build/outputs/apk/opensource/release. Depending on the flavour-specific task keeps that
+// explicit: if a Firebase config ever appeared, we would still build the telemetry-free APK.
 tasks.register("buildFork") {
     description = "Build the release APK, copy it to ~/tmp, and bump BUILD_NUMBER for next time."
-    dependsOn("assembleRelease")
+    dependsOn("assembleOpensourceRelease")
     doLast {
         val apkName = "shiroikuma-universal-installer_${forkVersionName}.apk"
-        val outputDir = layout.buildDirectory.dir("outputs/apk/release").get().asFile
+        val outputDir = layout.buildDirectory.dir("outputs/apk/opensource/release").get().asFile
         val targetDir = File(System.getProperty("user.home"), "tmp")
         targetDir.mkdirs()
         outputDir.listFiles { _, name -> name.endsWith(".apk") }?.firstOrNull()?.let { apk ->

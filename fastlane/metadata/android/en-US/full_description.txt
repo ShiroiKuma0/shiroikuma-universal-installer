@@ -1,9 +1,9 @@
-Universal Installer is the ultimate Android package manager and Split APK Installer designed to handle what the system can't. Sideload split APKs, bundled archives with OBB data, and perform silent installs with ease. A premium package installer with a modern Material 3 UI.
+Universal Installer is an Android package manager and Split APK Installer built to handle what the system can't: sideload split APKs, bundled archives with OBB data, and install silently. A premium installer with a modern Material 3 UI.
 
 Expressive & Customizable
 - Fluid animations: Living dialogs with bouncy spring physics (inspired by InstallerX-Revived).
-- Brand identity: High-contrast Orange theme default for a professional, premium look.
-- Installer Profiles: Save and reuse combinations of install flags, spoofed installers, and target users.
+- Brand identity: High-contrast Orange theme by default.
+- Installer Profiles: Save and reuse install flags, spoofed installers and target users.
 
 Supported Formats
 - APK: Standard Android packages
@@ -15,11 +15,11 @@ Supported Formats
 Install From Anywhere
 - Local file picker: Auto-scan storage, browse packages, or full file browser modes.
 - Remote download: Paste a URL; the package lands in Download/UniversalInstaller/ with its real filename.
-- Download history: Re-install, copy source URLs, and manage files without digging through folders.
+- Download history: Re-install, copy source URLs and manage files in one place.
 - App integration: Open APKs from Chrome, Gmail, or Telegram even when URLs lack extensions.
 
 Preview Before Installing
-See app name, icon, version, package, size, SDK targets, CPU architectures, languages, permissions, split count, and OBB count — all before you commit.
+See name, icon, version, package, size, SDK targets, CPU architectures, languages, permissions, split and OBB counts before you commit.
 
 OBB Support
 - Bundled OBBs inside XAPK/APKM are detected and copied automatically to Android/obb/.
@@ -30,31 +30,30 @@ OBB Support
 Silent Installs: Shizuku, Root or Dhizuku
 - Shizuku: silent installs with no root, started over wireless debugging.
 - Root: silent installs on rooted devices, with the full set of flags.
-- Dhizuku: silent installs with neither root nor ADB. It runs as device owner, so it survives a reboot without being restarted — setup requires a device with no accounts signed in, and it supports downgrade only.
+- Dhizuku: silent installs with neither root nor ADB. Runs as device owner, so it survives a reboot; needs a device with no accounts signed in, and supports downgrade only.
 - Targeted User Installs: Install apps to specific profiles (Work, Island, etc.) or all users at once.
 - Advanced flags: Replace existing, allow downgrade, grant all permissions, bypass low target SDK blocks.
-- Set Install Source: Record a different installer package, so apps that check where they came from see what you choose.
+- Set Install Source: Record a different installer package, so apps that check where they came from see what you pick.
 
 App Manager & Extractor
 - Full list with APK size, install date, and last-used time.
 - APK Backup: Extract and backup apps to your storage.
-- Flexible Sorting: Name, Size, Date, or Usage (ascending/descending).
+- Flexible Sorting: Name, Size, Date or Usage, with a quick-filter FAB.
 - Batch Operations: Select multiple packages via long-press for batch uninstall.
-- Quick Filter: FAB for rapid sorting; long-press to scroll to top.
 - Uninstall logs: Track success or failure reasons for every operation.
 
 Sync & Share (LAN File Server)
 - Built-in HTTP server: Share and manage packages across local Wi-Fi.
-- Web Dashboard: Download APKs to PC or upload new ones directly to your phone.
-- Real-time tracking: Monitor download progress and transfers directly in the app.
-- PIN protection: Secure your file sharing sessions from unauthorized access.
+- Web Dashboard: Download APKs to a PC or upload new ones to your phone.
+- Real-time tracking: Watch download and transfer progress in the app.
+- PIN protection: Keep file sharing sessions private.
 
 Security & Privacy
 - VirusTotal: Hash lookup and optional full upload for unknown files (up to 650 MB), using your own free API key.
 - Clear Verdicts: See malicious, suspicious, and harmless engine counts at a glance.
 - Offline First: No internet required for core functionality.
 - No Ads, No Accounts: Fully open source, with nothing sold or shared.
-- Anonymous Diagnostics: This build reports install success rates and crash reports so the app can be fixed. It never records which apps you install - no package names, app names, or file names. Switch it off during setup or in Settings; the GitHub build ships without any reporting at all.
+- Anonymous Diagnostics: Reports install success rates and crashes so failures can be fixed. Never records which apps you install - no package names, app names, or file names. Switch it off during setup or in Settings; the GitHub build has no reporting at all.
 
 Device Utilities
 - Storage Overview: Free and total space visible on the Install screen.

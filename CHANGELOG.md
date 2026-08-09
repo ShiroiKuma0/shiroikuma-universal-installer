@@ -4,6 +4,35 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.9.12+001
+
+**New in this build:** rebased onto **upstream 1.9.12** (versionCode 32) — the largest upstream release the fork has absorbed. All 58 fork commits replay on top of it.
+
+### 🕵️ Upstream added telemetry — this build has none of it
+- Upstream 1.9.12 ships **Firebase Analytics and Crashlytics**, confined to a new `play` product flavor that only activates when an untracked `app/src/play/google-services.json` is present. A second flavor, `opensource`, is the default and carries neither.
+- **The fork has no Firebase config**, so upstream's `beforeVariants` hook disables every `play` variant outright: the Google Services and Crashlytics Gradle plugins are never applied, and `TelemetrySinkFactory` resolves to the `opensource` **no-op sink**. Nothing measures anything.
+- Our `buildFork` task now depends on **`assembleOpensourceRelease`** rather than the aggregate `assembleRelease`, and reads `build/outputs/apk/opensource/release`. Pinning the flavor by name means the telemetry-free build stays guaranteed rather than merely incidental — if a `google-services.json` ever appeared in a checkout, the fork build would still be the open-source one.
+- `CLAUDE.md` records the rule: **never add a `google-services.json` to this fork.**
+
+### 🧩 Fork customizations re-seated on rewritten upstream code
+- **The false downgrade warning stays gone.** Upstream rewrote the risk dialog around a new shared `isDowngrade()` (so the warning and the actual `INSTALL_REQUEST_DOWNGRADE` decision can't disagree) and added a genuine `SignatureMismatch` risk. Both were kept; our removal of the alarmist *"existing app data may be wiped"* gate was re-applied on top, and the three upstream call sites that filtered on the now-absent `InstallRisk.Downgrade` were adapted. A downgrade is still signalled by the ⚠ subtitle, the chip and the red Downgrade button — it just doesn't stop you.
+- **Settings messages keep their format arguments.** Upstream introduced a plain `emitEvent(Int)` helper on the settings event channel, which our Shizuku work had already widened to a `UiMessage(res, args)` so a toast could name *"白い熊 雫"*. The wider channel wins and `emitEvent` routes through it, so every upstream message still fires and ours keep their arguments.
+- **The yellow dialog border survives the new bottom-sheet style.** Upstream can now render the install UI as an edge-attached sheet with its own container color, elevation and shape; the fork's themable border is applied to both presentations rather than only to the floating dialog.
+- **The install button keeps its theming while gaining upstream's blocked-package state**, so a blacklisted package greys the button out without losing the per-slot color/border/font overrides or the downgrade red.
+- **The app label was re-asserted across all 19 locales.** Upstream rewrote `values-pt-rBR` and `values-vi` wholesale (1426 and 1324 changed lines); those files were taken fresh and the fork's `app_name` and `白い熊 Yellow` preset string re-applied, so the launcher never regresses to *"Universal Installer"* on a non-default device language.
+- Two settings pages now sit side by side: upstream's own **Install UI** screen (picks dialog vs. bottom-sheet presentation) and the fork's **白い熊 Installer UI** theming page. They do different jobs and both are reachable.
+
+### 📦 What upstream 1.9.12 brings with it
+- **Dhizuku as a fourth install backend** (via ackpine's Dhizuku plugin), presented as a switch rather than a fourth mode, offered only when Dhizuku is actually installed and the device is API 26+, and re-probed on resume so a grant made in Dhizuku's own app is noticed. ackpine **0.22.9 → 0.25.4**.
+- **Install straight from a notification** — confirm or cancel without a window opening at all, with APKs staged before the URI grant expires and a check that the prompt can actually post before committing to it.
+- **Bottom-sheet install UI** as an alternative to the dialog, with its own settings screen, plus APK-info sheet height capping measured from real constraints.
+- **Package blacklist** with its own screen, and the dead VirusTotal button fixed.
+- **Normal vs Strict security levels** — VirusTotal no longer owns the install button; Strict is the level that treats an unscanned file as a risk. Rejected API keys and spent quota are now reported as such, scan verdicts link to the report, and the onboarding page lets you paste the key where you get it.
+- **Signature-mismatch warning up front**, with the conflicting app removable through whichever backend the install will use.
+- **Help section** in Settings with a tutorial replay, and onboarding pages for VirusTotal and analytics, translated into the 17 core locales.
+- **Android TV**: a generated baseline profile, R8 enabled, D-pad moves no longer recompose the whole app list, and package file types registered so *"Open with"* reaches the TV app.
+- Fixes: Shizuku session writes routed correctly for targeted installs (#58), failed installs can be dismissed (#93), app names containing symbols no longer mangled on extract (#96), the source APK is deleted on paths that previously couldn't (#100), Retry works for sessions this controller didn't create, MIUI optimization guidance for Xiaomi devices, and 96 missing strings filled in across 18 locales.
+
 ## 1.9.11+019
 
 **New in this build:**

@@ -225,8 +225,6 @@
     <string name="apk_info_vt_not_found">File non trovato nel database VirusTotal</string>
     <string name="apk_info_vt_no_api_key">Nessuna chiave API VirusTotal configurata. Apri Impostazioni → Advanced → Chiave API VirusTotal per aggiungerne una — chiave gratuita su virustotal.com/gui/my-apikey.</string>
     <string name="apk_info_vt_uploading">Caricamento su VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Controlla con VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Scansiona di nuovo</string>
     <string name="vt_notif_channel_name">Scansioni VirusTotal</string>
     <string name="vt_notif_channel_description">Avanzamento di caricamenti e analisi su VirusTotal</string>
     <string name="vt_notif_hashing">Calcolo hash del file…</string>
@@ -302,7 +300,6 @@
     <string name="setting_delete_apk_title">Elimina APK dopo l\'installazione</string>
     <string name="setting_auto_open_title">Apri app dopo l\'installazione</string>
     <string name="setting_auto_open_subtitle">Avvia l\'app installata dalla schermata di successo — con un conto alla rovescia annullabile di 3 secondi</string>
-    <string name="setting_section_shizuku_options">Opzioni Shizuku</string>
     <string name="setting_shizuku_options_install_group">Installazione</string>
     <string name="setting_shizuku_options_uninstall_group">Disinstallazione</string>
     <string name="setting_shizuku_uninstall_keep_data">Mantieni i dati dell\'app</string>
@@ -372,21 +369,6 @@
     <string name="diagnostics_cancel">Annulla</string>
     <string name="installer_mode_package_installer">Programma di installazione pacchetti</string>
     <string name="installer_mode_using">Uso di %s</string>
-    <string name="setting_section_root_options">Opzioni Root</string>
-    <string name="setting_root_replace">Sostituisci esistente</string>
-    <string name="setting_root_replace_sub">Sostituisci i pacchetti già installati</string>
-    <string name="setting_root_downgrade">Consenti downgrade</string>
-    <string name="setting_root_downgrade_sub">Consenti l\'installazione di una versione precedente su una più recente</string>
-    <string name="setting_root_grant_permissions">Concedi tutte le autorizzazioni</string>
-    <string name="setting_root_grant_permissions_sub">Concedi automaticamente tutte le autorizzazioni richieste</string>
-    <string name="setting_root_allow_test">Consenti pacchetti di test</string>
-    <string name="setting_root_allow_test_sub">Consenti l\'installazione di APK di debug/test</string>
-    <string name="setting_root_bypass_sdk">Bypassa blocco SDK target basso</string>
-    <string name="setting_root_bypass_sdk_sub">Installa app destinate a vecchie versioni dell\'SDK</string>
-    <string name="setting_root_all_users">Installa per tutti gli utenti</string>
-    <string name="setting_root_all_users_sub">Installa il pacchetto per tutti gli utenti del dispositivo</string>
-    <string name="setting_root_set_source">Imposta origine installazione</string>
-    <string name="setting_root_set_source_sub">Predefinito a questa app se disattivato</string>
     <string name="install_error_cancelled_title">Installazione annullata</string>
     <string name="install_error_cancelled_guidance">L\'installazione è stata annullata dall\'utente o dal sistema. Tocca Riprova per tentare di nuovo.</string>
     <string name="install_error_blocked_title">Installazione bloccata</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Apri l\'app Shizuku e avvia prima il servizio</string>
     <string name="setting_shizuku_install_hint">Installa Shizuku dal Play Store per utilizzare questo backend</string>
     <string name="setting_auto_confirm_title">Conferma automatica installazioni esterne</string>
-    <string name="setting_auto_confirm_subtitle">Salta la finestra di dialogo di conferma quando un APK viene aperto da un\'altra app</string>
     <string name="setting_default_installer_title">Imposta come programma di installazione predefinito</string>
     <string name="setting_default_installer_subtitle">Disabilita il programma di installazione di sistema per utilizzare sempre Universal Installer per i file APK (richiede Shizuku o Root)</string>
     <string name="setting_default_installer_needs_backend">Abilita prima Shizuku o Root per cambiare il programma di installazione predefinito</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Elimina</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Aggiunti %1$d file, saltati %2$d non supportati</string>
-    <string name="sync_toast_added">Aggiunti %1$d file alla cartella di sincronizzazione</string>
-    <string name="sync_toast_unsupported">Nessun file di pacchetto supportato selezionato (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Impossibile copiare i file</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">Chiave API VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Incolla la chiave API qui…</string>
     <string name="setting_diagnostics_title">Diagnostica</string>
-    <string name="setting_installer_package_title">Pacchetto di installazione</string>
-    <string name="backup_settings_title">Impostazioni di backup</string>
     <string name="backup_output_path">Percorso di output</string>
     <string name="backup_filename_template">Modello nome file</string>
     <string name="backup_tags_hint">Tag: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Scansiona con VirusTotal</string>
     <string name="skip_and_install_btn">Ignora e installa</string>
     <string name="scanning_progress">Scansione in corso…</string>
-    <string name="setting_vt_strict_check_title">Controllo severo VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Avvisa prima dell\'installazione se il file non è stato scansionato</string>
 </resources>

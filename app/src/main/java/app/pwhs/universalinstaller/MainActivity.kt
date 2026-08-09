@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import app.pwhs.core.domain.ThemeMode
 import app.pwhs.core.presentation.onboarding.OnboardingScreen
+import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.core.util.DeviceCompat
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.presentation.splash.SplashActivity
@@ -113,6 +114,9 @@ class MainActivity : ComponentActivity() {
                         onFinish = { currentRoute = AppRoute.Main },
                         showXiaomiTip = DeviceCompat.isXiaomi,
                         showVirusTotalTip = true,
+                        // Only the build that has reporting asks about it. On `opensource`
+                        // there is no sink, so the page would be a question about nothing.
+                        showAnalyticsConsent = Telemetry.isCollecting,
                     )
                     AppRoute.Main -> {
                         LaunchedEffect(Unit) {

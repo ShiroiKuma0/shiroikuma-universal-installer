@@ -32,4 +32,9 @@
     <string name="permission_return_channel_desc">Notification to return to the app after granting a permission in system settings.</string>
     <string name="permission_return_title">Permission granted</string>
     <string name="permission_return_body">Tap to return to Universal Installer.</string>
+    <!-- Onboarding: anonymous reporting. Shown only on the Play build, opted in. -->
+    <string name="onboarding_analytics_title">Help fix what breaks</string>
+    <string name="onboarding_analytics_desc">Installing apps works differently on every phone, and we only find out what fails when the app tells us. It reports whether an install worked and what went wrong \u2014 never which app you installed.</string>
+    <string name="onboarding_analytics_switch">Share anonymous diagnostics</string>
+    <string name="onboarding_analytics_switch_sub">You can change this any time in Settings.</string>
 </resources>

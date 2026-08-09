@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">탭하여 Shizuku 권한 부여</string>
     <string name="setting_shizuku_ready">프롬프트 없는 자동 설치</string>
     <string name="setting_delete_apk_title">설치 후 APK 삭제</string>
-    <string name="setting_section_shizuku_options">Shizuku 옵션</string>
     <string name="setting_shizuku_replace">기존 패키지 덮어쓰기</string>
     <string name="setting_shizuku_replace_sub">이미 설치된 패키지를 덮어씁니다</string>
     <string name="setting_shizuku_downgrade">Downgrade 허용</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">뒤로</string>
     <string name="done_cd">완료</string>
     <string name="apk_info_vt_uploading">VirusTotal에 업로드 중… %d%%</string>
-    <string name="apk_info_vt_check_button">VirusTotal로 확인</string>
-    <string name="apk_info_vt_rescan_button">다시 스캔</string>
     <string name="vt_notif_channel_name">VirusTotal 스캔</string>
     <string name="vt_notif_channel_description">VirusTotal 업로드 및 분석 진행률</string>
     <string name="vt_notif_hashing">파일 해시 중…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">제거 시 사용자 데이터 및 캐시 유지 (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">모든 사용자에 대해 제거</string>
     <string name="setting_shizuku_uninstall_all_users_sub">기기의 모든 사용자에게서 패키지 삭제</string>
-    <string name="setting_section_root_options">Root 옵션</string>
-    <string name="setting_root_replace">기존 항목 덮어쓰기</string>
-    <string name="setting_root_replace_sub">이미 설치된 패키지 덮어쓰기</string>
-    <string name="setting_root_downgrade">다운그레이드 허용</string>
-    <string name="setting_root_downgrade_sub">새 버전 위에 이전 버전 설치 허용</string>
-    <string name="setting_root_grant_permissions">모든 권한 부여</string>
-    <string name="setting_root_grant_permissions_sub">요청된 모든 권한 자동 부여</string>
-    <string name="setting_root_allow_test">테스트 패키지 허용</string>
-    <string name="setting_root_allow_test_sub">디버그/테스트 APK 설치 허용</string>
-    <string name="setting_root_bypass_sdk">낮은 타겟 SDK 차단 우회</string>
-    <string name="setting_root_bypass_sdk_sub">이전 SDK 버전을 타겟팅하는 앱 설치</string>
-    <string name="setting_root_all_users">모든 사용자를 위해 설치</string>
-    <string name="setting_root_all_users_sub">기기의 모든 사용자를 위해 패키지 설치</string>
-    <string name="setting_root_set_source">설치 출처 설정</string>
-    <string name="setting_root_set_source_sub">꺼져 있을 때 이 앱을 기본값으로 사용</string>
     <string name="setting_section_sync">동기화 및 공유</string>
     <string name="setting_rate_subtitle">Google Play에서 평가하기</string>
     <string name="qs_tile_sync_label">동기화 및 공유</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">먼저 Shizuku 앱을 열고 서비스를 시작하세요</string>
     <string name="setting_shizuku_install_hint">이 백엔드를 사용하려면 Play 스토어에서 Shizuku를 설치하세요</string>
     <string name="setting_auto_confirm_title">외부 설치 자동 확인</string>
-    <string name="setting_auto_confirm_subtitle">다른 앱에서 APK를 열 때 확인 대화 상자를 건너뜁니다</string>
     <string name="setting_default_installer_title">기본 설치 프로그램으로 설정</string>
     <string name="setting_default_installer_subtitle">시스템 설치 프로그램을 비활성화하여 APK 파일에 항상 Universal Installer를 사용합니다(Shizuku 또는 Root 필요)</string>
     <string name="setting_default_installer_needs_backend">기본 설치 프로그램을 변경하려면 먼저 Shizuku 또는 Root를 활성화하세요</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">삭제</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">%1$d개의 파일을 추가하고, 지원되지 않는 %2$d개의 파일을 건너뛰었습니다</string>
-    <string name="sync_toast_added">동기화 폴더에 %1$d개의 파일을 추가했습니다</string>
-    <string name="sync_toast_unsupported">지원되는 패키지 파일이 선택되지 않았습니다 (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">파일 복사 실패</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">VirusTotal API 키</string>
     <string name="setting_vt_api_key_placeholder">여기에 API 키 붙여넣기…</string>
     <string name="setting_diagnostics_title">진단</string>
-    <string name="setting_installer_package_title">설치 패키지</string>
-    <string name="backup_settings_title">백업 설정</string>
     <string name="backup_output_path">출력 경로</string>
     <string name="backup_filename_template">파일 이름 템플릿</string>
     <string name="backup_tags_hint">태그: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">VirusTotal로 검사</string>
     <string name="skip_and_install_btn">건너뛰고 설치</string>
     <string name="scanning_progress">검사 중…</string>
-    <string name="setting_vt_strict_check_title">엄격한 VirusTotal 검사</string>
-    <string name="setting_vt_strict_check_summary">파일이 검사되지 않은 경우 설치하기 전에 경고</string>
 </resources>

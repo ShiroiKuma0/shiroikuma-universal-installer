@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">Shizuku izni vermek için dokunun</string>
     <string name="setting_shizuku_ready">Onay istemeden sessiz yükleme</string>
     <string name="setting_delete_apk_title">Yüklemeden sonra APK\'yı sil</string>
-    <string name="setting_section_shizuku_options">Shizuku Seçenekleri</string>
     <string name="setting_shizuku_replace">Mevcut olanı değiştir</string>
     <string name="setting_shizuku_replace_sub">Zaten yüklü olan paketlerin üzerine yaz</string>
     <string name="setting_shizuku_downgrade">Downgrade\'e izin ver</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">Geri</string>
     <string name="done_cd">Bitti</string>
     <string name="apk_info_vt_uploading">VirusTotal\'e yükleniyor… %d%%</string>
-    <string name="apk_info_vt_check_button">VirusTotal ile Kontrol Et</string>
-    <string name="apk_info_vt_rescan_button">Yeniden tara</string>
     <string name="vt_notif_channel_name">VirusTotal taramaları</string>
     <string name="vt_notif_channel_description">VirusTotal yükleme ve analizlerinin ilerlemesi</string>
     <string name="vt_notif_hashing">Dosya özetleniyor (hashing)…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">Kaldırırken kullanıcı verilerini ve önbelleği koru (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">Tüm kullanıcılar için kaldır</string>
     <string name="setting_shizuku_uninstall_all_users_sub">Paketi cihazdaki her kullanıcıdan kaldır</string>
-    <string name="setting_section_root_options">Root Seçenekleri</string>
-    <string name="setting_root_replace">Mevcut olanı değiştir</string>
-    <string name="setting_root_replace_sub">Zaten yüklü olan paketleri değiştir</string>
-    <string name="setting_root_downgrade">Sürüm düşürmeye izin ver</string>
-    <string name="setting_root_downgrade_sub">Eski sürümün yenisinin üzerine yüklenmesine izin ver</string>
-    <string name="setting_root_grant_permissions">Tüm izinleri ver</string>
-    <string name="setting_root_grant_permissions_sub">İstenen tüm izinleri otomatik olarak ver</string>
-    <string name="setting_root_allow_test">Test paketlerine izin ver</string>
-    <string name="setting_root_allow_test_sub">Hata ayıklama/test APK\'larının yüklenmesine izin ver</string>
-    <string name="setting_root_bypass_sdk">Düşük hedef SDK engellemesini atla</string>
-    <string name="setting_root_bypass_sdk_sub">Eski SDK sürümlerini hedefleyen uygulamaları yükle</string>
-    <string name="setting_root_all_users">Tüm kullanıcılar için yükle</string>
-    <string name="setting_root_all_users_sub">Paketi tüm cihaz kullanıcıları için yükle</string>
-    <string name="setting_root_set_source">Yükleme kaynağını ayarla</string>
-    <string name="setting_root_set_source_sub">Kapalı olduğunda varsayılan olarak bu uygulama olur</string>
     <string name="setting_section_sync">Senkronize Et ve Paylaş</string>
     <string name="setting_rate_subtitle">Bizi Google Play\'de değerlendirin</string>
     <string name="qs_tile_sync_label">Senkronize Et ve Paylaş</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Önce Shizuku uygulamasını açın ve hizmeti başlatın</string>
     <string name="setting_shizuku_install_hint">Bu arka ucu kullanmak için Play Store\'dan Shizuku\'yu yükleyin</string>
     <string name="setting_auto_confirm_title">Harici yüklemeleri otomatik onayla</string>
-    <string name="setting_auto_confirm_subtitle">Başka bir uygulamadan bir APK açıldığında onay iletişim kutusunu atla</string>
     <string name="setting_default_installer_title">Varsayılan yükleyici olarak ayarla</string>
     <string name="setting_default_installer_subtitle">APK dosyaları için her zaman Universal Installer\'ı kullanmak üzere sistem yükleyicisini devre dışı bırakın (Shizuku veya Root gerektirir)</string>
     <string name="setting_default_installer_needs_backend">Varsayılan yükleyiciyi değiştirmek için önce Shizuku veya Root\'u etkinleştirin</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Sil</string>
     <string name="sync_percentage">%%1$d</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">%1$d dosya eklendi, %2$d desteklenmeyen dosya atlandı</string>
-    <string name="sync_toast_added">Senkronizasyon Klasörüne %1$d dosya eklendi</string>
-    <string name="sync_toast_unsupported">Desteklenen hiçbir paket dosyası seçilmedi (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Dosyalar kopyalanamadı</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">VirusTotal API Anahtarı</string>
     <string name="setting_vt_api_key_placeholder">API anahtarını buraya yapıştırın…</string>
     <string name="setting_diagnostics_title">Teşhis</string>
-    <string name="setting_installer_package_title">Yükleyici Paketi</string>
-    <string name="backup_settings_title">Yedekleme Ayarları</string>
     <string name="backup_output_path">Çıktı Yolu</string>
     <string name="backup_filename_template">Dosya Adı Şablonu</string>
     <string name="backup_tags_hint">Etiketler: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">VirusTotal\'da Tara</string>
     <string name="skip_and_install_btn">Atla ve Yükle</string>
     <string name="scanning_progress">Taranıyor…</string>
-    <string name="setting_vt_strict_check_title">Sıkı VirusTotal kontrolü</string>
-    <string name="setting_vt_strict_check_summary">Dosya taranmadıysa yüklemeden önce uyar</string>
 </resources>

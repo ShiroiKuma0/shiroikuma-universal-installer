@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SyncOptions
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.telemetry.Telemetry
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -75,6 +77,8 @@ class SyncViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleServer(enabled: Boolean) {
         val intent = Intent(getApplication(), SyncService::class.java)
         if (enabled) {
+            // Only the start counts as a use — reporting the stop too would double every session.
+            Telemetry.feature(TelemetryEvents.FEATURE_LAN_SHARE)
             getApplication<Application>().startService(intent)
         } else {
             intent.action = "STOP"

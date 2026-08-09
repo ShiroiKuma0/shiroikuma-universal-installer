@@ -231,8 +231,6 @@
     <string name="apk_info_vt_not_found">Fișierul nu a fost găsit în baza de date VirusTotal</string>
     <string name="apk_info_vt_no_api_key">Nicio cheie API VirusTotal configurată. Deschide Setări → Advanced → Cheie API VirusTotal pentru a adăuga una — cheie gratuită la virustotal.com/gui/my-apikey.</string>
     <string name="apk_info_vt_uploading">Se încarcă pe VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Verifică cu VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Scanează din nou</string>
     <string name="vt_notif_channel_name">Scanări VirusTotal</string>
     <string name="vt_notif_channel_description">Progresul încărcărilor și analizelor VirusTotal</string>
     <string name="vt_notif_hashing">Se calculează hash-ul fișierului…</string>
@@ -313,14 +311,12 @@
     <string name="setting_auto_open_title">Deschide aplicația după instalare</string>
     <string name="setting_auto_open_subtitle">Lansează aplicația instalată de pe ecranul de succes — cu o numărătoare inversă de 3 secunde anulabilă</string>
     <string name="setting_auto_confirm_title">Auto-confirmă instalările externe</string>
-    <string name="setting_auto_confirm_subtitle">Omite dialogul de confirmare când un APK este deschis dintr-o altă aplicație</string>
     <string name="setting_default_installer_title">Setează ca instalator implicit</string>
     <string name="setting_default_installer_subtitle">Dezactivează instalatorul sistemului pentru a folosi întotdeauna Universal Installer pentru fișierele APK (necesită Shizuku sau Root)</string>
     <string name="setting_default_installer_needs_backend">Activează Shizuku sau Root mai întâi pentru a schimba instalatorul implicit</string>
     <string name="setting_default_installer_enabled">Universal Installer este acum instalatorul implicit</string>
     <string name="setting_default_installer_disabled">Instalatorul sistemului a fost restabilit</string>
     <string name="setting_default_installer_failed">Schimbarea instalatorului implicit a eșuat</string>
-    <string name="setting_section_shizuku_options">Opțiuni Shizuku</string>
     <string name="setting_shizuku_options_install_group">Instalare</string>
     <string name="setting_shizuku_options_uninstall_group">Dezinstalare</string>
     <string name="setting_shizuku_uninstall_keep_data">Păstrează datele aplicației</string>
@@ -407,21 +403,6 @@
     <string name="installer_mode_root" translatable="false">Root</string>
     <string name="installer_mode_package_installer">Package Installer</string>
     <string name="installer_mode_using">Folosind %s</string>
-    <string name="setting_section_root_options">Opțiuni Root</string>
-    <string name="setting_root_replace">Înlocuiește existentul</string>
-    <string name="setting_root_replace_sub">Înlocuiește pachetele deja instalate</string>
-    <string name="setting_root_downgrade">Permite downgrade</string>
-    <string name="setting_root_downgrade_sub">Permite instalarea unei versiuni mai vechi peste una mai nouă</string>
-    <string name="setting_root_grant_permissions">Acordă toate permisiunile</string>
-    <string name="setting_root_grant_permissions_sub">Acordă automat toate permisiunile solicitate</string>
-    <string name="setting_root_allow_test">Permite pachete de test</string>
-    <string name="setting_root_allow_test_sub">Permite instalarea APK-urilor de debug/test</string>
-    <string name="setting_root_bypass_sdk">Ocolește blocarea SDK-ului vechi</string>
-    <string name="setting_root_bypass_sdk_sub">Instalează aplicații care vizează versiuni vechi de SDK</string>
-    <string name="setting_root_all_users">Instalează pentru toți utilizatorii</string>
-    <string name="setting_root_all_users_sub">Instalează pachetul pentru toți utilizatorii dispozitivului</string>
-    <string name="setting_root_set_source">Setează sursa instalării</string>
-    <string name="setting_root_set_source_sub">Implicit este această aplicație când este dezactivat</string>
     <string name="install_error_cancelled_title">Instalare anulată</string>
     <string name="install_error_cancelled_guidance">Instalarea a fost anulată de utilizator sau de sistem. Atinge Reîncearcă pentru a încerca din nou.</string>
     <string name="install_error_blocked_title">Instalare blocată</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Șterge</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">S-au adăugat %1$d fișier(e), s-au omis %2$d neacceptate</string>
-    <string name="sync_toast_added">S-au adăugat %1$d fișier(e) la Dosarul Sincronizare</string>
-    <string name="sync_toast_unsupported">Nu a fost selectat niciun pachet de fișiere acceptat (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Copiarea fișierelor a eșuat</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">Cheie API VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Lipește cheia API aici…</string>
     <string name="setting_diagnostics_title">Diagnosticare</string>
-    <string name="setting_installer_package_title">Pachet Instalator</string>
-    <string name="backup_settings_title">Setări Copie de Siguranță</string>
     <string name="backup_output_path">Calea de ieșire</string>
     <string name="backup_filename_template">Șablon Nume Fișier</string>
     <string name="backup_tags_hint">Etichete: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Scanați cu VirusTotal</string>
     <string name="skip_and_install_btn">Ignorați și instalați</string>
     <string name="scanning_progress">Se scanează…</string>
-    <string name="setting_vt_strict_check_title">Verificare strictă VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Avertizează înainte de instalare dacă fișierul nu a fost scanat</string>
 </resources>

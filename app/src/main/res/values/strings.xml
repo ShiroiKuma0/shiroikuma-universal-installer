@@ -12,7 +12,8 @@
     <string name="extract_done_action_open">Open folder</string>
     <string name="extract_failed">Extract failed: %1$s</string>
     <string name="extract_action_backups">Backups</string>
-1    <string name="extract_progress_title">Extracting %1$s…</string>
+    1
+    <string name="extract_progress_title">Extracting %1$s…</string>
     <string name="manage_action_open_app">Open app</string>
     <string name="manage_action_open_app_sub">Launch %1$s</string>
     <string name="manage_action_app_info">App info</string>
@@ -96,8 +97,6 @@
     <string name="cancel">Cancel</string>
     <string name="fab_install">Install Package</string>
     <string name="uninstall">Uninstall</string>
-    <!-- Install mode / confirm-from-notification -->
-    <!-- Problems that stop an install before it starts -->
     <string name="dialog_read_failed_title">Couldn\'t read the file</string>
     <string name="dialog_read_failed_text">The app that sent this package no longer allows access to it. Open the file again from that app.</string>
     <string name="dialog_parse_failed_title">Not an installable package</string>
@@ -121,10 +120,8 @@
     <string name="setting_external_open_notification_sub">Nothing covers the other app — tap the notification when you are ready.</string>
     <string name="setting_external_open_auto_notification">Don\'t ask, just install</string>
     <string name="setting_external_open_auto_notification_sub">Install right away and report the result in a notification. Risky packages still ask first.</string>
-    <string name="setting_install_ui_style_title">Where the install card appears</string>
     <string name="setting_install_ui_style_dialog">Centered</string>
     <string name="setting_install_ui_style_sheet">Bottom</string>
-    <string name="setting_install_ui_style_sub">Floating in the middle of the screen, or anchored at the bottom within thumb reach.</string>
     <string name="uninstall_notif_channel_name">Uninstall progress</string>
     <string name="uninstall_notif_channel_description">Shows progress while apps are being uninstalled</string>
     <string name="uninstall_notif_single_title">Uninstalling…</string>
@@ -290,8 +287,6 @@
     <string name="apk_info_vt_chip_flagged">VirusTotal: %1$d flagged</string>
     <string name="apk_info_vt_chip_scanning">VirusTotal: scanning…</string>
     <string name="apk_info_vt_chip_no_result">VirusTotal: no result</string>
-    <string name="apk_info_vt_check_button">Check with VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Scan again</string>
     <string name="vt_notif_channel_name">VirusTotal scans</string>
     <string name="vt_notif_channel_description">Progress of VirusTotal uploads and analyses</string>
     <string name="vt_notif_hashing">Hashing file…</string>
@@ -389,16 +384,14 @@
     <string name="setting_install_mode_title">Install mode</string>
     <string name="setting_install_mode_default">Default</string>
     <string name="setting_install_mode_shizuku">Shizuku</string>
-    <string name="setting_install_mode_dhizuku" translatable="false">Dhizuku</string>
     <string name="setting_use_dhizuku_title">Use Dhizuku instead</string>
     <string name="setting_use_dhizuku_subtitle">Install silently through Dhizuku, without ADB or root. Overrides the mode above.</string>
     <string name="setting_install_mode_overridden_by_dhizuku">Dhizuku is handling installs — turn it off below to use one of these instead</string>
     <string name="setting_dhizuku_unsupported">Dhizuku needs Android 8.0 or newer</string>
     <string name="setting_dhizuku_not_installed">Dhizuku is not installed on this device</string>
     <string name="setting_dhizuku_not_running">Dhizuku is installed but not active — open it and make sure it is set as device owner</string>
-    <string name="setting_dhizuku_not_authorized">Waiting for permission from Dhizuku</string>
     <string name="setting_dhizuku_denied">Dhizuku denied the permission request</string>
-    <string name="setting_dhizuku_ready">Ready — installs run silently. Note Dhizuku only supports \"Allow downgrade\"; the other install options apply to Shizuku and Root only.</string>
+    <string name="setting_dhizuku_ready">Ready — installs run silently. Note Dhizuku only supports \&quot;Allow downgrade\&quot;; the other install options apply to Shizuku and Root only.</string>
     <string name="setting_install_mode_root">Root</string>
     <string name="setting_install_mode_default_sub">Android\'s own installer — it asks you to confirm each app</string>
     <string name="setting_shizuku_not_installed">Shizuku not installed</string>
@@ -413,7 +406,6 @@
     <string name="setting_auto_open_title">Open app after install</string>
     <string name="setting_auto_open_subtitle">Launch the installed app from the success screen — with a 3-second cancellable countdown</string>
     <string name="setting_auto_confirm_title">Auto-confirm external installs</string>
-    <string name="setting_auto_confirm_subtitle">Start installing straight away, without asking you to confirm first</string>
     <string name="setting_show_download_tab_title">Show Download Tab</string>
     <string name="setting_show_download_tab_subtitle">Show the Download tab on the main screen for remote APK installs</string>
     <string name="setting_default_installer_title">Set as default installer</string>
@@ -422,7 +414,6 @@
     <string name="setting_default_installer_enabled">Universal Installer is now the default</string>
     <string name="setting_default_installer_disabled">System installer restored</string>
     <string name="setting_default_installer_failed">Failed to change default installer</string>
-    <string name="setting_section_shizuku_options">Shizuku Options</string>
     <string name="setting_shizuku_options_install_group">Install</string>
     <string name="setting_shizuku_options_uninstall_group">Uninstall</string>
     <string name="setting_shizuku_uninstall_keep_data">Keep app data</string>
@@ -461,13 +452,13 @@
     <string name="help_replay_tutorial_sub">Show the intro screens again from the start</string>
     <string name="help_intro">Short answers to the settings that most often surprise people. Tap a topic to open it.</string>
     <string name="help_modes_title">Install modes: Package Installer, Shizuku, Root</string>
-    <string name="help_modes_body">Package Installer is the default and needs no setup, but Android shows its own confirmation for every install. Shizuku and Root install silently and unlock the extra options below — Shizuku needs the Shizuku app running, Root needs a rooted device. Dhizuku is a third option, shown as its own switch: it also installs silently and survives a reboot without being restarted, but it must be set as device owner, which requires a device with no accounts signed in, and it supports only \"Allow downgrade\". Options that need a privileged backend do nothing while you are on Package Installer.</string>
-    <string name="help_conflict_title">\"Already installed\" errors: which switch actually helps</string>
-    <string name="help_conflict_body">Three different problems produce a similar-looking error. Installing an older version needs \"Allow downgrade\" — \"Replace existing\" does not cover it. A normal update needs \"Replace existing\", which is on by default. And if the installed app was signed with a different key, no option helps: it has to be uninstalled first and its data is lost.</string>
+    <string name="help_modes_body">Package Installer is the default and needs no setup, but Android shows its own confirmation for every install. Shizuku and Root install silently and unlock the extra options below — Shizuku needs the Shizuku app running, Root needs a rooted device. Dhizuku is a third option, shown as its own switch: it also installs silently and survives a reboot without being restarted, but it must be set as device owner, which requires a device with no accounts signed in, and it supports only \&quot;Allow downgrade\&quot;. Options that need a privileged backend do nothing while you are on Package Installer.</string>
+    <string name="help_conflict_title">\&quot;Already installed\&quot; errors: which switch actually helps</string>
+    <string name="help_conflict_body">Three different problems produce a similar-looking error. Installing an older version needs \&quot;Allow downgrade\&quot; — \&quot;Replace existing\&quot; does not cover it. A normal update needs \&quot;Replace existing\&quot;, which is on by default. And if the installed app was signed with a different key, no option helps: it has to be uninstalled first and its data is lost.</string>
     <string name="help_profiles_title">Installer profiles</string>
     <string name="help_profiles_body">A profile is a saved set of install options you can attach to specific apps, so you do not have to flip switches before each install. Without a profile the global options in this screen apply.</string>
     <string name="help_virustotal_title">VirusTotal scanning</string>
-    <string name="help_virustotal_body">Any package can be checked against VirusTotal before you install it, but it needs a free API key from virustotal.com pasted into Advanced. Scanning is manual — tap \"Check with VirusTotal\" on the install screen. Turn on strict mode to be warned when you are about to install something that was never scanned.</string>
+    <string name="help_virustotal_body">Any package can be checked against VirusTotal before you install it, but it needs a free API key from virustotal.com pasted into Advanced. Scanning is manual — tap \&quot;Check with VirusTotal\&quot; on the install screen. Turn on strict mode to be warned when you are about to install something that was never scanned.</string>
     <string name="help_delete_title">Delete APK after installation</string>
     <string name="help_delete_body">Works for files you pick inside the app. When another app hands the APK over — most file managers do — it usually shares it in a way that gives no permission to delete it, and you will get a message saying so. Deleting it from that file manager is the way around it.</string>
     <string name="help_source_title">Changing the installation source</string>
@@ -532,22 +523,7 @@
     <string name="installer_engine_root_request">Tap to grant root access</string>
     <string name="installer_engine_root_unsupported">Not available on this build</string>
     <string name="setting_section_install_options">Install options</string>
-    <string name="setting_install_options_dhizuku_note">Dhizuku only supports \"Allow downgrade\". The rest apply when you switch back to Shizuku or Root.</string>
-    <string name="setting_section_root_options">Root Options</string>
-    <string name="setting_root_replace">Replace existing</string>
-    <string name="setting_root_replace_sub">Replace already installed packages</string>
-    <string name="setting_root_downgrade">Allow downgrade</string>
-    <string name="setting_root_downgrade_sub">Allow installing older version over newer</string>
-    <string name="setting_root_grant_permissions">Grant all permissions</string>
-    <string name="setting_root_grant_permissions_sub">Auto-grant all requested permissions</string>
-    <string name="setting_root_allow_test">Allow test packages</string>
-    <string name="setting_root_allow_test_sub">Allow installing debug/test APKs</string>
-    <string name="setting_root_bypass_sdk">Bypass low target SDK block</string>
-    <string name="setting_root_bypass_sdk_sub">Install apps targeting old SDK versions</string>
-    <string name="setting_root_all_users">Install for all users</string>
-    <string name="setting_root_all_users_sub">Install package for all device users</string>
-    <string name="setting_root_set_source">Set install source</string>
-    <string name="setting_root_set_source_sub">Defaults to this app when off</string>
+    <string name="setting_install_options_dhizuku_note">Dhizuku only supports \&quot;Allow downgrade\&quot;. The rest apply when you switch back to Shizuku or Root.</string>
     <string name="install_error_cancelled_title">Installation cancelled</string>
     <string name="install_error_cancelled_guidance">The installation was cancelled by the user or system. Tap Retry to try again.</string>
     <string name="install_error_blocked_title">Installation blocked</string>
@@ -568,9 +544,7 @@
     <string name="setting_blacklist_title">Blocked packages</string>
     <string name="setting_blacklist_subtitle">Packages that will never be installed. Useful for apps that keep reinstalling themselves.</string>
     <string name="setting_blacklist_empty">Nothing is blocked</string>
-    <string name="setting_blacklist_empty_hint">To block an app, open Manage, tap the app, and choose \"Block from installing\".</string>
-    <string name="setting_blacklist_add">Block a package</string>
-    <string name="setting_blacklist_add_hint">Package name, e.g. com.example.app</string>
+    <string name="setting_blacklist_empty_hint">To block an app, open Manage, tap the app, and choose \&quot;Block from installing\&quot;.</string>
     <string name="setting_blacklist_remove">Unblock</string>
     <string name="setting_blacklist_count">%1$d blocked</string>
     <string name="install_error_conflict_downgrade_guidance">A newer version is already installed. Android refuses to downgrade unless you allow it — turn on \&quot;Allow downgrade\&quot; in the installer options, or uninstall the current version first. \&quot;Replace existing\&quot; does not cover this.</string>
@@ -589,7 +563,7 @@
     <string name="install_error_unknown_guidance">An unknown error occurred. Tap Retry to try again.</string>
     <string name="install_error_unknown_guidance_short">An unknown error occurred.</string>
     <string name="install_delete_source_failed">Installed, but the APK file could not be deleted. Apps that share a file with Universal Installer often do not allow deleting it — remove it from the file manager you opened it with.</string>
-    <string name="install_error_miui_hint">On Xiaomi, Redmi and POCO devices, MIUI/HyperOS optimization often blocks installs silently. Open Settings &gt; Additional settings &gt; Developer options, turn off \"MIUI optimization\", install the app, then turn it back on. While it is off the system theme may look distorted — restarting the phone fixes that.</string>
+    <string name="install_error_miui_hint">On Xiaomi, Redmi and POCO devices, MIUI/HyperOS optimization often blocks installs silently. Open Settings &gt; Additional settings &gt; Developer options, turn off \&quot;MIUI optimization\&quot;, install the app, then turn it back on. While it is off the system theme may look distorted — restarting the phone fixes that.</string>
     <string name="splash_tagline">Install anything, anywhere</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>
@@ -724,8 +698,6 @@
     <string name="install_profile_none">None (Use global settings)</string>
     <string name="profile_mapping_header">Auto-apply for this app</string>
     <string name="profile_mapping_desc">Always use this profile when installing this package.</string>
-
-    <!-- TV Sync -->
     <string name="tv_sync_screen_title">Send to TV</string>
     <string name="tv_sync_hero_title">Send an app to your TV</string>
     <string name="tv_sync_instructions">On the TV, open Universal Installer → Install, then scan the QR shown there.</string>
@@ -737,10 +709,8 @@
     <string name="tv_sync_status_sending">Sending…</string>
     <string name="tv_sync_status_sent">Sent ✓ — confirm the install on your TV</string>
     <string name="tv_sync_status_failed">Failed: %1$s</string>
-
-    <!-- Sync Screen -->
     <string name="sync_storage_permission_title">Storage Permission Required</string>
-    <string name="sync_storage_permission_message">Sync Server needs full storage access to share and manage APK files. Please grant \"All files access\" in Settings.</string>
+    <string name="sync_storage_permission_message">Sync Server needs full storage access to share and manage APK files. Please grant \&quot;All files access\&quot; in Settings.</string>
     <string name="sync_open_settings">Open Settings</string>
     <string name="sync_qr_code_title">Scan QR Code</string>
     <string name="sync_qr_code_message">Open your camera and scan this code to access the server.</string>
@@ -770,16 +740,10 @@
     <string name="sync_delete_cd">Delete</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Added %1$d file(s), skipped %2$d unsupported</string>
-    <string name="sync_toast_added">Added %1$d file(s) to Sync Folder</string>
-    <string name="sync_toast_unsupported">No supported package files selected (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Failed to copy files</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
     <string name="file_size_b">%1$d B</string>
-
-    <!-- Additional Settings -->
     <string name="setting_retry_root">Retry Root Probe</string>
     <string name="setting_section_interface">Interface</string>
     <string name="setting_section_security">Security</string>
@@ -798,10 +762,7 @@
     <string name="setting_security_strict">Strict</string>
     <string name="setting_security_normal_sub">Install is the main button. VirusTotal is still there in the details when you want it.</string>
     <string name="setting_security_strict_sub">Scan with VirusTotal becomes the main button until a file has a verdict, and installing something unscanned asks for confirmation. Needs an API key.</string>
-    <string name="setting_vt_strict_check_title">Strict VirusTotal check</string>
-    <string name="setting_vt_strict_check_summary">Warn before installing if the file has not been scanned</string>    <string name="setting_diagnostics_title">Diagnostics</string>
-    <string name="setting_installer_package_title">Installer Package</string>
-    <string name="backup_settings_title">Backup Settings</string>
+    <string name="setting_diagnostics_title">Diagnostics</string>
     <string name="backup_output_path">Output Path</string>
     <string name="backup_filename_template">Filename Template</string>
     <string name="backup_tags_hint">Tags: {name}, {pkg}, {version}, {code}</string>

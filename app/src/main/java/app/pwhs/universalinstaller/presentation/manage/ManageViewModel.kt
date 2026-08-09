@@ -20,6 +20,8 @@ import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMeth
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
+import app.pwhs.universalinstaller.telemetry.Telemetry
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -346,6 +348,9 @@ class ManageViewModel(
     ) {
         if (_extractState.value is ExtractState.Running) return
         if (_batchExtractState.value is BatchExtractState.Running) return
+        // Only a real backup counts. Share / Server / Reinstall run the same extractor but are
+        // steps inside other flows, not the feature a user would say they used.
+        if (mode == ExtractMode.Backup) Telemetry.feature(TelemetryEvents.FEATURE_APK_BACKUP)
         extractJob?.cancel()
         _extractState.value = ExtractState.Running(packageName, appName, 0L, 1L, mode)
         extractJob = viewModelScope.launch {
@@ -983,6 +988,7 @@ class ManageViewModel(
     }
 
     fun uninstallApp(packageName: String) {
+        Telemetry.feature(TelemetryEvents.FEATURE_UNINSTALL)
         val app = _apps.value.firstOrNull { it.packageName == packageName }
         if (app != null && app.isSystemApp) {
             viewModelScope.launch {
@@ -1072,6 +1078,7 @@ class ManageViewModel(
     }
 
     private suspend fun runBatchUninstall(packages: List<String>) {
+        Telemetry.feature(TelemetryEvents.FEATURE_UNINSTALL)
         val opts = readUninstallOptions()
         val total = packages.size
         val notifId = notifier.notifyBatchStart(total)

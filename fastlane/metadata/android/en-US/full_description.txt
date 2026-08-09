@@ -54,7 +54,7 @@ Security & Privacy
 - Clear Verdicts: See malicious, suspicious, and harmless engine counts at a glance.
 - Offline First: No internet required for core functionality.
 - No Ads, No Accounts: Fully open source, with nothing sold or shared.
-- Anonymous Diagnostics: This build reports install success rates and crash reports so the app can be fixed. It never records which apps you install - no package names, app names, or file names. The GitHub build ships without any reporting at all.
+- Anonymous Diagnostics: This build reports install success rates and crash reports so the app can be fixed. It never records which apps you install - no package names, app names, or file names. Switch it off during setup or in Settings; the GitHub build ships without any reporting at all.
 
 Device Utilities
 - Storage Overview: Free and total space visible on the Install screen.

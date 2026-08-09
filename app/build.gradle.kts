@@ -21,6 +21,16 @@ plugins {
 val firebaseConfig = file("src/play/google-services.json")
 val hasFirebaseConfig = firebaseConfig.exists()
 
+// The module root is also on the plugin's search path, and a file there applies to *every*
+// flavor — the `opensource` APK silently gains the Firebase app id and API key as string
+// resources. Android Studio's Firebase assistant puts one here given half a chance, and it is
+// gitignored, so nothing else would ever tell us. Fail loudly instead.
+val strayFirebaseConfig = file("google-services.json")
+require(!strayFirebaseConfig.exists()) {
+    "$strayFirebaseConfig applies to every flavor, including the open-source build. " +
+        "Move it to ${firebaseConfig} — that is the only location the `play` flavor reads."
+}
+
 if (hasFirebaseConfig) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")

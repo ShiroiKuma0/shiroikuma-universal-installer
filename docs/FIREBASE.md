@@ -60,15 +60,27 @@ on `play`, nothing at all on `opensource`.
 
 Events and parameters are declared in `TelemetryEvents`, currently:
 
-| Event | Parameters |
-| :--- | :--- |
-| `install_started` | `method`, `apk_count` |
-| `install_result` | `method`, `result` (`success` / `failure` / `cancelled`), `failure` |
+| Event | Parameters | Answers |
+| :--- | :--- | :--- |
+| `install_started` | `method`, `apk_count` | — |
+| `install_result` | `method`, `result` (`success` / `failure` / `cancelled`), `failure` | Which backends actually work, and how they fail |
+| `backend_health` | `method`, `healthy` | How many people set up Shizuku or root and arrive with it broken |
+| `default_installer_set` | `method`, `enabled`, `result` (+ `blocked`) | Whether taking over the installer role succeeds, per backend |
+| `feature_used` | `feature` | Which secondary features are worth maintaining |
 
 `method` is the backend that actually ran — `default`, `shizuku`, `root`, `dhizuku`,
 `manual_shizuku`, `manual_root` — and is also set as the `install_method` user property so crashes
 can be split by backend. Firebase collects screen views and sessions on its own; we add nothing
 there.
+
+`backend_health` is the one that can't be derived from the others: `install_result` only describes
+installs that happened, so someone who configured Shizuku, had it break and gave up never appears
+in it. It fires from `BackendSelfHeal` once per cold start, and only for backends the user turned
+on — so the denominator is people who chose that backend.
+
+`feature_used` is one event name with a `feature` parameter rather than one name per feature:
+`lan_share`, `virustotal_scan`, `apk_backup`, `installer_profile`, `batch_install`, `obb_copy`,
+`url_download`, `uninstall`. It fires when a feature is used, not when its screen is opened.
 
 Warnings and errors logged through Timber become Crashlytics breadcrumbs, and `Timber.e(throwable)`
 is additionally reported as a non-fatal.
@@ -108,9 +120,29 @@ integration can be verified before shipping. If dev noise becomes a problem in t
 <meta-data android:name="firebase_analytics_collection_deactivated" android:value="true" />
 ```
 
+## The opt-out
+
+Reporting is on by default and the user can turn it off in two places, both writing
+`SharedPrefsKeys.ANALYTICS_ENABLED` (absent means on):
+
+- An onboarding page, shown only when `Telemetry.isCollecting` — that is, on the `play` build.
+  It presents the switch already on.
+- Settings → Privacy, a section that likewise does not exist in the `opensource` build, because a
+  switch there would promise control over something that never happens.
+
+Both call `Telemetry.setCollectionEnabled`, which reaches
+`FirebaseAnalytics.setAnalyticsCollectionEnabled` and
+`FirebaseCrashlytics.setCrashlyticsCollectionEnabled` immediately, so turning it off stops the next
+event rather than the next launch. `App.applyTelemetryPreference` re-applies the preference at
+every start: Firebase persists the flag itself, but the preference is what should decide — including
+after a restore onto a new device, where the preference travelled and Firebase's own state did not.
+
+It runs before `BackendSelfHeal`, which is the first thing that would otherwise report.
+
 ## Not done yet
 
-There is no in-app opt-out for analytics or crash reporting. If one is added, wire it to
-`FirebaseAnalytics.setAnalyticsCollectionEnabled` and
-`FirebaseCrashlytics.setCrashlyticsCollectionEnabled` in the `play` sink. The Play listing's Data
-Safety section needs to declare crash logs and app-interaction data either way.
+The consent strings are English-only. The app ships 15+ locales, so
+`onboarding_analytics_*` in `:core` and `setting_analytics_*` in `:app` still need translating.
+
+The Play listing's Data Safety section needs to declare crash logs, diagnostics, and device
+identifiers.

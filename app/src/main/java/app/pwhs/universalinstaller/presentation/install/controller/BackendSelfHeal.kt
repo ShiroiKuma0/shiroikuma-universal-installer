@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import androidx.datastore.preferences.core.edit
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.telemetry.Telemetry
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import rikka.shizuku.Shizuku
@@ -45,7 +47,11 @@ object BackendSelfHeal {
                 Timber.w(t, "BackendSelfHeal: root probe threw")
                 RootState.UNAVAILABLE
             }
-            if (state == RootState.UNAVAILABLE || state == RootState.NOT_ROOTED || state == RootState.DENIED) {
+            val healthy = state != RootState.UNAVAILABLE &&
+                state != RootState.NOT_ROOTED &&
+                state != RootState.DENIED
+            reportHealth("root", healthy)
+            if (!healthy) {
                 Timber.i("BackendSelfHeal: USE_ROOT on but root definitively unavailable ($state) — disabling pref")
                 runCatching {
                     application.dataStore.edit { it[PreferencesKeys.USE_ROOT] = false }
@@ -54,12 +60,29 @@ object BackendSelfHeal {
         }
 
         val useShizuku = prefs[PreferencesKeys.USE_SHIZUKU] ?: false
-        if (useShizuku && !awaitShizukuReady()) {
-            Timber.i("BackendSelfHeal: USE_SHIZUKU on but Shizuku not ready — disabling pref")
-            runCatching {
-                application.dataStore.edit { it[PreferencesKeys.USE_SHIZUKU] = false }
+        if (useShizuku) {
+            val healthy = awaitShizukuReady()
+            reportHealth("shizuku", healthy)
+            if (!healthy) {
+                Timber.i("BackendSelfHeal: USE_SHIZUKU on but Shizuku not ready — disabling pref")
+                runCatching {
+                    application.dataStore.edit { it[PreferencesKeys.USE_SHIZUKU] = false }
+                }
             }
         }
+    }
+
+    /**
+     * Only backends the user actually turned on are reported, so the denominator is "people who
+     * chose this backend" — the population whose setup we can hope to fix. Cold starts where
+     * nothing privileged is enabled say nothing and send nothing.
+     */
+    private fun reportHealth(method: String, healthy: Boolean) {
+        Telemetry.event(
+            TelemetryEvents.BACKEND_HEALTH,
+            TelemetryEvents.PARAM_METHOD to method,
+            TelemetryEvents.PARAM_HEALTHY to healthy,
+        )
     }
 
     // Shizuku's binder is bound asynchronously after the app starts, so an immediate

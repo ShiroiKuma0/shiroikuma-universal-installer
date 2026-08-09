@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">Toca para conceder el permiso de Shizuku</string>
     <string name="setting_shizuku_ready">Instalación silenciosa sin avisos</string>
     <string name="setting_delete_apk_title">Eliminar APK después de instalar</string>
-    <string name="setting_section_shizuku_options">Opciones de Shizuku</string>
     <string name="setting_shizuku_replace">Reemplazar existente</string>
     <string name="setting_shizuku_replace_sub">Reemplazar los paquetes ya instalados</string>
     <string name="setting_shizuku_downgrade">Permitir downgrade</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">Atrás</string>
     <string name="done_cd">Listo</string>
     <string name="apk_info_vt_uploading">Subiendo a VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Comprobar con VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Analizar de nuevo</string>
     <string name="vt_notif_channel_name">Análisis de VirusTotal</string>
     <string name="vt_notif_channel_description">Progreso de subidas y análisis de VirusTotal</string>
     <string name="vt_notif_hashing">Calculando hash del archivo…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">Conservar los datos del usuario y la caché al desinstalar (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">Desinstalar para todos los usuarios</string>
     <string name="setting_shizuku_uninstall_all_users_sub">Eliminar el paquete de todos los usuarios en el dispositivo</string>
-    <string name="setting_section_root_options">Opciones Root</string>
-    <string name="setting_root_replace">Reemplazar existente</string>
-    <string name="setting_root_replace_sub">Reemplazar paquetes ya instalados</string>
-    <string name="setting_root_downgrade">Permitir versión anterior (Downgrade)</string>
-    <string name="setting_root_downgrade_sub">Permitir instalar una versión más antigua sobre una más nueva</string>
-    <string name="setting_root_grant_permissions">Conceder todos los permisos</string>
-    <string name="setting_root_grant_permissions_sub">Conceder automáticamente todos los permisos solicitados</string>
-    <string name="setting_root_allow_test">Permitir paquetes de prueba</string>
-    <string name="setting_root_allow_test_sub">Permitir la instalación de APKs de prueba/depuración</string>
-    <string name="setting_root_bypass_sdk">Omitir bloqueo por SDK bajo</string>
-    <string name="setting_root_bypass_sdk_sub">Instalar apps dirigidas a versiones antiguas del SDK</string>
-    <string name="setting_root_all_users">Instalar para todos los usuarios</string>
-    <string name="setting_root_all_users_sub">Instalar paquete para todos los usuarios del dispositivo</string>
-    <string name="setting_root_set_source">Establecer origen de instalación</string>
-    <string name="setting_root_set_source_sub">Se establece por defecto en esta aplicación cuando está apagado</string>
     <string name="setting_section_sync">Sincronizar y compartir</string>
     <string name="setting_rate_subtitle">Califícanos en Google Play</string>
     <string name="qs_tile_sync_label">Sincronizar y compartir</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Abre la aplicación Shizuku e inicia el servicio primero</string>
     <string name="setting_shizuku_install_hint">Instala Shizuku desde Play Store para usar este backend</string>
     <string name="setting_auto_confirm_title">Confirmar automáticamente instalaciones externas</string>
-    <string name="setting_auto_confirm_subtitle">Omitir el diálogo de confirmación cuando se abre un APK desde otra aplicación</string>
     <string name="setting_default_installer_title">Establecer como instalador predeterminado</string>
     <string name="setting_default_installer_subtitle">Desactiva el instalador del sistema para usar siempre Universal Installer para archivos APK (requiere Shizuku o Root)</string>
     <string name="setting_default_installer_needs_backend">Habilita Shizuku o Root primero para cambiar el instalador predeterminado</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Eliminar</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Se han añadido %1$d archivo(s), se han omitido %2$d no compatibles</string>
-    <string name="sync_toast_added">Se han añadido %1$d archivo(s) a la carpeta de sincronización</string>
-    <string name="sync_toast_unsupported">No se seleccionaron archivos de paquete compatibles (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">No se pudieron copiar los archivos</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">Clave API de VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Pegue la clave API aquí…</string>
     <string name="setting_diagnostics_title">Diagnóstico</string>
-    <string name="setting_installer_package_title">Paquete de instalación</string>
-    <string name="backup_settings_title">Ajustes de copia de seguridad</string>
     <string name="backup_output_path">Ruta de salida</string>
     <string name="backup_filename_template">Plantilla de nombre de archivo</string>
     <string name="backup_tags_hint">Etiquetas: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Analizar con VirusTotal</string>
     <string name="skip_and_install_btn">Omitir e instalar</string>
     <string name="scanning_progress">Analizando…</string>
-    <string name="setting_vt_strict_check_title">Comprobación estricta de VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Avisar antes de instalar si el archivo no ha sido analizado</string>
 </resources>

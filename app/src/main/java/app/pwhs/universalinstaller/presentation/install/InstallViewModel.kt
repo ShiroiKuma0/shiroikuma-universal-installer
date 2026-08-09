@@ -44,6 +44,8 @@ import app.pwhs.universalinstaller.util.SignatureCheck
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.util.RootShell
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.telemetry.Telemetry
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import app.pwhs.universalinstaller.util.extension.getDisplayName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -324,6 +326,7 @@ class InstallViewModel(
     }
 
     fun applyProfile(profile: InstallerProfile) {
+        Telemetry.feature(TelemetryEvents.FEATURE_INSTALLER_PROFILE)
         _selectedProfileId.value = profile.id
     }
 
@@ -763,6 +766,7 @@ class InstallViewModel(
         val zipTotal = entries.sumOf { it.sizeBytes.coerceAtLeast(0L) }
         val attachedTotal = attached.sumOf { it.sizeBytes.coerceAtLeast(0L) }
         val combinedTotal = zipTotal + attachedTotal
+        Telemetry.feature(TelemetryEvents.FEATURE_OBB_COPY)
         _obbCopyState.value = ObbCopyState.Running(appName, packageName, 0L, combinedTotal)
         pendingObbCopyJob = ObbCopyJob(sourceUri, entries, attached, packageName, appName)
 
@@ -1177,6 +1181,9 @@ class InstallViewModel(
         val picked = ready.entries.filter { it.selected && it.splitUris.isNotEmpty() }
         _batchState.value = BatchInstallState.Idle
         if (picked.isEmpty()) return
+        // Reported once for the batch, not once per entry — the per-entry installs already
+        // arrive as their own install_started events from the controller.
+        Telemetry.feature(TelemetryEvents.FEATURE_BATCH_INSTALL)
 
         viewModelScope.launch {
             val deleteAfterInstall = readDeleteApkPref()
@@ -1359,6 +1366,7 @@ class InstallViewModel(
             return
         }
         downloadJob?.cancel()
+        Telemetry.feature(TelemetryEvents.FEATURE_URL_DOWNLOAD)
         val displayName = trimmed.substringAfterLast('/').substringBefore('?')
             .ifBlank { "download_${System.currentTimeMillis()}" }
         _downloadState.value = DownloadState.Running(url = trimmed, bytesRead = 0L, totalBytes = -1L)
@@ -1564,6 +1572,7 @@ class InstallViewModel(
         val current = _pendingApkInfo.value ?: return
 
         cancelActiveScan()
+        Telemetry.feature(TelemetryEvents.FEATURE_VIRUSTOTAL)
         scanJob = viewModelScope.launch {
             val apiKey = readVirusTotalApiKey()
             val sizeBytes = current.fileSizeBytes

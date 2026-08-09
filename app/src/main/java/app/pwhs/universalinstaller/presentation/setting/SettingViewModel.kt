@@ -42,6 +42,8 @@ import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.domain.manager.ProfileManager
+import app.pwhs.universalinstaller.telemetry.Telemetry
+import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import rikka.shizuku.Shizuku
 import timber.log.Timber
 
@@ -873,6 +875,9 @@ class SettingViewModel(
         val rootReady = _rootState.value == RootState.READY
 
         if (!shizukuReady && !rootReady) {
+            // Worth a line of its own: someone reaching for this feature with no backend ready
+            // is the failure mode the Settings copy is meant to prevent.
+            reportDefaultInstaller("none", enabled, TelemetryEvents.RESULT_BLOCKED)
             when (_shizukuState.value) {
                 ShizukuState.NO_PERMISSION -> requestShizukuPermission()
                 ShizukuState.NOT_RUNNING -> viewModelScope.launch {
@@ -886,6 +891,7 @@ class SettingViewModel(
         }
 
         val component = defaultInstallerComponent()
+        val method = if (shizukuReady) "shizuku" else "root"
         viewModelScope.launch(Dispatchers.IO) {
             val result = if (shizukuReady) {
                 app.pwhs.universalinstaller.util.ShizukuDefaultInstaller
@@ -895,6 +901,7 @@ class SettingViewModel(
             }
             result
                 .onSuccess {
+                    reportDefaultInstaller(method, enabled, TelemetryEvents.RESULT_SUCCESS)
                     updateDefaultInstallerStatus()
                     _events.send(
                         if (enabled) R.string.setting_default_installer_enabled
@@ -903,9 +910,37 @@ class SettingViewModel(
                 }
                 .onFailure { e ->
                     Timber.e(e, "Failed to toggle default installer")
+                    reportDefaultInstaller(method, enabled, TelemetryEvents.RESULT_FAILURE)
                     _events.send(R.string.setting_default_installer_failed)
                 }
         }
+    }
+
+    /**
+     * Analytics/crash reporting opt-out. Absent means on, which is what onboarding presents.
+     *
+     * Applied to the sink immediately as well as persisted: turning it off has to stop the very
+     * next event, not the next cold start. On `opensource` [Telemetry] has no sink and this is a
+     * write to a preference nothing reads.
+     */
+    fun setAnalyticsEnabled(enabled: Boolean) {
+        Telemetry.setCollectionEnabled(enabled)
+        viewModelScope.launch {
+            dataStore.edit { prefs -> prefs[SharedPrefsKeys.ANALYTICS_ENABLED] = enabled }
+        }
+    }
+
+    val analyticsEnabled: StateFlow<Boolean> = dataStore.data
+        .map { prefs -> prefs[SharedPrefsKeys.ANALYTICS_ENABLED] ?: true }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    private fun reportDefaultInstaller(method: String, enabled: Boolean, result: String) {
+        Telemetry.event(
+            TelemetryEvents.DEFAULT_INSTALLER_SET,
+            TelemetryEvents.PARAM_METHOD to method,
+            TelemetryEvents.PARAM_ENABLED to enabled,
+            TelemetryEvents.PARAM_RESULT to result,
+        )
     }
 
     private fun defaultInstallerComponent(): android.content.ComponentName =

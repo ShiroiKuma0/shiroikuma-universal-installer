@@ -25,6 +25,15 @@ interface TelemetrySink {
 
     /** Adds a line to the log attached to the next crash report. */
     fun breadcrumb(message: String)
+
+    /**
+     * Turns collection on or off wholesale, from the Settings toggle and from onboarding.
+     *
+     * Firebase persists this itself, so it survives a restart without us re-applying it —
+     * we re-apply at startup anyway so that the preference, not Firebase's own store, is the
+     * thing that decides.
+     */
+    fun setCollectionEnabled(enabled: Boolean)
 }
 
 object NoOpTelemetrySink : TelemetrySink {
@@ -32,6 +41,7 @@ object NoOpTelemetrySink : TelemetrySink {
     override fun setUserProperty(name: String, value: String?) = Unit
     override fun recordException(throwable: Throwable) = Unit
     override fun breadcrumb(message: String) = Unit
+    override fun setCollectionEnabled(enabled: Boolean) = Unit
 }
 
 object Telemetry {
@@ -47,11 +57,22 @@ object Telemetry {
         this.sink = sink
     }
 
-    /** True when something is actually collecting, i.e. this is a `play` build. */
+    /**
+     * True when this build has a reporting sink at all, i.e. it is a `play` build.
+     *
+     * This is about the build, not the user's choice — it stays true when the user turns
+     * collection off. The UI uses it to decide whether a reporting toggle should exist,
+     * because on `opensource` there is nothing to toggle.
+     */
     val isCollecting: Boolean get() = sink !== NoOpTelemetrySink
 
     fun event(name: String, vararg params: Pair<String, Any?>) {
         sink.logEvent(name, if (params.isEmpty()) emptyMap() else params.toMap())
+    }
+
+    /** Shorthand for [TelemetryEvents.FEATURE_USED], which is most of the call sites. */
+    fun feature(feature: String) {
+        event(TelemetryEvents.FEATURE_USED, TelemetryEvents.PARAM_FEATURE to feature)
     }
 
     fun setUserProperty(name: String, value: String?) = sink.setUserProperty(name, value)
@@ -59,4 +80,6 @@ object Telemetry {
     fun recordException(throwable: Throwable) = sink.recordException(throwable)
 
     fun breadcrumb(message: String) = sink.breadcrumb(message)
+
+    fun setCollectionEnabled(enabled: Boolean) = sink.setCollectionEnabled(enabled)
 }

@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">タップして Shizuku に権限を付与</string>
     <string name="setting_shizuku_ready">プロンプトなしのサイレントインストール</string>
     <string name="setting_delete_apk_title">インストール後に APK を削除</string>
-    <string name="setting_section_shizuku_options">Shizuku オプション</string>
     <string name="setting_shizuku_replace">既存のパッケージを置き換える</string>
     <string name="setting_shizuku_replace_sub">すでにインストールされているパッケージを上書きします</string>
     <string name="setting_shizuku_downgrade">Downgrade を許可</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">戻る</string>
     <string name="done_cd">完了</string>
     <string name="apk_info_vt_uploading">VirusTotal にアップロード中… %d%%</string>
-    <string name="apk_info_vt_check_button">VirusTotal で確認する</string>
-    <string name="apk_info_vt_rescan_button">もう一度スキャン</string>
     <string name="vt_notif_channel_name">VirusTotal スキャン</string>
     <string name="vt_notif_channel_description">VirusTotal のアップロードと分析の進行状況</string>
     <string name="vt_notif_hashing">ファイルのハッシュを計算中…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">アンインストール時にユーザーデータとキャッシュを保持する (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">すべてのユーザーからアンインストール</string>
     <string name="setting_shizuku_uninstall_all_users_sub">デバイス上のすべてのユーザーからパッケージを削除する</string>
-    <string name="setting_section_root_options">Rootオプション</string>
-    <string name="setting_root_replace">既存のものを置き換える</string>
-    <string name="setting_root_replace_sub">すでにインストールされているパッケージを置き換える</string>
-    <string name="setting_root_downgrade">ダウングレードを許可</string>
-    <string name="setting_root_downgrade_sub">新しいバージョンの上に古いバージョンをインストールできるようにする</string>
-    <string name="setting_root_grant_permissions">すべての権限を付与</string>
-    <string name="setting_root_grant_permissions_sub">要求されたすべての権限を自動的に付与する</string>
-    <string name="setting_root_allow_test">テストパッケージを許可</string>
-    <string name="setting_root_allow_test_sub">デバッグ/テスト用APKのインストールを許可する</string>
-    <string name="setting_root_bypass_sdk">低ターゲットSDKブロックを回避</string>
-    <string name="setting_root_bypass_sdk_sub">古いSDKバージョンをターゲットにしたアプリをインストールする</string>
-    <string name="setting_root_all_users">すべてのユーザーにインストール</string>
-    <string name="setting_root_all_users_sub">デバイスのすべてのユーザーにパッケージをインストールする</string>
-    <string name="setting_root_set_source">インストール元を設定</string>
-    <string name="setting_root_set_source_sub">オフの場合はデフォルトでこのアプリになります</string>
     <string name="setting_section_sync">同期と共有</string>
     <string name="setting_rate_subtitle">Google Playでレビューする</string>
     <string name="qs_tile_sync_label">同期と共有</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">まず Shizuku アプリを開き、サービスを開始してください</string>
     <string name="setting_shizuku_install_hint">このバックエンドを使用するには Play ストアから Shizuku をインストールしてください</string>
     <string name="setting_auto_confirm_title">外部インストールの自動確認</string>
-    <string name="setting_auto_confirm_subtitle">他のアプリから APK を開いたときに確認ダイアログをスキップします</string>
     <string name="setting_default_installer_title">デフォルトのインストーラーとして設定</string>
     <string name="setting_default_installer_subtitle">システムインストーラーを無効にして、APK ファイルに常に Universal Installer を使用するようにします (Shizuku または Root が必要)</string>
     <string name="setting_default_installer_needs_backend">デフォルトのインストーラーを変更するには、まず Shizuku または Root を有効にしてください</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">削除</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">%1$d個のファイルを追加し、%2$d個の非対応ファイルをスキップしました</string>
-    <string name="sync_toast_added">同期フォルダに%1$d個のファイルを追加しました</string>
-    <string name="sync_toast_unsupported">対応するパッケージファイルが選択されていません (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">ファイルのコピーに失敗しました</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">VirusTotal APIキー</string>
     <string name="setting_vt_api_key_placeholder">ここにAPIキーを貼り付けてください…</string>
     <string name="setting_diagnostics_title">診断</string>
-    <string name="setting_installer_package_title">インストーラパッケージ</string>
-    <string name="backup_settings_title">バックアップ設定</string>
     <string name="backup_output_path">出力パス</string>
     <string name="backup_filename_template">ファイル名のテンプレート</string>
     <string name="backup_tags_hint">タグ: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">VirusTotal でスキャン</string>
     <string name="skip_and_install_btn">スキップしてインストール</string>
     <string name="scanning_progress">スキャン中…</string>
-    <string name="setting_vt_strict_check_title">厳格な VirusTotal チェック</string>
-    <string name="setting_vt_strict_check_summary">ファイルがスキャンされていない場合は、インストール前に警告する</string>
 </resources>

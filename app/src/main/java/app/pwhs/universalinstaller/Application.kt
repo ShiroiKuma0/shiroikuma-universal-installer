@@ -7,6 +7,8 @@ import app.pwhs.universalinstaller.di.appModule
 import app.pwhs.universalinstaller.di.flavorModule
 import app.pwhs.universalinstaller.presentation.install.controller.BackendSelfHeal
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
+import app.pwhs.core.data.local.SharedPrefsKeys
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.createTelemetrySink
 import app.pwhs.universalinstaller.util.ApkFileIconFetcher
@@ -16,6 +18,7 @@ import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
@@ -101,8 +104,27 @@ class App : Application(), SingletonImageLoader.Factory {
         // Self-heal stale install-method prefs (Root revoked, Shizuku not running). Runs
         // once per process on a background dispatcher; never blocks app start.
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
+            applyTelemetryPreference()
             BackendSelfHeal.runOnce(this@App, backendFactory)
         }
+    }
+
+    /**
+     * Hands the user's choice to the reporting sink at every start.
+     *
+     * Firebase remembers the flag on its own, so this is not what makes the setting stick — it
+     * is what makes the *preference* authoritative, including after a restore onto a new device
+     * where the preference travelled but Firebase's own state did not. Absent means on.
+     *
+     * Runs before [BackendSelfHeal] in the same coroutine deliberately: self-heal is the first
+     * thing that reports, and it must not report on a build the user opted out of.
+     */
+    private suspend fun applyTelemetryPreference() {
+        if (!Telemetry.isCollecting) return
+        val enabled = runCatching { dataStore.data.first()[SharedPrefsKeys.ANALYTICS_ENABLED] }
+            .onFailure { Timber.w(it, "Could not read the analytics preference; leaving it on") }
+            .getOrNull() ?: true
+        Telemetry.setCollectionEnabled(enabled)
     }
 
     override fun newImageLoader(context: android.content.Context): ImageLoader {

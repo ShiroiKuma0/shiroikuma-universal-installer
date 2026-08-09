@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>    <string name="txt_install">Zainstaluj</string>
+<resources>
+    <string name="txt_install">Zainstaluj</string>
     <string name="txt_manage">Zarządzaj</string>
     <string name="txt_setting">Ustawienia</string>
     <string name="screen_title_uninstall">Zarządzanie aplikacjami</string>
@@ -243,8 +244,6 @@
     <string name="apk_info_vt_queued">W kolejce do VirusTotal…</string>
     <string name="apk_info_vt_analyzing">Analizowanie w VirusTotal…</string>
     <string name="apk_info_vt_too_large">Plik jest zbyt duży dla VirusTotal (%s)</string>
-    <string name="apk_info_vt_check_button">Sprawdź w VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Skanuj ponownie</string>
     <string name="vt_notif_channel_name">Skanowania VirusTotal</string>
     <string name="vt_notif_channel_description">Postęp przesyłania i analiz w VirusTotal</string>
     <string name="vt_notif_hashing">Obliczanie skrótu pliku…</string>
@@ -353,7 +352,6 @@
     <string name="setting_auto_open_title">Otwórz aplikację po instalacji</string>
     <string name="setting_auto_open_subtitle">Uruchom zainstalowaną aplikację z ekranu sukcesu — z 3-sekundowym odliczaniem, które można anulować</string>
     <string name="setting_auto_confirm_title">Automatycznie potwierdzaj instalacje zewnętrzne</string>
-    <string name="setting_auto_confirm_subtitle">Pomiń okno dialogowe potwierdzenia, gdy plik APK jest otwierany z innej aplikacji</string>
     <string name="setting_show_download_tab_title">Pokaż kartę pobierania</string>
     <string name="setting_show_download_tab_subtitle">Pokaż kartę pobierania na ekranie głównym dla zdalnych instalacji APK</string>
     <string name="setting_default_installer_title">Ustaw jako domyślny instalator</string>
@@ -362,7 +360,6 @@
     <string name="setting_default_installer_enabled">Uniwersalny Instalator jest teraz domyślny</string>
     <string name="setting_default_installer_disabled">Przywrócono instalator systemowy</string>
     <string name="setting_default_installer_failed">Nie udało się zmienić domyślnego instalatora</string>
-    <string name="setting_section_shizuku_options">Opcje Shizuku</string>
     <string name="setting_shizuku_options_install_group">Instalacja</string>
     <string name="setting_shizuku_options_uninstall_group">Odinstalowywanie</string>
     <string name="setting_shizuku_uninstall_keep_data">Zachowaj dane aplikacji</string>
@@ -438,21 +435,6 @@
     <string name="installer_engine_root_desc">Instaluj z uprawnieniami root (su)</string>
     <string name="installer_engine_root_request">Stuknij, aby przyznać dostęp root</string>
     <string name="installer_engine_root_unsupported">Niedostępne w tej kompilacji</string>
-    <string name="setting_section_root_options">Opcje roota</string>
-    <string name="setting_root_replace">Zastąp istniejące</string>
-    <string name="setting_root_replace_sub">Zastąp już zainstalowane pakiety</string>
-    <string name="setting_root_downgrade">Zezwalaj na obniżenie wersji</string>
-    <string name="setting_root_downgrade_sub">Zezwalaj na instalację starszej wersji na nowszą</string>
-    <string name="setting_root_grant_permissions">Przyznaj wszystkie uprawnienia</string>
-    <string name="setting_root_grant_permissions_sub">Automatycznie przyznawaj wszystkie żądane uprawnienia</string>
-    <string name="setting_root_allow_test">Zezwalaj na pakiety testowe</string>
-    <string name="setting_root_allow_test_sub">Zezwalaj na instalację plików APK z debugowaniem/testowych</string>
-    <string name="setting_root_bypass_sdk">Pomiń blokadę niskiej docelowej wersji SDK</string>
-    <string name="setting_root_bypass_sdk_sub">Instaluj aplikacje przeznaczone dla starszych wersji SDK</string>
-    <string name="setting_root_all_users">Zainstaluj dla wszystkich użytkowników</string>
-    <string name="setting_root_all_users_sub">Zainstaluj pakiet dla wszystkich użytkowników urządzenia</string>
-    <string name="setting_root_set_source">Ustaw źródło instalacji</string>
-    <string name="setting_root_set_source_sub">Domyślnie na tę aplikację</string>
     <string name="install_error_cancelled_title">Instalacja anulowana</string>
     <string name="install_error_cancelled_guidance">Instalacja została anulowana przez użytkownika lub system. Naciśnij Ponów</string>
     <string name="install_error_blocked_title">Instalacja zablokowana</string>
@@ -645,10 +627,6 @@
     <string name="sync_delete_cd">Usuń</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Dodano pliki: %1$d, pominięto nieobsługiwane: %2$d</string>
-    <string name="sync_toast_added">Dodano %1$d plik(ów) do folderu synchronizacji</string>
-    <string name="sync_toast_unsupported">Nie wybrano obsługiwanych plików pakietów (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Nie udało się skopiować plików</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -666,11 +644,7 @@
     <string name="setting_section_advanced">Zaawansowane</string>
     <string name="setting_vt_api_key_title">Klucz API VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Wklej klucz API tutaj…</string>
-    <string name="setting_vt_strict_check_title">Rygorystyczne sprawdzanie VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Ostrzegaj przed instalacją, jeśli plik nie został przeskanowany</string>
     <string name="setting_diagnostics_title">Diagnostyka</string>
-    <string name="setting_installer_package_title">Pakiet instalatora</string>
-    <string name="backup_settings_title">Ustawienia kopii zapasowej</string>
     <string name="backup_output_path">Ścieżka wyjściowa</string>
     <string name="backup_filename_template">Szablon nazwy pliku</string>
     <string name="backup_tags_hint">Tagi: {name}, {pkg}, {version}, {code}</string>

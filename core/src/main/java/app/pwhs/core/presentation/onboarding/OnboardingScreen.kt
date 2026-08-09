@@ -34,6 +34,7 @@ import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.GppGood
+import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.InstallMobile
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Tune
@@ -50,6 +51,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -94,6 +96,8 @@ private data class OnboardingPage(
     val securityPicker: Boolean = false,
     /** Renders the VirusTotal API key field under the action button. */
     val virusTotalKeyField: Boolean = false,
+    /** Renders the anonymous-reporting opt-out switch under the description. */
+    val analyticsToggle: Boolean = false,
     /** Optional secondary action rendered under the description (e.g. "Open Developer options"). */
     val actionLabel: String? = null,
     val actionIcon: ImageVector? = null,
@@ -108,12 +112,16 @@ private data class OnboardingPage(
  *   because the toggle doesn't exist on Xiaomi's TV builds.
  * @param showVirusTotalTip inserts a page explaining the VirusTotal scan. Mobile-only — the
  *   scanner lives in the app module and TV has no Settings screen to paste an API key into.
+ * @param showAnalyticsConsent inserts a page offering to turn anonymous reporting off. Callers
+ *   pass true only on a build that has reporting to offer, which today is the phone app's `play`
+ *   flavor; every other build has nothing to consent to and must not be asked.
  */
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
     showXiaomiTip: Boolean = false,
     showVirusTotalTip: Boolean = false,
+    showAnalyticsConsent: Boolean = false,
 ) {
     val context = LocalContext.current
     val activity = context as? android.app.Activity
@@ -169,6 +177,16 @@ fun OnboardingScreen(
                 )
             )
         }
+        if (showAnalyticsConsent) {
+            add(
+                OnboardingPage(
+                    icon = Icons.Rounded.Insights,
+                    title = stringResource(R.string.onboarding_analytics_title),
+                    description = stringResource(R.string.onboarding_analytics_desc),
+                    analyticsToggle = true,
+                )
+            )
+        }
         // Must stay last: PageContent keys the permission UI off `page == pages.lastIndex`.
         add(
             OnboardingPage(
@@ -182,6 +200,14 @@ fun OnboardingScreen(
     val pagerState = rememberPagerState(pageCount = { pages.size })
     // Normal by default — the level only becomes Strict if the user picks it here.
     var strictSecurity by remember { mutableStateOf(false) }
+
+    // Opted in unless the user says otherwise, which is also how an absent preference reads
+    // everywhere else. Seeded from the store so replaying the tour shows the current answer.
+    var analyticsEnabled by remember { mutableStateOf(true) }
+    LaunchedEffect(showAnalyticsConsent) {
+        if (!showAnalyticsConsent) return@LaunchedEffect
+        analyticsEnabled = context.dataStore.data.first()[SharedPrefsKeys.ANALYTICS_ENABLED] ?: true
+    }
 
     // The key the user pastes on the VirusTotal page. Seeded from whatever Settings already holds,
     // so replaying the tour doesn't look like the key was lost.
@@ -261,6 +287,15 @@ fun OnboardingScreen(
                         scope.launch {
                             context.dataStore.edit { prefs ->
                                 prefs[SharedPrefsKeys.VIRUSTOTAL_API_KEY] = value.trim()
+                            }
+                        }
+                    },
+                    analyticsEnabled = analyticsEnabled,
+                    onAnalyticsEnabledChange = { enabled ->
+                        analyticsEnabled = enabled
+                        scope.launch {
+                            context.dataStore.edit { prefs ->
+                                prefs[SharedPrefsKeys.ANALYTICS_ENABLED] = enabled
                             }
                         }
                     },
@@ -354,6 +389,8 @@ private fun PageContent(
     onStrictSecurityChange: (Boolean) -> Unit = {},
     virusTotalKey: String = "",
     onVirusTotalKeyChange: (String) -> Unit = {},
+    analyticsEnabled: Boolean = true,
+    onAnalyticsEnabledChange: (Boolean) -> Unit = {},
 ) {
     // Centered while it fits, scrollable once the keyboard takes half the screen away.
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -404,6 +441,14 @@ private fun PageContent(
                 OnboardingSecurityPicker(
                     strict = strictSecurity,
                     onChange = onStrictSecurityChange,
+                )
+            }
+
+            if (page.analyticsToggle) {
+                Spacer(Modifier.height(28.dp))
+                OnboardingAnalyticsToggle(
+                    enabled = analyticsEnabled,
+                    onChange = onAnalyticsEnabledChange,
                 )
             }
 
@@ -547,6 +592,45 @@ private fun pasteFromClipboard(context: Context): String? {
     return clip.getItemAt(0).coerceToText(context)?.toString()?.trim()?.takeIf { it.isNotEmpty() }
 }
 
+
+/**
+ * The reporting opt-out, presented on rather than off.
+ *
+ * A switch in a card rather than a segmented picker: this is one thing you turn off, not a
+ * choice between two modes, and the row has to make the "off" path as easy to hit as "next".
+ */
+@Composable
+private fun OnboardingAnalyticsToggle(
+    enabled: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.onboarding_analytics_switch),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = stringResource(R.string.onboarding_analytics_switch_sub),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Switch(checked = enabled, onCheckedChange = onChange)
+        }
+    }
+}
 
 /**
  * Normal vs Strict, offered during onboarding.

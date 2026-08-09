@@ -29,4 +29,14 @@ object SharedPrefsKeys {
      * writes the same preference, so the key name must match `SettingViewModel.PreferencesKeys`.
      */
     val VIRUSTOTAL_API_KEY = stringPreferencesKey("virustotal_api_key")
+
+    /**
+     * Whether the Play build may report anonymous install statistics and crashes. Absent means
+     * on — the onboarding page presents it opted in, and the open-source build ignores the key
+     * entirely because it has nothing to report with.
+     *
+     * Lives here, like [SECURITY_LEVEL], because onboarding is in :core while the reporting it
+     * governs is in :app; both sides have to agree on the key name.
+     */
+    val ANALYTICS_ENABLED = booleanPreferencesKey("analytics_enabled")
 }

@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">Нажмите, чтобы предоставить разрешение Shizuku</string>
     <string name="setting_shizuku_ready">Тихая установка без подтверждений</string>
     <string name="setting_delete_apk_title">Удалить APK после установки</string>
-    <string name="setting_section_shizuku_options">Опции Shizuku</string>
     <string name="setting_shizuku_replace">Заменить существующие</string>
     <string name="setting_shizuku_replace_sub">Заменить уже установленные пакеты</string>
     <string name="setting_shizuku_downgrade">Разрешить Downgrade</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">Назад</string>
     <string name="done_cd">Готово</string>
     <string name="apk_info_vt_uploading">Загрузка на VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Проверить с помощью VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Сканировать снова</string>
     <string name="vt_notif_channel_name">Сканирования VirusTotal</string>
     <string name="vt_notif_channel_description">Прогресс загрузок и анализа VirusTotal</string>
     <string name="vt_notif_hashing">Хеширование файла…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">Сохранять пользовательские данные и кэш при удалении (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">Удалить для всех пользователей</string>
     <string name="setting_shizuku_uninstall_all_users_sub">Удалить пакет у всех пользователей на устройстве</string>
-    <string name="setting_section_root_options">Настройки Root</string>
-    <string name="setting_root_replace">Заменить существующие</string>
-    <string name="setting_root_replace_sub">Заменять уже установленные пакеты</string>
-    <string name="setting_root_downgrade">Разрешить понижение версии</string>
-    <string name="setting_root_downgrade_sub">Разрешить установку старой версии поверх новой</string>
-    <string name="setting_root_grant_permissions">Предоставить все разрешения</string>
-    <string name="setting_root_grant_permissions_sub">Автоматически предоставлять все запрашиваемые разрешения</string>
-    <string name="setting_root_allow_test">Разрешить тестовые пакеты</string>
-    <string name="setting_root_allow_test_sub">Разрешить установку отладочных/тестовых APK</string>
-    <string name="setting_root_bypass_sdk">Обход блокировки низкого target SDK</string>
-    <string name="setting_root_bypass_sdk_sub">Устанавливать приложения, предназначенные для старых версий SDK</string>
-    <string name="setting_root_all_users">Установить для всех пользователей</string>
-    <string name="setting_root_all_users_sub">Устанавливать пакет для всех пользователей устройства</string>
-    <string name="setting_root_set_source">Установить источник установки</string>
-    <string name="setting_root_set_source_sub">По умолчанию используется это приложение, если выключено</string>
     <string name="setting_section_sync">Синхронизация и обмен</string>
     <string name="setting_rate_subtitle">Оцените нас в Google Play</string>
     <string name="qs_tile_sync_label">Синхронизация и обмен</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Сначала откройте приложение Shizuku и запустите службу</string>
     <string name="setting_shizuku_install_hint">Установите Shizuku из Play Store</string>
     <string name="setting_auto_confirm_title">Автоподтверждение внешней установки</string>
-    <string name="setting_auto_confirm_subtitle">Пропускать диалоговое окно подтверждения при открытии APK из другого приложения</string>
     <string name="setting_default_installer_title">Установить как установщик по умолчанию</string>
     <string name="setting_default_installer_subtitle">Отключить системный установщик</string>
     <string name="setting_default_installer_needs_backend">Сначала включите Shizuku или Root</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Удалить</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Добавлено %1$d файлов, пропущено %2$d неподдерживаемых</string>
-    <string name="sync_toast_added">Добавлено %1$d файлов в папку синхронизации</string>
-    <string name="sync_toast_unsupported">Не выбрано поддерживаемых файлов (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Не удалось скопировать файлы</string>
     <string name="file_size_gb">%1$.1f ГБ</string>
     <string name="file_size_mb">%1$.1f МБ</string>
     <string name="file_size_kb">%1$.0f КБ</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">API-ключ VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Вставьте API-ключ сюда…</string>
     <string name="setting_diagnostics_title">Диагностика</string>
-    <string name="setting_installer_package_title">Пакет установщика</string>
-    <string name="backup_settings_title">Настройки резервного копирования</string>
     <string name="backup_output_path">Путь сохранения</string>
     <string name="backup_filename_template">Шаблон имени файла</string>
     <string name="backup_tags_hint">Теги: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Проверить в VirusTotal</string>
     <string name="skip_and_install_btn">Пропустить и установить</string>
     <string name="scanning_progress">Проверка…</string>
-    <string name="setting_vt_strict_check_title">Строгая проверка VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Предупреждать перед установкой, если файл не был проверен</string>
 </resources>

@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">اضغط لمنح إذن Shizuku</string>
     <string name="setting_shizuku_ready">تثبيت صامت بدون مطالبات</string>
     <string name="setting_delete_apk_title">حذف APK بعد التثبيت</string>
-    <string name="setting_section_shizuku_options">خيارات Shizuku</string>
     <string name="setting_shizuku_replace">استبدال الحالي</string>
     <string name="setting_shizuku_replace_sub">استبدال الحزم المثبتة بالفعل</string>
     <string name="setting_shizuku_downgrade">السماح بـ Downgrade</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">رجوع</string>
     <string name="done_cd">تم</string>
     <string name="apk_info_vt_uploading">جاري الرفع إلى VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">تحقق باستخدام VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">فحص مرة أخرى</string>
     <string name="vt_notif_channel_name">فحوصات VirusTotal</string>
     <string name="vt_notif_channel_description">تقدم عمليات الرفع والتحليل في VirusTotal</string>
     <string name="vt_notif_hashing">جاري تجزئة الملف…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">الاحتفاظ ببيانات المستخدم وذاكرة التخزين المؤقت عند إلغاء التثبيت (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">إلغاء التثبيت لجميع المستخدمين</string>
     <string name="setting_shizuku_uninstall_all_users_sub">إزالة الحزمة من كل مستخدم على الجهاز</string>
-    <string name="setting_section_root_options">خيارات الروت</string>
-    <string name="setting_root_replace">استبدال الحالي</string>
-    <string name="setting_root_replace_sub">استبدال الحزم المثبتة بالفعل</string>
-    <string name="setting_root_downgrade">السماح بالرجوع لإصدار أقدم (Downgrade)</string>
-    <string name="setting_root_downgrade_sub">السماح بتثبيت إصدار أقدم فوق إصدار أحدث</string>
-    <string name="setting_root_grant_permissions">منح جميع الأذونات</string>
-    <string name="setting_root_grant_permissions_sub">منح تلقائي لجميع الأذونات المطلوبة</string>
-    <string name="setting_root_allow_test">السماح بحزم الاختبار</string>
-    <string name="setting_root_allow_test_sub">السماح بتثبيت ملفات APK للاختبار/التصحيح</string>
-    <string name="setting_root_bypass_sdk">تخطي حظر Target SDK المنخفض</string>
-    <string name="setting_root_bypass_sdk_sub">تثبيت التطبيقات التي تستهدف إصدارات SDK القديمة</string>
-    <string name="setting_root_all_users">تثبيت لجميع المستخدمين</string>
-    <string name="setting_root_all_users_sub">تثبيت الحزمة لجميع مستخدمي الجهاز</string>
-    <string name="setting_root_set_source">تعيين مصدر التثبيت</string>
-    <string name="setting_root_set_source_sub">يتم تعيينه افتراضيًا على هذا التطبيق عند الإيقاف</string>
     <string name="setting_section_sync">المزامنة والمشاركة</string>
     <string name="setting_rate_subtitle">قيّمنا على Google Play</string>
     <string name="qs_tile_sync_label">المزامنة والمشاركة</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">افتح تطبيق Shizuku وابدأ الخدمة أولاً</string>
     <string name="setting_shizuku_install_hint">قم بتثبيت Shizuku من متجر Play لاستخدام هذه الواجهة الخلفية</string>
     <string name="setting_auto_confirm_title">تأكيد التثبيتات الخارجية تلقائيًا</string>
-    <string name="setting_auto_confirm_subtitle">تخطي حوار التأكيد عند فتح APK من تطبيق آخر</string>
     <string name="setting_default_installer_title">تعيين كمثبت افتراضي</string>
     <string name="setting_default_installer_subtitle">قم بتعطيل مثبت النظام لاستخدام Universal Installer دائمًا لملفات APK (يتطلب Shizuku أو Root)</string>
     <string name="setting_default_installer_needs_backend">قم بتمكين Shizuku أو Root أولاً لتغيير المثبت الافتراضي</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">حذف</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">تمت إضافة %1$d ملف(ات)، تم تخطي %2$d غير مدعوم</string>
-    <string name="sync_toast_added">تمت إضافة %1$d ملف(ات) إلى مجلد المزامنة</string>
-    <string name="sync_toast_unsupported">لم يتم تحديد ملفات حزم مدعومة (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">فشل في نسخ الملفات</string>
     <string name="file_size_gb">%1$.1f جيجابايت</string>
     <string name="file_size_mb">%1$.1f ميجابايت</string>
     <string name="file_size_kb">%1$.0f كيلوبايت</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">مفتاح VirusTotal API</string>
     <string name="setting_vt_api_key_placeholder">الصق مفتاح API هنا…</string>
     <string name="setting_diagnostics_title">التشخيصات</string>
-    <string name="setting_installer_package_title">حزمة المثبت</string>
-    <string name="backup_settings_title">إعدادات النسخ الاحتياطي</string>
     <string name="backup_output_path">مسار المخرجات</string>
     <string name="backup_filename_template">قالب اسم الملف</string>
     <string name="backup_tags_hint">العلامات: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">فحص باستخدام VirusTotal</string>
     <string name="skip_and_install_btn">تخطي وتثبيت</string>
     <string name="scanning_progress">جارٍ الفحص…</string>
-    <string name="setting_vt_strict_check_title">فحص VirusTotal صارم</string>
-    <string name="setting_vt_strict_check_summary">التحذير قبل التثبيت إذا لم يتم فحص الملف</string>
 </resources>

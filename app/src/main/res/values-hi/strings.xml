@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">Shizuku अनुमति देने के लिए टैप करें</string>
     <string name="setting_shizuku_ready">बिना प्रांप्ट के साइलेंट इंस्टॉल</string>
     <string name="setting_delete_apk_title">इंस्टॉल के बाद APK हटाएं</string>
-    <string name="setting_section_shizuku_options">Shizuku विकल्प</string>
     <string name="setting_shizuku_replace">मौजूदा को बदलें</string>
     <string name="setting_shizuku_replace_sub">पहले से इंस्टॉल किए गए पैकेज को बदलें</string>
     <string name="setting_shizuku_downgrade">Downgrade की अनुमति दें</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">वापस</string>
     <string name="done_cd">हो गया</string>
     <string name="apk_info_vt_uploading">VirusTotal पर अपलोड हो रहा है… %d%%</string>
-    <string name="apk_info_vt_check_button">VirusTotal के साथ जांचें</string>
-    <string name="apk_info_vt_rescan_button">फिर से स्कैन करें</string>
     <string name="vt_notif_channel_name">VirusTotal स्कैन</string>
     <string name="vt_notif_channel_description">VirusTotal अपलोड और विश्लेषण की प्रगति</string>
     <string name="vt_notif_hashing">फ़ाइल को हैश किया जा रहा है…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">अनइंस्टॉल करते समय उपयोगकर्ता डेटा और कैश सुरक्षित रखें (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">सभी उपयोगकर्ताओं के लिए अनइंस्टॉल करें</string>
     <string name="setting_shizuku_uninstall_all_users_sub">डिवाइस के हर उपयोगकर्ता से पैकेज हटाएँ</string>
-    <string name="setting_section_root_options">रूट विकल्प (Root Options)</string>
-    <string name="setting_root_replace">मौजूदा को बदलें</string>
-    <string name="setting_root_replace_sub">पहले से इंस्टॉल किए गए पैकेज को बदलें</string>
-    <string name="setting_root_downgrade">डाउनग्रेड की अनुमति दें</string>
-    <string name="setting_root_downgrade_sub">नए वर्ज़न पर पुराना वर्ज़न इंस्टॉल करने की अनुमति दें</string>
-    <string name="setting_root_grant_permissions">सभी अनुमतियाँ दें</string>
-    <string name="setting_root_grant_permissions_sub">मांगी गई सभी अनुमतियाँ स्वतः दें</string>
-    <string name="setting_root_allow_test">टेस्ट पैकेज की अनुमति दें</string>
-    <string name="setting_root_allow_test_sub">डीबग/टेस्ट APK इंस्टॉल करने की अनुमति दें</string>
-    <string name="setting_root_bypass_sdk">कम टारगेट SDK ब्लॉक को बायपास करें</string>
-    <string name="setting_root_bypass_sdk_sub">पुराने SDK वर्ज़न को टारगेट करने वाले ऐप्स इंस्टॉल करें</string>
-    <string name="setting_root_all_users">सभी उपयोगकर्ताओं के लिए इंस्टॉल करें</string>
-    <string name="setting_root_all_users_sub">डिवाइस के सभी उपयोगकर्ताओं के लिए पैकेज इंस्टॉल करें</string>
-    <string name="setting_root_set_source">इंस्टॉल स्रोत सेट करें</string>
-    <string name="setting_root_set_source_sub">बंद होने पर डिफ़ॉल्ट रूप से इस ऐप पर सेट होता है</string>
     <string name="setting_section_sync">सिंक और शेयर (Sync &amp; Share)</string>
     <string name="setting_rate_subtitle">Google Play पर हमारी समीक्षा करें</string>
     <string name="qs_tile_sync_label">सिंक और शेयर</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Shizuku ऐप खोलें और पहले सेवा शुरू करें</string>
     <string name="setting_shizuku_install_hint">इस बैकएंड का उपयोग करने के लिए Play Store से Shizuku इंस्टॉल करें</string>
     <string name="setting_auto_confirm_title">बाहरी इंस्टॉलेशन की स्वतः पुष्टि करें</string>
-    <string name="setting_auto_confirm_subtitle">जब कोई APK किसी अन्य ऐप से खोला जाता है तो पुष्टि संवाद छोड़ दें</string>
     <string name="setting_default_installer_title">डिफ़ॉल्ट इंस्टॉलर के रूप में सेट करें</string>
     <string name="setting_default_installer_subtitle">APK फ़ाइलों के लिए हमेशा Universal Installer का उपयोग करने के लिए सिस्टम इंस्टॉलर को अक्षम करें (Shizuku या Root की आवश्यकता है)</string>
     <string name="setting_default_installer_needs_backend">डिफ़ॉल्ट इंस्टॉलर को बदलने के लिए पहले Shizuku या Root सक्षम करें</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">हटाएं</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">%1$d फ़ाइलें जोड़ी गईं, %2$d असमर्थित छोड़ी गईं</string>
-    <string name="sync_toast_added">%1$d फ़ाइलें सिंक फ़ोल्डर में जोड़ी गईं</string>
-    <string name="sync_toast_unsupported">कोई समर्थित पैकेज फ़ाइल चयनित नहीं है (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">फ़ाइलों की प्रतिलिपि बनाने में विफल</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">VirusTotal API कुंजी</string>
     <string name="setting_vt_api_key_placeholder">यहां API कुंजी पेस्ट करें…</string>
     <string name="setting_diagnostics_title">डायग्नोस्टिक्स</string>
-    <string name="setting_installer_package_title">इंस्टॉलर पैकेज</string>
-    <string name="backup_settings_title">बैकअप सेटिंग्स</string>
     <string name="backup_output_path">आउटपुट पथ</string>
     <string name="backup_filename_template">फ़ाइल नाम टेम्पलेट</string>
     <string name="backup_tags_hint">टैग: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">VirusTotal से स्कैन करें</string>
     <string name="skip_and_install_btn">छोड़ें और इंस्टॉल करें</string>
     <string name="scanning_progress">स्कैन किया जा रहा है…</string>
-    <string name="setting_vt_strict_check_title">सख्त VirusTotal जांच</string>
-    <string name="setting_vt_strict_check_summary">अगर फ़ाइल को स्कैन नहीं किया गया है, तो इंस्टॉल करने से पहले चेतावनी दें</string>
 </resources>

@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">Appuyez pour accorder la permission Shizuku</string>
     <string name="setting_shizuku_ready">Installation silencieuse sans invites</string>
     <string name="setting_delete_apk_title">Supprimer l\'APK après l\'installation</string>
-    <string name="setting_section_shizuku_options">Options de Shizuku</string>
     <string name="setting_shizuku_replace">Remplacer l\'existant</string>
     <string name="setting_shizuku_replace_sub">Remplacer les paquets déjà installés</string>
     <string name="setting_shizuku_downgrade">Autoriser le Downgrade</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">Retour</string>
     <string name="done_cd">Terminé</string>
     <string name="apk_info_vt_uploading">Téléchargement vers VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Vérifier avec VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Analyser à nouveau</string>
     <string name="vt_notif_channel_name">Analyses VirusTotal</string>
     <string name="vt_notif_channel_description">Progression des téléchargements et analyses VirusTotal</string>
     <string name="vt_notif_hashing">Hachage du fichier…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">Préserver les données utilisateur et le cache lors de la désinstallation (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">Désinstaller pour tous les utilisateurs</string>
     <string name="setting_shizuku_uninstall_all_users_sub">Supprimer le paquet pour chaque utilisateur de l\'appareil</string>
-    <string name="setting_section_root_options">Options Root</string>
-    <string name="setting_root_replace">Remplacer l\'existant</string>
-    <string name="setting_root_replace_sub">Remplacer les paquets déjà installés</string>
-    <string name="setting_root_downgrade">Autoriser la version antérieure (Downgrade)</string>
-    <string name="setting_root_downgrade_sub">Autoriser l\'installation d\'une ancienne version sur une plus récente</string>
-    <string name="setting_root_grant_permissions">Accorder toutes les autorisations</string>
-    <string name="setting_root_grant_permissions_sub">Accorder automatiquement toutes les autorisations demandées</string>
-    <string name="setting_root_allow_test">Autoriser les paquets de test</string>
-    <string name="setting_root_allow_test_sub">Autoriser l\'installation d\'APK de débogage/test</string>
-    <string name="setting_root_bypass_sdk">Contourner le blocage de cible SDK faible</string>
-    <string name="setting_root_bypass_sdk_sub">Installer des applications ciblant d\'anciennes versions du SDK</string>
-    <string name="setting_root_all_users">Installer pour tous les utilisateurs</string>
-    <string name="setting_root_all_users_sub">Installer le paquet pour tous les utilisateurs de l\'appareil</string>
-    <string name="setting_root_set_source">Définir la source d\'installation</string>
-    <string name="setting_root_set_source_sub">Par défaut sur cette application lorsqu\'elle est désactivée</string>
     <string name="setting_section_sync">Synchroniser &amp; Partager</string>
     <string name="setting_rate_subtitle">Évaluez-nous sur Google Play</string>
     <string name="qs_tile_sync_label">Synchroniser &amp; Partager</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Ouvrez l\'application Shizuku et démarrez d\'abord le service</string>
     <string name="setting_shizuku_install_hint">Installez Shizuku depuis le Play Store pour utiliser ce backend</string>
     <string name="setting_auto_confirm_title">Confirmation automatique des installations externes</string>
-    <string name="setting_auto_confirm_subtitle">Ignorer la boîte de dialogue de confirmation lorsqu\'un APK est ouvert depuis une autre application</string>
     <string name="setting_default_installer_title">Définir comme installateur par défaut</string>
     <string name="setting_default_installer_subtitle">Désactiver l\'installateur système pour toujours utiliser Universal Installer pour les fichiers APK (nécessite Shizuku ou Root)</string>
     <string name="setting_default_installer_needs_backend">Activez Shizuku ou Root d\'abord pour changer l\'installateur par défaut</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Supprimer</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">%1$d fichier(s) ajouté(s), %2$d non pris en charge ignoré(s)</string>
-    <string name="sync_toast_added">%1$d fichier(s) ajouté(s) au dossier de synchronisation</string>
-    <string name="sync_toast_unsupported">Aucun fichier de package pris en charge sélectionné (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Échec de la copie des fichiers</string>
     <string name="file_size_gb">%1$.1f Go</string>
     <string name="file_size_mb">%1$.1f Mo</string>
     <string name="file_size_kb">%1$.0f Ko</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">Clé API VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Collez la clé API ici…</string>
     <string name="setting_diagnostics_title">Diagnostics</string>
-    <string name="setting_installer_package_title">Package du programme d\'installation</string>
-    <string name="backup_settings_title">Paramètres de sauvegarde</string>
     <string name="backup_output_path">Chemin de sortie</string>
     <string name="backup_filename_template">Modèle de nom de fichier</string>
     <string name="backup_tags_hint">Balises : {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Analyser avec VirusTotal</string>
     <string name="skip_and_install_btn">Ignorer et installer</string>
     <string name="scanning_progress">Analyse en cours…</string>
-    <string name="setting_vt_strict_check_title">Vérification stricte VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Avertir avant l\'installation si le fichier n\'a pas été analysé</string>
 </resources>

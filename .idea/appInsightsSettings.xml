@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="app.pwhs.universalinstaller" />
+                  <option name="mobileSdkAppId" value="1:466719970426:android:6b971973fbb71b702597c3" />
+                  <option name="projectId" value="aurora-8cef9" />
+                  <option name="projectNumber" value="466719970426" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

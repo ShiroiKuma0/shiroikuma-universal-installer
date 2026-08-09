@@ -39,6 +39,7 @@ import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Palette
+import androidx.compose.material.icons.rounded.PrivacyTip
 import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
@@ -91,6 +92,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
@@ -116,6 +118,7 @@ fun SettingScreen(
     val securityLevel by viewModel.securityLevel.collectAsState()
     val externalOpenMode by viewModel.externalOpenMode.collectAsState()
     val installUiStyle by viewModel.installUiStyle.collectAsState()
+    val analyticsEnabled by viewModel.analyticsEnabled.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
     // Dhizuku can be granted or revoked in its own app while we are backgrounded.
@@ -180,6 +183,8 @@ fun SettingScreen(
         onProfilesClick = {
             context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.profile.ProfileActivity::class.java))
         },
+        analyticsEnabled = analyticsEnabled,
+        onAnalyticsEnabledChanged = viewModel::setAnalyticsEnabled,
     )
 }
 
@@ -222,6 +227,8 @@ private fun SettingUi(
     onShowDownloadTabChanged: (Boolean) -> Unit = {},
     onDefaultInstallerChanged: (Boolean) -> Unit = {},
     onProfilesClick: () -> Unit = {},
+    analyticsEnabled: Boolean = true,
+    onAnalyticsEnabledChanged: (Boolean) -> Unit = {},
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -321,10 +328,16 @@ private fun SettingUi(
                 stringResource(R.string.theme_screen_title),
                 stringResource(R.string.setting_language_title),
             )
-            val securityLabels = listOf("security", "lock", "biometric", "fingerprint", "installations", "uninstalls")
+            val securityLabels = listOf("security", "lock", "biometric", "fingerprint", "installations", "uninstalls",
+                stringResource(R.string.setting_blacklist_title), "blacklist", "block",
+            )
             val syncLabels = listOf("sync", "port", "pin")
             val advancedLabels = listOf("advanced", "virustotal", "api key")
-            val aboutLabels = listOf(stringResource(R.string.setting_blacklist_title), "blacklist", "block", stringResource(R.string.help_title), "help", "tutorial", 
+            val privacyLabels = listOf(
+                stringResource(R.string.setting_analytics_title),
+                "privacy", "analytics", "crash", "data", "telemetry",
+            )
+            val aboutLabels = listOf(stringResource(R.string.help_title), "help", "tutorial",
                 "about", "diagnostics",
                 stringResource(R.string.setting_section_about),
             )
@@ -338,6 +351,7 @@ private fun SettingUi(
                     matchesQuery(q, securityLabels) ||
                     matchesQuery(q, syncLabels) ||
                     matchesQuery(q, advancedLabels) ||
+                    (Telemetry.isCollecting && matchesQuery(q, privacyLabels)) ||
                     matchesQuery(q, aboutLabels)
 
             androidx.compose.animation.Crossfade(
@@ -646,6 +660,23 @@ private fun SettingUi(
                 // ── Security Section ─────────────────────────
                 if (matchesQuery(q, securityLabels)) item {
                     SettingsSection(title = stringResource(R.string.setting_section_security), icon = Icons.Rounded.Fingerprint) {
+                        SearchableItem(q, stringResource(R.string.setting_blacklist_title), "blacklist block packages") {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.setting_blacklist_title)) },
+                                supportingContent = {
+                                    Text(
+                                        if (blacklist.isEmpty()) stringResource(R.string.setting_blacklist_empty)
+                                        else stringResource(R.string.setting_blacklist_count, blacklist.size)
+                                    )
+                                },
+                                leadingContent = { Icon(Icons.Rounded.Block, null, tint = MaterialTheme.colorScheme.primary) },
+                                modifier = Modifier.clickable {
+                                    context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.blacklist.BlacklistActivity::class.java))
+                                },
+                                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                            )
+                        }
+                        if (q.isBlank()) HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
                         SearchableItem(q, stringResource(R.string.setting_lock_install_title), "biometric security install") {
                             SwitchPreference(
                                 title = stringResource(R.string.setting_lock_install_title),
@@ -670,6 +701,22 @@ private fun SettingUi(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+
+                // ── Privacy Section ──────────────────────────
+                // Absent from the open-source build: Telemetry has no sink there, so the
+                // switch would promise control over something that never happens.
+                if (Telemetry.isCollecting && matchesQuery(q, privacyLabels)) item {
+                    SettingsSection(title = stringResource(R.string.setting_section_privacy), icon = Icons.Rounded.PrivacyTip) {
+                        SearchableItem(q, stringResource(R.string.setting_analytics_title), "privacy analytics crash data") {
+                            SwitchPreference(
+                                title = stringResource(R.string.setting_analytics_title),
+                                subtitle = stringResource(R.string.setting_analytics_subtitle),
+                                checked = analyticsEnabled,
+                                onCheckedChange = onAnalyticsEnabledChanged,
                             )
                         }
                     }
@@ -760,20 +807,6 @@ private fun SettingUi(
                             leadingContent = { Icon(Icons.Rounded.Info, null, tint = MaterialTheme.colorScheme.primary) },
                             modifier = Modifier.clickable {
                                 context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.about.AboutActivity::class.java))
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.setting_blacklist_title)) },
-                            supportingContent = {
-                                Text(
-                                    if (blacklist.isEmpty()) stringResource(R.string.setting_blacklist_empty)
-                                    else stringResource(R.string.setting_blacklist_count, blacklist.size)
-                                )
-                            },
-                            leadingContent = { Icon(Icons.Rounded.Block, null, tint = MaterialTheme.colorScheme.primary) },
-                            modifier = Modifier.clickable {
-                                context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.blacklist.BlacklistActivity::class.java))
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )

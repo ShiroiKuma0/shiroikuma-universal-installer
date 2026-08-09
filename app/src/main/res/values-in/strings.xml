@@ -77,7 +77,6 @@
     <string name="setting_shizuku_no_permission">Ketuk untuk memberikan izin Shizuku</string>
     <string name="setting_shizuku_ready">Instalasi diam-diam tanpa konfirmasi</string>
     <string name="setting_delete_apk_title">Hapus APK setelah instal</string>
-    <string name="setting_section_shizuku_options">Opsi Shizuku</string>
     <string name="setting_shizuku_replace">Ganti yang ada</string>
     <string name="setting_shizuku_replace_sub">Ganti paket yang sudah terinstal</string>
     <string name="setting_shizuku_downgrade">Izinkan downgrade</string>
@@ -132,8 +131,6 @@
     <string name="back_cd">Kembali</string>
     <string name="done_cd">Selesai</string>
     <string name="apk_info_vt_uploading">Mengunggah ke VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Periksa dengan VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Pindai lagi</string>
     <string name="vt_notif_channel_name">Pemindaian VirusTotal</string>
     <string name="vt_notif_channel_description">Progres unggahan dan analisis VirusTotal</string>
     <string name="vt_notif_hashing">Melakukan hashing pada berkas…</string>
@@ -284,21 +281,6 @@
     <string name="setting_shizuku_uninstall_keep_data_sub">Pertahankan data pengguna dan cache saat mencopot pemasangan (pm uninstall -k)</string>
     <string name="setting_shizuku_uninstall_all_users">Copot pemasangan untuk semua pengguna</string>
     <string name="setting_shizuku_uninstall_all_users_sub">Hapus paket dari setiap pengguna di perangkat</string>
-    <string name="setting_section_root_options">Opsi Root</string>
-    <string name="setting_root_replace">Ganti yang ada</string>
-    <string name="setting_root_replace_sub">Ganti paket yang sudah terinstal</string>
-    <string name="setting_root_downgrade">Izinkan turunkan versi (downgrade)</string>
-    <string name="setting_root_downgrade_sub">Izinkan menginstal versi lama di atas yang lebih baru</string>
-    <string name="setting_root_grant_permissions">Berikan semua izin</string>
-    <string name="setting_root_grant_permissions_sub">Beri otomatis semua izin yang diminta</string>
-    <string name="setting_root_allow_test">Izinkan paket pengujian</string>
-    <string name="setting_root_allow_test_sub">Izinkan menginstal APK debug/pengujian</string>
-    <string name="setting_root_bypass_sdk">Lewati blokir target SDK rendah</string>
-    <string name="setting_root_bypass_sdk_sub">Instal aplikasi yang menargetkan versi SDK lama</string>
-    <string name="setting_root_all_users">Instal untuk semua pengguna</string>
-    <string name="setting_root_all_users_sub">Instal paket untuk semua pengguna perangkat</string>
-    <string name="setting_root_set_source">Tetapkan sumber instalasi</string>
-    <string name="setting_root_set_source_sub">Default ke aplikasi ini saat dimatikan</string>
     <string name="setting_section_sync">Sinkronisasi &amp; Bagikan</string>
     <string name="setting_rate_subtitle">Beri ulasan kami di Google Play</string>
     <string name="qs_tile_sync_label">Sinkronisasi &amp; Bagikan</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Buka aplikasi Shizuku dan mulai layanan terlebih dahulu</string>
     <string name="setting_shizuku_install_hint">Instal Shizuku dari Play Store untuk menggunakan backend ini</string>
     <string name="setting_auto_confirm_title">Konfirmasi otomatis instalasi eksternal</string>
-    <string name="setting_auto_confirm_subtitle">Lewati dialog konfirmasi saat APK dibuka dari aplikasi lain</string>
     <string name="setting_default_installer_title">Tetapkan sebagai penginstal default</string>
     <string name="setting_default_installer_subtitle">Nonaktifkan penginstal sistem untuk selalu menggunakan Universal Installer untuk file APK (memerlukan Shizuku atau Root)</string>
     <string name="setting_default_installer_needs_backend">Aktifkan Shizuku atau Root terlebih dahulu untuk mengubah penginstal default</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Hapus</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Ditambahkan %1$d file, dilewati %2$d tidak didukung</string>
-    <string name="sync_toast_added">Ditambahkan %1$d file ke Folder Sinkronisasi</string>
-    <string name="sync_toast_unsupported">Tidak ada file paket yang didukung yang dipilih (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Gagal menyalin file</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">Kunci API VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Tempel kunci API di sini…</string>
     <string name="setting_diagnostics_title">Diagnostik</string>
-    <string name="setting_installer_package_title">Paket Penginstal</string>
-    <string name="backup_settings_title">Pengaturan Pencadangan</string>
     <string name="backup_output_path">Jalur Output</string>
     <string name="backup_filename_template">Template Nama File</string>
     <string name="backup_tags_hint">Tag: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Pindai dengan VirusTotal</string>
     <string name="skip_and_install_btn">Lewati &amp; Instal</string>
     <string name="scanning_progress">Memindai…</string>
-    <string name="setting_vt_strict_check_title">Pemeriksaan ketat VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Beri peringatan sebelum menginstal jika file belum dipindai</string>
 </resources>

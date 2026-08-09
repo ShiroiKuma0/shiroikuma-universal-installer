@@ -35,6 +35,13 @@ private class FirebaseTelemetrySink(context: Context) : TelemetrySink {
         crashlytics.log(message)
     }
 
+    override fun setCollectionEnabled(enabled: Boolean) {
+        analytics.setAnalyticsCollectionEnabled(enabled)
+        // Method call rather than the synthesised property: Crashlytics overloads this on
+        // Boolean? as well, and the explicit form is unambiguous about which one we mean.
+        crashlytics.setCrashlyticsCollectionEnabled(enabled)
+    }
+
     /**
      * Analytics parameters are limited to strings and numbers. Booleans and anything unexpected
      * go in as their string form rather than being dropped, so a mistyped call still shows up in

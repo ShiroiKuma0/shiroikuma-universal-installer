@@ -224,8 +224,6 @@
     <string name="apk_info_vt_not_found">Το αρχείο δεν βρέθηκε στη βάση δεδομένων του VirusTotal</string>
     <string name="apk_info_vt_no_api_key">Δεν έχει ρυθμιστεί κλειδί API του VirusTotal. Ανοίξτε Ρυθμίσεις → Advanced → Κλειδί API VirusTotal για να προσθέσετε ένα — δωρεάν κλειδί στο virustotal.com/gui/my-apikey.</string>
     <string name="apk_info_vt_uploading">Μεταφόρτωση στο VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Έλεγχος με το VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Σάρωση ξανά</string>
     <string name="vt_notif_channel_name">Σαρώσεις VirusTotal</string>
     <string name="vt_notif_channel_description">Πρόοδος μεταφορτώσεων και αναλύσεων του VirusTotal</string>
     <string name="vt_notif_hashing">Δημιουργία κατακερματισμού αρχείου…</string>
@@ -301,7 +299,6 @@
     <string name="setting_delete_apk_title">Διαγραφή APK μετά την εγκατάσταση</string>
     <string name="setting_auto_open_title">Άνοιγμα εφαρμογής μετά την εγκατάσταση</string>
     <string name="setting_auto_open_subtitle">Εκκίνηση της εγκατεστημένης εφαρμογής από την οθόνη επιτυχίας — με ακυρώσιμη αντίστροφη μέτρηση 3 δευτερολέπτων</string>
-    <string name="setting_section_shizuku_options">Επιλογές Shizuku</string>
     <string name="setting_shizuku_options_install_group">Εγκατάσταση</string>
     <string name="setting_shizuku_options_uninstall_group">Απεγκατάσταση</string>
     <string name="setting_shizuku_uninstall_keep_data">Διατήρηση δεδομένων εφαρμογής</string>
@@ -371,21 +368,6 @@
     <string name="diagnostics_cancel">Ακύρωση</string>
     <string name="installer_mode_package_installer">Πρόγραμμα εγκατάστασης πακέτων</string>
     <string name="installer_mode_using">Χρήση του %s</string>
-    <string name="setting_section_root_options">Επιλογές Root</string>
-    <string name="setting_root_replace">Αντικατάσταση υπάρχοντος</string>
-    <string name="setting_root_replace_sub">Αντικατάσταση ήδη εγκατεστημένων πακέτων</string>
-    <string name="setting_root_downgrade">Να επιτρέπεται η εγκατάσταση παλαιότερης έκδοσης</string>
-    <string name="setting_root_downgrade_sub">Να επιτρέπεται η εγκατάσταση παλαιότερης έκδοσης πάνω σε νεότερη</string>
-    <string name="setting_root_grant_permissions">Χορήγηση όλων των αδειών</string>
-    <string name="setting_root_grant_permissions_sub">Αυτόματη χορήγηση όλων των ζητούμενων αδειών</string>
-    <string name="setting_root_allow_test">Να επιτρέπονται δοκιμαστικά πακέτα</string>
-    <string name="setting_root_allow_test_sub">Να επιτρέπεται η εγκατάσταση APK εντοπισμού σφαλμάτων/δοκιμής</string>
-    <string name="setting_root_bypass_sdk">Παράκαμψη αποκλεισμού χαμηλού SDK στόχου</string>
-    <string name="setting_root_bypass_sdk_sub">Εγκατάσταση εφαρμογών που στοχεύουν παλιές εκδόσεις SDK</string>
-    <string name="setting_root_all_users">Εγκατάσταση για όλους τους χρήστες</string>
-    <string name="setting_root_all_users_sub">Εγκατάσταση πακέτου για όλους τους χρήστες της συσκευής</string>
-    <string name="setting_root_set_source">Ορισμός προέλευσης εγκατάστασης</string>
-    <string name="setting_root_set_source_sub">Προεπιλογή σε αυτήν την εφαρμογή όταν είναι ανενεργό</string>
     <string name="install_error_cancelled_title">Η εγκατάσταση ακυρώθηκε</string>
     <string name="install_error_cancelled_guidance">Η εγκατάσταση ακυρώθηκε από τον χρήστη ή το σύστημα. Πατήστε Επανάληψη για να δοκιμάσετε ξανά.</string>
     <string name="install_error_blocked_title">Η εγκατάσταση αποκλείστηκε</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Ανοίξτε την εφαρμογή Shizuku και ξεκινήστε πρώτα την υπηρεσία</string>
     <string name="setting_shizuku_install_hint">Εγκαταστήστε το Shizuku από το Play Store για να χρησιμοποιήσετε αυτό το backend</string>
     <string name="setting_auto_confirm_title">Αυτόματη επιβεβαίωση εξωτερικών εγκαταστάσεων</string>
-    <string name="setting_auto_confirm_subtitle">Παράλειψη του διαλόγου επιβεβαίωσης όταν ένα APK ανοίγει από άλλη εφαρμογή</string>
     <string name="setting_default_installer_title">Ορισμός ως προεπιλεγμένου προγράμματος εγκατάστασης</string>
     <string name="setting_default_installer_subtitle">Απενεργοποιήστε το πρόγραμμα εγκατάστασης συστήματος για να χρησιμοποιείτε πάντα το Universal Installer για αρχεία APK (απαιτεί Σχίζουκου ή Root)</string>
     <string name="setting_default_installer_needs_backend">Ενεργοποιήστε πρώτα το Shizuku ή το Root για να αλλάξετε το προεπιλεγμένο πρόγραμμα εγκατάστασης</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Διαγραφή</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Προστέθηκαν %1$d αρχεία, παραλείφθηκαν %2$d μη υποστηριζόμενα</string>
-    <string name="sync_toast_added">Προστέθηκαν %1$d αρχεία στον Φάκελο Συγχρονισμού</string>
-    <string name="sync_toast_unsupported">Δεν επιλέχθηκαν υποστηριζόμενα αρχεία πακέτου (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Αποτυχία αντιγραφής αρχείων</string>
     <string name="file_size_gb">%1$.1f GB</string>
     <string name="file_size_mb">%1$.1f MB</string>
     <string name="file_size_kb">%1$.0f KB</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">Κλειδί API VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Επικολλήστε το κλειδί API εδώ…</string>
     <string name="setting_diagnostics_title">Διαγνωστικά</string>
-    <string name="setting_installer_package_title">Πακέτο εγκατάστασης</string>
-    <string name="backup_settings_title">Ρυθμίσεις αντιγράφων ασφαλείας</string>
     <string name="backup_output_path">Διαδρομή εξόδου</string>
     <string name="backup_filename_template">Πρότυπο ονόματος αρχείου</string>
     <string name="backup_tags_hint">Ετικέτες: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Σάρωση VirusTotal</string>
     <string name="skip_and_install_btn">Παράλειψη και Εγκατάσταση</string>
     <string name="scanning_progress">Γίνεται σάρωση…</string>
-    <string name="setting_vt_strict_check_title">Αυστηρός έλεγχος VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Προειδοποίηση πριν την εγκατάσταση εάν το αρχείο δεν έχει σαρωθεί</string>
 </resources>

@@ -225,8 +225,6 @@
     <string name="apk_info_vt_not_found">Файл не знайдено в базі даних VirusTotal</string>
     <string name="apk_info_vt_no_api_key">Не налаштовано API-ключ VirusTotal. Відкрийте Налаштування → Advanced → Ключ API VirusTotal, щоб додати його — безкоштовний ключ на virustotal.com/gui/my-apikey.</string>
     <string name="apk_info_vt_uploading">Завантаження на VirusTotal… %d%%</string>
-    <string name="apk_info_vt_check_button">Перевірити за допомогою VirusTotal</string>
-    <string name="apk_info_vt_rescan_button">Сканувати знову</string>
     <string name="vt_notif_channel_name">Сканування VirusTotal</string>
     <string name="vt_notif_channel_description">Прогрес завантажень та аналізів VirusTotal</string>
     <string name="vt_notif_hashing">Хешування файлу…</string>
@@ -302,7 +300,6 @@
     <string name="setting_delete_apk_title">Видалити APK після встановлення</string>
     <string name="setting_auto_open_title">Відкрити додаток після встановлення</string>
     <string name="setting_auto_open_subtitle">Запускати встановлений додаток з екрана успіху — із 3-секундним зворотним відліком, який можна скасувати</string>
-    <string name="setting_section_shizuku_options">Опції Shizuku</string>
     <string name="setting_shizuku_options_install_group">Встановлення</string>
     <string name="setting_shizuku_options_uninstall_group">Видалення</string>
     <string name="setting_shizuku_uninstall_keep_data">Зберегти дані додатка</string>
@@ -372,21 +369,6 @@
     <string name="diagnostics_cancel">Скасувати</string>
     <string name="installer_mode_package_installer">Установник пакетів (Package Installer)</string>
     <string name="installer_mode_using">Використовується %s</string>
-    <string name="setting_section_root_options">Опції Root</string>
-    <string name="setting_root_replace">Замінити наявний</string>
-    <string name="setting_root_replace_sub">Замінити вже встановлені пакети</string>
-    <string name="setting_root_downgrade">Дозволити зниження версії</string>
-    <string name="setting_root_downgrade_sub">Дозволити встановлення старішої версії поверх новішої</string>
-    <string name="setting_root_grant_permissions">Надати всі дозволи</string>
-    <string name="setting_root_grant_permissions_sub">Автоматично надавати всі запитані дозволи</string>
-    <string name="setting_root_allow_test">Дозволити тестові пакети</string>
-    <string name="setting_root_allow_test_sub">Дозволити встановлення налагоджувальних/тестових APK</string>
-    <string name="setting_root_bypass_sdk">Обійти блокування низького цільового SDK</string>
-    <string name="setting_root_bypass_sdk_sub">Встановлювати додатки, орієнтовані на старі версії SDK</string>
-    <string name="setting_root_all_users">Встановити для всіх користувачів</string>
-    <string name="setting_root_all_users_sub">Встановити пакет для всіх користувачів пристрою</string>
-    <string name="setting_root_set_source">Встановити джерело встановлення</string>
-    <string name="setting_root_set_source_sub">За замовчуванням — цей додаток, коли вимкнено</string>
     <string name="install_error_cancelled_title">Встановлення скасовано</string>
     <string name="install_error_cancelled_guidance">Встановлення було скасовано користувачем або системою. Торкніться Повторити, щоб спробувати ще раз.</string>
     <string name="install_error_blocked_title">Встановлення заблоковано</string>
@@ -500,7 +482,6 @@
     <string name="setting_shizuku_start_service_hint">Спочатку відкрийте програму Shizuku та запустіть сервіс</string>
     <string name="setting_shizuku_install_hint">Встановіть Shizuku з Play Store</string>
     <string name="setting_auto_confirm_title">Автопідтвердження зовнішніх встановлень</string>
-    <string name="setting_auto_confirm_subtitle">Пропускати діалогове вікно підтвердження</string>
     <string name="setting_default_installer_title">Встановити як інсталятор за замовчуванням</string>
     <string name="setting_default_installer_subtitle">Вимкнути системний інсталятор</string>
     <string name="setting_default_installer_needs_backend">Спочатку увімкніть Shizuku або Root</string>
@@ -641,10 +622,6 @@
     <string name="sync_delete_cd">Видалити</string>
     <string name="sync_percentage">%1$d%%</string>
     <string name="sync_transfer_progress">%1$s / %2$s</string>
-    <string name="sync_toast_added_skipped">Додано %1$d файл(ів), пропущено %2$d непідтримуваних</string>
-    <string name="sync_toast_added">Додано %1$d файл(ів) до папки синхронізації</string>
-    <string name="sync_toast_unsupported">Не вибрано жодного підтримуваного файлу пакета (apk, apk+, apks, xapk, apkm, zip)</string>
-    <string name="sync_toast_failed">Не вдалося скопіювати файли</string>
     <string name="file_size_gb">%1$.1f ГБ</string>
     <string name="file_size_mb">%1$.1f МБ</string>
     <string name="file_size_kb">%1$.0f КБ</string>
@@ -663,8 +640,6 @@
     <string name="setting_vt_api_key_title">API-ключ VirusTotal</string>
     <string name="setting_vt_api_key_placeholder">Вставте API-ключ тут…</string>
     <string name="setting_diagnostics_title">Діагностика</string>
-    <string name="setting_installer_package_title">Пакет встановлювача</string>
-    <string name="backup_settings_title">Налаштування резервного копіювання</string>
     <string name="backup_output_path">Шлях виводу</string>
     <string name="backup_filename_template">Шаблон імені файлу</string>
     <string name="backup_tags_hint">Теги: {name}, {pkg}, {version}, {code}</string>
@@ -713,6 +688,4 @@
     <string name="scan_virustotal_btn">Перевірити у VirusTotal</string>
     <string name="skip_and_install_btn">Пропустити та встановити</string>
     <string name="scanning_progress">Перевірка…</string>
-    <string name="setting_vt_strict_check_title">Сувора перевірка VirusTotal</string>
-    <string name="setting_vt_strict_check_summary">Попереджати перед встановленням, якщо файл не був перевірений</string>
 </resources>

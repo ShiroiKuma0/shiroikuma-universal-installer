@@ -1,0 +1,7 @@
+- New: install through Dhizuku, alongside Shizuku, root and the system installer.
+- New: block packages you never want installed.
+- Install UI: choose dialog or bottom sheet, and confirm an install from the notification.
+- VirusTotal: pick Normal or Strict, and see what a scan actually found.
+- Failed installs can be dismissed, and Retry works again.
+- Faster TV startup.
+- Anonymous diagnostics so install failures can be fixed. Never records which apps you install; switch it off in Settings.

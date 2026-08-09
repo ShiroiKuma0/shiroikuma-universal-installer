@@ -93,6 +93,16 @@ jobs:
         continue-on-error: true
         run: bundle exec fastlane beta --fastlane_dir=fastlane_tv
 
+      # F-Droid rebuilds the opensource APK from a plain checkout and requires it to match the
+      # one published here byte for byte. A checkout has no google-services.json, so leaving
+      # ours in place makes that impossible: the Crashlytics plugin applies project-wide and
+      # injects mapping_file_id and version_control_info into *every* variant, opensource
+      # included. Two extra string resources shift every resource ID, which moves resources.arsc,
+      # the binary manifest, all of res/, and classes.dex through inlined R constants.
+      # Play already has its AAB from the fastlane lanes above, so the file has done its job.
+      - name: Drop the Firebase config before building the open-source artifacts
+        run: rm -f app/src/play/google-services.json
+
       # Play got its AAB from the fastlane lanes above, built from the `play` flavor. GitHub
       # gets the `opensource` flavor instead: same app, minus Firebase Analytics and
       # Crashlytics, which is the build we distribute as open source.

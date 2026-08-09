@@ -99,14 +99,25 @@ jobs:
       - name: Build release APK & AAB
         run: ./gradlew :app:assembleOpensourceRelease :app:bundleOpensourceRelease :tv:assembleRelease :tv:bundleRelease
 
+      # The flavor dimension renamed these to app-opensource-release.*, but two downstream
+      # consumers key off the old names: F-Droid's recipe pins `binary:` to app-release.apk for
+      # its reproducible-build check, and IzzyOnDroid picks its APK out of the release by name
+      # (the release also carries tv-release.apk). Rename back rather than break both.
+      - name: Restore the published artifact names
+        run: |
+          mv app/build/outputs/apk/opensource/release/app-opensource-release.apk \
+             app/build/outputs/apk/opensource/release/app-release.apk
+          mv app/build/outputs/bundle/opensourceRelease/app-opensource-release.aab \
+             app/build/outputs/bundle/opensourceRelease/app-release.aab
+
       # Artifacts
       - name: Upload release AAB & APK
         uses: actions/upload-artifact@v4
         with:
           name: release-build
           path: |
-            app/build/outputs/bundle/opensourceRelease/app-opensource-release.aab
-            app/build/outputs/apk/opensource/release/app-opensource-release.apk
+            app/build/outputs/bundle/opensourceRelease/app-release.aab
+            app/build/outputs/apk/opensource/release/app-release.apk
             tv/build/outputs/bundle/release/tv-release.aab
             tv/build/outputs/apk/release/tv-release.apk
           retention-days: 30
@@ -119,8 +130,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            app/build/outputs/apk/opensource/release/app-opensource-release.apk
-            app/build/outputs/bundle/opensourceRelease/app-opensource-release.aab
+            app/build/outputs/apk/opensource/release/app-release.apk
+            app/build/outputs/bundle/opensourceRelease/app-release.aab
             tv/build/outputs/apk/release/tv-release.apk
             tv/build/outputs/bundle/release/tv-release.aab
           token: ${{ secrets.GITHUB_TOKEN }}

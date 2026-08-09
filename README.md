@@ -10,7 +10,7 @@ A fork of [pass-with-high-score/universal-installer](https://github.com/pass-wit
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.9.11+019`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.9.12+001`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -72,16 +72,22 @@ Long version names — the `6.3.0-alpha.2026-07-30.g5c0ed6a3+002` kind our forks
 
 ---
 
+## 🕵️ No telemetry, ever
+
+Upstream 1.9.12 added Firebase Analytics and Crashlytics, kept to a `play` build flavor that needs a `google-services.json` the repo does not ship. **This fork never has one**, so every `play` variant is switched off at configuration time: the Firebase Gradle plugins are never applied and not a line of analytics or crash-reporting code is linked into the APK. Our build task is pinned to the `opensource` flavor explicitly rather than to the generic `assembleRelease`, so that stays true even if a Firebase config ever landed in a checkout.
+
+---
+
 ## Built on Universal Installer
 
-A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) (app id `shiroikuma.universalinstaller`, so it coexists with the official build). Upstream is a modern Material 3 package manager that installs **APK / APK+ / APKS / XAPK / APKM** (with split APKs and OBB), downloads packages from URLs, manages installed apps, and silent-installs via **Shizuku or root** — now with **Android TV** support. All credit for the core app goes to the upstream authors; this fork only layers the theming engine and branding on top. The code remains under the **GNU GPL v3**.
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) (app id `shiroikuma.universalinstaller`, so it coexists with the official build), currently tracking upstream **1.9.12**. Upstream is a modern Material 3 package manager that installs **APK / APK+ / APKS / XAPK / APKM** (with split APKs and OBB), downloads packages from URLs, manages installed apps, and silent-installs via **Shizuku, Dhizuku or root** — with **Android TV** support, a package blacklist, VirusTotal scanning and installs confirmed straight from a notification. All credit for the core app goes to the upstream authors; this fork only layers the theming engine and branding on top. The code remains under the **GNU GPL v3**.
 
 ## Building
 
 ```bash
 git clone git@github.com:ShiroiKuma0/shiroikuma-universal-installer.git
 cd shiroikuma-universal-installer
-JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleRelease
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleOpensourceRelease
 ```
 
 The fork build task `:app:buildFork` assembles the signed release, copies it to `~/tmp/` as `shiroikuma-universal-installer_<version>.apk`, and bumps the build number. Signing reads a gitignored `key.properties`; without it the build is unsigned.

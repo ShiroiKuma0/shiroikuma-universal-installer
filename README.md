@@ -196,6 +196,19 @@ repository. Without it those variants don't exist and everything below builds th
 ./gradlew assembleDebug
 ```
 
+`:app:assembleDebug` and `./gradlew assembleDebug` are lifecycle tasks: they build
+*every* flavor available to you, so on a checkout with `google-services.json` in
+place they compile `opensource` and `play` both. Name the variant task —
+`:app:assembleOpensourceDebug` — when you only want one.
+
+For changes that only touch resources — `strings.xml`, translations, drawables —
+this is much quicker than a full build and tells you whether aapt2 accepts them,
+without dragging in unrelated Kotlin compile errors:
+
+```bash
+./gradlew :app:processOpensourceDebugResources
+```
+
 ### Fastlane
 
 ```bash

@@ -37,6 +37,7 @@ navigationCompose = "2.9.7"
 firebaseBom = "34.17.0"
 googleServices = "4.5.0"
 firebaseCrashlyticsPlugin = "3.0.7"
+playReview = "2.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -148,6 +149,10 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+
+# Play In-App Review — `play` flavor only, same rule as Firebase above. `review-ktx` pulls
+# `review` in transitively, so one line covers both.
+play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "playReview" }
 
 
 [plugins]

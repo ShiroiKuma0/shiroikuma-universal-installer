@@ -9,6 +9,9 @@ import app.pwhs.universalinstaller.presentation.install.controller.BackendSelfHe
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
 import app.pwhs.core.data.local.SharedPrefsKeys
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.review.AppReview
+import app.pwhs.universalinstaller.review.ReviewGate
+import app.pwhs.universalinstaller.review.createReviewPrompter
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.createTelemetrySink
 import app.pwhs.universalinstaller.util.ApkFileIconFetcher
@@ -89,6 +92,7 @@ class App : Application(), SingletonImageLoader.Factory {
         // which on `play` is Crashlytics'. Binding the sink first also means a crash during the
         // rest of onCreate is still reported.
         Telemetry.install(createTelemetrySink(this))
+        AppReview.install(createReviewPrompter(this))
         CrashHandler.install(this)
         // Release builds used to plant nothing, so Settings -> Diagnostics collected a logcat
         // dump containing not one line from this app. Issues #92 and #100 both arrived with a
@@ -105,6 +109,9 @@ class App : Application(), SingletonImageLoader.Factory {
         // once per process on a background dispatcher; never blocks app start.
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             applyTelemetryPreference()
+            // Stamps the install date on first run — the review gate refuses to ask
+            // anyone who has had the app for less than a few days.
+            ReviewGate.rememberFirstLaunch(this@App)
             BackendSelfHeal.runOnce(this@App, backendFactory)
         }
     }

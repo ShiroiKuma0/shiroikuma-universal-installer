@@ -32,3 +32,8 @@
 -keepclassmembers class rikka.shizuku.Shizuku {
     private static *** newProcess(...);
 }
+# Play In-App Review (`play` flavor only; a no-op rule on `opensource`, which has no gms classes
+# at all). review-ktx 2.0.2 was compiled against a play-services-basement that still had this
+# annotation; the version that actually resolves — 18.9.0, pulled up by Firebase — no longer
+# ships it. It is a CLASS-retained annotation, so R8 only needs permission to stop caring.
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite

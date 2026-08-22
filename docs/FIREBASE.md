@@ -80,7 +80,9 @@ on — so the denominator is people who chose that backend.
 
 `feature_used` is one event name with a `feature` parameter rather than one name per feature:
 `lan_share`, `virustotal_scan`, `apk_backup`, `installer_profile`, `batch_install`, `obb_copy`,
-`url_download`, `uninstall`. It fires when a feature is used, not when its screen is opened.
+`url_download`, `uninstall`, `review_prompt`. It fires when a feature is used, not when its screen is opened. `review_prompt` is the odd one
+out: it records that the in-app review sheet was asked for, which is all Play lets us know —
+see [REVIEW.md](REVIEW.md).
 
 Warnings and errors logged through Timber become Crashlytics breadcrumbs, and `Timber.e(throwable)`
 is additionally reported as a non-fatal.

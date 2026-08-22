@@ -78,6 +78,14 @@ object TelemetryEvents {
     const val FEATURE_URL_DOWNLOAD = "url_download"
     const val FEATURE_UNINSTALL = "uninstall"
 
+    /**
+     * The in-app review sheet was asked for. Counts opportunities, not reviews: Play
+     * decides whether anything is shown and never reports back, so there is no outcome to
+     * record. Useful only for telling "the gate never opens" apart from "it opens and
+     * nothing comes of it".
+     */
+    const val FEATURE_REVIEW_PROMPT = "review_prompt"
+
     /** User property: the install backend the user has selected in Settings. */
     const val PROPERTY_INSTALL_METHOD = "install_method"
 }

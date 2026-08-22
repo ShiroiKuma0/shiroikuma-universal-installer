@@ -12,6 +12,7 @@ import app.pwhs.universalinstaller.presentation.install.InstallErrorHelper
 import app.pwhs.universalinstaller.data.local.InstallHistoryEntity
 import app.pwhs.universalinstaller.domain.model.SessionData
 import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
+import app.pwhs.universalinstaller.review.ReviewGate
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import kotlinx.coroutines.CancellationException
@@ -288,6 +289,10 @@ abstract class BaseInstallController(
         success: Boolean,
         errorMessage: String? = null,
     ) {
+        // Every backend funnels through here, which makes it the one place that sees a finished
+        // install. Counted ahead of the null-guard: a session restored after a process death has
+        // no SessionData left to write a history row for, but it still installed something.
+        if (success) ReviewGate.recordSuccessfulInstall(context)
         if (sessionData == null) return
         try {
             historyDao.insert(

@@ -229,6 +229,10 @@ dependencies {
     "playImplementation"(libs.firebase.analytics)
     "playImplementation"(libs.firebase.crashlytics)
 
+    // Play In-App Review, `play` flavor only for the same reason as Firebase: it is a closed
+    // Play Services library, and `opensource` ships none. See docs/REVIEW.md.
+    "playImplementation"(libs.play.review.ktx)
+
     implementation(libs.nanohttpd)
     implementation(libs.zxing.core)
     // Open-source QR scanner (Apache-2.0) for "Send to TV" — avoids proprietary ML Kit.

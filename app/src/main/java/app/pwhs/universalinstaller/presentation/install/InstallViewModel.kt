@@ -1762,6 +1762,30 @@ class InstallViewModel(
         }
     }
 
+    /**
+     * Retry from the install dialog, which cannot go through [confirmInstall] the way the first
+     * attempt did.
+     *
+     * [confirmInstall] clears `pendingApkInfo` and `pendingApkUris` as it hands off — that is what
+     * lets the Installing/Success/Failed stages render, see [DialogTarget] — so calling it a
+     * second time found nothing to install and reported the parse error instantly, on every
+     * retry. Issue #110.
+     *
+     * The session in the repository still holds everything needed, so this reuses the same path
+     * the session card on the main screen uses, and re-points the dialog at the new session id.
+     * `appScope` for the same reason the first attempt used it: this dialog Activity may finish
+     * while the install is still running.
+     */
+    fun retryDialogInstall() {
+        val target = _dialogTarget.value ?: return
+        _dialogStage.value = DialogStage.Installing
+        viewModelScope.launch {
+            activeController().retry(target.sessionId, appScope, application) { newSessionId ->
+                _dialogTarget.value = target.copy(sessionId = newSessionId)
+            }
+        }
+    }
+
     // ── Private helpers ─────────────────────────────────
 
     private suspend fun activeController(profileId: String? = null): BaseInstallController {

@@ -96,6 +96,7 @@ import app.pwhs.universalinstaller.presentation.install.dialog.InstallRisk
 import app.pwhs.universalinstaller.presentation.install.dialog.RiskConfirmDialog
 import app.pwhs.universalinstaller.presentation.install.dialog.detectInstallRisks
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
+import app.pwhs.universalinstaller.util.SystemInstallerFallback
 import app.pwhs.universalinstaller.util.LocaleHelper
 import app.pwhs.universalinstaller.util.WindowBlurEffect
 import app.pwhs.universalinstaller.util.extension.getDisplayName
@@ -736,7 +737,10 @@ class DialogInstallActivity : ComponentActivity() {
                                 finish()
                             },
                             onRetry = {
-                                proceedInstall()
+                                // Not proceedInstall(): confirmInstall has already consumed the
+                                // parsed state by now, so re-running it just reported "couldn't
+                                // parse the package" instantly. #110
+                                viewModel.retryDialogInstall()
                             },
                             onToggleAllUsers = viewModel::setAllUsers,
                             onSelectUserId = { viewModel.setUserId(it) },
@@ -746,15 +750,20 @@ class DialogInstallActivity : ComponentActivity() {
                             onFallbackInstall = {
                                 val apkUri = dialogTarget?.apkUri
                                 if (isApk && apkUri != null) {
-                                    try {
-                                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                                            setDataAndType(apkUri, "application/vnd.android.package-archive")
-                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                        }
-                                        startActivity(intent)
-                                    } catch (e: Exception) {
-                                        Timber.e(e, "Failed to launch system installer fallback")
-                                        Toast.makeText(context, "System installer not available", Toast.LENGTH_SHORT).show()
+                                    // Explicit component, not a bare ACTION_VIEW: once the user
+                                    // has made us the default installer, the mime type resolves
+                                    // back to this very activity and the button did nothing at
+                                    // all. #110
+                                    val intent = SystemInstallerFallback.resolve(context, apkUri)
+                                    val launched = intent != null && runCatching { startActivity(intent) }
+                                        .onFailure { Timber.e(it, "Failed to launch system installer fallback") }
+                                        .isSuccess
+                                    if (!launched) {
+                                        Toast.makeText(
+                                            context,
+                                            getString(R.string.dialog_fallback_install_unavailable),
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
                                     }
                                     viewModel.dialogClose()
                                     viewModel.clearDialogTarget()

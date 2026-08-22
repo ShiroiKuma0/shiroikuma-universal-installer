@@ -170,7 +170,17 @@ abstract class BaseInstallController(
      *   awaitSession bails out of its Failed branch without one, which would leave the user with
      *   a card that silently reverts to idle.
      */
-    fun retry(id: UUID, scope: CoroutineScope, context: Context? = null) {
+    /**
+     * @param onSessionCreated the retry runs as a *new* ackpine session, so a caller watching one
+     *   id — the install dialog does — has to be told the new one or it watches a session that
+     *   will never report again.
+     */
+    fun retry(
+        id: UUID,
+        scope: CoroutineScope,
+        context: Context? = null,
+        onSessionCreated: ((UUID) -> Unit)? = null,
+    ) {
         // Read from the repository, not from sessionUris: those maps are per controller instance
         // and empty for a session another instance created or that was restored after a restart.
         val old = sessionDataRepository.sessions.value.find { it.id == id } ?: return
@@ -198,6 +208,7 @@ abstract class BaseInstallController(
             originalUri = old.originalUri,
             deleteAfterInstall = old.deleteAfterInstall,
             allowDowngrade = old.allowDowngrade,
+            onSessionCreated = onSessionCreated,
         )
     }
 

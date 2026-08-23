@@ -300,13 +300,9 @@ abstract class BaseInstallController(
         success: Boolean,
         errorMessage: String? = null,
     ) {
-        // Every backend funnels through here, which makes it the one place that sees a finished
-        // install. Counted ahead of the null-guard: a session restored after a process death has
-        // no SessionData left to write a history row for, but it still installed something.
-        if (success) ReviewGate.recordSuccessfulInstall(context)
         if (sessionData == null) return
         try {
-            historyDao.insert(
+            val rowId = historyDao.insert(
                 InstallHistoryEntity(
                     appName = sessionData.appName.ifEmpty { sessionData.name },
                     packageName = sessionData.packageName,
@@ -314,8 +310,13 @@ abstract class BaseInstallController(
                     iconPath = sessionData.iconPath,
                     success = success,
                     errorMessage = errorMessage,
+                    sessionId = sessionData.id.toString(),
                 )
             )
+            // The same install can be observed by its headless notification owner and by an
+            // activity restoring the session. The unique session ID makes the history write the
+            // one atomic completion claim they share, so its downstream count stays one too.
+            if (success && rowId != -1L) ReviewGate.recordSuccessfulInstall(context)
         } catch (e: Exception) {
             Timber.e(e, "Failed to save install history")
         }

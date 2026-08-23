@@ -1,9 +1,13 @@
 package app.pwhs.universalinstaller.data.local
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "install_history")
+@Entity(
+    tableName = "install_history",
+    indices = [Index(value = ["sessionId"], unique = true)],
+)
 data class InstallHistoryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val appName: String,
@@ -15,4 +19,6 @@ data class InstallHistoryEntity(
     val success: Boolean,
     val errorMessage: String? = null,
     val installedAt: Long = System.currentTimeMillis(),
+    /** One Ackpine/privileged install session may produce at most one history row. */
+    val sessionId: String? = null,
 )

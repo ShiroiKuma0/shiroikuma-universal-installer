@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [InstallHistoryEntity::class, UninstallLogEntity::class, DownloadHistoryEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,6 +46,18 @@ abstract class AppDatabase : RoomDatabase() {
                         `downloadedAt` INTEGER NOT NULL
                     )
                     """.trimIndent()
+                )
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Nullable so old history stays intact; SQLite allows multiple NULLs in a unique
+                // index, while every new install provides its concrete session ID.
+                db.execSQL("ALTER TABLE `install_history` ADD COLUMN `sessionId` TEXT")
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_install_history_sessionId` " +
+                        "ON `install_history` (`sessionId`)"
                 )
             }
         }

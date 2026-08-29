@@ -44,4 +44,10 @@ data class ApkInfo(
     val isBlocked: Boolean = false,
     /** Whether the APK declares Android Auto compatibility (services or metadata). */
     val isAndroidAutoSupported: Boolean = false,
-)
+) {
+    val isRootRequested: Boolean
+        get() = permissions.contains("android.permission.ACCESS_SUPERUSER")
+
+    val isShizukuRequested: Boolean
+        get() = permissions.contains("moe.shizuku.manager.permission.API_V23")
+}

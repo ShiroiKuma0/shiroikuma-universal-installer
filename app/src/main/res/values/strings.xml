@@ -162,6 +162,8 @@
     <string name="download_notif_failed_title">Download failed</string>
     <string name="download_history_title">Download history</string>
     <string name="download_history_empty">No downloaded packages yet.</string>
+    <string name="apk_info_root_requested">Root Requested</string>
+    <string name="apk_info_shizuku_requested">Shizuku Requested</string>
     <string name="download_history_clear_cd">Clear all</string>
     <string name="download_history_row_menu">More</string>
     <string name="download_history_action_install">Install</string>

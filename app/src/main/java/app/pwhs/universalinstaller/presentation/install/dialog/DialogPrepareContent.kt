@@ -26,6 +26,8 @@ import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material.icons.rounded.AdminPanelSettings
+import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -140,7 +142,7 @@ fun DialogPrepareContent(
         }
 
         // ── Warning Chips ──
-        val hasChips = isDowngrade || apkInfo.splitCount > 1 || apkInfo.obbFileNames.isNotEmpty() || apkInfo.isAndroidAutoSupported
+        val hasChips = isDowngrade || apkInfo.splitCount > 1 || apkInfo.obbFileNames.isNotEmpty() || apkInfo.isAndroidAutoSupported || apkInfo.isRootRequested || apkInfo.isShizukuRequested
         AnimatedVisibility(visible = hasChips) {
             FlowRow(
                 modifier = Modifier
@@ -163,8 +165,37 @@ fun DialogPrepareContent(
                             )
                         },
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
+                if (apkInfo.isRootRequested) {
+                    AssistChip(
+                        onClick = onMenu,
+                        label = { Text(stringResource(R.string.apk_info_root_requested)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.AdminPanelSettings,
+                                contentDescription = null,
+                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                        },
+                    )
+                }
+                if (apkInfo.isShizukuRequested) {
+                    AssistChip(
+                        onClick = onMenu,
+                        label = { Text(stringResource(R.string.apk_info_shizuku_requested)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Terminal,
+                                contentDescription = null,
+                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                tint = MaterialTheme.colorScheme.secondary,
+                            )
+                        },
+                    )
+                }
+                
+                Spacer(modifier = Modifier.width(8.dp))
                 if (isDowngrade) {
                     AssistChip(
                         onClick = {},

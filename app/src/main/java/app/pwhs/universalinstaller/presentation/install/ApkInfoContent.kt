@@ -45,6 +45,8 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.icons.rounded.Work
+import androidx.compose.material.icons.rounded.AdminPanelSettings
+import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -293,6 +295,36 @@ internal fun ApkInfoContent(
                     },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+            if (apkInfo.isRootRequested) {
+                InfoChip(
+                    label = stringResource(R.string.apk_info_root_requested),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.AdminPanelSettings,
+                            null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.error,
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+            if (apkInfo.isShizukuRequested) {
+                InfoChip(
+                    label = stringResource(R.string.apk_info_shizuku_requested),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.Terminal,
+                            null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.secondary,
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
             // Scan state belongs in the compact sheet too — this is the row the user confirms from,

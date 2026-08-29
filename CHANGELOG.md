@@ -4,6 +4,16 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.9.12+002
+
+**New in this build:**
+
+### 🔁 Re-installing the same version is no longer dressed up as an update
+- Opening an APK whose `versionCode` is **already on the device** was presented exactly like an upgrade: the dialog drew the yellow *"installed → new"* arrow transition between two identical version strings and offered an **Update** button. Nothing on screen said the version was not moving — the one case where you most want to be sure, because a re-install is what you reach for when something is broken, not when something is new.
+- That state is now its own. `isUpdate` is restricted to a **strictly newer** `versionCode`; equal and older each have their own branch. A same-version file shows **`1.9.12 (32) — already installed`** in place of the arrow line, a **Same version** chip with a circular-arrows glyph, and a **Reinstall** button.
+- **The colour had to come from outside the theme.** The fork's default **白い熊 Yellow** scheme overrides `primary`, `secondary` *and* `tertiary` to yellow, so no Material accent role could have signalled *"this is not an update"* — every one of them is the colour the state must be distinguished from. The chip and button use the semantic **success green** instead: it lives in `ExtendedColors`, outside the preset system, so it stays green under every preset, and it is already the app's established non-accent tint (the VirusTotal *Clean* chip). `onSuccess` and `successContainer` were added beside the existing `success`, mirroring the `warning` trio that was already there.
+- Applied to **both** preview surfaces — the external-open install dialog (Chrome, Telegram, a file manager) and the in-app APK-info sheet — so the two never disagree about what an install is about to do. The downgrade path is untouched: still the red ⚠ line, chip and **Downgrade** button.
+
 ## 1.9.12+001
 
 **New in this build:** rebased onto **upstream 1.9.12** (versionCode 32) — the largest upstream release the fork has absorbed. All 58 fork commits replay on top of it.

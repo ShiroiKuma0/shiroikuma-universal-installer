@@ -10,7 +10,7 @@ A fork of [pass-with-high-score/universal-installer](https://github.com/pass-wit
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.9.12+001`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.9.12+002`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -63,6 +63,12 @@ The 白い熊 look is **compiled in as the default**, not something you configur
 ## 🔑 Shizuku that works with 白い熊 雫
 
 Silent installs authorize against **白い熊 雫** (`shiroikuma.shizuku`) as well as stock Shizuku, with no Compat Hub stub in between. The app requests both `API_V23` permission names, so the server grants whichever one it actually defines — and it accepts **both binder envelopes**, the modern `rikka.shizuku.BinderContainer` a current server sends first and the legacy one the last published client library (13.1.5, from 2023) knows. Without that, the hand-off threw `ClassNotFoundException`, the binder was silently dropped, and Shizuku read as "not running" forever with the service up and the permission granted. The picker also **names the Shizuku you actually have** — "白い熊 雫 is installed but its service isn't running" — and offers a button to open it, instead of a generic hint about an app it cannot identify.
+
+---
+
+## 🔧 The install dialog tells you what it is about to do
+
+Re-installing the version you already have no longer looks like an upgrade. Stock drew the *"installed → new"* arrow between two identical version strings and offered an **Update** button; here a same-`versionCode` file reads **`1.9.12 (32) — already installed`**, carries a **Same version** chip and a **Reinstall** button, all in green — deliberately not one of the theme's accent roles, since in the black-and-yellow scheme every one of those is yellow. A downgrade still gets the red ⚠ line and a **Downgrade** button. Three states, three colours, no guessing.
 
 ---
 

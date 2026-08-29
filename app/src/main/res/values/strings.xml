@@ -587,6 +587,7 @@
     <string name="theme_preset_purple">Lavender Purple</string>
     <string name="dialog_install_btn">Install</string>
     <string name="dialog_update_btn">Update</string>
+    <string name="dialog_reinstall_btn">Reinstall</string>
     <string name="dialog_downgrade_btn">Downgrade</string>
     <string name="dialog_menu_btn">Menu</string>
     <string name="dialog_cancel_btn">Cancel</string>
@@ -612,6 +613,8 @@
     <string name="dialog_fallback_install_unavailable">No other installer on this device can open APK files</string>
     <string name="dialog_version_downgrade">⚠ Downgrade: %1$s → %2$s</string>
     <string name="dialog_chip_downgrade">Downgrade</string>
+    <string name="dialog_version_same">%1$s (%2$d) — already installed</string>
+    <string name="dialog_chip_same_version">Same version</string>
     <string name="dialog_chip_split_apk">Split APK</string>
     <string name="dialog_chip_has_obb">Has OBB</string>
     <string name="dialog_menu_details">App Details</string>

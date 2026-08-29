@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.Autorenew
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Terminal
@@ -65,6 +66,7 @@ import app.pwhs.universalinstaller.presentation.install.components.SplitsCard
 import app.pwhs.universalinstaller.presentation.install.components.VirusTotalCard
 import app.pwhs.universalinstaller.presentation.install.components.VtStatusChip
 import app.pwhs.universalinstaller.presentation.setting.SettingActivity
+import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
 import app.pwhs.universalinstaller.ui.theme.technicalFontFamily
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -112,6 +114,14 @@ internal fun ApkInfoContent(
     val isDowngrade = apkInfo.installedVersionCode != null &&
         apkInfo.installedVersionCode > 0 &&
         apkInfo.versionCode < apkInfo.installedVersionCode
+
+    // Same versionCode already on the device: a re-install, not an update. Flagged in the semantic
+    // success green — every accent role goes yellow in the 白い熊 scheme, so an accent-role tint
+    // would be indistinguishable from a plain install here. See DialogPrepareContent.
+    val isSameVersion = apkInfo.installedVersionCode != null &&
+        apkInfo.installedVersionCode > 0 &&
+        apkInfo.versionCode == apkInfo.installedVersionCode
+    val extendedColors = LocalExtendedColors.current
 
     val scrollCap = (LocalConfiguration.current.screenHeightDp * APK_SHEET_SCROLL_FRACTION).dp
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -268,6 +278,21 @@ internal fun ApkInfoContent(
                         },
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+                if (isSameVersion) {
+                    InfoChip(
+                        label = stringResource(R.string.dialog_chip_same_version),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Autorenew,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = extendedColors.success,
+                            )
+                        },
+                        containerColor = extendedColors.successContainer,
+                        contentColor = extendedColors.success,
                     )
                 }
                 apkInfo.vtResult?.let { vt ->

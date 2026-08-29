@@ -1873,6 +1873,18 @@ private fun AppActionSheet(
             }
         }
 
+        Spacer(Modifier.height(8.dp))
+
+        if (launchable) {
+            ActionRow(
+                icon = Icons.AutoMirrored.Rounded.Launch,
+                iconTint = MaterialTheme.colorScheme.primary,
+                label = stringResource(R.string.manage_action_open_app),
+                subtitle = stringResource(R.string.manage_action_open_app_sub, app.appName),
+                onClick = onOpenApp,
+            )
+        }
+
         // "Open in store" only renders when we have a known installer source. Sideload
         // installs and unknown sources don't get this row — there's nowhere meaningful
         // to send the user.

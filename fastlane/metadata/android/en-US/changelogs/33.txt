@@ -1,0 +1,5 @@
+- Android Auto: detect car-compatible apps across scans and install sheets, with Play Store source spoofing.
+- Backups: fixed opening extracted backup folders in system file managers.
+- Install dialog: fixed Retry and System Installer buttons.
+- History: fixed duplicate entries for notification installs.
+- In-app review prompt after successful installations.

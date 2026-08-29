@@ -48,6 +48,7 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material.icons.rounded.Splitscreen
 import androidx.compose.material.icons.rounded.Store
+import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -427,6 +428,12 @@ private fun androidx.compose.foundation.lazy.LazyListScope.infoTab(
                     DetailRow(stringResource(R.string.install_storage_title), Formatter.formatFileSize(context, apkInfo.fileSizeBytes))
                 }
                 DetailRow("Format", apkInfo.fileFormat)
+                if (apkInfo.isAndroidAutoSupported) {
+                    DetailRow(
+                        stringResource(R.string.aa_compatibility_title),
+                        stringResource(R.string.aa_compatibility_ok),
+                    )
+                }
             }
         }
     }
@@ -1300,6 +1307,25 @@ private fun InstallerSourcePicker(
                     )
                 }
             }
+        }
+
+        Spacer(Modifier.height(6.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.DirectionsCar,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(16.dp),
+            )
+            Text(
+                text = stringResource(R.string.dialog_menu_install_source_aa_hint, "Google Play Store"),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

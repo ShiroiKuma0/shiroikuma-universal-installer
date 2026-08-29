@@ -56,8 +56,10 @@ import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.Stop
+import app.pwhs.universalinstaller.util.AndroidAutoCompat
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Store
@@ -1871,30 +1873,25 @@ private fun AppActionSheet(
             }
         }
 
-        Spacer(Modifier.height(8.dp))
-
-        if (launchable) {
-            ActionRow(
-                icon = Icons.AutoMirrored.Rounded.Launch,
-                iconTint = MaterialTheme.colorScheme.primary,
-                label = stringResource(R.string.manage_action_open_app),
-                subtitle = stringResource(R.string.manage_action_open_app_sub, app.appName),
-                onClick = onOpenApp,
-            )
-        }
         // "Open in store" only renders when we have a known installer source. Sideload
         // installs and unknown sources don't get this row — there's nowhere meaningful
         // to send the user.
         val storeInfo = remember(app.installerPackage, app.packageName) {
             resolveInstallerInfo(app.installerPackage, app.packageName)
         }
+        val isAaApp = app.isAndroidAutoSupported
         storeInfo?.let { info ->
             if (info.intent != null) {
+                val subtitle = if (app.installerPackage == "com.android.vending" && isAaApp) {
+                    stringResource(R.string.manage_action_installer_source_aa_ok)
+                } else {
+                    stringResource(R.string.manage_action_open_in_store_sub)
+                }
                 ActionRow(
                     icon = Icons.Rounded.Store,
                     iconTint = MaterialTheme.colorScheme.primary,
                     label = stringResource(R.string.manage_action_open_in_store, info.displayName),
-                    subtitle = stringResource(R.string.manage_action_open_in_store_sub),
+                    subtitle = subtitle,
                     onClick = {
                         runCatching {
                             context.startActivity(
@@ -1905,11 +1902,12 @@ private fun AppActionSheet(
                     },
                 )
             } else {
+                val initiatorText = app.initiatingPackage?.let { " • " + stringResource(R.string.aa_requested_by, it) } ?: ""
                 ActionRow(
                     icon = Icons.Rounded.Android,
                     iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
                     label = stringResource(R.string.manage_action_installer_source, info.displayName),
-                    subtitle = stringResource(R.string.manage_action_installer_source_sub),
+                    subtitle = stringResource(R.string.manage_action_installer_source_sub) + initiatorText,
                     onClick = { },
                 )
             }
@@ -1941,6 +1939,23 @@ private fun AppActionSheet(
             enabled = !extractInProgress,
             onClick = onShare,
         )
+
+        val isAaInstalled = remember { AndroidAutoCompat.isAndroidAutoInstalled(context) }
+        if (isAaApp && app.installerPackage != "com.android.vending" && isAaInstalled) {
+            ActionRow(
+                icon = Icons.Rounded.DirectionsCar,
+                iconTint = MaterialTheme.colorScheme.primary,
+                label = stringResource(R.string.aa_open_settings),
+                subtitle = stringResource(R.string.aa_open_settings_sub),
+                onClick = {
+                    val aaIntent = AndroidAutoCompat.getSettingsIntent(context)
+                    if (aaIntent != null) {
+                        runCatching { context.startActivity(aaIntent) }
+                    }
+                    onDismiss()
+                },
+            )
+        }
         ActionRow(
             icon = Icons.Rounded.Refresh,
             iconTint = MaterialTheme.colorScheme.primary,

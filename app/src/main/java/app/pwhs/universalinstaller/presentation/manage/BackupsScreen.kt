@@ -131,7 +131,13 @@ fun BackupsScreen(
                         )
                     }
                     IconButton(
-                        onClick = { openContainingFolder(context, viewModel.backupsDir) },
+                        onClick = {
+                            openContainingFolder(
+                                context = context,
+                                customPath = uiState.extractorOutputPath,
+                                fallbackDir = viewModel.backupsDir,
+                            )
+                        },
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.FolderOpen,
@@ -495,20 +501,66 @@ private fun shareBackup(context: android.content.Context, file: File) {
     }
 }
 
-private fun openContainingFolder(context: android.content.Context, dir: File) {
-    if (!dir.exists()) dir.mkdirs()
-    val uri: Uri = try {
-        FileProvider.getUriForFile(
-            context,
-            "${BuildConfig.APPLICATION_ID}.fileprovider",
-            dir,
-        )
-    } catch (_: IllegalArgumentException) {
-        Uri.parse("content://com.android.externalstorage.documents/root/primary")
+private fun openContainingFolder(
+    context: android.content.Context,
+    customPath: String,
+    fallbackDir: File,
+) {
+    if (customPath.startsWith("content://")) {
+        val treeUri = Uri.parse(customPath)
+        val docUri = androidx.documentfile.provider.DocumentFile.fromTreeUri(context, treeUri)?.uri ?: treeUri
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(docUri, "vnd.android.document/directory")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (runCatching { context.startActivity(intent) }.isSuccess) return
     }
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(uri, "resource/folder")
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+    val targetDir = if (customPath.isNotBlank() && !customPath.startsWith("content://")) {
+        File(customPath)
+    } else {
+        fallbackDir
     }
-    runCatching { context.startActivity(intent) }
+    if (!targetDir.exists()) targetDir.mkdirs()
+
+    val absPath = targetDir.absolutePath
+    val primaryPrefix = "/storage/emulated/0/"
+    val relativePath = if (absPath.startsWith(primaryPrefix)) {
+        absPath.removePrefix(primaryPrefix)
+    } else {
+        "Download/UniversalInstaller/Extracted"
+    }
+
+    val safUri = Uri.parse("content://com.android.externalstorage.documents/document/" + Uri.encode("primary:$relativePath"))
+    val safRootUri = Uri.parse("content://com.android.externalstorage.documents/root/primary")
+
+    // 1. Try opening the specific directory via DocumentsUI SAF
+    val directoryIntent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(safUri, "vnd.android.document/directory")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    if (runCatching { context.startActivity(directoryIntent) }.isSuccess) return
+
+    // 2. Try root documents provider
+    val rootIntent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(safRootUri, "vnd.android.document/root")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    if (runCatching { context.startActivity(rootIntent) }.isSuccess) return
+
+    // 3. Fallback: Downloads system browser
+    val downloadsIntent = Intent(android.app.DownloadManager.ACTION_VIEW_DOWNLOADS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    if (runCatching { context.startActivity(downloadsIntent) }.isSuccess) return
+
+    // 4. Fallback: File picker chooser
+    val chooserIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+        type = "*/*"
+        addCategory(Intent.CATEGORY_OPENABLE)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    runCatching {
+        context.startActivity(Intent.createChooser(chooserIntent, context.getString(R.string.backup_action_open_folder)))
+    }
 }

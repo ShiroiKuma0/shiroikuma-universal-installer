@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">Uygulama yükleme her telefonda farklı çalışır ve neyin başarısız olduğunu ancak uygulama bildirdiğinde öğreniriz. Bir yüklemenin başarılı olup olmadığını ve neyin ters gittiğini bildirir — hangi uygulamayı yüklediğinizi asla bildirmez.</string>
     <string name="onboarding_analytics_switch">Anonim tanılama verilerini paylaş</string>
     <string name="onboarding_analytics_switch_sub">Bunu istediğiniz zaman Ayarlar\'dan değiştirebilirsiniz.</string>
+    <string name="onboarding_virustotal_title">Yüklemeden önce tarayın</string>
+    <string name="onboarding_virustotal_desc">Yükleme ekranından herhangi bir paketi 70\'ten fazla antivirüs motoruyla kontrol edin. Ücretsiz bir VirusTotal API anahtarı gereklidir.</string>
+    <string name="onboarding_security_normal">Normal</string>
+    <string name="onboarding_security_strict">Katı</string>
+    <string name="onboarding_security_normal_sub">\"Yükle\" ana düğme olarak kalır. İstediğiniz zaman tarayın.</string>
+    <string name="onboarding_security_strict_sub">\"Tara\" ana düğme haline gelir ve taranmamış dosyaları yüklemek önce onay ister.</string>
+    <string name="onboarding_virustotal_get_key">Ücretsiz API anahtarı alın</string>
+    <string name="onboarding_virustotal_key_label">VirusTotal API anahtarı</string>
+    <string name="onboarding_virustotal_paste">Panodan yapıştır</string>
+    <string name="onboarding_virustotal_key_hint">İsteğe bağlı — bunu daha sonra Ayarlar\'dan ekleyebilirsiniz.</string>
+    <string name="onboarding_virustotal_key_saved">Kaydedildi. Tarama kullanıma hazır.</string>
+    <string name="onboarding_virustotal_key_malformed">Anahtar 64 karakterden oluşur — yapıştırılan metni kontrol edin.</string>
+    <string name="onboarding_xiaomi_title">MIUI\'de yükleme başarısız olursa</string>
+    <string name="onboarding_xiaomi_desc">MIUI/HyperOS optimizasyonu, nedenini belirtmeden üçüncü taraf yüklemelerini engelleyebilir. Bu durumda Geliştirici seçenekleri\'ni açın, \"MIUI optimizasyonu\"nu kapatın, uygulamayı yükleyin ve ardından tekrar açın. Kapalı olduğu sürece sistem teması bozuk görünebilir — telefonu yeniden başlatmak bunu düzeltir.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Geliştirici seçeneklerini aç</string>
 </resources>

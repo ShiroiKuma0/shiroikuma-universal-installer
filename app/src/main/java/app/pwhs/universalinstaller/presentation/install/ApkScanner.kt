@@ -43,6 +43,7 @@ data class FoundPackageFile(
     val versionCode: Long? = null,
     val versionName: String? = null,
     val installState: InstallState = InstallState.Unknown,
+    val isAndroidAutoSupported: Boolean = false,
 )
 
 object ApkScanner {
@@ -180,11 +181,27 @@ object ApkScanner {
             archiveCode > installedCode -> InstallState.Newer
             else -> InstallState.Older
         }
+        val isAa = runCatching {
+            java.util.zip.ZipFile(file.path).use { zip ->
+                val entry = zip.getEntry("AndroidManifest.xml")
+                if (entry != null) {
+                    val bytes = zip.getInputStream(entry).use { it.readBytes() }
+                    val text = String(bytes, Charsets.ISO_8859_1)
+                    text.contains("com.google.android.gms.car") ||
+                        text.contains("androidx.car.app") ||
+                        text.contains("MediaBrowserService") ||
+                        text.contains("CarAppService") ||
+                        text.contains("automotive_app_desc")
+                } else false
+            }
+        }.getOrDefault(false)
+
         return file.copy(
             packageName = pkgName,
             versionCode = archiveCode,
             versionName = archive.versionName,
             installState = state,
+            isAndroidAutoSupported = isAa,
         )
     }
 

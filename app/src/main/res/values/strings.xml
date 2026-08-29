@@ -789,4 +789,19 @@
     <string name="apk_info_vt_invalid_key">VirusTotal rejected this API key. Open Settings → Advanced → VirusTotal API Key and check it was pasted in full.</string>
     <string name="apk_info_vt_rate_limited">VirusTotal rate limit reached — the free tier allows 4 requests per minute. Try again shortly.</string>
     <string name="apk_info_vt_rate_limited_retry">VirusTotal rate limit reached — the free tier allows 4 requests per minute. Try again in %1$s seconds.</string>
+
+    <!-- Android Auto Compatibility & Source Info -->
+    <string name="aa_compatibility_title">Android Auto Compatibility</string>
+    <string name="aa_compatibility_ok">Compatible with Android Auto</string>
+    <string name="aa_compatibility_ok_desc">Installed by Google Play Store. This app meets Android Auto visibility requirements.</string>
+    <string name="aa_compatibility_error">Incompatible with Android Auto</string>
+    <string name="aa_compatibility_error_desc">Android Auto requires apps to be installed by Google Play Store. Sideloaded or ADB-installed apps may not appear on the car display.</string>
+    <string name="aa_requested_by">Requested by %1$s</string>
+    <string name="aa_installed_by">Installed by %1$s</string>
+    <string name="aa_open_settings">Android Auto settings</string>
+    <string name="aa_open_settings_sub">Enable unknown sources in developer options</string>
+    <string name="install_spoofed_intent_action">Install (Spoof Play Store)</string>
+    <string name="install_spoofed_intent_sub">No-root intent via System Package Installer</string>
+    <string name="dialog_menu_install_source_aa_hint">Use Google Play Store (%1$s) to ensure apps work on Android Auto.</string>
+    <string name="manage_action_installer_source_aa_ok">Official store • Android Auto compatible</string>
 </resources>

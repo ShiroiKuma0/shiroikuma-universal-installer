@@ -18,6 +18,8 @@
 local.properties
 .kotlin
 .gemini/
+.agents/
+/.idea/
 docs/github_report_*.md
 
 # Fastlane

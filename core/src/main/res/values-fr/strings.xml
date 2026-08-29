@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">L\'installation d\'applications se comporte différemment sur chaque téléphone, et nous ne savons ce qui échoue que si l\'application nous le signale. Elle indique si une installation a réussi et ce qui a échoué — jamais quelle application vous avez installée.</string>
     <string name="onboarding_analytics_switch">Partager des diagnostics anonymes</string>
     <string name="onboarding_analytics_switch_sub">Vous pouvez changer cela à tout moment dans les Paramètres.</string>
+    <string name="onboarding_virustotal_title">Analyser avant d\'installer</string>
+    <string name="onboarding_virustotal_desc">Vérifiez n\'importe quel paquet avec plus de 70 moteurs antivirus depuis l\'écran d\'installation. Nécessite une clé API VirusTotal gratuite.</string>
+    <string name="onboarding_security_normal">Normal</string>
+    <string name="onboarding_security_strict">Strict</string>
+    <string name="onboarding_security_normal_sub">« Installer » reste le bouton principal. Analysez quand vous le souhaitez.</string>
+    <string name="onboarding_security_strict_sub">« Analyser » devient le bouton principal, et installer des fichiers non analysés demande une confirmation.</string>
+    <string name="onboarding_virustotal_get_key">Obtenir une clé API gratuite</string>
+    <string name="onboarding_virustotal_key_label">Clé API VirusTotal</string>
+    <string name="onboarding_virustotal_paste">Coller depuis le presse-papiers</string>
+    <string name="onboarding_virustotal_key_hint">Facultatif — vous pouvez l\'ajouter plus tard dans Paramètres.</string>
+    <string name="onboarding_virustotal_key_saved">Enregistré. L\'analyse est prête.</string>
+    <string name="onboarding_virustotal_key_malformed">Une clé comporte 64 caractères — vérifiez le texte collé.</string>
+    <string name="onboarding_xiaomi_title">Si l\'installation échoue sur MIUI</string>
+    <string name="onboarding_xiaomi_desc">L\'optimisation MIUI/HyperOS peut bloquer l\'installation d\'applications tierces sans explication. Si cela se produit, ouvrez les Options pour les développeurs, désactivez « Optimisation MIUI », installez l\'application, puis réactivez-la. Lorsqu\'elle est désactivée, le thème système peut sembler déformé — redémarrer le téléphone règle le problème.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Ouvrir les options pour les développeurs</string>
 </resources>

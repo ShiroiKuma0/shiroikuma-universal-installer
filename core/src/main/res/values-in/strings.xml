@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">Pemasangan aplikasi bekerja berbeda di setiap ponsel, dan kami baru tahu apa yang gagal jika aplikasi melaporkannya. Aplikasi melaporkan apakah pemasangan berhasil dan apa yang salah — tidak pernah aplikasi apa yang Anda pasang.</string>
     <string name="onboarding_analytics_switch">Bagikan diagnostik anonim</string>
     <string name="onboarding_analytics_switch_sub">Anda dapat mengubahnya kapan saja di Setelan.</string>
+    <string name="onboarding_virustotal_title">Pindai sebelum memasang</string>
+    <string name="onboarding_virustotal_desc">Periksa paket apa pun dengan 70+ mesin antivirus langsung dari layar pemasangan. Memerlukan kunci API VirusTotal gratis.</string>
+    <string name="onboarding_security_normal">Normal</string>
+    <string name="onboarding_security_strict">Ketat</string>
+    <string name="onboarding_security_normal_sub">\"Pasang\" tetap menjadi tombol utama. Pindai kapan pun Anda mau.</string>
+    <string name="onboarding_security_strict_sub">\"Pindai\" menjadi tombol utama, dan memasang file yang belum dipindai akan meminta konfirmasi terlebih dahulu.</string>
+    <string name="onboarding_virustotal_get_key">Dapatkan kunci API gratis</string>
+    <string name="onboarding_virustotal_key_label">Kunci API VirusTotal</string>
+    <string name="onboarding_virustotal_paste">Tempel dari papan klip</string>
+    <string name="onboarding_virustotal_key_hint">Opsional — Anda dapat menambahkannya nanti di Pengaturan.</string>
+    <string name="onboarding_virustotal_key_saved">Disimpan. Pemindaian siap digunakan.</string>
+    <string name="onboarding_virustotal_key_malformed">Kunci terdiri dari 64 karakter — periksa teks yang ditempelkan.</string>
+    <string name="onboarding_xiaomi_title">Jika pemasangan gagal di MIUI</string>
+    <string name="onboarding_xiaomi_desc">Pengoptimalan MIUI/HyperOS dapat memblokir pemasangan dari pihak ketiga tanpa pemberitahuan. Jika itu terjadi, buka Opsi pengembang, nonaktifkan \"Pengoptimalan MIUI\", pasang aplikasi, lalu aktifkan kembali. Saat dinonaktifkan, tema sistem mungkin terlihat terdistorsi — memulai ulang ponsel akan memperbaikinya.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Buka Opsi pengembang</string>
 </resources>

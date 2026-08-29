@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">Η εγκατάσταση εφαρμογών λειτουργεί διαφορετικά σε κάθε τηλέφωνο και μαθαίνουμε τι αποτυγχάνει μόνο όταν μας το πει η εφαρμογή. Αναφέρει αν μια εγκατάσταση πέτυχε και τι πήγε στραβά — ποτέ ποια εφαρμογή εγκαταστήσατε.</string>
     <string name="onboarding_analytics_switch">Κοινοποίηση ανώνυμων διαγνωστικών</string>
     <string name="onboarding_analytics_switch_sub">Μπορείτε να το αλλάξετε ανά πάσα στιγμή στις Ρυθμίσεις.</string>
+    <string name="onboarding_virustotal_title">Σάρωση πριν από την εγκατάσταση</string>
+    <string name="onboarding_virustotal_desc">Ελέγξτε οποιοδήποτε πακέτο με πάνω από 70 μηχανές προστασίας από ιούς απευθείας από την οθόνη εγκατάστασης. Απαιτείται δωρεάν κλειδί API του VirusTotal.</string>
+    <string name="onboarding_security_normal">Κανονική</string>
+    <string name="onboarding_security_strict">Αυστηρή</string>
+    <string name="onboarding_security_normal_sub">Το «Εγκατάσταση» παραμένει το κύριο κουμπί. Σαρώστε όποτε θέλετε.</string>
+    <string name="onboarding_security_strict_sub">Το «Σάρωση» γίνεται το κύριο κουμπί και η εγκατάσταση μη σαρωμένων αρχείων απαιτεί πρώτα επιβεβαίωση.</string>
+    <string name="onboarding_virustotal_get_key">Λήψη δωρεάν κλειδιού API</string>
+    <string name="onboarding_virustotal_key_label">Κλειδί API VirusTotal</string>
+    <string name="onboarding_virustotal_paste">Επικόλληση από το πρόχειρο</string>
+    <string name="onboarding_virustotal_key_hint">Προαιρετικό — μπορείτε να το προσθέσετε αργότερα στις Ρυθμίσεις.</string>
+    <string name="onboarding_virustotal_key_saved">Αποθηκεύτηκε. Η σάρωση είναι έτοιμη.</string>
+    <string name="onboarding_virustotal_key_malformed">Το κλειδί έχει μήκος 64 χαρακτήρων — ελέγξτε την επικόλληση.</string>
+    <string name="onboarding_xiaomi_title">Εάν η εγκατάσταση αποτύχει σε MIUI</string>
+    <string name="onboarding_xiaomi_desc">Η βελτιστοποίηση MIUI/HyperOS μπορεί να αποκλείσει σιωπηρά την εγκατάσταση εφαρμογών τρίτων. Αν συμβεί αυτό, ανοίξτε τις «Επιλογές για προγραμματιστές», απενεργοποιήστε τη «Βελτιστοποίηση MIUI», εγκαταστήστε την εφαρμογή και ενεργοποιήστε την ξανά. Όσο είναι απενεργοποιημένη, το θέμα συστήματος μπορεί να φαίνεται παραμορφωμένο — η επανεκκίνηση του τηλεφώνου το διορθώνει.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Άνοιγμα επιλογών για προγραμματιστές</string>
 </resources>

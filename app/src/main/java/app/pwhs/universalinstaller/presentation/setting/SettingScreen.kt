@@ -47,6 +47,8 @@ import androidx.compose.material.icons.rounded.SettingsApplications
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Wallpaper
 import androidx.compose.material.icons.rounded.WifiTethering
+import androidx.compose.material.icons.rounded.DirectionsCar
+import app.pwhs.universalinstaller.util.AndroidAutoCompat
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.FilledTonalButton
@@ -476,22 +478,17 @@ private fun SettingUi(
                     }
                 }
 
-                // ── Shizuku Options Section (visible only when Shizuku is the chosen backend) ──
                 // ── Install options ──────────────────────────
-                // One section for Shizuku and Root: the flags are identical and the app already
-                // treats them as one value — writeProfileFlags() writes both keys from a single
-                // profile setting. Two sections meant the same switch appeared twice and could
-                // disagree with itself depending on which backend happened to be selected.
+                // Install options section: shows full privileged flags when Shizuku/Root/Dhizuku is enabled,
+                // and shows Install Source configuration for all modes.
                 val privileged = uiState.useShizuku ||
                     (uiState.rootSupported && uiState.useRoot) ||
                     useDhizuku
-                if (privileged && matchesQuery(q, privilegedLabels)) {
+                if (matchesQuery(q, privilegedLabels)) {
                     item {
                         SettingsSection(
                             title = stringResource(R.string.setting_section_install_options),
                             icon = Icons.Rounded.AdminPanelSettings,
-                            collapsible = true,
-                            defaultExpanded = false,
                         ) {
                             // Values are kept in sync across backends by setPrivilegedOption, so
                             // reading either store gives the same answer. Root's is used when Root
@@ -509,43 +506,45 @@ private fun SettingUi(
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                                 )
                             }
-                            OptionGroupHeader(stringResource(R.string.setting_shizuku_options_install_group))
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_replace),
-                                subtitle = stringResource(R.string.setting_shizuku_replace_sub),
-                                checked = opts.replaceExisting,
-                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.ReplaceExisting, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_downgrade),
-                                subtitle = stringResource(R.string.setting_shizuku_downgrade_sub),
-                                checked = opts.requestDowngrade,
-                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.RequestDowngrade, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_grant_permissions),
-                                subtitle = stringResource(R.string.setting_shizuku_grant_permissions_sub),
-                                checked = opts.grantAllPermissions,
-                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.GrantAllPermissions, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_allow_test),
-                                subtitle = stringResource(R.string.setting_shizuku_allow_test_sub),
-                                checked = opts.allowTest,
-                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllowTest, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_bypass_sdk),
-                                subtitle = stringResource(R.string.setting_shizuku_bypass_sdk_sub),
-                                checked = opts.bypassLowTargetSdk,
-                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.BypassLowTargetSdk, it) },
-                            )
-                            OptionSwitch(
-                                title = stringResource(R.string.setting_shizuku_all_users),
-                                subtitle = stringResource(R.string.setting_shizuku_all_users_sub),
-                                checked = opts.allUsers,
-                                onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllUsers, it) },
-                            )
+                            if (privileged) {
+                                OptionGroupHeader(stringResource(R.string.setting_shizuku_options_install_group))
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_replace),
+                                    subtitle = stringResource(R.string.setting_shizuku_replace_sub),
+                                    checked = opts.replaceExisting,
+                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.ReplaceExisting, it) },
+                                )
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_downgrade),
+                                    subtitle = stringResource(R.string.setting_shizuku_downgrade_sub),
+                                    checked = opts.requestDowngrade,
+                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.RequestDowngrade, it) },
+                                )
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_grant_permissions),
+                                    subtitle = stringResource(R.string.setting_shizuku_grant_permissions_sub),
+                                    checked = opts.grantAllPermissions,
+                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.GrantAllPermissions, it) },
+                                )
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_allow_test),
+                                    subtitle = stringResource(R.string.setting_shizuku_allow_test_sub),
+                                    checked = opts.allowTest,
+                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllowTest, it) },
+                                )
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_bypass_sdk),
+                                    subtitle = stringResource(R.string.setting_shizuku_bypass_sdk_sub),
+                                    checked = opts.bypassLowTargetSdk,
+                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.BypassLowTargetSdk, it) },
+                                )
+                                OptionSwitch(
+                                    title = stringResource(R.string.setting_shizuku_all_users),
+                                    subtitle = stringResource(R.string.setting_shizuku_all_users_sub),
+                                    checked = opts.allUsers,
+                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllUsers, it) },
+                                )
+                            }
                             InstallSourceItem(
                                 title = stringResource(R.string.setting_shizuku_set_source),
                                 subtitle = stringResource(R.string.setting_shizuku_set_source_sub),
@@ -818,6 +817,21 @@ private fun SettingUi(
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )
+                        val isAaInstalled = remember { AndroidAutoCompat.isAndroidAutoInstalled(context) }
+                        if (isAaInstalled) {
+                            ListItem(
+                                headlineContent = { Text(stringResource(R.string.aa_open_settings)) },
+                                supportingContent = { Text(stringResource(R.string.aa_open_settings_sub)) },
+                                leadingContent = { Icon(Icons.Rounded.DirectionsCar, null, tint = MaterialTheme.colorScheme.primary) },
+                                modifier = Modifier.clickable {
+                                    val aaIntent = AndroidAutoCompat.getSettingsIntent(context)
+                                    if (aaIntent != null) {
+                                        runCatching { context.startActivity(aaIntent) }
+                                    }
+                                },
+                                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                            )
+                        }
                     }
                 }
 
@@ -950,8 +964,19 @@ private fun InstallSourceItem(
         if (enabled) {
             var showDialog by remember { mutableStateOf(false) }
             ListItem(
-                headlineContent = { Text("Installer Package", style = MaterialTheme.typography.bodyMedium) },
-                supportingContent = { Text(installerPackageName, style = MaterialTheme.typography.bodySmall) },
+                headlineContent = { Text(stringResource(R.string.setting_shizuku_installer_label), style = MaterialTheme.typography.bodyMedium) },
+                supportingContent = {
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(installerPackageName, style = MaterialTheme.typography.bodySmall)
+                        if (installerPackageName == "com.android.vending") {
+                            Text(
+                                text = stringResource(R.string.dialog_menu_install_source_aa_hint, "Google Play Store"),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                },
                 leadingContent = { Spacer(Modifier.width(32.dp)) },
                 modifier = Modifier.clickable { showDialog = true },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),

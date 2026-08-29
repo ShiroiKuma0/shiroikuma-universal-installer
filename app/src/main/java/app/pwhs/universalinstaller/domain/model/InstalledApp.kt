@@ -23,4 +23,10 @@ data class InstalledApp(
      * sideload, unknown, or platform pre-installed apps.
      */
     val installerPackage: String? = null,
+    /** Package that initiated the installation request (Android 11+). */
+    val initiatingPackage: String? = null,
+    /** Package from which the install originated (Android 11+). */
+    val originatingPackage: String? = null,
+    /** Whether the app declares Android Auto compatibility (MediaBrowserService, CarAppService, etc.). */
+    val isAndroidAutoSupported: Boolean = false,
 )

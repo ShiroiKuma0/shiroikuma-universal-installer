@@ -96,6 +96,7 @@ import app.pwhs.universalinstaller.presentation.install.dialog.InstallRisk
 import app.pwhs.universalinstaller.presentation.install.dialog.RiskConfirmDialog
 import app.pwhs.universalinstaller.presentation.install.dialog.detectInstallRisks
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
+import app.pwhs.universalinstaller.util.SystemIntentInstaller
 import app.pwhs.universalinstaller.util.SystemInstallerFallback
 import app.pwhs.universalinstaller.util.LocaleHelper
 import app.pwhs.universalinstaller.util.WindowBlurEffect
@@ -754,7 +755,7 @@ class DialogInstallActivity : ComponentActivity() {
                                     // has made us the default installer, the mime type resolves
                                     // back to this very activity and the button did nothing at
                                     // all. #110
-                                    val intent = SystemInstallerFallback.resolve(context, apkUri)
+                                    val intent = SystemIntentInstaller.createInstallIntent(context, apkUri)
                                     val launched = intent != null && runCatching { startActivity(intent) }
                                         .onFailure { Timber.e(it, "Failed to launch system installer fallback") }
                                         .isSuccess

@@ -45,14 +45,21 @@ class AppRepository(private val context: Context) {
         val size = sourceDir?.takeIf { it.isNotBlank() }
             ?.let { runCatching { File(it).length() }.getOrDefault(0L) } ?: 0L
 
-        val installer = runCatching {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                pm.getInstallSourceInfo(packageName).installingPackageName
-            } else {
-                @Suppress("DEPRECATION")
-                pm.getInstallerPackageName(packageName)
+        var installing: String? = null
+        var initiating: String? = null
+        var originating: String? = null
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            runCatching {
+                val sourceInfo = pm.getInstallSourceInfo(packageName)
+                installing = sourceInfo.installingPackageName
+                initiating = sourceInfo.initiatingPackageName
+                originating = sourceInfo.originatingPackageName
             }
-        }.getOrNull()
+        } else {
+            @Suppress("DEPRECATION")
+            installing = runCatching { pm.getInstallerPackageName(packageName) }.getOrNull()
+        }
 
         return InstalledApp(
             packageName = packageName,
@@ -63,7 +70,9 @@ class AppRepository(private val context: Context) {
             installedAt = pkgInfo?.firstInstallTime ?: 0L,
             hasSplits = !splitSourceDirs.isNullOrEmpty(),
             enabled = enabled,
-            installerPackage = installer,
+            installerPackage = installing,
+            initiatingPackage = initiating,
+            originatingPackage = originating,
         )
     }
 }

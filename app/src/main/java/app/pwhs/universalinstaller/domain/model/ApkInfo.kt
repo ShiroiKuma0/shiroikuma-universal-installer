@@ -42,4 +42,6 @@ data class ApkInfo(
     val signatureMismatch: Boolean? = null,
     /** The user put this package on the never-install list; the Install button is disabled. */
     val isBlocked: Boolean = false,
+    /** Whether the APK declares Android Auto compatibility (services or metadata). */
+    val isAndroidAutoSupported: Boolean = false,
 )

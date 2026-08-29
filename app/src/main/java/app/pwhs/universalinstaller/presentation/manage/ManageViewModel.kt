@@ -19,6 +19,7 @@ import app.pwhs.universalinstaller.presentation.install.controller.ShizukuShellE
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.util.AndroidAutoCompat
 import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
@@ -1271,6 +1272,26 @@ class ManageViewModel(
                 // querying per package. Skipped entirely when the permission isn't granted.
                 val lastUsedMap = queryLastUsedMap()
 
+                // Batch query for Android Auto services — single batch query for all apps
+                val autoServicePackages: Set<String> = runCatching {
+                    val mediaIntent = android.content.Intent("android.media.browse.MediaBrowserService")
+                    val carAppIntent = android.content.Intent("androidx.car.app.CarAppService")
+                    val mediaList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        pm.queryIntentServices(mediaIntent, PackageManager.ResolveInfoFlags.of(0))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        pm.queryIntentServices(mediaIntent, 0)
+                    }
+                    val carList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        pm.queryIntentServices(carAppIntent, PackageManager.ResolveInfoFlags.of(0))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        pm.queryIntentServices(carAppIntent, 0)
+                    }
+                    (mediaList.mapNotNull { it.serviceInfo?.packageName } +
+                        carList.mapNotNull { it.serviceInfo?.packageName }).toSet()
+                }.getOrDefault(emptySet())
+
                 installedInfos.map { appInfo ->
                     val pkgInfo = try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -1289,14 +1310,24 @@ class ManageViewModel(
                         runCatching { java.io.File(sourceDir).length() }.getOrDefault(0L)
                     } else 0L
 
-                    val installer = try {
+                    var installer: String? = null
+                    var initiating: String? = null
+                    var originating: String? = null
+
+                    try {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            pm.getInstallSourceInfo(appInfo.packageName).installingPackageName
+                            val sourceInfo = pm.getInstallSourceInfo(appInfo.packageName)
+                            installer = sourceInfo.installingPackageName
+                            initiating = sourceInfo.initiatingPackageName
+                            originating = sourceInfo.originatingPackageName
                         } else {
                             @Suppress("DEPRECATION")
-                            pm.getInstallerPackageName(appInfo.packageName)
+                            installer = pm.getInstallerPackageName(appInfo.packageName)
                         }
                     } catch (_: Exception) { null }
+
+                    val isAaSupported = autoServicePackages.contains(appInfo.packageName) ||
+                        AndroidAutoCompat.supportsAndroidAuto(application, appInfo.packageName)
 
                     InstalledApp(
                         packageName = appInfo.packageName,
@@ -1310,6 +1341,9 @@ class ManageViewModel(
                         hasSplits = !appInfo.splitSourceDirs.isNullOrEmpty(),
                         enabled = appInfo.enabled,
                         installerPackage = installer,
+                        initiatingPackage = initiating,
+                        originatingPackage = originating,
+                        isAndroidAutoSupported = isAaSupported,
                     )
                 }
             }

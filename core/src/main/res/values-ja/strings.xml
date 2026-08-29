@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">アプリのインストールは端末ごとに動作が異なり、何が失敗したかはアプリが知らせてくれて初めて分かります。インストールが成功したか、何が失敗したかを送信します。インストールしたアプリ名は一切送信しません。</string>
     <string name="onboarding_analytics_switch">匿名の診断データを共有</string>
     <string name="onboarding_analytics_switch_sub">設定でいつでも変更できます。</string>
+    <string name="onboarding_virustotal_title">インストール前にスキャン</string>
+    <string name="onboarding_virustotal_desc">インストール画面から70以上のウイルス対策エンジンでパッケージをチェックできます。無料のVirusTotal APIキーが必要です。</string>
+    <string name="onboarding_security_normal">標準</string>
+    <string name="onboarding_security_strict">厳格</string>
+    <string name="onboarding_security_normal_sub">「インストール」がメインボタンのままになります。いつでもスキャンできます。</string>
+    <string name="onboarding_security_strict_sub">「スキャン」がメインボタンになり、未スキャンのファイルをインストールする前に確認が表示されます。</string>
+    <string name="onboarding_virustotal_get_key">無料のAPIキーを取得</string>
+    <string name="onboarding_virustotal_key_label">VirusTotal APIキー</string>
+    <string name="onboarding_virustotal_paste">クリップボードから貼り付け</string>
+    <string name="onboarding_virustotal_key_hint">任意 — 後から設定で追加できます。</string>
+    <string name="onboarding_virustotal_key_saved">保存しました。スキャンの準備が完了しました。</string>
+    <string name="onboarding_virustotal_key_malformed">キーは64文字です — 貼り付け内容を確認してください。</string>
+    <string name="onboarding_xiaomi_title">MIUIでインストールに失敗する場合</string>
+    <string name="onboarding_xiaomi_desc">MIUI/HyperOSの最適化により、理由の表示なしにサードパーティ製アプリのインストールがブロックされる場合があります。その場合は「開発者向けオプション」を開き、「MIUIの最適化」をオフにしてアプリをインストールし、その後再度オンにしてください。オフの間はシステムテーマの表示が崩れることがありますが、端末を再起動すると直ります。</string>
+    <string name="onboarding_xiaomi_open_developer_options">開発者向けオプションを開く</string>
 </resources>

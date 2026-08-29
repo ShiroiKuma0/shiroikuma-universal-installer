@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">앱 설치는 기기마다 다르게 동작하며, 무엇이 실패하는지는 앱이 알려줄 때에만 알 수 있습니다. 설치 성공 여부와 무엇이 잘못됐는지를 보냅니다. 어떤 앱을 설치했는지는 절대 보내지 않습니다.</string>
     <string name="onboarding_analytics_switch">익명 진단 정보 공유</string>
     <string name="onboarding_analytics_switch_sub">설정에서 언제든지 변경할 수 있습니다.</string>
+    <string name="onboarding_virustotal_title">설치 전 검사</string>
+    <string name="onboarding_virustotal_desc">설치 화면에서 70개 이상의 백신 엔진으로 패키지를 검사합니다. 무료 VirusTotal API 키가 필요합니다.</string>
+    <string name="onboarding_security_normal">일반</string>
+    <string name="onboarding_security_strict">엄격</string>
+    <string name="onboarding_security_normal_sub">\"설치\"가 기본 버튼으로 유지됩니다. 원할 때 언제든지 검사하세요.</string>
+    <string name="onboarding_security_strict_sub">\"검사\"가 기본 버튼이 되며, 검사되지 않은 파일을 설치할 때 먼저 확인 메시지가 표시됩니다.</string>
+    <string name="onboarding_virustotal_get_key">무료 API 키 받기</string>
+    <string name="onboarding_virustotal_key_label">VirusTotal API 키</string>
+    <string name="onboarding_virustotal_paste">클립보드에서 붙여넣기</string>
+    <string name="onboarding_virustotal_key_hint">선택 사항 — 나중에 설정에서 추가할 수 있습니다.</string>
+    <string name="onboarding_virustotal_key_saved">저장되었습니다. 검사 준비가 완료되었습니다.</string>
+    <string name="onboarding_virustotal_key_malformed">키는 64자입니다 — 붙여넣은 내용을 확인하세요.</string>
+    <string name="onboarding_xiaomi_title">MIUI에서 설치가 실패하는 경우</string>
+    <string name="onboarding_xiaomi_desc">MIUI/HyperOS 최적화로 인해 이유 없이 서드파티 앱 설치가 차단될 수 있습니다. 이 경우 개발자 옵션을 열고 \"MIUI 최적화\"를 끈 후 앱을 설치하고 다시 켜세요. 비활성화되어 있는 동안 시스템 테마가 왜곡되어 보일 수 있으며, 휴대전화를 다시 시작하면 해결됩니다.</string>
+    <string name="onboarding_xiaomi_open_developer_options">개발자 옵션 열기</string>
 </resources>

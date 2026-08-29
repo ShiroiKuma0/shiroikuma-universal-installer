@@ -787,4 +787,19 @@
     <string name="setting_section_privacy">Quyền riêng tư</string>
     <string name="setting_analytics_title">Chia sẻ dữ liệu sử dụng</string>
     <string name="setting_analytics_subtitle">Báo cáo phương thức cài đặt đã dùng và nó có hoạt động hay không, cùng với báo cáo sự cố. Không bao giờ gửi các gói bạn cài đặt.</string>
+
+    <!-- Android Auto Compatibility & Source Info -->
+    <string name="aa_compatibility_title">Tương thích Android Auto</string>
+    <string name="aa_compatibility_ok">Tương thích với Android Auto</string>
+    <string name="aa_compatibility_ok_desc">Được cài đặt từ Google Play Store. Ứng dụng này đáp ứng tiêu chuẩn hiển thị của Android Auto.</string>
+    <string name="aa_compatibility_error">Không tương thích Android Auto</string>
+    <string name="aa_compatibility_error_desc">Android Auto yêu cầu ứng dụng phải được cài đặt từ Google Play Store. Ứng dụng cài thủ công hoặc qua ADB Shell có thể không hiển thị trên màn hình xe.</string>
+    <string name="aa_requested_by">Yêu cầu bởi %1$s</string>
+    <string name="aa_installed_by">Cài đặt bởi %1$s</string>
+    <string name="aa_open_settings">Cài đặt Android Auto</string>
+    <string name="aa_open_settings_sub">Bật nguồn không xác định trong tùy chọn nhà phát triển</string>
+    <string name="install_spoofed_intent_action">Cài đặt (Giả lập Play Store)</string>
+    <string name="install_spoofed_intent_sub">Gán nguồn cài đặt qua Trình cài đặt hệ thống</string>
+    <string name="dialog_menu_install_source_aa_hint">Dùng Google Play Store (%1$s) để ứng dụng hoạt động được trên Android Auto.</string>
+    <string name="manage_action_installer_source_aa_ok">Cửa hàng chính thức • Tương thích Android Auto</string>
 </resources>

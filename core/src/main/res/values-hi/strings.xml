@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">हर फ़ोन पर ऐप इंस्टॉल करना अलग तरह से काम करता है, और क्या विफल होता है यह हमें तभी पता चलता है जब ऐप बताता है। यह बताता है कि इंस्टॉल सफल हुआ या नहीं और क्या ग़लत हुआ — यह कभी नहीं बताता कि आपने कौन-सा ऐप इंस्टॉल किया।</string>
     <string name="onboarding_analytics_switch">अनाम डायग्नोस्टिक्स साझा करें</string>
     <string name="onboarding_analytics_switch_sub">आप इसे कभी भी सेटिंग में बदल सकते हैं।</string>
+    <string name="onboarding_virustotal_title">इंस्टॉल करने से पहले स्कैन करें</string>
+    <string name="onboarding_virustotal_desc">इंस्टॉल स्क्रीन से ही 70+ एंटीवायरस इंजनों से किसी भी पैकेज की जाँच करें। इसके लिए एक मुफ़्त VirusTotal API कुंजी की आवश्यकता है।</string>
+    <string name="onboarding_security_normal">सामान्य</string>
+    <string name="onboarding_security_strict">सख्त</string>
+    <string name="onboarding_security_normal_sub">\"इंस्टॉल करें\" मुख्य बटन बना रहेगा। जब चाहें तब स्कैन करें।</string>
+    <string name="onboarding_security_strict_sub">\"स्कैन करें\" मुख्य बटन बन जाता है, और बिना स्कैन की गई फ़ाइलों को इंस्टॉल करने से पहले पुष्टि माँगी जाएगी।</string>
+    <string name="onboarding_virustotal_get_key">मुफ़्त API कुंजी प्राप्त करें</string>
+    <string name="onboarding_virustotal_key_label">VirusTotal API कुंजी</string>
+    <string name="onboarding_virustotal_paste">क्लिपबोर्ड से चिपकाएँ</string>
+    <string name="onboarding_virustotal_key_hint">वैकल्पिक — आप इसे बाद में सेटिंग्स में जोड़ सकते हैं।</string>
+    <string name="onboarding_virustotal_key_saved">सहेजा गया। स्कैनिंग तैयार है।</string>
+    <string name="onboarding_virustotal_key_malformed">कुंजी 64 वर्णों की होती है — चिपकाए गए टेक्स्ट की जाँच करें।</string>
+    <string name="onboarding_xiaomi_title">यदि MIUI पर इंस्टॉलेशन विफल हो जाता है</string>
+    <string name="onboarding_xiaomi_desc">MIUI/HyperOS ऑप्टिमाइज़ेशन बिना कोई कारण बताए तीसरे पक्ष के इंस्टॉलेशन को ब्लॉक कर सकता है। यदि ऐसा होता है, तो डेवलपर विकल्प खोलें, \"MIUI ऑप्टिमाइज़ेशन\" बंद करें, ऐप इंस्टॉल करें, और फिर इसे वापस चालू करें। इसके बंद रहने के दौरान सिस्टम थीम विकृत दिख सकती है — फ़ोन को रीस्टार्ट करने से यह ठीक हो जाता है।</string>
+    <string name="onboarding_xiaomi_open_developer_options">डेवलपर विकल्प खोलें</string>
 </resources>

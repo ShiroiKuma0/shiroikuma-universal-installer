@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">Instalarea aplicațiilor funcționează diferit pe fiecare telefon, iar aflăm ce eșuează doar dacă aplicația ne spune. Raportează dacă o instalare a reușit și ce nu a mers — niciodată ce aplicație ai instalat.</string>
     <string name="onboarding_analytics_switch">Trimite diagnostice anonime</string>
     <string name="onboarding_analytics_switch_sub">Poți schimba asta oricând în Setări.</string>
+    <string name="onboarding_virustotal_title">Scanați înainte de instalare</string>
+    <string name="onboarding_virustotal_desc">Verificați orice pachet cu peste 70 de motoare antivirus direct din ecranul de instalare. Necesită o cheie API gratuită VirusTotal.</string>
+    <string name="onboarding_security_normal">Normal</string>
+    <string name="onboarding_security_strict">Strict</string>
+    <string name="onboarding_security_normal_sub">„Instalare” rămâne butonul principal. Scanați oricând doriți.</string>
+    <string name="onboarding_security_strict_sub">„Scanare” devine butonul principal, iar instalarea fișierelor nescanate va cere mai întâi confirmare.</string>
+    <string name="onboarding_virustotal_get_key">Obțineți o cheie API gratuită</string>
+    <string name="onboarding_virustotal_key_label">Cheie API VirusTotal</string>
+    <string name="onboarding_virustotal_paste">Lipire din clipboard</string>
+    <string name="onboarding_virustotal_key_hint">Opțional — puteți adăuga acest lucru mai târziu în Setări.</string>
+    <string name="onboarding_virustotal_key_saved">Salvat. Scanarea este gata de utilizare.</string>
+    <string name="onboarding_virustotal_key_malformed">O cheie are 64 de caractere — verificați textul lipit.</string>
+    <string name="onboarding_xiaomi_title">Dacă instalarea eșuează pe MIUI</string>
+    <string name="onboarding_xiaomi_desc">Optimizarea MIUI/HyperOS poate bloca instalările de la terți fără a afișa un motiv. Dacă se întâmplă acest lucru, deschideți Opțiuni pentru dezvoltatori, dezactivați „Optimizare MIUI”, instalați aplicația, apoi reactivați-o. Cât timp este dezactivată, tema sistemului poate apărea distorsionată — repornirea telefonului rezolvă problema.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Deschideți Opțiuni pentru dezvoltatori</string>
 </resources>

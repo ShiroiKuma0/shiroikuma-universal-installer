@@ -347,7 +347,13 @@ class InstallViewModel(
     fun getAppLaunchIntent(packageName: String): android.content.Intent? =
         application.packageManager.getLaunchIntentForPackage(packageName)
 
-    fun parseApkInfo(context: Context, uri: Uri, splitPackage: SplitPackage.Provider, fileName: String) {
+    fun parseApkInfo(
+        context: Context,
+        uri: Uri,
+        splitPackage: SplitPackage.Provider,
+        fileName: String,
+        isAndroidAuto: Boolean? = null,
+    ) {
         cancelActiveScan()
         pendingObbEntries = emptyList()
         parseJob?.cancel()
@@ -366,11 +372,13 @@ class InstallViewModel(
             val installed = withContext(Dispatchers.IO) {
                 lookupInstalledVersion(context, info.packageName)
             }
+            val aaSupported = isAndroidAuto ?: info.isAndroidAutoSupported
             _pendingApkInfo.value = info.copy(
                 obbFileNames = obbEntries.map { it.fileName },
                 obbTotalBytes = obbEntries.sumOf { it.sizeBytes.coerceAtLeast(0L) },
                 installedVersionName = installed?.first,
                 installedVersionCode = installed?.second,
+                isAndroidAutoSupported = aaSupported,
             )
             _isLoading.value = false
             launchHashLookupOnly(context, uri)
@@ -1514,7 +1522,13 @@ class InstallViewModel(
                 .toSplitPackage()
                 .filterCompatible(context)
         }
-        parseApkInfo(context, uri, splitProvider, found.name)
+        parseApkInfo(
+            context = context,
+            uri = uri,
+            splitPackage = splitProvider,
+            fileName = found.name,
+            isAndroidAuto = found.isAndroidAutoSupported,
+        )
     }
 
     /**
@@ -2265,6 +2279,7 @@ class InstallViewModel(
         var minSdk = 0
         var targetSdk = 0
         var signatureMismatch: Boolean? = null
+        var isAndroidAutoSupported = false
 
         try {
             val tempFile = File(context.cacheDir, "temp_parse_${System.currentTimeMillis()}.apk")
@@ -2275,19 +2290,22 @@ class InstallViewModel(
             // PackageManager.getPackageArchiveInfo can throw ExceptionInInitializerError on
             // some Android 14/15 devices due to a missing /vendor/etc/aconfig_flags.pb file.
             // Catch Throwable to prevent crashing the app and fall back to Ackpine's metadata.
+            val parseFlags = (PackageManager.GET_PERMISSIONS or
+                PackageManager.GET_SERVICES or
+                PackageManager.GET_META_DATA or
+                SignatureCheck.archiveFlag).toLong()
+
             val packageInfo = try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     pm.getPackageArchiveInfo(
                         tempFile.absolutePath,
-                        PackageManager.PackageInfoFlags.of(
-                            (PackageManager.GET_PERMISSIONS or SignatureCheck.archiveFlag).toLong()
-                        )
+                        PackageManager.PackageInfoFlags.of(parseFlags)
                     )
                 } else {
                     @Suppress("DEPRECATION")
                     pm.getPackageArchiveInfo(
                         tempFile.absolutePath,
-                        PackageManager.GET_PERMISSIONS or SignatureCheck.archiveFlag,
+                        parseFlags.toInt(),
                     )
                 }
             } catch (t: Throwable) {
@@ -2307,6 +2325,17 @@ class InstallViewModel(
                 // Must run before tempFile is deleted — the certificates come from the archive.
                 signatureMismatch = SignatureCheck.isMismatch(context, packageInfo.packageName, packageInfo)
 
+                val metaData = packageInfo.applicationInfo?.metaData
+                val hasCarMeta = metaData?.containsKey("com.google.android.gms.car.application") == true ||
+                    metaData?.containsKey("androidx.car.app.minCarApiLevel") == true ||
+                    metaData?.containsKey("com.google.android.gms.car.notification.SmallIcon") == true
+                val hasCarService = packageInfo.services?.any { service ->
+                    service.name.contains("MediaBrowserService", ignoreCase = true) ||
+                        service.name.contains("CarAppService", ignoreCase = true) ||
+                        service.name.contains("CarService", ignoreCase = true)
+                } ?: false
+                isAndroidAutoSupported = hasCarMeta || hasCarService
+
                 if (ackpinePackageName.isEmpty()) ackpinePackageName = packageInfo.packageName
                 if (ackpineVersionName.isEmpty()) ackpineVersionName = packageInfo.versionName ?: ""
                 if (ackpineVersionCode == 0L) {
@@ -2319,22 +2348,40 @@ class InstallViewModel(
             }
 
 
-            if (supportedAbis.isEmpty() && tempFile.exists()) {
+            if (tempFile.exists()) {
                 try {
                     withContext(Dispatchers.IO) {
                         ZipFile(tempFile)
                     }.use { zip ->
-                        val abiRegex = Regex("^lib/([^/]+)/")
-                        val foundAbis = mutableSetOf<String>()
-                        for (entry in zip.entries()) {
-                            abiRegex.find(entry.name)?.groupValues?.get(1)?.let { abi ->
-                                foundAbis.add(abi)
+                        if (supportedAbis.isEmpty()) {
+                            val abiRegex = Regex("^lib/([^/]+)/")
+                            val foundAbis = mutableSetOf<String>()
+                            for (entry in zip.entries()) {
+                                abiRegex.find(entry.name)?.groupValues?.get(1)?.let { abi ->
+                                    foundAbis.add(abi)
+                                }
+                            }
+                            if (foundAbis.isNotEmpty()) supportedAbis.addAll(foundAbis.sorted())
+                        }
+
+                        if (!isAndroidAutoSupported) {
+                            val manifestEntry = zip.getEntry("AndroidManifest.xml")
+                            if (manifestEntry != null) {
+                                val manifestBytes = zip.getInputStream(manifestEntry).use { it.readBytes() }
+                                val manifestText = String(manifestBytes, Charsets.ISO_8859_1)
+                                if (manifestText.contains("com.google.android.gms.car") ||
+                                    manifestText.contains("androidx.car.app") ||
+                                    manifestText.contains("MediaBrowserService") ||
+                                    manifestText.contains("CarAppService") ||
+                                    manifestText.contains("automotive_app_desc")
+                                ) {
+                                    isAndroidAutoSupported = true
+                                }
                             }
                         }
-                        if (foundAbis.isNotEmpty()) supportedAbis.addAll(foundAbis.sorted())
                     }
                 } catch (e: Exception) {
-                    Timber.d(e, "Error scanning APK for ABIs")
+                    Timber.d(e, "Error scanning APK zip entries")
                 }
             }
 
@@ -2359,6 +2406,7 @@ class InstallViewModel(
             splitEntries = splitEntries,
             signatureMismatch = signatureMismatch,
             isBlocked = ackpinePackageName in blacklist.value,
+            isAndroidAutoSupported = isAndroidAutoSupported,
         )
     }
 

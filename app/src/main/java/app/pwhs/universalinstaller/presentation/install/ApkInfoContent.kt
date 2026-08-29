@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.GppGood
@@ -277,6 +278,21 @@ internal fun ApkInfoContent(
                     },
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+            if (apkInfo.isAndroidAutoSupported) {
+                InfoChip(
+                    label = stringResource(R.string.aa_compatibility_ok),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.DirectionsCar,
+                            null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
             // Scan state belongs in the compact sheet too — this is the row the user confirms from,
@@ -578,6 +594,7 @@ private fun DetailsCard(apkInfo: ApkInfo) {
             if (apkInfo.versionName.isNotBlank()) InfoRow(stringResource(R.string.apk_info_label_version), apkInfo.versionName)
             if (apkInfo.minSdkVersion > 0) InfoRow(stringResource(R.string.apk_info_label_min_sdk), sdkToAndroid(apkInfo.minSdkVersion))
             if (apkInfo.targetSdkVersion > 0) InfoRow(stringResource(R.string.apk_info_label_target_sdk), sdkToAndroid(apkInfo.targetSdkVersion))
+            if (apkInfo.isAndroidAutoSupported) InfoRow(stringResource(R.string.aa_compatibility_title), stringResource(R.string.aa_compatibility_ok))
         }
     }
 }

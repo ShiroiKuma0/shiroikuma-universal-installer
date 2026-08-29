@@ -588,14 +588,22 @@ private fun FoundRow(
 private fun FoundFileChips(file: FoundPackageFile) {
     val isArchive = file.extension in setOf("xapk", "apks", "apkm")
     val showStateChip = file.installState != InstallState.Unknown
+    val showAaChip = file.isAndroidAutoSupported
 
-    if (!isArchive && !showStateChip) return
+    if (!isArchive && !showStateChip && !showAaChip) return
 
     Row(
         modifier = Modifier.padding(top = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        if (showAaChip) {
+            StatusChip(
+                label = stringResource(R.string.aa_compatibility_ok),
+                container = MaterialTheme.colorScheme.primaryContainer,
+                content = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
         if (isArchive) {
             StatusChip(
                 label = stringResource(R.string.found_chip_split),

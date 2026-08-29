@@ -20,4 +20,10 @@ data class InstalledApp(
     val enabled: Boolean = true,
     /** Package that registered as the installer, if known (Play, F-Droid, …); null on sideload. */
     val installerPackage: String? = null,
+    /** Package that initiated the installation request (Android 11+). */
+    val initiatingPackage: String? = null,
+    /** Package from which the install originated (e.g. app that downloaded it, Android 11+). */
+    val originatingPackage: String? = null,
+    /** Whether the app declares Android Auto compatibility. */
+    val isAndroidAutoSupported: Boolean = false,
 )

@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">يعمل تثبيت التطبيقات بشكل مختلف على كل هاتف، ولا نعرف ما الذي يفشل إلا إذا أبلغنا التطبيق. يُبلغ عمّا إذا نجح التثبيت وما الذي أخفق — ولا يُبلغ أبدًا عن التطبيق الذي ثبّته.</string>
     <string name="onboarding_analytics_switch">مشاركة تشخيصات مجهولة الهوية</string>
     <string name="onboarding_analytics_switch_sub">يمكنك تغيير ذلك في أي وقت من الإعدادات.</string>
+    <string name="onboarding_virustotal_title">الفحص قبل التثبيت</string>
+    <string name="onboarding_virustotal_desc">فحص أي حزمة باستخدام أكثر من 70 محرك مكافحة فيروسات مباشرةً من شاشة التثبيت. يتطلب مفتاح API مجاني من VirusTotal.</string>
+    <string name="onboarding_security_normal">عادي</string>
+    <string name="onboarding_security_strict">صارم</string>
+    <string name="onboarding_security_normal_sub">يظل \"تثبيت\" هو الزر الرئيسي. يمكنك الفحص وقتما تشاء.</string>
+    <string name="onboarding_security_strict_sub">يصبح \"فحص\" هو الزر الرئيسي، ويطلب تأكيدًا قبل تثبيت الملفات غير المفحوصة.</string>
+    <string name="onboarding_virustotal_get_key">الحصول على مفتاح API مجاني</string>
+    <string name="onboarding_virustotal_key_label">مفتاح API لـ VirusTotal</string>
+    <string name="onboarding_virustotal_paste">لصق من الحافظة</string>
+    <string name="onboarding_virustotal_key_hint">اختياري — يمكنك إضافة هذا لاحقًا من الإعدادات.</string>
+    <string name="onboarding_virustotal_key_saved">تم الحفظ. الفحص جاهز الآن.</string>
+    <string name="onboarding_virustotal_key_malformed">يتكون المفتاح من 64 حرفًا — يرجى التحقق مما تم لصقه.</string>
+    <string name="onboarding_xiaomi_title">إذا فشل التثبيت على MIUI</string>
+    <string name="onboarding_xiaomi_desc">قد يؤدي تحسين MIUI/HyperOS إلى حظر تثبيت تطبيقات الطرف الثالث دون إبداء سبب. إذا حدث ذلك، افتح \"خيارات المطور\"، وأوقف تشغيل \"تحسين MIUI\"، ثم ثبّت التطبيق، ثم أعد تشغيلها. أثناء إيقافها، قد يبدو مظهر النظام مشوهًا — إعادة تشغيل الهاتف تحل ذلك.</string>
+    <string name="onboarding_xiaomi_open_developer_options">فتح خيارات المطور</string>
 </resources>

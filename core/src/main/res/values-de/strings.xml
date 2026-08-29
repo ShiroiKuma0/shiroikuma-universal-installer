@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">Das Installieren von Apps funktioniert auf jedem Gerät anders, und was fehlschlägt, erfahren wir nur, wenn die App es meldet. Sie meldet, ob eine Installation geklappt hat und was schiefging — nie, welche App du installiert hast.</string>
     <string name="onboarding_analytics_switch">Anonyme Diagnosedaten teilen</string>
     <string name="onboarding_analytics_switch_sub">Du kannst das jederzeit in den Einstellungen ändern.</string>
+    <string name="onboarding_virustotal_title">Vor der Installation scannen</string>
+    <string name="onboarding_virustotal_desc">Überprüfen Sie jedes Paket mit über 70 Antiviren-Engines direkt im Installationsbildschirm. Erfordert einen kostenlosen VirusTotal-API-Schlüssel.</string>
+    <string name="onboarding_security_normal">Normal</string>
+    <string name="onboarding_security_strict">Strikt</string>
+    <string name="onboarding_security_normal_sub">„Installieren“ bleibt die Hauptschaltfläche. Scannen Sie, wann immer Sie möchten.</string>
+    <string name="onboarding_security_strict_sub">„Scannen“ wird zur Hauptschaltfläche, und bei der Installation nicht gescannter Dateien wird vorher nachgefragt.</string>
+    <string name="onboarding_virustotal_get_key">Kostenlosen API-Schlüssel holen</string>
+    <string name="onboarding_virustotal_key_label">VirusTotal-API-Schlüssel</string>
+    <string name="onboarding_virustotal_paste">Aus Zwischenablage einfügen</string>
+    <string name="onboarding_virustotal_key_hint">Optional — kann später in den Einstellungen hinzugefügt werden.</string>
+    <string name="onboarding_virustotal_key_saved">Gespeichert. Scan-Funktion ist bereit.</string>
+    <string name="onboarding_virustotal_key_malformed">Ein Schlüssel hat 64 Zeichen — überprüfen Sie den eingefügten Text.</string>
+    <string name="onboarding_xiaomi_title">Wenn die Installation auf MIUI fehlschlägt</string>
+    <string name="onboarding_xiaomi_desc">Die MIUI/HyperOS-Optimierung kann Drittanbieter-Installationen ohne Angabe von Gründen blockieren. Öffnen Sie in diesem Fall die Entwickleroptionen, deaktivieren Sie „MIUI-Optimierung“, installieren Sie die App und aktivieren Sie sie wieder. Während sie deaktiviert ist, kann das Systemdesign fehlerhaft wirken — ein Neustart des Telefons behebt dies.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Entwickleroptionen öffnen</string>
 </resources>

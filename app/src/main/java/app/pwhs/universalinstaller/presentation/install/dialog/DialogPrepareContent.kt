@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AssistChip
@@ -139,7 +140,7 @@ fun DialogPrepareContent(
         }
 
         // ── Warning Chips ──
-        val hasChips = isDowngrade || apkInfo.splitCount > 1 || apkInfo.obbFileNames.isNotEmpty()
+        val hasChips = isDowngrade || apkInfo.splitCount > 1 || apkInfo.obbFileNames.isNotEmpty() || apkInfo.isAndroidAutoSupported
         AnimatedVisibility(visible = hasChips) {
             FlowRow(
                 modifier = Modifier
@@ -149,6 +150,21 @@ fun DialogPrepareContent(
                 horizontalArrangement = Arrangement.Center,
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
+                if (apkInfo.isAndroidAutoSupported) {
+                    AssistChip(
+                        onClick = onMenu,
+                        label = { Text(stringResource(R.string.aa_compatibility_ok)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.DirectionsCar,
+                                contentDescription = null,
+                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        },
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
                 if (isDowngrade) {
                     AssistChip(
                         onClick = {},

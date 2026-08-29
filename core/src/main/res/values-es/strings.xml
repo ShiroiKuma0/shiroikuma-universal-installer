@@ -17,4 +17,19 @@
     <string name="onboarding_analytics_desc">Instalar aplicaciones funciona de forma distinta en cada teléfono, y solo sabemos qué falla si la aplicación lo comunica. Informa de si una instalación funcionó y qué salió mal, nunca de qué aplicación instalaste.</string>
     <string name="onboarding_analytics_switch">Compartir diagnósticos anónimos</string>
     <string name="onboarding_analytics_switch_sub">Puedes cambiarlo cuando quieras en Ajustes.</string>
+    <string name="onboarding_virustotal_title">Escanear antes de instalar</string>
+    <string name="onboarding_virustotal_desc">Comprueba cualquier paquete con más de 70 motores antivirus desde la pantalla de instalación. Requiere una clave API gratuita de VirusTotal.</string>
+    <string name="onboarding_security_normal">Normal</string>
+    <string name="onboarding_security_strict">Estricto</string>
+    <string name="onboarding_security_normal_sub">«Instalar» sigue siendo el botón principal. Escanea cuando quieras.</string>
+    <string name="onboarding_security_strict_sub">«Escanear» pasa a ser el botón principal y solicitará confirmación antes de instalar archivos no analizados.</string>
+    <string name="onboarding_virustotal_get_key">Obtener clave API gratuita</string>
+    <string name="onboarding_virustotal_key_label">Clave API de VirusTotal</string>
+    <string name="onboarding_virustotal_paste">Pegar desde el portapapeles</string>
+    <string name="onboarding_virustotal_key_hint">Opcional: puedes añadirla más tarde en Ajustes.</string>
+    <string name="onboarding_virustotal_key_saved">Guardado. El escaneo está listo.</string>
+    <string name="onboarding_virustotal_key_malformed">Una clave tiene 64 caracteres; revisa el texto pegado.</string>
+    <string name="onboarding_xiaomi_title">Si la instalación falla en MIUI</string>
+    <string name="onboarding_xiaomi_desc">La optimización de MIUI/HyperOS puede bloquear instalaciones de terceros sin avisar. Si eso ocurre, abre Opciones de desarrollador, desactiva «Optimización MIUI», instala la app y vuelve a activarla. Mientras esté desactivada, el tema del sistema puede verse distorsionado; reiniciar el teléfono lo soluciona.</string>
+    <string name="onboarding_xiaomi_open_developer_options">Abrir Opciones de desarrollador</string>
 </resources>

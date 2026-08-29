@@ -101,6 +101,15 @@ android {
         create("opensource") {
             dimension = "distribution"
             isDefault = true
+            if (hasFirebaseConfig) {
+                (this as ExtensionAware).extensions.configure(
+                    "firebaseCrashlytics",
+                    Action<Any> {
+                        this.javaClass.methods.firstOrNull { it.name == "setMappingFileUploadEnabled" }
+                            ?.invoke(this, false)
+                    }
+                )
+            }
         }
         // The Play Store build: same app plus Firebase Analytics and Crashlytics.
         create("play") {
@@ -142,7 +151,8 @@ android {
 // present — on CI, or on the machine of whoever builds a release by hand.
 if (hasFirebaseConfig) {
     tasks.matching {
-        it.name.startsWith("injectCrashlytics") && it.name.contains("Opensource")
+        (it.name.startsWith("injectCrashlytics") || it.name.startsWith("uploadCrashlyticsMappingFile")) &&
+            it.name.contains("Opensource")
     }.configureEach {
         enabled = false
     }

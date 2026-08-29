@@ -251,6 +251,8 @@ data class ExtendedColors(
     val onWarning: Color = Color.Unspecified,
     val warningContainer: Color = Color.Unspecified,
     val success: Color = Color.Unspecified,
+    val onSuccess: Color = Color.Unspecified,
+    val successContainer: Color = Color.Unspecified,
 )
 
 val LocalExtendedColors = staticCompositionLocalOf { ExtendedColors() }
@@ -264,6 +266,8 @@ private val LightExtendedColors = ExtendedColors(
     onWarning = Color(0xFFFFFFFF),
     warningContainer = Color(0xFFFFF3E0),
     success = SuccessLight,
+    onSuccess = Color(0xFFFFFFFF),
+    successContainer = Color(0xFFDCFCE7),
 )
 
 private val DarkExtendedColors = ExtendedColors(
@@ -271,6 +275,8 @@ private val DarkExtendedColors = ExtendedColors(
     onWarning = Color(0xFF3E2700),
     warningContainer = Color(0xFF4E3600),
     success = SuccessDark,
+    onSuccess = Color(0xFF00320D),
+    successContainer = Color(0xFF14532D),
 )
 
 @Composable

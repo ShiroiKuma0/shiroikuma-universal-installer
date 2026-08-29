@@ -101,15 +101,6 @@ android {
         create("opensource") {
             dimension = "distribution"
             isDefault = true
-            if (hasFirebaseConfig) {
-                (this as ExtensionAware).extensions.configure(
-                    "firebaseCrashlytics",
-                    Action<Any> {
-                        this.javaClass.methods.firstOrNull { it.name == "setMappingFileUploadEnabled" }
-                            ?.invoke(this, false)
-                    }
-                )
-            }
         }
         // The Play Store build: same app plus Firebase Analytics and Crashlytics.
         create("play") {

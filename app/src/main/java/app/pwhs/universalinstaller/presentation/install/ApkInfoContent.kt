@@ -36,6 +36,7 @@ import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.GppGood
+import androidx.compose.material.icons.rounded.Autorenew
 import androidx.compose.material.icons.rounded.InstallMobile
 import androidx.compose.material.icons.rounded.Memory
 import androidx.compose.material.icons.rounded.Menu
@@ -167,6 +168,13 @@ internal fun ApkInfoContent(
     val isDowngrade = apkInfo.installedVersionCode != null &&
             apkInfo.installedVersionCode > 0 &&
             apkInfo.versionCode < apkInfo.installedVersionCode
+    // Same versionCode already on the device: a re-install, not an update. Flagged in the semantic
+    // success green — every accent role goes yellow in the 白い熊 scheme, so an accent-role tint
+    // would be indistinguishable from a plain install here. See DialogPrepareContent.
+    val isSameVersion = apkInfo.installedVersionCode != null &&
+            apkInfo.installedVersionCode > 0 &&
+            apkInfo.versionCode == apkInfo.installedVersionCode
+    val extendedColors = LocalExtendedColors.current
 
     // Outer container wraps its content — same shape as FoundApksSheet. Nothing here reads the
     // sheet's height, so the sheet measures once and holds still while you drag it.
@@ -279,6 +287,21 @@ internal fun ApkInfoContent(
                     },
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+            if (isSameVersion) {
+                InfoChip(
+                    label = stringResource(R.string.dialog_chip_same_version),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Rounded.Autorenew,
+                            null,
+                            modifier = Modifier.size(16.dp),
+                            tint = extendedColors.success,
+                        )
+                    },
+                    containerColor = extendedColors.successContainer,
+                    contentColor = extendedColors.success,
                 )
             }
             // Scan state belongs in the compact sheet too — this is the row the user confirms from,
@@ -445,13 +468,30 @@ internal fun ApkInfoContent(
                         modifier = Modifier.weight(1f),
                         shape = MaterialTheme.shapes.medium,
                         enabled = !apkInfo.isBlocked,
-                        colors = if (isDowngrade) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
+                        colors = when {
+                            isDowngrade -> ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                            isSameVersion -> ButtonDefaults.buttonColors(
+                                containerColor = extendedColors.success,
+                                contentColor = extendedColors.onSuccess,
+                            )
+                            else -> ButtonDefaults.buttonColors()
+                        }
                     ) {
                         if (confirmText == null) {
-                            Icon(Icons.Rounded.InstallMobile, null, modifier = Modifier.size(18.dp))
+                            Icon(
+                                if (isSameVersion) Icons.Rounded.Autorenew else Icons.Rounded.InstallMobile,
+                                null,
+                                modifier = Modifier.size(18.dp),
+                            )
                             Spacer(Modifier.width(8.dp))
                         }
-                        Text(confirmText ?: if (isDowngrade) stringResource(R.string.dialog_downgrade_btn) else stringResource(R.string.txt_install))
+                        Text(
+                            confirmText ?: when {
+                                isDowngrade -> stringResource(R.string.dialog_downgrade_btn)
+                                isSameVersion -> stringResource(R.string.dialog_reinstall_btn)
+                                else -> stringResource(R.string.txt_install)
+                            }
+                        )
                     }
                 } else {
                     Button(

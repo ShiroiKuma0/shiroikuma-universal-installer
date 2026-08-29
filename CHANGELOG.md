@@ -4,6 +4,29 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.10.0+001
+
+**New in this build:** rebased onto **upstream 1.10.0** (versionCode 33) plus the five commits pushed after the tag. All **65** fork commits replay on top of it. No new fork features — this build is the port itself, and it was a substantial one.
+
+### 🧩 Upstream de-monolithed the three files our theming layer lives in
+- 1.10.0 is mostly a refactor, and it landed squarely on our customizations: **`DialogMenuContent.kt` lost 927 lines**, `ManageScreen.kt` **2136**, `SettingScreen.kt` **701**, and `UninstallUi.kt` was split apart — all of it moved into new `tabs/`, `components/`, `sections/`, `sheets/` and `dialogs/` packages. Git cannot follow a hunk into a file that did not exist, so five of our commits had to be **ported by hand** rather than merged.
+- **Per-text-category dialog styling survived intact.** All eleven `dialogTextStyle(…)` call sites were re-applied at their new homes — `tabs/InfoTab.kt` (the ABI list and the SHA-256 hash), and `components/AdvancedToggle.kt`, `DetailRow.kt`, `MenuCard.kt` and `PermissionRowList.kt`. Because those helpers are shared, the categories they cover — option title/description, detail label/value, section title/description, permission rows — keep styling every text that flows through them.
+- **The 白い熊 Installer UI entry point moved with the Interface section** into `sections/InterfaceSection.kt`, sitting above the Theme row exactly as before, divider and all.
+- **The Shizuku manager fix was rethreaded through the new component boundary.** `InstallModeSelector` now lives in `components/SettingComponents.kt` and the install block in `sections/InstallSection.kt`, so `shizukuManagerLabel` and `onOpenShizukuManager` are passed down explicitly: the **"Open 白い熊 雫"** button and the named *"… is installed but its service isn't running"* subtitle both still appear. The R8 keep rules for `rikka.shizuku.BinderContainer` were merged beside upstream's new Play-review `-dontwarn`.
+- **Long version names still wrap** — the weighted, `TextAlign.End` value row followed `DetailRow` into its own file.
+- **Our Same version chip now sits beside upstream's three new ones** rather than displacing them: the conflict cut through the middle of a chip block, and both sets were kept whole.
+
+### 📦 What upstream 1.10.0 brings with it
+- **Android Auto awareness.** Apps are checked against Android Auto's actual rule — the installing package must be the Play Store, and an ADB-initiated install is blocked — across scans, the install sheet and the Manage screen, with a **Compatible with Android Auto** chip, a "Requested by / Installed by" readout and a shortcut to Android Auto's settings. A **Install (Spoof Play Store)** action sends the install through the system package installer with the Play Store as the claimed source, no root required.
+- **Warning chips for apps that ask for Root or Shizuku** — an APK requesting either now says so on the install sheet before you commit to it.
+- **The install dialog's Retry and System Installer buttons work again.** The System Installer button used to fire a bare `ACTION_VIEW`, which resolved straight back to our own dialog the moment you made this app the default installer — so nothing happened at all. It now resolves an explicit component belonging to somebody else, and falls back to the older `ACTION_INSTALL_PACKAGE` for OEM installers that only advertise that.
+- **Fixed duplicate history records for notification installs**, a settings screen that reported a default-installer change that never happened, and opening extracted backup folders in a system file manager.
+- **Full Ukrainian translation** (#108), and the Manage screen's missing *open app* action restored.
+
+### 🚫 The in-app review prompt is not in this build
+- Upstream added a Play in-app review sheet after a successful install, gated behind a deliberately conservative `ReviewGate`. It is a **Play Store feature**: the `play` flavor wires it to Google's `ReviewManager`, the `opensource` flavor resolves it to a **no-op prompter**.
+- This fork builds `opensource` and ships no Play Services, so **nothing ever asks you to rate it** — the same reason it carries no Firebase Analytics or Crashlytics.
+
 ## 1.9.12+002
 
 **New in this build:**

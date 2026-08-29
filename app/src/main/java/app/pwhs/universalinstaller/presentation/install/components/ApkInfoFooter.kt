@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Autorenew
 import androidx.compose.material.icons.rounded.InstallMobile
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Security
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.VtStatus
+import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
 
 @Composable
 fun ApkInfoFooter(
@@ -57,6 +59,12 @@ fun ApkInfoFooter(
     val isDowngrade = apkInfo.installedVersionCode != null &&
         apkInfo.installedVersionCode > 0 &&
         apkInfo.versionCode < apkInfo.installedVersionCode
+
+    // Same versionCode already installed: a re-install, not an update — see ApkInfoContent.
+    val isSameVersion = apkInfo.installedVersionCode != null &&
+        apkInfo.installedVersionCode > 0 &&
+        apkInfo.versionCode == apkInfo.installedVersionCode
+    val extendedColors = LocalExtendedColors.current
 
     val hasVerdict = apkInfo.vtResult?.status in setOf(
         VtStatus.CLEAN,
@@ -119,21 +127,29 @@ fun ApkInfoFooter(
                     modifier = Modifier.weight(1f),
                     shape = MaterialTheme.shapes.medium,
                     enabled = !apkInfo.isBlocked,
-                    colors = if (isDowngrade) {
-                        ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                    } else {
-                        ButtonDefaults.buttonColors()
+                    colors = when {
+                        isDowngrade ->
+                            ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        isSameVersion -> ButtonDefaults.buttonColors(
+                            containerColor = extendedColors.success,
+                            contentColor = extendedColors.onSuccess,
+                        )
+                        else -> ButtonDefaults.buttonColors()
                     },
                 ) {
                     if (confirmText == null) {
-                        Icon(Icons.Rounded.InstallMobile, null, modifier = Modifier.size(18.dp))
+                        Icon(
+                            if (isSameVersion) Icons.Rounded.Autorenew else Icons.Rounded.InstallMobile,
+                            null,
+                            modifier = Modifier.size(18.dp),
+                        )
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        text = confirmText ?: if (isDowngrade) {
-                            stringResource(R.string.dialog_downgrade_btn)
-                        } else {
-                            stringResource(R.string.txt_install)
+                        text = confirmText ?: when {
+                            isDowngrade -> stringResource(R.string.dialog_downgrade_btn)
+                            isSameVersion -> stringResource(R.string.dialog_reinstall_btn)
+                            else -> stringResource(R.string.txt_install)
                         },
                     )
                 }

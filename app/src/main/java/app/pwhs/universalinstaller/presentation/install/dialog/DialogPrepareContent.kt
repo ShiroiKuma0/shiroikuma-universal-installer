@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.Autorenew
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Menu
@@ -56,6 +57,7 @@ import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
 import app.pwhs.universalinstaller.ui.theme.DialogActionButton
 import app.pwhs.universalinstaller.ui.theme.DialogButtonKind
+import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
 import app.pwhs.universalinstaller.ui.theme.dialogTextStyle
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -71,8 +73,16 @@ fun DialogPrepareContent(
     onCheckVirusTotal: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val isUpdate = installedVersionCode != null && installedVersionCode > 0
-    val isDowngrade = isUpdate && apkInfo.versionCode < installedVersionCode
+    val extendedColors = LocalExtendedColors.current
+    val isInstalled = installedVersionCode != null && installedVersionCode > 0
+    val isDowngrade = isInstalled && apkInfo.versionCode < installedVersionCode
+    // Installing the versionCode that is already on the device is a re-install, not an update:
+    // nothing moves forward, so it must not borrow the update's accent or its "Update" label.
+    // The accent is the semantic success green rather than any of the theme's accent roles —
+    // in the 白い熊 yellow scheme primary, secondary AND tertiary are all yellow, which is
+    // exactly the colour this state has to be told apart from.
+    val isSameVersion = isInstalled && apkInfo.versionCode == installedVersionCode
+    val isUpdate = isInstalled && !isDowngrade && !isSameVersion
 
     Column(
         modifier = Modifier
@@ -82,12 +92,12 @@ fun DialogPrepareContent(
     ) {
         // ── Version Info ──
         AnimatedContent(
-            targetState = Triple(isUpdate, isDowngrade, apkInfo.versionName),
+            targetState = VersionState(isUpdate, isDowngrade, isSameVersion, apkInfo.versionName),
             transitionSpec = {
                 fadeIn(tween(200)) togetherWith fadeOut(tween(200))
             },
             label = "VersionAnimation",
-        ) { (update, downgrade, newVersion) ->
+        ) { (update, downgrade, sameVersion, newVersion) ->
             when {
                 downgrade -> {
                     Text(
@@ -97,6 +107,17 @@ fun DialogPrepareContent(
                             newVersion,
                         ),
                         style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium, MaterialTheme.colorScheme.error),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+                sameVersion -> {
+                    Text(
+                        text = stringResource(
+                            R.string.dialog_version_same,
+                            newVersion,
+                            apkInfo.versionCode,
+                        ),
+                        style = dialogTextStyle("version", MaterialTheme.typography.bodyMedium, extendedColors.success),
                         textAlign = TextAlign.Center,
                     )
                 }
@@ -127,7 +148,7 @@ fun DialogPrepareContent(
         }
 
         // ── Warning Chips ──
-        val hasChips = isDowngrade || apkInfo.splitCount > 1 || apkInfo.obbFileNames.isNotEmpty() || apkInfo.isAndroidAutoSupported || apkInfo.isRootRequested || apkInfo.isShizukuRequested
+        val hasChips = isDowngrade || isSameVersion || apkInfo.splitCount > 1 || apkInfo.obbFileNames.isNotEmpty() || apkInfo.isAndroidAutoSupported || apkInfo.isRootRequested || apkInfo.isShizukuRequested
         AnimatedVisibility(visible = hasChips) {
             FlowRow(
                 modifier = Modifier
@@ -196,6 +217,25 @@ fun DialogPrepareContent(
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = MaterialTheme.colorScheme.errorContainer,
                             labelColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                if (isSameVersion) {
+                    AssistChip(
+                        onClick = {},
+                        label = { Text(stringResource(R.string.dialog_chip_same_version), style = dialogTextStyle("chip", MaterialTheme.typography.labelLarge)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Autorenew,
+                                contentDescription = null,
+                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                tint = extendedColors.success,
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = extendedColors.successContainer,
+                            labelColor = extendedColors.success,
                         ),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -294,19 +334,28 @@ fun DialogPrepareContent(
                 )
             }
 
-            // Install/Update/Downgrade button
+            // Install/Update/Reinstall/Downgrade button
             DialogActionButton(
                 slot = "install",
                 kind = DialogButtonKind.Filled,
                 onClick = onInstall,
                 modifier = Modifier.weight(1f),
                 enabled = !apkInfo.isBlocked,
-                defaultContainer = if (isDowngrade) MaterialTheme.colorScheme.error else null,
-                defaultContent = if (isDowngrade) MaterialTheme.colorScheme.onError else null,
+                defaultContainer = when {
+                    isDowngrade -> MaterialTheme.colorScheme.error
+                    isSameVersion -> extendedColors.success
+                    else -> null
+                },
+                defaultContent = when {
+                    isDowngrade -> MaterialTheme.colorScheme.onError
+                    isSameVersion -> extendedColors.onSuccess
+                    else -> null
+                },
             ) {
                 Text(
                     text = when {
                         isDowngrade -> stringResource(R.string.dialog_downgrade_btn)
+                        isSameVersion -> stringResource(R.string.dialog_reinstall_btn)
                         isUpdate -> stringResource(R.string.dialog_update_btn)
                         else -> stringResource(R.string.dialog_install_btn)
                     },
@@ -328,6 +377,17 @@ fun DialogPrepareContent(
         }
     }
 }
+
+/**
+ * Animation key for the version line — a four-slot [Triple], since the line now distinguishes
+ * install / update / re-install / downgrade.
+ */
+private data class VersionState(
+    val update: Boolean,
+    val downgrade: Boolean,
+    val sameVersion: Boolean,
+    val versionName: String,
+)
 
 /**
  * The "installed version → new version" line of an update.

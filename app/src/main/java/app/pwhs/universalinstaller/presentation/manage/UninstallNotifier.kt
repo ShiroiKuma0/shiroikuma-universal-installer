@@ -1,4 +1,6 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 package app.pwhs.universalinstaller.presentation.manage
+
 
 import android.Manifest
 import android.app.Notification

@@ -146,129 +146,50 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun ManageScreen(
-    modifier: Modifier = Modifier,
-    viewModel: ManageViewModel = koinViewModel(),
-) {
-    val uiState by viewModel.uiState.collectAsState()
-    val blockedPackages by viewModel.blacklist.collectAsState()
-
-    val context = LocalContext.current
-    UninstallUi(
-        modifier = modifier,
-        uiState = uiState,
-        onSearchQueryChanged = viewModel::onSearchQueryChanged,
-        onToggleAppFilter = viewModel::toggleAppFilter,
-        onOpenAppPrivileged = viewModel::openAppPrivileged,
-        onUninstall = viewModel::uninstallApp,
-        onBlockPackage = viewModel::toggleBlockPackage,
-        blockedPackages = blockedPackages,
-        onExtract = viewModel::extractApp,
-        onShare = viewModel::shareApp,
-        onReinstall = viewModel::reinstallApp,
-        onCheckVirusTotal = { app -> viewModel.scanVirusTotal(context, app) },
-        onAddToServer = viewModel::addToServer,
-        onForceStop = viewModel::forceStop,
-        onSetEnabled = viewModel::setEnabled,
-        onClearData = viewModel::clearAllData,
-        queryStorage = viewModel::queryStorageStats,
-        queryUsage = viewModel::queryUsageBuckets,
-        onDismissExtractResult = viewModel::dismissExtractResult,
-        onDismissPrivilegedResult = viewModel::dismissPrivilegedActionResult,
-        onRefreshPrivileged = viewModel::refreshPrivilegedReady,
-        onToggleSelection = viewModel::toggleSelection,
-        onClearSelection = viewModel::clearSelection,
-        onToggleSelectAll = viewModel::toggleSelectAll,
-        onUninstallSelected = viewModel::uninstallSelected,
-        onForceStopSelected = viewModel::forceStopSelected,
-        onDisableSelected = viewModel::disableSelected,
-        onClearDataSelected = viewModel::clearDataSelected,
-        onExtractSelected = viewModel::extractSelected,
-        onDismissBatchExtractResult = viewModel::dismissBatchExtractResult,
-        onOpenLogs = {
-            context.startActivity(Intent(context, UninstallLogsActivity::class.java))
-        },
-        onOpenBackups = {
-            context.startActivity(Intent(context, BackupsActivity::class.java))
-        },
-        onRefresh = viewModel::refreshApps,
-        onSortChange = viewModel::setSort,
-        onGroupByChange = viewModel::setGroupBy,
-        onResetFilters = viewModel::resetFilters,
-        onRequestUsageAccess = {
-            // Send user to the system Usage Access settings — we re-check on resume via
-            // refreshUsageAccess() and reload the list if it flipped.
-            runCatching {
-                context.startActivity(
-                    Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+internal fun ManageSkeleton() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        repeat(6) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    ShimmerBox(
+                        modifier = Modifier.size(48.dp),
+                        shape = MaterialTheme.shapes.medium,
+                    )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ShimmerBox(
+                            modifier = Modifier.fillMaxWidth(0.55f).height(16.dp),
+                            shape = RoundedCornerShape(6.dp),
+                        )
+                        ShimmerBox(
+                            modifier = Modifier.fillMaxWidth(0.8f).height(12.dp),
+                            shape = RoundedCornerShape(6.dp),
+                        )
+                    }
+                }
             }
-        },
-        onRefreshUsageAccess = viewModel::refreshUsageAccess,
-        onConfirmSystemApp = viewModel::confirmSystemAppPrompt,
-        onDismissSystemApp = viewModel::dismissSystemAppPrompt,
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-internal fun launchInstalledApp(context: android.content.Context, packageName: String) {
-    val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    runCatching { context.startActivity(intent) }
-}
-
-internal fun openAppInfoSettings(context: android.content.Context, packageName: String) {
-    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = "package:$packageName".toUri()
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
     }
-    runCatching { context.startActivity(intent) }
 }
-
-/**
- * Wraps the cache-extracted APK in a FileProvider URI (if it's a file) or uses the SAF URI
- * directly, then fires a SEND chooser. Returns false when no chooser-capable Activity is
- * available so the caller can show feedback.
- */
-internal fun launchShareIntent(
-    context: android.content.Context,
-    uri: android.net.Uri,
-    appName: String,
-): Boolean {
-    val shareUri = if (uri.scheme == "file") {
-        androidx.core.content.FileProvider.getUriForFile(
-            context,
-            "${app.pwhs.universalinstaller.BuildConfig.APPLICATION_ID}.fileprovider",
-            java.io.File(uri.path!!),
-        )
-    } else {
-        uri
-    }
-    val send = Intent(Intent.ACTION_SEND).apply {
-        type = "application/vnd.android.package-archive"
-        putExtra(Intent.EXTRA_STREAM, shareUri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    val chooser = Intent.createChooser(
-        send,
-        context.getString(
-            app.pwhs.universalinstaller.R.string.manage_action_share_chooser,
-            appName,
-        ),
-    ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-    return runCatching { context.startActivity(chooser); true }.getOrDefault(false)
-}
-
-@Suppress("unused")
-internal fun appFilterLabel(filter: AppFilter): Int = when (filter) {
-    AppFilter.User -> R.string.manage_filter_user
-    AppFilter.System -> R.string.manage_filter_system
-    AppFilter.Disabled -> R.string.manage_filter_disabled
-    AppFilter.Blocked -> R.string.manage_filter_blocked
-}
-
-/**
- * Compact label/value chip for the storage row. Filled tonal so it reads as informational
- * rather than actionable — these are display-only.
- */

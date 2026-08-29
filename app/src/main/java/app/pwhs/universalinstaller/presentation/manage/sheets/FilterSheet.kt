@@ -145,130 +145,132 @@ import app.pwhs.universalinstaller.util.extension.getDisplayName
 import org.koin.androidx.compose.koinViewModel
 
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
-fun ManageScreen(
-    modifier: Modifier = Modifier,
-    viewModel: ManageViewModel = koinViewModel(),
+internal fun FilterSheet(
+    sortBy: UninstallSortBy,
+    direction: SortDirection,
+    groupBy: GroupBy,
+    appFilter: Set<AppFilter>,
+    usageGranted: Boolean,
+    onSortChange: (UninstallSortBy) -> Unit,
+    onGroupByChange: (GroupBy) -> Unit,
+    onRequestUsageAccess: () -> Unit,
+    onResetFilters: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val blockedPackages by viewModel.blacklist.collectAsState()
-
     val context = LocalContext.current
-    UninstallUi(
-        modifier = modifier,
-        uiState = uiState,
-        onSearchQueryChanged = viewModel::onSearchQueryChanged,
-        onToggleAppFilter = viewModel::toggleAppFilter,
-        onOpenAppPrivileged = viewModel::openAppPrivileged,
-        onUninstall = viewModel::uninstallApp,
-        onBlockPackage = viewModel::toggleBlockPackage,
-        blockedPackages = blockedPackages,
-        onExtract = viewModel::extractApp,
-        onShare = viewModel::shareApp,
-        onReinstall = viewModel::reinstallApp,
-        onCheckVirusTotal = { app -> viewModel.scanVirusTotal(context, app) },
-        onAddToServer = viewModel::addToServer,
-        onForceStop = viewModel::forceStop,
-        onSetEnabled = viewModel::setEnabled,
-        onClearData = viewModel::clearAllData,
-        queryStorage = viewModel::queryStorageStats,
-        queryUsage = viewModel::queryUsageBuckets,
-        onDismissExtractResult = viewModel::dismissExtractResult,
-        onDismissPrivilegedResult = viewModel::dismissPrivilegedActionResult,
-        onRefreshPrivileged = viewModel::refreshPrivilegedReady,
-        onToggleSelection = viewModel::toggleSelection,
-        onClearSelection = viewModel::clearSelection,
-        onToggleSelectAll = viewModel::toggleSelectAll,
-        onUninstallSelected = viewModel::uninstallSelected,
-        onForceStopSelected = viewModel::forceStopSelected,
-        onDisableSelected = viewModel::disableSelected,
-        onClearDataSelected = viewModel::clearDataSelected,
-        onExtractSelected = viewModel::extractSelected,
-        onDismissBatchExtractResult = viewModel::dismissBatchExtractResult,
-        onOpenLogs = {
-            context.startActivity(Intent(context, UninstallLogsActivity::class.java))
-        },
-        onOpenBackups = {
-            context.startActivity(Intent(context, BackupsActivity::class.java))
-        },
-        onRefresh = viewModel::refreshApps,
-        onSortChange = viewModel::setSort,
-        onGroupByChange = viewModel::setGroupBy,
-        onResetFilters = viewModel::resetFilters,
-        onRequestUsageAccess = {
-            // Send user to the system Usage Access settings — we re-check on resume via
-            // refreshUsageAccess() and reload the list if it flipped.
-            runCatching {
-                context.startActivity(
-                    Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val resource = LocalResources.current
+
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+    )
+    // Disable Reset when nothing differs from defaults — keeps the affordance honest and
+    // matches what a tap would actually change. Defaults mirror `ManageUiState`'s initial
+    // values so this stays in sync if those move.
+    val isDefaultState = sortBy == UninstallSortBy.Name &&
+        direction == SortDirection.Asc &&
+        groupBy == GroupBy.None &&
+        appFilter == setOf(AppFilter.User)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.uninstall_filter_sheet_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(
+                    onClick = onResetFilters,
+                    enabled = !isDefaultState,
+                ) {
+                    Text(stringResource(R.string.uninstall_filter_reset))
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.uninstall_filter_sort_section),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .horizontalScroll(rememberScrollState())
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SortChip(UninstallSortBy.Name, sortBy, direction, stringResource(R.string.uninstall_sort_name)) {
+                    onSortChange(UninstallSortBy.Name)
+                }
+                SortChip(UninstallSortBy.Size, sortBy, direction, stringResource(R.string.uninstall_sort_size)) {
+                    onSortChange(UninstallSortBy.Size)
+                }
+                SortChip(UninstallSortBy.InstalledAt, sortBy, direction, stringResource(R.string.uninstall_sort_installed)) {
+                    onSortChange(UninstallSortBy.InstalledAt)
+                }
+                SortChip(UninstallSortBy.LastUpdated, sortBy, direction, stringResource(R.string.uninstall_sort_last_updated)) {
+                    onSortChange(UninstallSortBy.LastUpdated)
+                }
+                SortChip(UninstallSortBy.LastUsed, sortBy, direction, stringResource(R.string.uninstall_sort_last_used)) {
+                    if (!usageGranted) {
+                        android.widget.Toast.makeText(
+                            context,
+                            resource.getString(R.string.uninstall_sort_usage_toast),
+                            android.widget.Toast.LENGTH_LONG,
+                        ).show()
+                        onRequestUsageAccess()
+                    } else {
+                        onSortChange(UninstallSortBy.LastUsed)
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        onGroupByChange(
+                            if (groupBy == GroupBy.Installer) GroupBy.None else GroupBy.Installer,
+                        )
+                    }
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.manage_group_label),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = groupBy == GroupBy.Installer,
+                    onCheckedChange = {
+                        onGroupByChange(if (it) GroupBy.Installer else GroupBy.None)
+                    },
                 )
             }
-        },
-        onRefreshUsageAccess = viewModel::refreshUsageAccess,
-        onConfirmSystemApp = viewModel::confirmSystemAppPrompt,
-        onDismissSystemApp = viewModel::dismissSystemAppPrompt,
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-internal fun launchInstalledApp(context: android.content.Context, packageName: String) {
-    val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    runCatching { context.startActivity(intent) }
-}
-
-internal fun openAppInfoSettings(context: android.content.Context, packageName: String) {
-    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = "package:$packageName".toUri()
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
     }
-    runCatching { context.startActivity(intent) }
 }
 
 /**
- * Wraps the cache-extracted APK in a FileProvider URI (if it's a file) or uses the SAF URI
- * directly, then fires a SEND chooser. Returns false when no chooser-capable Activity is
- * available so the caller can show feedback.
- */
-internal fun launchShareIntent(
-    context: android.content.Context,
-    uri: android.net.Uri,
-    appName: String,
-): Boolean {
-    val shareUri = if (uri.scheme == "file") {
-        androidx.core.content.FileProvider.getUriForFile(
-            context,
-            "${app.pwhs.universalinstaller.BuildConfig.APPLICATION_ID}.fileprovider",
-            java.io.File(uri.path!!),
-        )
-    } else {
-        uri
-    }
-    val send = Intent(Intent.ACTION_SEND).apply {
-        type = "application/vnd.android.package-archive"
-        putExtra(Intent.EXTRA_STREAM, shareUri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    val chooser = Intent.createChooser(
-        send,
-        context.getString(
-            app.pwhs.universalinstaller.R.string.manage_action_share_chooser,
-            appName,
-        ),
-    ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-    return runCatching { context.startActivity(chooser); true }.getOrDefault(false)
-}
-
-@Suppress("unused")
-internal fun appFilterLabel(filter: AppFilter): Int = when (filter) {
-    AppFilter.User -> R.string.manage_filter_user
-    AppFilter.System -> R.string.manage_filter_system
-    AppFilter.Disabled -> R.string.manage_filter_disabled
-    AppFilter.Blocked -> R.string.manage_filter_blocked
-}
-
-/**
- * Compact label/value chip for the storage row. Filled tonal so it reads as informational
- * rather than actionable — these are display-only.
+ * Click wrapper that doesn't require long-click semantics — the row just toggles, no need
+ * for `combinedClickable`. Pulled out so we avoid accidentally using combinedClickable in
+ * places where a plain clickable is clearer.
  */

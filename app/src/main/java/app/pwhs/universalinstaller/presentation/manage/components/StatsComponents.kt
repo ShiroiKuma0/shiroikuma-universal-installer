@@ -146,129 +146,185 @@ import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun ManageScreen(
-    modifier: Modifier = Modifier,
-    viewModel: ManageViewModel = koinViewModel(),
+internal fun androidx.compose.foundation.layout.RowScope.StorageChip(
+    label: String,
+    value: String,
+    weight: Float,
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val blockedPackages by viewModel.blacklist.collectAsState()
+    Column(
+        modifier = Modifier
+            .weight(weight)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+}
 
+/**
+ * Compact summary for the active filter set: count · total size · disabled count, plus the
+ * current sort indicator pinned to the trailing edge. Reads `apps` directly so the banner
+ * updates instantly when chips toggle.
+ */
+@Composable
+internal fun StatsBanner(
+    apps: List<InstalledApp>,
+    sortBy: UninstallSortBy,
+    direction: SortDirection,
+) {
     val context = LocalContext.current
-    UninstallUi(
-        modifier = modifier,
-        uiState = uiState,
-        onSearchQueryChanged = viewModel::onSearchQueryChanged,
-        onToggleAppFilter = viewModel::toggleAppFilter,
-        onOpenAppPrivileged = viewModel::openAppPrivileged,
-        onUninstall = viewModel::uninstallApp,
-        onBlockPackage = viewModel::toggleBlockPackage,
-        blockedPackages = blockedPackages,
-        onExtract = viewModel::extractApp,
-        onShare = viewModel::shareApp,
-        onReinstall = viewModel::reinstallApp,
-        onCheckVirusTotal = { app -> viewModel.scanVirusTotal(context, app) },
-        onAddToServer = viewModel::addToServer,
-        onForceStop = viewModel::forceStop,
-        onSetEnabled = viewModel::setEnabled,
-        onClearData = viewModel::clearAllData,
-        queryStorage = viewModel::queryStorageStats,
-        queryUsage = viewModel::queryUsageBuckets,
-        onDismissExtractResult = viewModel::dismissExtractResult,
-        onDismissPrivilegedResult = viewModel::dismissPrivilegedActionResult,
-        onRefreshPrivileged = viewModel::refreshPrivilegedReady,
-        onToggleSelection = viewModel::toggleSelection,
-        onClearSelection = viewModel::clearSelection,
-        onToggleSelectAll = viewModel::toggleSelectAll,
-        onUninstallSelected = viewModel::uninstallSelected,
-        onForceStopSelected = viewModel::forceStopSelected,
-        onDisableSelected = viewModel::disableSelected,
-        onClearDataSelected = viewModel::clearDataSelected,
-        onExtractSelected = viewModel::extractSelected,
-        onDismissBatchExtractResult = viewModel::dismissBatchExtractResult,
-        onOpenLogs = {
-            context.startActivity(Intent(context, UninstallLogsActivity::class.java))
-        },
-        onOpenBackups = {
-            context.startActivity(Intent(context, BackupsActivity::class.java))
-        },
-        onRefresh = viewModel::refreshApps,
-        onSortChange = viewModel::setSort,
-        onGroupByChange = viewModel::setGroupBy,
-        onResetFilters = viewModel::resetFilters,
-        onRequestUsageAccess = {
-            // Send user to the system Usage Access settings — we re-check on resume via
-            // refreshUsageAccess() and reload the list if it flipped.
-            runCatching {
-                context.startActivity(
-                    Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    val totalBytes = remember(apps) { apps.sumOf { it.sizeBytes } }
+    val disabled = remember(apps) { apps.count { !it.enabled } }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.manage_stats_apps, apps.size),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(text = "·", color = MaterialTheme.colorScheme.outline)
+        Text(
+            text = android.text.format.Formatter.formatShortFileSize(context, totalBytes),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (disabled > 0) {
+            Text(text = "·", color = MaterialTheme.colorScheme.outline)
+            Text(
+                text = stringResource(R.string.manage_stats_disabled, disabled),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = stringResource(
+                R.string.uninstall_current_sort_summary,
+                stringResource(sortLabelRes(sortBy)),
+                if (direction == SortDirection.Asc) "↑" else "↓",
+            ),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+internal fun GroupHeader(title: String, count: Int) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            text = count.toString(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.small)
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .padding(horizontal = 8.dp, vertical = 2.dp),
+        )
+    }
+}
+
+/**
+ * 7-bar daily usage chart. Bars are drawn relative to the largest bucket so a single
+ * heavy day doesn't squash the rest into invisibility. Today is rightmost; bar opacity
+ * dims for zero-time days so they read as "no usage" rather than "missing data".
+ */
+@Composable
+internal fun UsageChart(
+    buckets: List<UsageBucket>,
+    totalMillis: Long,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val maxBucket = remember(buckets) { (buckets.maxOfOrNull { it.foregroundMillis } ?: 0L).coerceAtLeast(1L) }
+    val barColor = MaterialTheme.colorScheme.primary
+    val emptyColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.manage_usage_title),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = stringResource(
+                    R.string.manage_usage_total,
+                    formatDuration(context, totalMillis),
+                ),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        androidx.compose.foundation.Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+        ) {
+            val barCount = buckets.size.coerceAtLeast(1)
+            // Total horizontal padding between bars: barCount-1 gaps × 4dp. Remaining
+            // space is split evenly so the chart adapts to any sheet width.
+            val gapPx = 4.dp.toPx()
+            val totalGap = gapPx * (barCount - 1)
+            val barWidth = (size.width - totalGap) / barCount
+            buckets.forEachIndexed { i, bucket ->
+                val ratio = bucket.foregroundMillis.toFloat() / maxBucket
+                val barHeight = size.height * ratio
+                val x = i * (barWidth + gapPx)
+                val y = size.height - barHeight
+                drawRoundRect(
+                    color = if (bucket.foregroundMillis == 0L) emptyColor else barColor,
+                    topLeft = androidx.compose.ui.geometry.Offset(x, y),
+                    size = androidx.compose.ui.geometry.Size(
+                        width = barWidth,
+                        height = barHeight.coerceAtLeast(2f),
+                    ),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(barWidth / 4f),
                 )
             }
-        },
-        onRefreshUsageAccess = viewModel::refreshUsageAccess,
-        onConfirmSystemApp = viewModel::confirmSystemAppPrompt,
-        onDismissSystemApp = viewModel::dismissSystemAppPrompt,
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
-internal fun launchInstalledApp(context: android.content.Context, packageName: String) {
-    val intent = context.packageManager.getLaunchIntentForPackage(packageName) ?: return
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    runCatching { context.startActivity(intent) }
-}
-
-internal fun openAppInfoSettings(context: android.content.Context, packageName: String) {
-    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = "package:$packageName".toUri()
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
     }
-    runCatching { context.startActivity(intent) }
 }
 
-/**
- * Wraps the cache-extracted APK in a FileProvider URI (if it's a file) or uses the SAF URI
- * directly, then fires a SEND chooser. Returns false when no chooser-capable Activity is
- * available so the caller can show feedback.
- */
-internal fun launchShareIntent(
-    context: android.content.Context,
-    uri: android.net.Uri,
-    appName: String,
-): Boolean {
-    val shareUri = if (uri.scheme == "file") {
-        androidx.core.content.FileProvider.getUriForFile(
-            context,
-            "${app.pwhs.universalinstaller.BuildConfig.APPLICATION_ID}.fileprovider",
-            java.io.File(uri.path!!),
-        )
-    } else {
-        uri
+internal fun formatDuration(context: android.content.Context, millis: Long): String {
+    val totalSec = millis / 1000
+    val h = totalSec / 3600
+    val m = (totalSec % 3600) / 60
+    return when {
+        h > 0 -> "${h}h ${m}m"
+        m > 0 -> "${m}m"
+        else -> "<1m"
     }
-    val send = Intent(Intent.ACTION_SEND).apply {
-        type = "application/vnd.android.package-archive"
-        putExtra(Intent.EXTRA_STREAM, shareUri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    val chooser = Intent.createChooser(
-        send,
-        context.getString(
-            app.pwhs.universalinstaller.R.string.manage_action_share_chooser,
-            appName,
-        ),
-    ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
-    return runCatching { context.startActivity(chooser); true }.getOrDefault(false)
 }
-
-@Suppress("unused")
-internal fun appFilterLabel(filter: AppFilter): Int = when (filter) {
-    AppFilter.User -> R.string.manage_filter_user
-    AppFilter.System -> R.string.manage_filter_system
-    AppFilter.Disabled -> R.string.manage_filter_disabled
-    AppFilter.Blocked -> R.string.manage_filter_blocked
-}
-
-/**
- * Compact label/value chip for the storage row. Filled tonal so it reads as informational
- * rather than actionable — these are display-only.
- */

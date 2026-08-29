@@ -1,4 +1,6 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 package app.pwhs.universalinstaller.presentation.manage.logs
+
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background

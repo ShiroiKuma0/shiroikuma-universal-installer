@@ -1,6 +1,3 @@
-import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
-import com.google.gms.googleservices.GoogleServicesPlugin.GoogleServicesPluginConfig
-import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
 import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
@@ -35,11 +32,15 @@ if (hasFirebaseConfig) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
 
-    configure<GoogleServicesPluginConfig> {
-        // `opensource` variants have no google-services.json by design. The plugin's default is
-        // to fail the build when it can't find one for a variant, which would take the whole
-        // open-source build down with it.
-        missingGoogleServicesStrategy = MissingGoogleServicesStrategy.IGNORE
+    extensions.findByName("googleServices")?.let { ext ->
+        try {
+            val strategyClass = Class.forName("com.google.gms.googleservices.GoogleServicesPlugin\$MissingGoogleServicesStrategy")
+            val ignoreStrategy = strategyClass.enumConstants?.firstOrNull { (it as Enum<*>).name == "IGNORE" }
+            if (ignoreStrategy != null) {
+                ext.javaClass.getMethod("setMissingGoogleServicesStrategy", strategyClass)
+                    .invoke(ext, ignoreStrategy)
+            }
+        } catch (_: Throwable) {}
     }
 }
 
@@ -100,14 +101,6 @@ android {
         create("opensource") {
             dimension = "distribution"
             isDefault = true
-            if (hasFirebaseConfig) {
-                // This flavor has no Firebase app id to upload a mapping file against, so the
-                // upload task would fail at the end of every `assembleOpensourceRelease`.
-                (this as ExtensionAware).extensions
-                    .configure<CrashlyticsExtension>("firebaseCrashlytics") {
-                        mappingFileUploadEnabled = false
-                    }
-            }
         }
         // The Play Store build: same app plus Firebase Analytics and Crashlytics.
         create("play") {

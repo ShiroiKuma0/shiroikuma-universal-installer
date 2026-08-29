@@ -107,7 +107,13 @@ import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.setting.profile.PackageNamePickerDialog
 import androidx.datastore.preferences.core.Preferences
 import org.koin.androidx.compose.koinViewModel
-
+import app.pwhs.universalinstaller.presentation.setting.sections.InstallOptionsSection
+import app.pwhs.universalinstaller.presentation.setting.sections.InstallSection
+import app.pwhs.universalinstaller.presentation.setting.sections.InterfaceSection
+import app.pwhs.universalinstaller.presentation.setting.sections.PrivacySection
+import app.pwhs.universalinstaller.presentation.setting.sections.SecuritySection
+import app.pwhs.universalinstaller.presentation.setting.sections.SyncSection
+import app.pwhs.universalinstaller.presentation.setting.components.*
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
@@ -376,204 +382,33 @@ private fun SettingUi(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 // ── Installation Section ─────────────────────
-                if (matchesQuery(q, installLabels)) item {
-                    SettingsSection(title = stringResource(R.string.setting_section_installation), icon = Icons.Rounded.SettingsApplications) {
-                        // Group headers only while unfiltered: a header whose items were all
-                        // searched away is a label over nothing. Same rule the divider below uses.
-                        if (q.isBlank()) OptionGroupHeader(stringResource(R.string.setting_group_installing))
-                        SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku root default") {
-                            InstallModeSelector(
-                                currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot),
-                                shizukuState = uiState.shizukuState,
-                                rootSupported = uiState.rootSupported,
-                                rootState = uiState.rootState,
-                                overriddenByDhizuku = useDhizuku,
-                                onModeChange = onInstallModeChanged,
-                            )
-                            // Only offered when Dhizuku is actually on the device. A switch for
-                            // an app the user does not have is noise, and it cannot be turned on
-                            // below API 26 either.
-                            if (dhizukuState != DhizukuState.UNSUPPORTED &&
-                                dhizukuState != DhizukuState.NOT_INSTALLED
-                            ) {
-                                SwitchPreference(
-                                    title = stringResource(R.string.setting_use_dhizuku_title),
-                                    subtitle = if (useDhizuku) {
-                                        stringResource(R.string.setting_dhizuku_ready)
-                                    } else {
-                                        stringResource(R.string.setting_use_dhizuku_subtitle)
-                                    },
-                                    checked = useDhizuku,
-                                    onCheckedChange = onUseDhizukuChanged,
-                                )
-                            }
-                            if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
-                                ListItem(
-                                    headlineContent = { Text(stringResource(R.string.setting_retry_root)) },
-                                    leadingContent = { Icon(Icons.Rounded.RocketLaunch, null, tint = MaterialTheme.colorScheme.primary) },
-                                    modifier = Modifier.clickable { onRootRetry() },
-                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                )
-                            }
-                        }
-
-                        if (q.isBlank()) OptionGroupHeader(stringResource(R.string.setting_group_after_install))
-                        SearchableItem(q, stringResource(R.string.setting_delete_apk_title)) {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_delete_apk_title),
-                                checked = uiState.deleteApkAfterInstall,
-                                onCheckedChange = onDeleteApkChanged,
-                            )
-                        }
-                        SearchableItem(q, stringResource(R.string.setting_auto_open_title), stringResource(R.string.setting_auto_open_subtitle)) {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_auto_open_title),
-                                subtitle = stringResource(R.string.setting_auto_open_subtitle),
-                                checked = uiState.autoOpenAfterInstall,
-                                onCheckedChange = onAutoOpenAfterInstallChanged,
-                            )
-                        }
-
-                        // Everything about how the installer looks — the external-open modes, the
-                        // card position, auto-confirm, the Download tab — now lives on its own
-                        // screen. The keyword list keeps this row findable by what moved.
-                        if (q.isBlank()) {
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
-                        }
-                        SearchableItem(
-                            q,
-                            stringResource(R.string.install_ui_screen_title),
-                            "dialog notification bottom sheet position card download tab appearance",
-                        ) {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.install_ui_screen_title)) },
-                                supportingContent = { Text(stringResource(R.string.install_ui_entry_subtitle)) },
-                                leadingContent = {
-                                    Icon(Icons.Rounded.Wallpaper, null, tint = MaterialTheme.colorScheme.primary)
-                                },
-                                modifier = Modifier.clickable {
-                                    context.startActivity(
-                                        android.content.Intent(
-                                            context,
-                                            app.pwhs.universalinstaller.presentation.setting.installui.InstallUiActivity::class.java,
-                                        )
-                                    )
-                                },
-                                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                            )
-                        }
-                        SearchableItem(q, stringResource(R.string.setting_default_installer_title), stringResource(R.string.setting_default_installer_subtitle)) {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_default_installer_title),
-                                subtitle = stringResource(R.string.setting_default_installer_subtitle),
-                                checked = uiState.isDefaultInstaller,
-                                onCheckedChange = onDefaultInstallerChanged,
-                                // Don't gate on shizukuAvailable here — that's true at NO_PERMISSION too,
-                                // and the toggle would silently no-op. Require the backend to be actually
-                                // ready; tapping the disabled-state hint covers the "needs grant" case.
-                                enabled = uiState.shizukuState == ShizukuState.READY ||
-                                        uiState.rootState == RootState.READY
-                            )
-                        }
-                    }
-                }
+                InstallSection(
+                    q = q,
+                    installLabels = installLabels,
+                    uiState = uiState,
+                    dhizukuState = dhizukuState,
+                    useDhizuku = useDhizuku,
+                    context = context,
+                    onInstallModeChanged = onInstallModeChanged,
+                    onUseDhizukuChanged = onUseDhizukuChanged,
+                    onRootRetry = onRootRetry,
+                    onDeleteApkChanged = onDeleteApkChanged,
+                    onAutoOpenAfterInstallChanged = onAutoOpenAfterInstallChanged,
+                    onDefaultInstallerChanged = onDefaultInstallerChanged
+                )
 
                 // ── Install options ──────────────────────────
                 // Install options section: shows full privileged flags when Shizuku/Root/Dhizuku is enabled,
                 // and shows Install Source configuration for all modes.
-                val privileged = uiState.useShizuku ||
-                    (uiState.rootSupported && uiState.useRoot) ||
-                    useDhizuku
-                if (matchesQuery(q, privilegedLabels)) {
-                    item {
-                        SettingsSection(
-                            title = stringResource(R.string.setting_section_install_options),
-                            icon = Icons.Rounded.AdminPanelSettings,
-                        ) {
-                            // Values are kept in sync across backends by setPrivilegedOption, so
-                            // reading either store gives the same answer. Root's is used when Root
-                            // is active purely so a pre-existing divergence shows the live one.
-                            val opts = if (uiState.useRoot && uiState.rootSupported) {
-                                uiState.rootOptions.asCommon()
-                            } else {
-                                uiState.shizukuOptions.asCommon()
-                            }
-                            if (useDhizuku) {
-                                Text(
-                                    text = stringResource(R.string.setting_install_options_dhizuku_note),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                )
-                            }
-                            if (privileged) {
-                                OptionGroupHeader(stringResource(R.string.setting_shizuku_options_install_group))
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_replace),
-                                    subtitle = stringResource(R.string.setting_shizuku_replace_sub),
-                                    checked = opts.replaceExisting,
-                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.ReplaceExisting, it) },
-                                )
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_downgrade),
-                                    subtitle = stringResource(R.string.setting_shizuku_downgrade_sub),
-                                    checked = opts.requestDowngrade,
-                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.RequestDowngrade, it) },
-                                )
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_grant_permissions),
-                                    subtitle = stringResource(R.string.setting_shizuku_grant_permissions_sub),
-                                    checked = opts.grantAllPermissions,
-                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.GrantAllPermissions, it) },
-                                )
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_allow_test),
-                                    subtitle = stringResource(R.string.setting_shizuku_allow_test_sub),
-                                    checked = opts.allowTest,
-                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllowTest, it) },
-                                )
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_bypass_sdk),
-                                    subtitle = stringResource(R.string.setting_shizuku_bypass_sdk_sub),
-                                    checked = opts.bypassLowTargetSdk,
-                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.BypassLowTargetSdk, it) },
-                                )
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_all_users),
-                                    subtitle = stringResource(R.string.setting_shizuku_all_users_sub),
-                                    checked = opts.allUsers,
-                                    onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllUsers, it) },
-                                )
-                            }
-                            InstallSourceItem(
-                                title = stringResource(R.string.setting_shizuku_set_source),
-                                subtitle = stringResource(R.string.setting_shizuku_set_source_sub),
-                                enabled = opts.setInstallSource,
-                                installerPackageName = opts.installerPackageName,
-                                onToggle = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.SetInstallSource, it) },
-                                onInstallerChange = onInstallerPackageChanged,
-                            )
-
-                            // Uninstall flags are genuinely Shizuku-only — ManageViewModel reads
-                            // the Shizuku keys and gates them on USE_SHIZUKU.
-                            if (uiState.useShizuku) {
-                                OptionGroupHeader(stringResource(R.string.setting_shizuku_options_uninstall_group))
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_uninstall_keep_data),
-                                    subtitle = stringResource(R.string.setting_shizuku_uninstall_keep_data_sub),
-                                    checked = uiState.shizukuOptions.uninstallKeepData,
-                                    onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_UNINSTALL_KEEP_DATA, it) },
-                                )
-                                OptionSwitch(
-                                    title = stringResource(R.string.setting_shizuku_uninstall_all_users),
-                                    subtitle = stringResource(R.string.setting_shizuku_uninstall_all_users_sub),
-                                    checked = uiState.shizukuOptions.uninstallAllUsers,
-                                    onCheckedChange = { onShizukuOptionChanged(PreferencesKeys.SHIZUKU_UNINSTALL_ALL_USERS, it) },
-                                )
-                            }
-                        }
-                    }
-                }
+                InstallOptionsSection(
+                    q = q,
+                    privilegedLabels = privilegedLabels,
+                    uiState = uiState,
+                    useDhizuku = useDhizuku,
+                    onPrivilegedOptionChanged = onPrivilegedOptionChanged,
+                    onInstallerPackageChanged = onInstallerPackageChanged,
+                    onShizukuOptionChanged = onShizukuOptionChanged
+                )
 
                 // ── Profiles Section ─────────────────────────
                 if (matchesQuery(q, profileLabels)) item {
@@ -614,152 +449,46 @@ private fun SettingUi(
                 }
 
                 // ── Interface Section ────────────────────────
-                if (matchesQuery(q, interfaceLabels)) item {
-                    SettingsSection(title = stringResource(R.string.setting_section_interface), icon = Icons.Rounded.Palette) {
-                        SearchableItem(q, stringResource(R.string.theme_screen_title), "interface theme") {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.theme_screen_title)) },
-                                leadingContent = { Icon(Icons.Rounded.Palette, null, tint = MaterialTheme.colorScheme.primary) },
-                                modifier = Modifier.clickable {
-                                    context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.theme.ThemeActivity::class.java))
-                                },
-                                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                            )
-                        }
-                        if (q.isBlank()) {
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
-                        }
-                        SearchableItem(q, stringResource(R.string.setting_language_title), stringResource(R.string.setting_language_subtitle)) {
-                            ListItem(
-                                headlineContent = {
-                                    Text(stringResource(R.string.setting_language_title), style = MaterialTheme.typography.bodyLarge)
-                                },
-                                supportingContent = {
-                                    Text(
-                                        text = stringResource(R.string.setting_language_subtitle),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                },
-                                leadingContent = {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Language,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(24.dp),
-                                    )
-                                },
-                                modifier = Modifier.clickable(onClick = onLanguageClick),
-                                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                            )
-                        }
-                    }
-                }
+                InterfaceSection(
+                    q = q,
+                    interfaceLabels = interfaceLabels,
+                    context = context,
+                    onLanguageClick = onLanguageClick
+                )
 
                 // ── Security Section ─────────────────────────
-                if (matchesQuery(q, securityLabels)) item {
-                    SettingsSection(title = stringResource(R.string.setting_section_security), icon = Icons.Rounded.Fingerprint) {
-                        SearchableItem(q, stringResource(R.string.setting_blacklist_title), "blacklist block packages") {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.setting_blacklist_title)) },
-                                supportingContent = {
-                                    Text(
-                                        if (blacklist.isEmpty()) stringResource(R.string.setting_blacklist_empty)
-                                        else stringResource(R.string.setting_blacklist_count, blacklist.size)
-                                    )
-                                },
-                                leadingContent = { Icon(Icons.Rounded.Block, null, tint = MaterialTheme.colorScheme.primary) },
-                                modifier = Modifier.clickable {
-                                    context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.blacklist.BlacklistActivity::class.java))
-                                },
-                                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                            )
-                        }
-                        if (q.isBlank()) HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
-                        SearchableItem(q, stringResource(R.string.setting_lock_install_title), "biometric security install") {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_lock_install_title),
-                                subtitle = stringResource(R.string.setting_lock_install_subtitle),
-                                checked = uiState.biometricLockInstall,
-                                onCheckedChange = onBiometricLockInstallChanged,
-                                enabled = uiState.biometricEnrolmentAvailable
-                            )
-                        }
-                        SearchableItem(q, stringResource(R.string.setting_lock_uninstall_title), "biometric security uninstall") {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_lock_uninstall_title),
-                                subtitle = stringResource(R.string.setting_lock_uninstall_subtitle),
-                                checked = uiState.biometricLockUninstall,
-                                onCheckedChange = onBiometricLockUninstallChanged,
-                                enabled = uiState.biometricEnrolmentAvailable
-                            )
-                        }
-                        if (!uiState.biometricEnrolmentAvailable) {
-                            Text(
-                                text = stringResource(R.string.setting_biometric_unavailable),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
-                    }
-                }
+                SecuritySection(
+                    q = q,
+                    securityLabels = securityLabels,
+                    context = context,
+                    blacklist = blacklist,
+                    biometricLockInstall = uiState.biometricLockInstall,
+                    biometricLockUninstall = uiState.biometricLockUninstall,
+                    biometricEnrolmentAvailable = uiState.biometricEnrolmentAvailable,
+                    onBiometricLockInstallChanged = onBiometricLockInstallChanged,
+                    onBiometricLockUninstallChanged = onBiometricLockUninstallChanged
+                )
 
                 // ── Privacy Section ──────────────────────────
                 // Absent from the open-source build: Telemetry has no sink there, so the
                 // switch would promise control over something that never happens.
-                if (Telemetry.isCollecting && matchesQuery(q, privacyLabels)) item {
-                    SettingsSection(title = stringResource(R.string.setting_section_privacy), icon = Icons.Rounded.PrivacyTip) {
-                        SearchableItem(q, stringResource(R.string.setting_analytics_title), "privacy analytics crash data") {
-                            SwitchPreference(
-                                title = stringResource(R.string.setting_analytics_title),
-                                subtitle = stringResource(R.string.setting_analytics_subtitle),
-                                checked = analyticsEnabled,
-                                onCheckedChange = onAnalyticsEnabledChanged,
-                            )
-                        }
-                    }
-                }
+                PrivacySection(
+                    q = q,
+                    privacyLabels = privacyLabels,
+                    analyticsEnabled = analyticsEnabled,
+                    onAnalyticsEnabledChanged = onAnalyticsEnabledChanged
+                )
 
                 // ── Sync Section ─────────────────────────────
-                if (matchesQuery(q, syncLabels)) item {
-                    SettingsSection(title = stringResource(R.string.setting_section_sync_short), icon = Icons.Rounded.WifiTethering) {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.setting_sync_control_panel)) },
-                            leadingContent = { Icon(Icons.Rounded.WifiTethering, null, tint = MaterialTheme.colorScheme.primary) },
-                            modifier = Modifier.clickable {
-                                context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.sync.SyncActivity::class.java))
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
-                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            OutlinedTextField(
-                                value = uiState.syncOptions.serverPort,
-                                onValueChange = onSyncServerPortChanged,
-                                label = { Text(stringResource(R.string.sync_port)) },
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                                singleLine = true
-                            )
-                            SwitchPreference(
-                                title = stringResource(R.string.sync_require_pin),
-                                checked = uiState.syncOptions.requirePin,
-                                onCheckedChange = onSyncRequirePinChanged
-                            )
-                            if (uiState.syncOptions.requirePin) {
-                                OutlinedTextField(
-                                    value = uiState.syncOptions.pinCode,
-                                    onValueChange = onSyncPinCodeChanged,
-                                    label = { Text(stringResource(R.string.sync_pin_code)) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                                    singleLine = true
-                                )
-                            }
-                        }
-                    }
-                }
+                SyncSection(
+                    q = q,
+                    syncLabels = syncLabels,
+                    context = context,
+                    syncOptions = uiState.syncOptions,
+                    onSyncServerPortChanged = onSyncServerPortChanged,
+                    onSyncRequirePinChanged = onSyncRequirePinChanged,
+                    onSyncPinCodeChanged = onSyncPinCodeChanged
+                )
 
                 // ── Advanced Options ─────────────────────────
                 if (matchesQuery(q, advancedLabels)) item {
@@ -853,296 +582,3 @@ private fun SettingUi(
 } // end of SettingUi
 
 /** True when [query] is blank (everything passes) or any [haystacks] entry contains it. */
-private fun matchesQuery(query: String, haystacks: List<String>): Boolean =
-    query.isBlank() || haystacks.any { it.contains(query, ignoreCase = true) }
-
-/**
- * Renders [content] only when the search [query] is blank or matches [label] / any of the
- * extra space-joined [keywords]. Lets individual rows hide while their section stays
- * visible (section-level gates decide whether the section appears at all).
- */
-@Composable
-private fun SearchableItem(
-    query: String,
-    label: String,
-    keywords: String = "",
-    content: @Composable () -> Unit,
-) {
-    if (query.isBlank() ||
-        label.contains(query, ignoreCase = true) ||
-        keywords.contains(query, ignoreCase = true)
-    ) {
-        content()
-    }
-}
-
-@Composable
-private fun OptionGroupHeader(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-    )
-}
-
-@Composable
-private fun OptionSwitch(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    ListItem(
-        headlineContent = { Text(title, style = MaterialTheme.typography.bodyMedium) },
-        supportingContent = {
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        },
-        trailingContent = { Switch(checked = checked, onCheckedChange = onCheckedChange) },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        modifier = Modifier.clickable { onCheckedChange(!checked) },
-    )
-}
-
-@Composable
-private fun SwitchPreference(
-    title: String,
-    subtitle: String? = null,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    enabled: Boolean = true,
-) {
-    ListItem(
-        headlineContent = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-            )
-        },
-        supportingContent = subtitle?.let {
-            {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                )
-            }
-        },
-        trailingContent = {
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                enabled = enabled
-            )
-        },
-        modifier = Modifier.clickable(enabled = enabled) { onCheckedChange(!checked) },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-    )
-}
-
-@Composable
-private fun InstallSourceItem(
-    title: String,
-    subtitle: String,
-    enabled: Boolean,
-    installerPackageName: String,
-    onToggle: (Boolean) -> Unit,
-    onInstallerChange: (String) -> Unit,
-) {
-    Column {
-        OptionSwitch(
-            title = title,
-            subtitle = subtitle,
-            checked = enabled,
-            onCheckedChange = onToggle,
-        )
-        if (enabled) {
-            var showDialog by remember { mutableStateOf(false) }
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.setting_shizuku_installer_label), style = MaterialTheme.typography.bodyMedium) },
-                supportingContent = {
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(installerPackageName, style = MaterialTheme.typography.bodySmall)
-                        if (installerPackageName == "com.android.vending") {
-                            Text(
-                                text = stringResource(R.string.dialog_menu_install_source_aa_hint, "Google Play Store"),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
-                },
-                leadingContent = { Spacer(Modifier.width(32.dp)) },
-                modifier = Modifier.clickable { showDialog = true },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-            )
-
-            if (showDialog) {
-                PackageNamePickerDialog(
-                    initialValue = installerPackageName,
-                    onDismiss = { showDialog = false },
-                    onConfirm = { newPkg ->
-                        onInstallerChange(newPkg)
-                        showDialog = false
-                    }
-                )
-            }
-        }
-    }
-}
-
-/**
- * Picker for the global install backend.
- *
- * Root option disappears when the build has no libsu (store flavor).
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun InstallModeSelector(
-    currentMode: InstallMode,
-    shizukuState: ShizukuState,
-    rootSupported: Boolean,
-    rootState: RootState,
-    /** True while the Dhizuku switch is on, in which case this picker is not what runs installs. */
-    overriddenByDhizuku: Boolean,
-    onModeChange: (InstallMode) -> Unit,
-) {
-    val options: List<InstallMode> = remember(rootSupported) {
-        if (rootSupported) listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU, InstallMode.ROOT)
-        else listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU)
-    }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-    ) {
-        // bodyLarge, not titleSmall: this sits among SwitchPreference rows whose headline is
-        // bodyLarge. Styling it as a caption made the section's most consequential control read
-        // as a footnote while the minor toggles shouted.
-        Text(
-            text = stringResource(R.string.setting_install_mode_title),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        // Root stays tappable whenever libsu shipped (it's only in the row then) — tapping it
-        // when su isn't ready fires the root request. We only DIM it (greyed label) to show
-        // it isn't the ready engine, rather than disabling the click.
-        // Only dim Root when positively unusable (NOT_ROOTED / UNAVAILABLE). UNKNOWN must not
-        // dim — a fresh probe reads su as UNKNOWN (libsu confirms READY only after a shell
-        // attempt), so a granted device shows UNKNOWN and was wrongly greyed.
-        val rootDimmed = currentMode != InstallMode.ROOT &&
-            (rootState == RootState.NOT_ROOTED || rootState == RootState.UNAVAILABLE)
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            options.forEachIndexed { index, mode ->
-                val dim = overriddenByDhizuku || (mode == InstallMode.ROOT && rootDimmed)
-                SegmentedButton(
-                    selected = mode == currentMode,
-                    onClick = { if (mode != currentMode) onModeChange(mode) },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                    enabled = true,
-                    label = {
-                        Text(
-                            text = when (mode) {
-                                InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default)
-                                InstallMode.SHIZUKU -> stringResource(R.string.setting_install_mode_shizuku)
-                                InstallMode.ROOT -> stringResource(R.string.setting_install_mode_root)
-                            },
-                            color = if (dim)
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            else
-                                androidx.compose.ui.graphics.Color.Unspecified,
-                        )
-                    },
-                )
-            }
-        }
-        val statusText = if (overriddenByDhizuku) {
-            stringResource(R.string.setting_install_mode_overridden_by_dhizuku)
-        } else when (currentMode) {
-            InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default_sub)
-            InstallMode.SHIZUKU -> when (shizukuState) {
-                ShizukuState.NOT_INSTALLED -> stringResource(R.string.setting_shizuku_not_installed)
-                ShizukuState.NOT_RUNNING -> stringResource(R.string.setting_shizuku_not_running)
-                ShizukuState.UNSUPPORTED -> stringResource(R.string.setting_shizuku_unsupported)
-                ShizukuState.NO_PERMISSION -> stringResource(R.string.setting_shizuku_no_permission)
-                ShizukuState.READY -> stringResource(R.string.setting_shizuku_ready)
-            }
-            InstallMode.ROOT -> when (rootState) {
-                RootState.UNAVAILABLE -> "Unavailable"
-                RootState.UNKNOWN -> "Checking..."
-                RootState.DENIED -> "Denied"
-                RootState.READY -> "Ready"
-                else -> "Not Rooted"
-            }
-        }
-        Text(
-            text = statusText,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-    }
-}
-
-
-/**
- * Normal vs Strict, as a segmented pair rather than a switch.
- *
- * A switch labelled "strict check" said nothing about what normal was, and the pushy Scan button
- * was on regardless — including for the many users with no API key at all. Two named levels make
- * the trade explicit and let Normal actually mean "stay out of the way".
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SecurityLevelSelector(
-    current: SecurityLevel,
-    onChange: (SecurityLevel) -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Text(
-            text = stringResource(R.string.setting_security_level_title),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            SecurityLevel.entries.forEachIndexed { index, level ->
-                SegmentedButton(
-                    selected = level == current,
-                    onClick = { if (level != current) onChange(level) },
-                    shape = SegmentedButtonDefaults.itemShape(
-                        index = index,
-                        count = SecurityLevel.entries.size,
-                    ),
-                    label = {
-                        Text(
-                            when (level) {
-                                SecurityLevel.Normal -> stringResource(R.string.setting_security_normal)
-                                SecurityLevel.Strict -> stringResource(R.string.setting_security_strict)
-                            }
-                        )
-                    },
-                )
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = when (current) {
-                SecurityLevel.Normal -> stringResource(R.string.setting_security_normal_sub)
-                SecurityLevel.Strict -> stringResource(R.string.setting_security_strict_sub)
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-
-
-
-
-

@@ -1,180 +1,47 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
 package app.pwhs.universalinstaller.presentation.manage
 
-
 import android.app.Application
-import android.net.Uri
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.documentfile.provider.DocumentFile
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.data.local.UninstallLogDao
-import app.pwhs.universalinstaller.data.local.UninstallLogEntity
+import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import app.pwhs.universalinstaller.domain.model.InstalledApp
-import app.pwhs.core.install.ApkExtractor
+import app.pwhs.universalinstaller.domain.provider.PrivilegedExecutor
+import app.pwhs.universalinstaller.domain.provider.PrivilegedProvider
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
-import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuShellExecutor
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
-import app.pwhs.universalinstaller.domain.provider.PrivilegedExecutor
+import app.pwhs.universalinstaller.presentation.manage.util.InstalledAppsLoader
 import app.pwhs.universalinstaller.presentation.manage.util.ManageExtractHelper
+import app.pwhs.universalinstaller.presentation.manage.util.ManageFilterHelper
+import app.pwhs.universalinstaller.presentation.manage.util.ManagePrivilegedActionHelper
+import app.pwhs.universalinstaller.presentation.manage.util.ManageUninstallHelper
 import app.pwhs.universalinstaller.presentation.manage.util.ManageUsageStatsHelper
-import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
-import app.pwhs.core.data.local.dataStore
-import app.pwhs.universalinstaller.util.AndroidAutoCompat
-import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
-import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.solrudev.ackpine.uninstaller.PackageUninstaller
-import ru.solrudev.ackpine.uninstaller.createSession
-import ru.solrudev.ackpine.session.await
-import ru.solrudev.ackpine.session.Session
-import ru.solrudev.ackpine.session.parameters.Confirmation
-import ru.solrudev.ackpine.shizuku.shizuku
-import timber.log.Timber
-
-enum class UninstallSortBy { Name, Size, InstalledAt, LastUpdated, LastUsed }
-enum class SortDirection { Asc, Desc }
-
-/**
- * Per-app category used by the filter chips. An app is exactly one category at a time —
- * Disabled wins over System / User because a disabled app has its main entry point gone
- * regardless of where its APK lives.
- */
-/**
- * User/System are a pair — with neither selected, both types show. Disabled and Blocked are
- * independent switches layered on top, each narrowing the list to that state.
- */
-enum class AppFilter { User, System, Disabled, Blocked }
-enum class GroupBy { None, Installer }
-
-data class StorageBreakdown(
-    val appBytes: Long,
-    val dataBytes: Long,
-    val cacheBytes: Long,
-) {
-    val totalBytes: Long get() = appBytes + dataBytes + cacheBytes
-}
-
-/** Usage time per day for the last N days, oldest → newest. Empty list if no data. */
-data class UsageBucket(
-    val dayStartMillis: Long,
-    val foregroundMillis: Long,
-)
-
-
-
-/**
- * Surfaced to the UI when the pending uninstall touches one or more system apps. The UI
- * renders either a single-app warning (with 2 method options) or a batch breakdown
- * ("N user + K system apps — pick method for system").
- */
-sealed interface SystemAppPrompt {
-    data class Single(val pkg: String, val appName: String) : SystemAppPrompt
-    data class Batch(
-        val systemApps: List<Pair<String, String>>,   // pkg → appName
-        val userApps: List<Pair<String, String>>,
-    ) : SystemAppPrompt
-
-    /** Shown when neither Root nor Shizuku is ready to handle system-app removal. */
-    data class PrivilegedRequired(
-        val systemApps: List<Pair<String, String>>,
-        val userAppsAvailable: List<String>,         // optional normal uninstall path
-    ) : SystemAppPrompt
-}
-
-/**
- * Backup → save to public Download/.../Extracted, snackbar with "Open folder" action.
- * Share  → save to cacheDir, fire ACTION_SEND chooser as soon as the copy completes.
- */
-enum class ExtractMode { Backup, Share, Server, Reinstall }
-
-sealed interface ExtractState {
-    data object Idle : ExtractState
-    data class Running(
-        val packageName: String,
-        val appName: String,
-        val bytesCopied: Long,
-        val totalBytes: Long,
-        val mode: ExtractMode,
-    ) : ExtractState
-    data class Done(
-        val appName: String,
-        val uri: android.net.Uri,
-        val mode: ExtractMode,
-    ) : ExtractState
-    data class Error(
-        val appName: String,
-        val message: String,
-        val mode: ExtractMode,
-    ) : ExtractState
-}
-
-/** Progress for a bulk extract over the current selection. */
-sealed interface BatchExtractState {
-    data object Idle : BatchExtractState
-    data class Running(
-        val completed: Int,
-        val total: Int,
-        val currentName: String,
-        val bytesCopied: Long,
-        val totalBytes: Long,
-    ) : BatchExtractState
-    data class Done(val success: Int, val failed: Int) : BatchExtractState
-}
-
-/**
- * One-shot snackbar payload for privileged actions (force-stop, disable/enable). Cleared
- * after the UI consumes it via `dismissPrivilegedActionResult`.
- */
-sealed interface PrivilegedActionResult {
-    val message: String
-    data class Success(override val message: String) : PrivilegedActionResult
-    data class Failure(override val message: String) : PrivilegedActionResult
-}
-
-data class ManageUiState(
-    val apps: List<InstalledApp> = emptyList(),
-    val filteredApps: List<InstalledApp> = emptyList(),
-    val searchQuery: String = "",
-    val isLoading: Boolean = true,
-    val isRefreshing: Boolean = false,
-    val appFilter: Set<AppFilter> = setOf(AppFilter.User),
-    val selectedPackages: Set<String> = emptySet(),
-    val isSelectionMode: Boolean = false,
-    val isAllSelected: Boolean = false,
-    val sortBy: UninstallSortBy = UninstallSortBy.Name,
-    val sortDirection: SortDirection = SortDirection.Asc,
-    val groupBy: GroupBy = GroupBy.None,
-    val usageAccessGranted: Boolean = false,
-    val systemAppPrompt: SystemAppPrompt? = null,
-    val extractState: ExtractState = ExtractState.Idle,
-    val batchExtractState: BatchExtractState = BatchExtractState.Idle,
-    /** True when Root or Shizuku is currently ready to run shell commands. */
-    val privilegedReady: Boolean = false,
-    val privilegedActionResult: PrivilegedActionResult? = null,
-)
+import java.io.File
 
 class ManageViewModel(
     private val application: Application,
     private val packageUninstaller: PackageUninstaller,
     private val uninstallLogDao: UninstallLogDao,
     private val backendFactory: InstallerBackendFactory,
-    private val privilegedProvider: app.pwhs.universalinstaller.domain.provider.PrivilegedProvider,
+    private val privilegedProvider: PrivilegedProvider,
 ) : ViewModel() {
 
     private val notifier = UninstallNotifier(application)
@@ -195,130 +62,65 @@ class ManageViewModel(
     private val _privilegedReady = MutableStateFlow(false)
     private val _privilegedActionResult = MutableStateFlow<PrivilegedActionResult?>(null)
 
-    private var extractJob: kotlinx.coroutines.Job? = null
+    private var extractJob: Job? = null
 
-    /**
-     * Blocked package names. Kept as its own flow rather than a field on [InstalledApp]: the
-     * blacklist changes independently of the app scan, and folding it into the model would mean
-     * re-scanning every package just to repaint one badge.
-     */
     val blacklist: StateFlow<Set<String>> = application.dataStore.data
         .map { InstallBlacklist.read(it) }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptySet())
 
     val uiState: StateFlow<ManageUiState> = combine(
-        listOf(_apps, _searchQuery, _isLoading, _appFilter, _selectedPackages,
+        listOf(
+            _apps, _searchQuery, _isLoading, _appFilter, _selectedPackages,
             _sortBy, _sortDirection, _usageAccess, _systemAppPrompt, _extractState,
             _privilegedReady, _privilegedActionResult, _groupBy, _batchExtractState, _isRefreshing,
-            blacklist)
-    ) { flows ->
-        @Suppress("UNCHECKED_CAST")
-        val apps = flows[0] as List<InstalledApp>
-        val query = flows[1] as String
-        val loading = flows[2] as Boolean
-        @Suppress("UNCHECKED_CAST")
-        val appFilter = flows[3] as Set<AppFilter>
-        @Suppress("UNCHECKED_CAST")
-        val selected = flows[4] as Set<String>
-        val sortBy = flows[5] as UninstallSortBy
-        val direction = flows[6] as SortDirection
-        val usage = flows[7] as Boolean
-        val prompt = flows[8] as SystemAppPrompt?
-        val extract = flows[9] as ExtractState
-        val privReady = flows[10] as Boolean
-        val privResult = flows[11] as PrivilegedActionResult?
-        val groupBy = flows[12] as GroupBy
-        val batchExtract = flows[13] as BatchExtractState
-        val refreshing = flows[14] as Boolean
-        @Suppress("UNCHECKED_CAST")
-        val blocked = flows[15] as Set<String>
-        val filtered = apps
-            .filter { app ->
-                val typeFilters = appFilter.filter { it == AppFilter.User || it == AppFilter.System }
-                val matchesType = if (typeFilters.isEmpty()) {
-                    true
-                } else {
-                    (AppFilter.User in appFilter && !app.isSystemApp) ||
-                    (AppFilter.System in appFilter && app.isSystemApp)
-                }
-
-                val matchesState = if (AppFilter.Disabled in appFilter) {
-                    !app.enabled
-                } else {
-                    app.enabled
-                }
-
-                // Independent of type/state: narrows to blocked packages when on, and never
-                // hides them otherwise — a blocked app still belongs in the normal list.
-                if (AppFilter.Blocked in appFilter && app.packageName !in blocked) return@filter false
-
-                if (!(matchesType && matchesState)) return@filter false
-
-                if (query.isBlank()) return@filter true
-                app.appName.contains(query, ignoreCase = true) ||
-                        app.packageName.contains(query, ignoreCase = true)
-            }
-            .let { applySort(it, sortBy, direction) }
-        ManageUiState(
-            apps = apps,
-            filteredApps = filtered,
-            searchQuery = query,
-            isLoading = loading,
-            isRefreshing = refreshing,
-            appFilter = appFilter,
-            selectedPackages = selected,
-            isSelectionMode = selected.isNotEmpty(),
-            isAllSelected = filtered.isNotEmpty() && selected.containsAll(filtered.map { it.packageName }.toSet()),
-            sortBy = sortBy,
-            sortDirection = direction,
-            groupBy = groupBy,
-            usageAccessGranted = usage,
-            systemAppPrompt = prompt,
-            extractState = extract,
-            batchExtractState = batchExtract,
-            privilegedReady = privReady,
-            privilegedActionResult = privResult,
+            blacklist
         )
+    ) { flows ->
+        ManageFilterHelper.buildManageUiState(flows)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ManageUiState())
+
+    init {
+        _usageAccess.value = hasUsageAccess()
+        viewModelScope.launch {
+            val savedPrefs = ManageFilterHelper.loadFilterPreferences(application)
+            _sortBy.value = savedPrefs.sortBy
+            _sortDirection.value = savedPrefs.sortDirection
+            _groupBy.value = savedPrefs.groupBy
+            _appFilter.value = savedPrefs.appFilter
+        }
+        loadInstalledApps()
+        refreshPrivilegedReady()
+    }
+
+    // ── Extraction Actions ──────────────────────────────────────────────────
 
     fun extractApp(packageName: String, appName: String) {
         runExtraction(packageName, appName, ExtractMode.Backup, outputDir = null)
     }
 
-    /**
-     * Extract into `cacheDir/share` so the file is gone next time the OS clears caches —
-     * this isn't user-visible storage, just a one-shot intermediate for the share intent.
-     */
     fun shareApp(packageName: String, appName: String) {
-        val shareDir = java.io.File(application.cacheDir, "share").apply { mkdirs() }
-        // Best-effort cleanup so old share blobs from previous runs don't accumulate.
+        val shareDir = File(application.cacheDir, "share").apply { mkdirs() }
         shareDir.listFiles()?.forEach { runCatching { it.delete() } }
         runExtraction(packageName, appName, ExtractMode.Share, outputDir = shareDir)
     }
 
-    /**
-     * Extract into `cacheDir/reinstall` to be picked up by the reinstall intent.
-     */
     fun reinstallApp(packageName: String, appName: String) {
-        val reinstallDir = java.io.File(application.cacheDir, "reinstall").apply { mkdirs() }
+        val reinstallDir = File(application.cacheDir, "reinstall").apply { mkdirs() }
         reinstallDir.listFiles()?.forEach { runCatching { it.delete() } }
         runExtraction(packageName, appName, ExtractMode.Reinstall, outputDir = reinstallDir)
     }
 
-    /**
-     * Launch browser to check VirusTotal detection for the base APK sha256.
-     */
     fun scanVirusTotal(context: android.content.Context, app: InstalledApp) {
         viewModelScope.launch {
             ManageExtractHelper.scanVirusTotal(context, app)
         }
     }
 
-    /**
-     * Extract directly to the folder served by the local HTTP sharing server.
-     */
     fun addToServer(packageName: String, appName: String) {
-        val serverDir = java.io.File(android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS), "Universal Installer").apply { mkdirs() }
+        val serverDir = File(
+            android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS),
+            "Universal Installer"
+        ).apply { mkdirs() }
         runExtraction(packageName, appName, ExtractMode.Server, outputDir = serverDir)
     }
 
@@ -326,30 +128,22 @@ class ManageViewModel(
         packageName: String,
         appName: String,
         mode: ExtractMode,
-        outputDir: java.io.File?,
+        outputDir: File?,
     ) {
         if (_extractState.value is ExtractState.Running) return
         if (_batchExtractState.value is BatchExtractState.Running) return
-        // Only a real backup counts. Share / Server / Reinstall run the same extractor but are
-        // steps inside other flows, not the feature a user would say they used.
         if (mode == ExtractMode.Backup) Telemetry.feature(TelemetryEvents.FEATURE_APK_BACKUP)
         extractJob?.cancel()
         _extractState.value = ExtractState.Running(packageName, appName, 0L, 1L, mode)
         extractJob = viewModelScope.launch {
-            // Share / Server / Reinstall target an app-managed cache or server dir; only
-            // Backup honours the user's configured output path.
-            val useConfiguredPath = mode == ExtractMode.Backup
-            val result = ManageExtractHelper.performExtract(
+            _extractState.value = ManageExtractHelper.extractApp(
                 context = application,
                 packageName = packageName,
-                cacheOutputDir = outputDir,
-                useConfiguredPath = useConfiguredPath,
+                appName = appName,
+                mode = mode,
+                outputDir = outputDir,
             ) { bytes, total ->
                 _extractState.value = ExtractState.Running(packageName, appName, bytes, total, mode)
-            }
-            _extractState.value = when (result) {
-                is ApkExtractor.Result.Success -> ExtractState.Done(appName, result.uri, mode)
-                is ApkExtractor.Result.Failure -> ExtractState.Error(appName, result.message, mode)
             }
         }
     }
@@ -358,13 +152,6 @@ class ManageViewModel(
         _extractState.value = ExtractState.Idle
     }
 
-    // ── Bulk extract (selection mode) ───────────────────────────────────────
-    //
-    // Extracts every selected app to the configured backup output path, one at a time so a
-    // 30-app batch doesn't try to open 30 output streams at once. Progress is reported at the
-    // batch level (N of M) with the current file's byte progress; a single summary snackbar
-    // fires at the end rather than one per app.
-
     fun extractSelected() {
         val packages = _selectedPackages.value.toList()
         if (packages.isEmpty()) return
@@ -372,43 +159,14 @@ class ManageViewModel(
         if (_batchExtractState.value is BatchExtractState.Running) return
         _selectedPackages.value = emptySet()
 
-        val lookup = _apps.value.associateBy { it.packageName }
         extractJob = viewModelScope.launch {
-            var success = 0
-            var failed = 0
-            val total = packages.size
-            packages.forEachIndexed { index, pkg ->
-                val name = lookup[pkg]?.appName ?: pkg
-                _batchExtractState.value = BatchExtractState.Running(
-                    completed = index,
-                    total = total,
-                    currentName = name,
-                    bytesCopied = 0L,
-                    totalBytes = 1L,
-                )
-                val result = ManageExtractHelper.performExtract(
-                    context = application,
-                    packageName = pkg,
-                    cacheOutputDir = null,
-                    useConfiguredPath = true,
-                ) { bytes, totalBytes ->
-                    _batchExtractState.value = BatchExtractState.Running(
-                        completed = index,
-                        total = total,
-                        currentName = name,
-                        bytesCopied = bytes,
-                        totalBytes = totalBytes,
-                    )
-                }
-                when (result) {
-                    is ApkExtractor.Result.Success -> success++
-                    is ApkExtractor.Result.Failure -> {
-                        failed++
-                        Timber.w("Bulk extract failed for $pkg: ${result.message}")
-                    }
-                }
+            _batchExtractState.value = ManageExtractHelper.extractBatch(
+                context = application,
+                packages = packages,
+                apps = _apps.value,
+            ) { progress ->
+                _batchExtractState.value = progress
             }
-            _batchExtractState.value = BatchExtractState.Done(success = success, failed = failed)
         }
     }
 
@@ -416,13 +174,8 @@ class ManageViewModel(
         _batchExtractState.value = BatchExtractState.Idle
     }
 
-    // ── Privileged actions ──────────────────────────────────────────────────
+    // ── Privileged Actions ──────────────────────────────────────────────────
 
-    /**
-     * Re-evaluate whether Root or Shizuku is currently usable so the action sheet can
-     * show/hide the Force-stop and Disable rows accordingly. Cheap (just probes the cached
-     * binder + DataStore prefs) so it's safe to call from `init` and after settings changes.
-     */
     fun refreshPrivilegedReady() {
         viewModelScope.launch {
             _privilegedReady.value = privilegedProvider.resolveExecutor() != null
@@ -431,98 +184,28 @@ class ManageViewModel(
 
     fun openAppPrivileged(packageName: String, appName: String) {
         viewModelScope.launch {
-            val executor = privilegedProvider.resolveExecutor()
-            if (executor == null) {
-                _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                    application.getString(R.string.manage_privileged_unavailable)
-                )
-                return@launch
-            }
-            val result = when (executor) {
-                PrivilegedExecutor.Root -> backendFactory.launchAppViaRoot(packageName)
-                PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.launchApp(packageName)
-            }
-            if (!result.isSuccess) {
-                _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                    "Launch failed: ${result.exceptionOrNull()?.message ?: "unknown error"}"
-                )
-            }
+            _privilegedActionResult.value = ManagePrivilegedActionHelper.openAppPrivileged(
+                application, packageName, appName, privilegedProvider, backendFactory
+            )
         }
     }
 
     fun forceStop(packageName: String, appName: String) {
-        // Block self-stop — we'd kill the very process running the bottom sheet, leaving the
-        // user staring at a frozen UI until system_server force-resumes us.
-        if (packageName == application.packageName) {
-            _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                application.getString(R.string.manage_action_force_stop_self_blocked)
-            )
-            return
-        }
         viewModelScope.launch {
-            val executor = privilegedProvider.resolveExecutor()
-            if (executor == null) {
-                _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                    application.getString(R.string.manage_privileged_unavailable)
-                )
-                return@launch
-            }
-            val result = when (executor) {
-                PrivilegedExecutor.Root -> backendFactory.forceStopViaRoot(packageName)
-                PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.forceStop(packageName)
-            }
-            _privilegedActionResult.value = if (result.isSuccess) {
-                PrivilegedActionResult.Success(
-                    application.getString(R.string.manage_action_force_stop_done, appName)
-                )
-            } else {
-                PrivilegedActionResult.Failure(
-                    application.getString(
-                        R.string.manage_action_force_stop_failed,
-                        result.exceptionOrNull()?.message ?: "unknown error",
-                    )
-                )
-            }
+            _privilegedActionResult.value = ManagePrivilegedActionHelper.forceStop(
+                application, packageName, appName, privilegedProvider, backendFactory
+            )
         }
     }
 
     fun setEnabled(packageName: String, appName: String, enabled: Boolean) {
-        if (packageName == application.packageName) {
-            _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                application.getString(R.string.manage_action_disable_self_blocked)
-            )
-            return
-        }
         viewModelScope.launch {
-            val executor = privilegedProvider.resolveExecutor()
-            if (executor == null) {
-                _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                    application.getString(R.string.manage_privileged_unavailable)
-                )
-                return@launch
-            }
-            val result = when (executor) {
-                PrivilegedExecutor.Root -> backendFactory.setEnabledViaRoot(packageName, enabled)
-                PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.setEnabled(packageName, enabled)
-            }
-            if (result.isSuccess) {
-                _privilegedActionResult.value = PrivilegedActionResult.Success(
-                    application.getString(
-                        if (enabled) R.string.manage_action_enable_done
-                        else R.string.manage_action_disable_done,
-                        appName,
-                    )
-                )
-                // Refresh so the row's enabled flag reflects the new state.
+            val result = ManagePrivilegedActionHelper.setEnabled(
+                application, packageName, appName, enabled, privilegedProvider, backendFactory
+            )
+            _privilegedActionResult.value = result
+            if (result is PrivilegedActionResult.Success) {
                 loadInstalledApps()
-            } else {
-                _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                    application.getString(
-                        if (enabled) R.string.manage_action_enable_failed
-                        else R.string.manage_action_disable_failed,
-                        result.exceptionOrNull()?.message ?: "unknown error",
-                    )
-                )
             }
         }
     }
@@ -531,18 +214,9 @@ class ManageViewModel(
         _privilegedActionResult.value = null
     }
 
-    // ── Batch privileged actions (selection mode) ───────────────────────────
-    //
-    // Force-stop / disable / clear-data over the whole selection. Unlike the single-app
-    // entry points above, these resolve the privileged executor exactly ONCE (so a
-    // select-all batch can't trigger repeated su prompts mid-loop), skip our own package
-    // silently (select-all includes us), and emit a single summary snackbar instead of
-    // letting N results clobber each other. System-vs-user doesn't matter here — `pm`/`am`
-    // shell commands treat them the same — so there's no system-app prompt.
-
     fun disableSelected() = runPrivilegedBatch(
         actionLabelRes = R.string.manage_batch_action_disable,
-        reloadAfter = true, // enabled flag changes → row needs a refresh
+        reloadAfter = true,
     ) { executor, pkg ->
         when (executor) {
             PrivilegedExecutor.Root -> backendFactory.setEnabledViaRoot(pkg, false)
@@ -579,43 +253,13 @@ class ManageViewModel(
         if (packages.isEmpty()) return
         _selectedPackages.value = emptySet()
         viewModelScope.launch {
-            val executor = privilegedProvider.resolveExecutor()
-            if (executor == null) {
-                _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                    application.getString(R.string.manage_privileged_unavailable)
-                )
-                return@launch
-            }
-            var success = 0
-            var failed = 0
-            for (pkg in packages) {
-                if (pkg == application.packageName) continue // never act on ourselves
-                if (op(executor, pkg).isSuccess) success++ else failed++
-            }
+            _privilegedActionResult.value = ManagePrivilegedActionHelper.runPrivilegedBatch(
+                application, packages, actionLabelRes, privilegedProvider, op
+            )
             if (reloadAfter) loadInstalledApps()
-            val label = application.getString(actionLabelRes)
-            _privilegedActionResult.value = if (failed == 0) {
-                PrivilegedActionResult.Success(
-                    application.getString(R.string.manage_batch_result_success, label, success)
-                )
-            } else {
-                PrivilegedActionResult.Failure(
-                    application.getString(R.string.manage_batch_result_partial, label, success, failed)
-                )
-            }
         }
     }
 
-    /**
-     * Lazy storage-stats lookup. Cheap when the user holds Usage Access (single binder
-     * call), so we run it only when the action sheet opens — not when the list loads,
-     * where 300+ apps × IPC would visibly stall the screen.
-     */
-    /**
-     * Last 7 daily foreground-time buckets for [packageName]. Returns an empty list when
-     * the user hasn't granted Usage access — UI hides the chart in that case rather than
-     * showing a spinner-then-nothing transition.
-     */
     suspend fun queryUsageBuckets(packageName: String): List<UsageBucket> =
         ManageUsageStatsHelper.queryUsageBuckets(application, packageName)
 
@@ -623,56 +267,21 @@ class ManageViewModel(
         ManageUsageStatsHelper.queryStorageStats(application, packageName)
 
     fun clearAllData(packageName: String, appName: String) {
-        // Don't let the user nuke our own data — we'd lose the install history they're
-        // probably looking at this very moment, plus they've got "Uninstall" two rows down.
-        if (packageName == application.packageName) {
-            _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                application.getString(R.string.manage_action_clear_data_self_blocked)
-            )
-            return
-        }
         viewModelScope.launch {
-            val executor = privilegedProvider.resolveExecutor()
-            if (executor == null) {
-                _privilegedActionResult.value = PrivilegedActionResult.Failure(
-                    application.getString(R.string.manage_privileged_unavailable)
-                )
-                return@launch
-            }
-            val result = when (executor) {
-                PrivilegedExecutor.Root -> backendFactory.clearAppDataViaRoot(packageName)
-                PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.clearAppData(packageName)
-            }
-            _privilegedActionResult.value = if (result.isSuccess) {
-                PrivilegedActionResult.Success(
-                    application.getString(R.string.manage_action_clear_data_done, appName)
-                )
-            } else {
-                PrivilegedActionResult.Failure(
-                    application.getString(
-                        R.string.manage_action_clear_data_failed,
-                        result.exceptionOrNull()?.message ?: "unknown error",
-                    )
-                )
-            }
+            _privilegedActionResult.value = ManagePrivilegedActionHelper.clearAllData(
+                application, packageName, appName, privilegedProvider, backendFactory
+            )
         }
     }
 
-    private fun applySort(
-        list: List<InstalledApp>,
-        sortBy: UninstallSortBy,
-        direction: SortDirection,
-    ): List<InstalledApp> =
-        app.pwhs.universalinstaller.presentation.manage.util.ManageFilterHelper.applySort(list, sortBy, direction)
+    // ── Filter & Search ─────────────────────────────────────────────────────
 
     fun setSort(sortBy: UninstallSortBy) {
         if (_sortBy.value == sortBy) {
-            // Same axis: flip direction
             _sortDirection.value =
                 if (_sortDirection.value == SortDirection.Asc) SortDirection.Desc else SortDirection.Asc
         } else {
             _sortBy.value = sortBy
-            // Sensible defaults: Name → Asc (A-Z), Size/date/usage → Desc (big/recent first)
             _sortDirection.value = if (sortBy == UninstallSortBy.Name) SortDirection.Asc else SortDirection.Desc
         }
         persistFilterSheetState()
@@ -685,49 +294,11 @@ class ManageViewModel(
     private fun hasUsageAccess(): Boolean =
         ManageUsageStatsHelper.hasUsageAccess(application)
 
-    init {
-        _usageAccess.value = hasUsageAccess()
-        // Restore the filter sheet's last-known state before the first list emission so we
-        // don't flash the default sort/filter for a frame on launch.
-        viewModelScope.launch {
-            runCatching {
-                val prefs = application.dataStore.data.first()
-                prefs[PreferencesKeys.MANAGE_SORT_BY]
-                    ?.let { name -> UninstallSortBy.entries.firstOrNull { it.name == name } }
-                    ?.let { _sortBy.value = it }
-                prefs[PreferencesKeys.MANAGE_SORT_DIRECTION]
-                    ?.let { name -> SortDirection.entries.firstOrNull { it.name == name } }
-                    ?.let { _sortDirection.value = it }
-                prefs[PreferencesKeys.MANAGE_GROUP_BY]
-                    ?.let { name -> GroupBy.entries.firstOrNull { it.name == name } }
-                    ?.let { _groupBy.value = it }
-                prefs[PreferencesKeys.MANAGE_APP_FILTER]
-                    ?.mapNotNull { name -> AppFilter.entries.firstOrNull { it.name == name } }
-                    ?.toSet()
-                    ?.takeIf { it.isNotEmpty() }
-                    ?.let { _appFilter.value = it }
-            }
-        }
-        loadInstalledApps()
-        refreshPrivilegedReady()
-    }
-
-    /**
-     * Persists the current filter sheet state. Fire-and-forget; failures are swallowed
-     * because a write failure shouldn't block the UI update — the in-memory flow has
-     * already moved on. Worst case the user re-opens with stale prefs.
-     */
     private fun persistFilterSheetState() {
         viewModelScope.launch {
-            runCatching {
-                application.dataStore.edit { prefs ->
-                    prefs[PreferencesKeys.MANAGE_SORT_BY] = _sortBy.value.name
-                    prefs[PreferencesKeys.MANAGE_SORT_DIRECTION] = _sortDirection.value.name
-                    prefs[PreferencesKeys.MANAGE_GROUP_BY] = _groupBy.value.name
-                    prefs[PreferencesKeys.MANAGE_APP_FILTER] =
-                        _appFilter.value.map { it.name }.toSet()
-                }
-            }
+            ManageFilterHelper.saveFilterPreferences(
+                application, _sortBy.value, _sortDirection.value, _groupBy.value, _appFilter.value
+            )
         }
     }
 
@@ -735,11 +306,6 @@ class ManageViewModel(
         _searchQuery.value = query
     }
 
-    /**
-     * Toggle [filter] in the active set. Refuses to leave the user with an empty filter
-     * (the screen would just show "no apps" with no easy way back) — at least one chip
-     * stays selected.
-     */
     fun toggleAppFilter(filter: AppFilter) {
         val current = _appFilter.value
         val next = if (filter in current) current - filter else current + filter
@@ -753,11 +319,6 @@ class ManageViewModel(
         persistFilterSheetState()
     }
 
-    /**
-     * Restore the filter sheet to its launch defaults: User-only filter, sort by Name asc,
-     * no grouping. We don't touch the search query or selection — those belong to a separate
-     * UI surface and resetting them here would surprise the user.
-     */
     fun resetFilters() {
         _sortBy.value = UninstallSortBy.Name
         _sortDirection.value = SortDirection.Asc
@@ -765,6 +326,8 @@ class ManageViewModel(
         _appFilter.value = setOf(AppFilter.User)
         persistFilterSheetState()
     }
+
+    // ── Selection & Blacklist ───────────────────────────────────────────────
 
     fun toggleSelection(packageName: String) {
         _selectedPackages.value = _selectedPackages.value.toMutableSet().apply {
@@ -781,40 +344,6 @@ class ManageViewModel(
         _selectedPackages.value = if (_selectedPackages.value == allPackages) emptySet() else allPackages
     }
 
-    fun uninstallSelected() {
-        val packages = _selectedPackages.value.toList()
-        if (packages.isEmpty()) return
-        if (packages.size == 1) {
-            _selectedPackages.value = emptySet()
-            uninstallApp(packages.first())
-            return
-        }
-
-        val (systemApps, userApps) = partitionByKind(packages)
-        if (systemApps.isEmpty()) {
-            // Normal batch flow — clear selection and run.
-            _selectedPackages.value = emptySet()
-            viewModelScope.launch { runBatchUninstall(userApps.map { it.first }) }
-            return
-        }
-
-        // Keep selection visible behind the dialog — user may cancel and want to edit.
-        viewModelScope.launch {
-            _systemAppPrompt.value = if (privilegedProvider.resolveExecutor() == null) {
-                SystemAppPrompt.PrivilegedRequired(
-                    systemApps = systemApps,
-                    userAppsAvailable = userApps.map { it.first },
-                )
-            } else {
-                SystemAppPrompt.Batch(systemApps = systemApps, userApps = userApps)
-            }
-        }
-    }
-
-    /**
-     * Add or remove [packageName] from the never-install list. Does not uninstall — the two are
-     * separate actions, and blocking something you have not removed yet is legitimate.
-     */
     fun toggleBlockPackage(packageName: String) {
         if (packageName.isBlank()) return
         val wasBlocked = packageName in blacklist.value
@@ -841,6 +370,36 @@ class ManageViewModel(
         }
     }
 
+    // ── Uninstall Operations ────────────────────────────────────────────────
+
+    fun uninstallSelected() {
+        val packages = _selectedPackages.value.toList()
+        if (packages.isEmpty()) return
+        if (packages.size == 1) {
+            _selectedPackages.value = emptySet()
+            uninstallApp(packages.first())
+            return
+        }
+
+        val (systemApps, userApps) = ManageUninstallHelper.partitionByKind(packages, _apps.value)
+        if (systemApps.isEmpty()) {
+            _selectedPackages.value = emptySet()
+            viewModelScope.launch { runBatchUninstall(userApps.map { it.first }) }
+            return
+        }
+
+        viewModelScope.launch {
+            _systemAppPrompt.value = if (privilegedProvider.resolveExecutor() == null) {
+                SystemAppPrompt.PrivilegedRequired(
+                    systemApps = systemApps,
+                    userAppsAvailable = userApps.map { it.first },
+                )
+            } else {
+                SystemAppPrompt.Batch(systemApps = systemApps, userApps = userApps)
+            }
+        }
+    }
+
     fun uninstallApp(packageName: String) {
         Telemetry.feature(TelemetryEvents.FEATURE_UNINSTALL)
         val app = _apps.value.firstOrNull { it.packageName == packageName }
@@ -859,71 +418,39 @@ class ManageViewModel(
         }
 
         viewModelScope.launch {
-            val opts = readUninstallOptions()
             val appName = app?.appName ?: packageName
-            val notifId = notifier.notifySingleStart(appName)
-            val ok = performUninstall(packageName, opts)
-            notifier.notifySingleResult(notifId, appName, success = ok)
+            ManageUninstallHelper.uninstallSingle(
+                context = application,
+                packageName = packageName,
+                appName = appName,
+                packageUninstaller = packageUninstaller,
+                uninstallLogDao = uninstallLogDao,
+                notifier = notifier,
+                onSuccess = { _apps.value = _apps.value.filter { it.packageName != packageName } }
+            )
         }
     }
 
-    /** UI calls this when the user picks a method + confirms the system-app dialog. */
     fun confirmSystemAppPrompt(systemMethod: SystemAppMethod?) {
         val prompt = _systemAppPrompt.value ?: return
         _systemAppPrompt.value = null
         _selectedPackages.value = emptySet()
 
         viewModelScope.launch {
-            // Resolve once up front so the batch doesn't ping the shell state mid-loop.
-            // Null is possible if the user revoked Root/Shizuku access between opening the
-            // dialog and pressing Continue — we bail cleanly in that case.
-            val executor = privilegedProvider.resolveExecutor()
-            when (prompt) {
-                is SystemAppPrompt.Single -> {
-                    if (systemMethod == null || executor == null) return@launch
-                    val notifId = notifier.notifySingleStart(prompt.appName)
-                    val ok = performSystemUninstall(prompt.pkg, prompt.appName, systemMethod, executor)
-                    notifier.notifySingleResult(notifId, prompt.appName, success = ok)
+            ManageUninstallHelper.handleSystemAppPromptConfirmation(
+                context = application,
+                prompt = prompt,
+                systemMethod = systemMethod,
+                privilegedProvider = privilegedProvider,
+                packageUninstaller = packageUninstaller,
+                uninstallLogDao = uninstallLogDao,
+                backendFactory = backendFactory,
+                notifier = notifier,
+                apps = _apps.value,
+                onAppRemoved = { removedPkg ->
+                    _apps.value = _apps.value.filter { it.packageName != removedPkg }
                 }
-                is SystemAppPrompt.Batch -> {
-                    val userPkgs = prompt.userApps.map { it.first }
-                    val systemPkgs = prompt.systemApps
-                    val runSystem = systemMethod != null && executor != null
-                    val totalToRun = userPkgs.size + (if (runSystem) systemPkgs.size else 0)
-                    if (totalToRun == 0) return@launch
-                    val notifId = notifier.notifyBatchStart(totalToRun)
-                    var successful = 0
-                    var failed = 0
-                    var processed = 0
-
-                    // Regular uninstalls first — faster, and if the privileged path fails later
-                    // the user still got the easy work done.
-                    val opts = readUninstallOptions()
-                    for (pkg in userPkgs) {
-                        val name = _apps.value.firstOrNull { it.packageName == pkg }?.appName ?: pkg
-                        notifier.notifyBatchProgress(notifId, completed = processed, total = totalToRun, currentAppName = name)
-                        if (performUninstall(pkg, opts)) successful++ else failed++
-                        processed++
-                    }
-                    // Smart-cast requires re-reading the params as locals — Kotlin can't track
-                    // the nullability of method/executor across the suspend boundary otherwise.
-                    if (runSystem) {
-                        for ((pkg, name) in systemPkgs) {
-                            notifier.notifyBatchProgress(notifId, completed = processed, total = totalToRun, currentAppName = name)
-                            if (performSystemUninstall(pkg, name, systemMethod, executor)) successful++ else failed++
-                            processed++
-                        }
-                    }
-                    notifier.notifyBatchDone(notifId, successful = successful, failed = failed)
-                }
-                is SystemAppPrompt.PrivilegedRequired -> {
-                    // systemMethod is ignored — the UI only surfaces "proceed with user apps"
-                    // or "cancel". Pure system selections without a privileged backend no-op.
-                    if (prompt.userAppsAvailable.isNotEmpty()) {
-                        runBatchUninstall(prompt.userAppsAvailable)
-                    }
-                }
-            }
+            )
         }
     }
 
@@ -932,136 +459,17 @@ class ManageViewModel(
     }
 
     private suspend fun runBatchUninstall(packages: List<String>) {
-        Telemetry.feature(TelemetryEvents.FEATURE_UNINSTALL)
-        val opts = readUninstallOptions()
-        val total = packages.size
-        val notifId = notifier.notifyBatchStart(total)
-        var successful = 0
-        var failed = 0
-        packages.forEachIndexed { index, pkg ->
-            val appName = _apps.value.firstOrNull { it.packageName == pkg }?.appName ?: pkg
-            notifier.notifyBatchProgress(notifId, completed = index, total = total, currentAppName = appName)
-            val ok = performUninstall(pkg, opts)
-            if (ok) successful++ else failed++
-        }
-        notifier.notifyBatchDone(notifId, successful = successful, failed = failed)
-    }
-
-    private fun partitionByKind(packages: List<String>): Pair<
-        List<Pair<String, String>>,  // system: pkg → appName
-        List<Pair<String, String>>,  // user
-    > {
-        val lookup = _apps.value.associateBy { it.packageName }
-        val system = mutableListOf<Pair<String, String>>()
-        val user = mutableListOf<Pair<String, String>>()
-        for (pkg in packages) {
-            val app = lookup[pkg]
-            val entry = pkg to (app?.appName ?: pkg)
-            if (app?.isSystemApp == true) system += entry else user += entry
-        }
-        return system to user
-    }
-
-    private suspend fun performSystemUninstall(
-        packageName: String,
-        appName: String,
-        method: SystemAppMethod,
-        executor: PrivilegedExecutor,
-    ): Boolean {
-        val result = when (executor) {
-            PrivilegedExecutor.Root -> backendFactory.uninstallSystemAppViaRoot(packageName, method)
-            PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.uninstallSystemApp(packageName, method)
-        }
-        return if (result.isSuccess) {
-            Timber.d("System app removed via $executor/$method: $packageName")
-            // `pm uninstall --user 0` keeps the PackageManager entry around (it's still in
-            // /system) so getInstalledApplications keeps returning it. We hide it locally
-            // so the list feels responsive; it'll reappear on next reload if still present.
-            _apps.value = _apps.value.filter { it.packageName != packageName }
-            saveLog(packageName, appName, success = true, errorMessage = null)
-            true
-        } else {
-            val err = result.exceptionOrNull()?.message ?: "Privileged shell command failed"
-            Timber.e("System app removal failed ($executor/$method) for $packageName: $err")
-            saveLog(packageName, appName, success = false, errorMessage = err)
-            false
-        }
-    }
-
-    private data class UninstallOptions(
-        val useShizuku: Boolean,
-        val keepData: Boolean,
-        val allUsers: Boolean,
-    )
-
-    private suspend fun performUninstall(packageName: String, opts: UninstallOptions): Boolean {
-        val appName = _apps.value.firstOrNull { it.packageName == packageName }?.appName ?: packageName
-        return try {
-            val session = packageUninstaller.createSession(packageName) {
-                confirmation = Confirmation.IMMEDIATE
-                if (opts.useShizuku) {
-                    shizuku {
-                        keepData = opts.keepData
-                        allUsers = opts.allUsers
-                    }
-                }
+        ManageUninstallHelper.runBatchUninstall(
+            context = application,
+            packages = packages,
+            apps = _apps.value,
+            packageUninstaller = packageUninstaller,
+            uninstallLogDao = uninstallLogDao,
+            notifier = notifier,
+            onAppRemoved = { removedPkg ->
+                _apps.value = _apps.value.filter { it.packageName != removedPkg }
             }
-            when (val result = session.await()) {
-                Session.State.Succeeded -> {
-                    Timber.d("Uninstalled $packageName successfully")
-                    _apps.value = _apps.value.filter { it.packageName != packageName }
-                    saveLog(packageName, appName, success = true, errorMessage = null)
-                    true
-                }
-                is Session.State.Failed -> {
-                    val reason = result.failure.message?.takeIf { it.isNotBlank() }
-                        ?: "Uninstall failed (no reason reported)"
-                    Timber.e("Failed to uninstall $packageName — $reason")
-                    saveLog(packageName, appName, success = false, errorMessage = reason)
-                    false
-                }
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Error uninstalling $packageName")
-            saveLog(packageName, appName, success = false, errorMessage = e.message ?: e::class.java.simpleName)
-            false
-        }
-    }
-
-    private suspend fun saveLog(
-        packageName: String,
-        appName: String,
-        success: Boolean,
-        errorMessage: String?,
-    ) {
-        try {
-            uninstallLogDao.insert(
-                UninstallLogEntity(
-                    packageName = packageName,
-                    appName = appName,
-                    success = success,
-                    errorMessage = errorMessage,
-                )
-            )
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to persist uninstall log")
-        }
-    }
-
-    private suspend fun readUninstallOptions(): UninstallOptions {
-        return try {
-            val prefs = application.dataStore.data.first()
-            val useShizuku = prefs[PreferencesKeys.USE_SHIZUKU] ?: false
-            UninstallOptions(
-                useShizuku = useShizuku,
-                // Keep-data / all-users are Shizuku-only flags — the stock PackageInstaller
-                // session has no equivalent, so we ignore them when Shizuku is off.
-                keepData = useShizuku && (prefs[PreferencesKeys.SHIZUKU_UNINSTALL_KEEP_DATA] ?: false),
-                allUsers = useShizuku && (prefs[PreferencesKeys.SHIZUKU_UNINSTALL_ALL_USERS] ?: false),
-            )
-        } catch (_: Exception) {
-            UninstallOptions(useShizuku = false, keepData = false, allUsers = false)
-        }
+        )
     }
 
     fun refreshApps() {
@@ -1075,7 +483,7 @@ class ManageViewModel(
             } else {
                 _isLoading.value = true
             }
-            val apps = app.pwhs.universalinstaller.presentation.manage.util.InstalledAppsLoader.loadInstalledApps(application)
+            val apps = InstalledAppsLoader.loadInstalledApps(application)
             _apps.value = apps
             _isLoading.value = false
             _isRefreshing.value = false

@@ -7,6 +7,9 @@ import androidx.documentfile.provider.DocumentFile
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.core.install.ApkExtractor
 import app.pwhs.universalinstaller.domain.model.InstalledApp
+import app.pwhs.universalinstaller.presentation.manage.BatchExtractState
+import app.pwhs.universalinstaller.presentation.manage.ExtractMode
+import app.pwhs.universalinstaller.presentation.manage.ExtractState
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -44,6 +47,76 @@ object ManageExtractHelper {
         } catch (e: Exception) {
             Timber.e(e, "Failed to scan VT for ${app.packageName}")
         }
+    }
+
+    suspend fun extractApp(
+        context: Context,
+        packageName: String,
+        appName: String,
+        mode: ExtractMode,
+        outputDir: File?,
+        onProgress: (Long, Long) -> Unit,
+    ): ExtractState {
+        val useConfiguredPath = mode == ExtractMode.Backup
+        val result = performExtract(
+            context = context,
+            packageName = packageName,
+            cacheOutputDir = outputDir,
+            useConfiguredPath = useConfiguredPath,
+            onProgress = onProgress,
+        )
+        return when (result) {
+            is ApkExtractor.Result.Success -> ExtractState.Done(appName, result.uri, mode)
+            is ApkExtractor.Result.Failure -> ExtractState.Error(appName, result.message, mode)
+        }
+    }
+
+    suspend fun extractBatch(
+        context: Context,
+        packages: List<String>,
+        apps: List<InstalledApp>,
+        onProgress: (BatchExtractState.Running) -> Unit,
+    ): BatchExtractState.Done {
+        val lookup = apps.associateBy { it.packageName }
+        var success = 0
+        var failed = 0
+        val total = packages.size
+        packages.forEachIndexed { index, pkg ->
+            val name = lookup[pkg]?.appName ?: pkg
+            onProgress(
+                BatchExtractState.Running(
+                    completed = index,
+                    total = total,
+                    currentName = name,
+                    bytesCopied = 0L,
+                    totalBytes = 1L,
+                )
+            )
+            val result = performExtract(
+                context = context,
+                packageName = pkg,
+                cacheOutputDir = null,
+                useConfiguredPath = true,
+            ) { bytes, totalBytes ->
+                onProgress(
+                    BatchExtractState.Running(
+                        completed = index,
+                        total = total,
+                        currentName = name,
+                        bytesCopied = bytes,
+                        totalBytes = totalBytes,
+                    )
+                )
+            }
+            when (result) {
+                is ApkExtractor.Result.Success -> success++
+                is ApkExtractor.Result.Failure -> {
+                    failed++
+                    Timber.w("Bulk extract failed for $pkg: ${result.message}")
+                }
+            }
+        }
+        return BatchExtractState.Done(success = success, failed = failed)
     }
 
     suspend fun performExtract(

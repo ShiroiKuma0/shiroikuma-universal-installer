@@ -1,21 +1,14 @@
 package app.pwhs.universalinstaller.presentation.install
 
+import android.content.Intent
 import android.text.format.Formatter
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -25,47 +18,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.Android
-import androidx.compose.material.icons.rounded.Badge
-import androidx.compose.material.icons.rounded.Block
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.CloudUpload
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.DeleteSweep
-import androidx.compose.material.icons.rounded.DirectionsCar
-import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.GppGood
-import androidx.compose.material.icons.rounded.InstallMobile
-import androidx.compose.material.icons.rounded.Memory
-import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.Storage
-import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material.icons.rounded.Work
 import androidx.compose.material.icons.rounded.AdminPanelSettings
+import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Terminal
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -73,54 +33,41 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import app.pwhs.universalinstaller.R
-import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
 import androidx.core.graphics.drawable.toBitmap
+import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
-import app.pwhs.universalinstaller.domain.model.SplitEntry
-import app.pwhs.universalinstaller.domain.model.SplitType
-import app.pwhs.universalinstaller.domain.model.VtEngineResult
-import app.pwhs.universalinstaller.domain.model.VtResult
 import app.pwhs.universalinstaller.domain.model.VtStatus
-import app.pwhs.universalinstaller.ui.theme.LocalExtendedColors
+import app.pwhs.universalinstaller.presentation.composable.InstallerModeBadge
+import app.pwhs.universalinstaller.presentation.install.components.AbisCard
+import app.pwhs.universalinstaller.presentation.install.components.ApkInfoFooter
+import app.pwhs.universalinstaller.presentation.install.components.DetailsCard
+import app.pwhs.universalinstaller.presentation.install.components.InfoChip
+import app.pwhs.universalinstaller.presentation.install.components.InstallTargetCard
+import app.pwhs.universalinstaller.presentation.install.components.ObbAttachCard
+import app.pwhs.universalinstaller.presentation.install.components.PermissionsCard
+import app.pwhs.universalinstaller.presentation.install.components.ProfilePickerCard
+import app.pwhs.universalinstaller.presentation.install.components.SplitsCard
+import app.pwhs.universalinstaller.presentation.install.components.VirusTotalCard
+import app.pwhs.universalinstaller.presentation.install.components.VtStatusChip
+import app.pwhs.universalinstaller.presentation.setting.SettingActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-/**
- * How much of the screen the scrollable detail area may take, following the shape `FoundApksSheet`
- * uses (a plain `heightIn(max = …)` on its results `LazyColumn` and no cap anywhere else).
- *
- * The sheet's height then falls out of wrap-content: scroll area + footer. Two rules make it hold
- * still, and both were learned the hard way:
- *
- *  - Cap the **scroll area**, never the outer container or `ModalBottomSheet`'s own `modifier`.
- *    That modifier sits outside `Modifier.draggableAnchors`, which reads `constraints.maxHeight`
- *    to place the Expanded anchor — clamping it there parks the sheet above the bottom edge.
- *  - Size it from `screenHeightDp`, never from the incoming constraints. M3 varies the sheet's
- *    inset padding with `sheetState.offset` while you drag (`consumeWindowInsets(top = offset)`),
- *    so a constraint-derived height re-measures every frame, which moves the anchor, which moves
- *    the offset — the loop that showed up as jitter on a fast fling. `screenHeightDp` doesn't
- *    move during a drag.
- */
 private const val APK_SHEET_SCROLL_FRACTION = 0.65f
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -146,18 +93,13 @@ internal fun ApkInfoContent(
     onSelectUserId: (Int?) -> Unit = {},
     startCompact: Boolean = true,
     onUnblock: (String) -> Unit = {},
-    /** Strict security level: Scan takes the primary button until a verdict exists. */
     strictSecurity: Boolean = false,
 ) {
     val context = LocalContext.current
     val currentMappingProfileId = appProfileMapping[apkInfo.packageName]
     var isExpanded by rememberSaveable { mutableStateOf(!startCompact) }
-    
-    // Decode off the main thread — rasterizing the drawable into a 128px bitmap is
-    // non-trivial for adaptive icons and was running in composition, stalling the
-    // first frame of the dialog. produceState seeds null (shows the fallback glyph)
-    // and swaps in the real icon once the IO work completes.
-    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(
+
+    val iconBitmap by produceState<ImageBitmap?>(
         initialValue = null,
         key1 = apkInfo.icon,
     ) {
@@ -167,254 +109,265 @@ internal fun ApkInfoContent(
     }
 
     val isDowngrade = apkInfo.installedVersionCode != null &&
-            apkInfo.installedVersionCode > 0 &&
-            apkInfo.versionCode < apkInfo.installedVersionCode
+        apkInfo.installedVersionCode > 0 &&
+        apkInfo.versionCode < apkInfo.installedVersionCode
 
-    // Outer container wraps its content — same shape as FoundApksSheet. Nothing here reads the
-    // sheet's height, so the sheet measures once and holds still while you drag it.
     val scrollCap = (LocalConfiguration.current.screenHeightDp * APK_SHEET_SCROLL_FRACTION).dp
     Column(modifier = Modifier.fillMaxWidth()) {
-      Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (isExpanded) Modifier.heightIn(max = scrollCap) else Modifier)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp)
-            .padding(top = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        // Local copy so null-checks smart-cast (delegated produceState property can't).
-        val icon = iconBitmap
-        if (isExpanded) {
-            if (icon != null) {
-                Image(
-                    bitmap = icon,
-                    contentDescription = apkInfo.appName,
-                    modifier = Modifier.size(80.dp).clip(MaterialTheme.shapes.large),
-                )
-                Spacer(Modifier.height(12.dp))
-            } else {
-                Icon(
-                    imageVector = Icons.Rounded.Android,
-                    contentDescription = null,
-                    modifier = Modifier.size(80.dp),
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                )
-                Spacer(Modifier.height(12.dp))
-            }
-            Text(
-                text = apkInfo.appName,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = apkInfo.packageName,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (isExpanded) Modifier.heightIn(max = scrollCap) else Modifier)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
+                .padding(top = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            val icon = iconBitmap
+            if (isExpanded) {
                 if (icon != null) {
                     Image(
                         bitmap = icon,
                         contentDescription = apkInfo.appName,
-                        modifier = Modifier.size(48.dp).clip(MaterialTheme.shapes.medium),
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(MaterialTheme.shapes.large),
                     )
+                    Spacer(Modifier.height(12.dp))
                 } else {
                     Icon(
                         imageVector = Icons.Rounded.Android,
                         contentDescription = null,
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(80.dp),
                         tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                     )
+                    Spacer(Modifier.height(12.dp))
                 }
-                Spacer(Modifier.width(16.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = apkInfo.appName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = "v${apkInfo.versionName}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        // Tap to switch the install engine (PackageInstaller / Shizuku / Root) inline,
-        // without leaving the install sheet.
-        InstallerModeBadge()
-
-        Spacer(Modifier.height(16.dp))
-
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (isDowngrade) {
-                InfoChip(
-                    label = stringResource(R.string.dialog_chip_downgrade),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.Warning,
-                            null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.error,
-                        )
-                    },
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                Text(
+                    text = apkInfo.appName,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
-            }
-            if (apkInfo.isAndroidAutoSupported) {
-                InfoChip(
-                    label = stringResource(R.string.aa_compatibility_ok),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.DirectionsCar,
-                            null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    },
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = apkInfo.packageName,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-            }
-            if (apkInfo.isRootRequested) {
-                InfoChip(
-                    label = stringResource(R.string.apk_info_root_requested),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.AdminPanelSettings,
-                            null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.error,
-                        )
-                    },
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                )
-            }
-            if (apkInfo.isShizukuRequested) {
-                InfoChip(
-                    label = stringResource(R.string.apk_info_shizuku_requested),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Rounded.Terminal,
-                            null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.secondary,
-                        )
-                    },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-            }
-            // Scan state belongs in the compact sheet too — this is the row the user confirms from,
-            // and the verdict used to be visible only after opening App Details.
-            apkInfo.vtResult?.let { vt -> VtStatusChip(vt) }
-            if (isExpanded) {
-                if (apkInfo.versionName.isNotBlank()) {
-                    InfoChip(label = stringResource(R.string.apk_info_version_chip, apkInfo.versionName))
-                }
-                if (apkInfo.fileSizeBytes > 0) {
-                    InfoChip(label = Formatter.formatShortFileSize(context, apkInfo.fileSizeBytes))
-                }
             } else {
-                if (apkInfo.fileSizeBytes > 0) {
-                    InfoChip(label = Formatter.formatShortFileSize(context, apkInfo.fileSizeBytes))
-                }
-            }
-            if (apkInfo.splitCount > 1) {
-                InfoChip(label = stringResource(R.string.apk_info_splits_count, apkInfo.splitCount))
-            }
-            if (apkInfo.obbFileNames.isNotEmpty()) {
-                InfoChip(label = "OBB: ${apkInfo.obbFileNames.size}")
-            }
-        }
-
-        if (isExpanded) {
-            Spacer(Modifier.height(16.dp))
-            
-            // Move Installer Profiles higher up
-            InstallTargetCard(
-                allUsers = allUsers,
-                selectedUserId = selectedUserId,
-                onToggleAllUsers = onToggleAllUsers,
-                onSelectUserId = onSelectUserId,
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            ProfilePickerCard(
-                profiles = profiles,
-                currentMappingProfileId = currentMappingProfileId,
-                onProfileSelected = onProfileSelected,
-                onMappingToggle = { profileId -> onMappingChanged(apkInfo.packageName, profileId) }
-            )
-
-            Spacer(Modifier.height(16.dp))
-            ObbAttachCard(attached = attachedObbFiles, onAttach = onAttachObb, onRemove = onRemoveObb)
-            Spacer(Modifier.height(16.dp))
-            DetailsCard(apkInfo)
-            if (apkInfo.splitEntries.size > 1) {
-                Spacer(Modifier.height(16.dp))
-                SplitsCard(splits = apkInfo.splitEntries, onToggle = onToggleSplit)
-            }
-            if (apkInfo.supportedAbis.isNotEmpty()) {
-                Spacer(Modifier.height(16.dp))
-                AbisCard(apkInfo.supportedAbis)
-            }
-            Spacer(Modifier.height(16.dp))
-            val uriHandler = LocalUriHandler.current
-            VirusTotalCard(
-                vt = apkInfo.vtResult, 
-                fileSizeBytes = apkInfo.fileSizeBytes, 
-                sha256 = apkInfo.sha256, 
-                onCheck = onCheckVirusTotal,
-                onOpenSettings = {
-                    context.startActivity(
-                        android.content.Intent(
-                            context,
-                            app.pwhs.universalinstaller.presentation.setting.SettingActivity::class.java,
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (icon != null) {
+                        Image(
+                            bitmap = icon,
+                            contentDescription = apkInfo.appName,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(MaterialTheme.shapes.medium),
                         )
-                    )
-                },
-                onGetKey = { uriHandler.openUri("https://www.virustotal.com/gui/my-apikey") },
-                onOpenLink = {
-                    if (apkInfo.vtResult?.status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS) && apkInfo.sha256.isNotBlank()) {
-                        uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
+                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.Android,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        )
+                    }
+                    Spacer(Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = apkInfo.appName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = "v${apkInfo.versionName}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
-            )
-            if (apkInfo.permissions.isNotEmpty()) {
-                Spacer(Modifier.height(16.dp))
-                PermissionsCard(apkInfo.permissions)
             }
+
+            Spacer(Modifier.height(16.dp))
+            InstallerModeBadge()
+            Spacer(Modifier.height(16.dp))
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                if (isDowngrade) {
+                    InfoChip(
+                        label = stringResource(R.string.dialog_chip_downgrade),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Warning,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                        },
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+                if (apkInfo.isAndroidAutoSupported) {
+                    InfoChip(
+                        label = stringResource(R.string.aa_compatibility_ok),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.DirectionsCar,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        },
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+                if (apkInfo.isRootRequested) {
+                    InfoChip(
+                        label = stringResource(R.string.apk_info_root_requested),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.AdminPanelSettings,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                        },
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
+                if (apkInfo.isShizukuRequested) {
+                    InfoChip(
+                        label = stringResource(R.string.apk_info_shizuku_requested),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Terminal,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.secondary,
+                            )
+                        },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+                apkInfo.vtResult?.let { vt ->
+                    VtStatusChip(vt = vt)
+                }
+                if (isExpanded) {
+                    if (apkInfo.versionName.isNotBlank()) {
+                        InfoChip(
+                            label = stringResource(R.string.apk_info_version_chip, apkInfo.versionName),
+                        )
+                    }
+                    if (apkInfo.fileSizeBytes > 0) {
+                        InfoChip(
+                            label = Formatter.formatShortFileSize(context, apkInfo.fileSizeBytes),
+                        )
+                    }
+                } else {
+                    if (apkInfo.fileSizeBytes > 0) {
+                        InfoChip(
+                            label = Formatter.formatShortFileSize(context, apkInfo.fileSizeBytes),
+                        )
+                    }
+                }
+                if (apkInfo.splitCount > 1) {
+                    InfoChip(
+                        label = stringResource(R.string.apk_info_splits_count, apkInfo.splitCount),
+                    )
+                }
+                if (apkInfo.obbFileNames.isNotEmpty()) {
+                    InfoChip(label = "OBB: ${apkInfo.obbFileNames.size}")
+                }
+            }
+
+            if (isExpanded) {
+                Spacer(Modifier.height(16.dp))
+
+                InstallTargetCard(
+                    allUsers = allUsers,
+                    selectedUserId = selectedUserId,
+                    onToggleAllUsers = onToggleAllUsers,
+                    onSelectUserId = onSelectUserId,
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                ProfilePickerCard(
+                    profiles = profiles,
+                    currentMappingProfileId = currentMappingProfileId,
+                    onProfileSelected = onProfileSelected,
+                    onMappingToggle = { profileId ->
+                        onMappingChanged(apkInfo.packageName, profileId)
+                    },
+                )
+
+                Spacer(Modifier.height(16.dp))
+                ObbAttachCard(
+                    attached = attachedObbFiles,
+                    onAttach = onAttachObb,
+                    onRemove = onRemoveObb,
+                )
+                Spacer(Modifier.height(16.dp))
+                DetailsCard(apkInfo = apkInfo)
+                if (apkInfo.splitEntries.size > 1) {
+                    Spacer(Modifier.height(16.dp))
+                    SplitsCard(splits = apkInfo.splitEntries, onToggle = onToggleSplit)
+                }
+                if (apkInfo.supportedAbis.isNotEmpty()) {
+                    Spacer(Modifier.height(16.dp))
+                    AbisCard(abis = apkInfo.supportedAbis)
+                }
+                Spacer(Modifier.height(16.dp))
+                val uriHandler = LocalUriHandler.current
+                VirusTotalCard(
+                    vt = apkInfo.vtResult,
+                    fileSizeBytes = apkInfo.fileSizeBytes,
+                    sha256 = apkInfo.sha256,
+                    onCheck = onCheckVirusTotal,
+                    onOpenSettings = {
+                        context.startActivity(
+                            Intent(context, SettingActivity::class.java),
+                        )
+                    },
+                    onGetKey = {
+                        uriHandler.openUri("https://www.virustotal.com/gui/my-apikey")
+                    },
+                    onOpenLink = {
+                        if (apkInfo.vtResult?.status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS) &&
+                            apkInfo.sha256.isNotBlank()
+                        ) {
+                            uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
+                        }
+                    },
+                )
+                if (apkInfo.permissions.isNotEmpty()) {
+                    Spacer(Modifier.height(16.dp))
+                    PermissionsCard(permissions = apkInfo.permissions)
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
         }
 
-        Spacer(Modifier.height(16.dp))
-      } // end scroll area
-
-        // Blocked banner sits above the footer, not in the scroll area: the Install button below
-        // is disabled and the user needs to see why without scrolling back up.
         if (apkInfo.isBlocked) {
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer,
@@ -425,7 +378,7 @@ internal fun ApkInfoContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        Icons.Rounded.Block,
+                        imageVector = Icons.Rounded.Block,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onErrorContainer,
                         modifier = Modifier.size(18.dp),
@@ -439,7 +392,7 @@ internal fun ApkInfoContent(
                     )
                     TextButton(onClick = { onUnblock(apkInfo.packageName) }) {
                         Text(
-                            stringResource(R.string.install_blocked_unblock),
+                            text = stringResource(R.string.install_blocked_unblock),
                             color = MaterialTheme.colorScheme.onErrorContainer,
                         )
                     }
@@ -447,633 +400,21 @@ internal fun ApkInfoContent(
             }
         }
 
-        // Fixed footer — sits outside the scroll so the action row is always on screen.
-        // A hairline divider hints there's scrollable content above it when expanded.
-        if (isExpanded) {
-            HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
-        }
-        val hasVerdict = apkInfo.vtResult?.status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS)
-        // Strict makes Scan the primary action until a verdict exists. Normal never does — the
-        // scan is still reachable from the VirusTotal card in the details.
-        val isScanCompleted = hasVerdict || !strictSecurity
-        val isScanning = apkInfo.vtResult?.status in setOf(VtStatus.SCANNING, VtStatus.UPLOADING, VtStatus.QUEUED, VtStatus.ANALYZING)
-        
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(top = 12.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            if (!isExpanded) {
-                FilledTonalButton(
-                    onClick = { isExpanded = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                ) {
-                    Icon(Icons.Rounded.Menu, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.dialog_menu_details))
-                }
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(
-                    onClick = { if (cancelText == null && isExpanded && startCompact) isExpanded = false else onCancel() },
-                    modifier = Modifier.weight(1f),
-                    shape = MaterialTheme.shapes.medium,
-                ) {
-                    Text(cancelText ?: if (isExpanded && startCompact) stringResource(R.string.dialog_back_btn) else stringResource(R.string.cancel))
-                }
-                
-                if (isScanCompleted) {
-                    Button(
-                        onClick = onInstall,
-                        modifier = Modifier.weight(1f),
-                        shape = MaterialTheme.shapes.medium,
-                        enabled = !apkInfo.isBlocked,
-                        colors = if (isDowngrade) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
-                    ) {
-                        if (confirmText == null) {
-                            Icon(Icons.Rounded.InstallMobile, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                        }
-                        Text(confirmText ?: if (isDowngrade) stringResource(R.string.dialog_downgrade_btn) else stringResource(R.string.txt_install))
-                    }
-                } else {
-                    Button(
-                        onClick = {
-                            // The VirusTotal card lives inside the scroll area, which only exists
-                            // when expanded. Tapping this from the compact sheet used to change
-                            // state with nothing on screen to show it — no key, no result, no
-                            // error, just a dead button. Expand first so the outcome is visible.
-                            if (!isExpanded) isExpanded = true
-                            onCheckVirusTotal()
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = MaterialTheme.shapes.medium,
-                        enabled = !isScanning
-                    ) {
-                        if (isScanning) {
-                            CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.scanning_progress))
-                        } else {
-                            Icon(Icons.Rounded.Security, null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text(stringResource(R.string.scan_virustotal_btn))
-                        }
-                    }
-                }
-            }
-            
-            if (!isScanCompleted) {
-                TextButton(
-                    onClick = onInstall,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !apkInfo.isBlocked,
-                ) {
-                    Text(stringResource(R.string.skip_and_install_btn))
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ProfilePickerCard(
-    profiles: List<InstallerProfile>,
-    currentMappingProfileId: String?,
-    onProfileSelected: (InstallerProfile?) -> Unit,
-    onMappingToggle: (String?) -> Unit,
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val selectedProfile = profiles.find { it.id == currentMappingProfileId }
-
-    SectionCard(
-        icon = Icons.Rounded.Badge,
-        title = stringResource(R.string.setting_profiles_title),
-        summary = selectedProfile?.name ?: stringResource(R.string.install_profile_none),
-        defaultExpanded = profiles.isNotEmpty()
-    ) {
-        if (profiles.isEmpty()) {
-            val context = LocalContext.current
-            Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = "No profiles created yet.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Save your favorite install configurations as a profile to reuse them.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                // Inline CTA — opens the profile editor directly (profileId omitted → new profile)
-                // so the user never has to hunt through Settings → Installer Profiles first.
-                TextButton(
-                    onClick = {
-                        context.startActivity(
-                            android.content.Intent(
-                                context,
-                                app.pwhs.universalinstaller.presentation.setting.profile.edit.ProfileEditActivity::class.java,
-                            )
-                        )
-                    },
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                ) {
-                    Icon(Icons.Rounded.Badge, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.profile_create_title))
-                }
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(stringResource(R.string.install_profile_picker_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }, modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = selectedProfile?.name ?: stringResource(R.string.install_profile_none),
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
-                    )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(text = { Text(stringResource(R.string.install_profile_none)) }, onClick = { onProfileSelected(null); onMappingToggle(null); expanded = false })
-                        profiles.forEach { profile ->
-                            DropdownMenuItem(text = { Text(profile.name) }, onClick = { onProfileSelected(profile); onMappingToggle(profile.id); expanded = false })
-                        }
-                    }
-                }
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().clickable { if (currentMappingProfileId != null) onMappingToggle(null) }) {
-                    Checkbox(checked = currentMappingProfileId != null, onCheckedChange = { checked -> if (!checked) onMappingToggle(null) }, enabled = currentMappingProfileId != null)
-                    Column(modifier = Modifier.padding(start = 8.dp)) {
-                        Text(stringResource(R.string.profile_mapping_header), style = MaterialTheme.typography.bodyMedium)
-                        Text(stringResource(R.string.profile_mapping_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DetailsCard(apkInfo: ApkInfo) {
-    SectionCard(icon = Icons.Rounded.Android, title = stringResource(R.string.apk_info_label_package), summary = apkInfo.packageName, defaultExpanded = false) {
-        Column {
-            InfoRow(stringResource(R.string.apk_info_label_package), apkInfo.packageName)
-            if (apkInfo.versionName.isNotBlank()) InfoRow(stringResource(R.string.apk_info_label_version), apkInfo.versionName)
-            if (apkInfo.minSdkVersion > 0) InfoRow(stringResource(R.string.apk_info_label_min_sdk), sdkToAndroid(apkInfo.minSdkVersion))
-            if (apkInfo.targetSdkVersion > 0) InfoRow(stringResource(R.string.apk_info_label_target_sdk), sdkToAndroid(apkInfo.targetSdkVersion))
-            if (apkInfo.isAndroidAutoSupported) InfoRow(stringResource(R.string.aa_compatibility_title), stringResource(R.string.aa_compatibility_ok))
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun AbisCard(abis: List<String>) {
-    SectionCard(icon = Icons.Rounded.Memory, title = stringResource(R.string.apk_info_section_architectures), summary = abis.joinToString(", "), badge = abis.size.toString(), defaultExpanded = false) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            abis.forEach { abi -> InfoChip(label = abi) }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun VirusTotalCard(
-    vt: VtResult?,
-    fileSizeBytes: Long,
-    sha256: String = "",
-    onCheck: () -> Unit,
-    onOpenSettings: () -> Unit = {},
-    onGetKey: () -> Unit = {},
-    onOpenLink: () -> Unit = {},
-) {
-    val extendedColors = LocalExtendedColors.current
-    val status = vt?.status
-    val inProgress = status == VtStatus.SCANNING || status == VtStatus.UPLOADING || status == VtStatus.QUEUED || status == VtStatus.ANALYZING
-    val hasResult = status in setOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS)
-    val vtColor = when (status) {
-        VtStatus.CLEAN -> MaterialTheme.colorScheme.primary
-        VtStatus.MALICIOUS, VtStatus.ERROR -> MaterialTheme.colorScheme.error
-        VtStatus.SUSPICIOUS, VtStatus.NO_API_KEY, VtStatus.INVALID_API_KEY,
-        VtStatus.RATE_LIMITED, VtStatus.TOO_LARGE -> extendedColors.warning
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    // Status line — without this, NO_API_KEY / ERROR / TOO_LARGE left the card silent
-    // (only the button label changed), so tapping Check with no key looked like a no-op.
-    val vtDesc = when (status) {
-        VtStatus.CLEAN -> stringResource(R.string.apk_info_vt_clean)
-        VtStatus.MALICIOUS -> stringResource(R.string.apk_info_vt_malicious, vt.malicious)
-        VtStatus.SUSPICIOUS -> stringResource(R.string.apk_info_vt_suspicious, vt.suspicious)
-        VtStatus.NOT_FOUND -> stringResource(R.string.apk_info_vt_not_found)
-        VtStatus.NO_API_KEY -> stringResource(R.string.apk_info_vt_no_api_key)
-        VtStatus.INVALID_API_KEY -> stringResource(R.string.apk_info_vt_invalid_key)
-        // The Retry-After header is optional, so the countdown wording is too.
-        VtStatus.RATE_LIMITED -> vt.errorMessage.takeIf { it.isNotBlank() }
-            ?.let { stringResource(R.string.apk_info_vt_rate_limited_retry, it) }
-            ?: stringResource(R.string.apk_info_vt_rate_limited)
-        VtStatus.ERROR -> vt.errorMessage.takeIf { it.isNotBlank() } ?: stringResource(R.string.apk_info_vt_error)
-        VtStatus.TOO_LARGE -> stringResource(R.string.apk_info_vt_too_large, vt.errorMessage.orEmpty())
-        VtStatus.SCANNING -> stringResource(R.string.apk_info_vt_scanning)
-        VtStatus.UPLOADING -> stringResource(R.string.apk_info_vt_uploading, vt.uploadProgress)
-        VtStatus.QUEUED -> stringResource(R.string.apk_info_vt_queued)
-        VtStatus.ANALYZING -> stringResource(R.string.apk_info_vt_analyzing)
-        null -> null
-    }
-    // A malicious verdict keeps a filled container — that one is meant to shout. Everything else
-    // uses the flat outlined shell the other sections use.
-    val isAlarming = status == VtStatus.MALICIOUS
-    OutlinedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = if (isAlarming) MaterialTheme.colorScheme.errorContainer else Color.Transparent,
-        ),
-        border = if (isAlarming) {
-            BorderStroke(1.dp, MaterialTheme.colorScheme.error)
-        } else {
-            sectionCardBorder()
-        },
-    ) {
-        Column(modifier = Modifier.padding(16.dp).animateContentSize()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Rounded.Security, null, tint = vtColor, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.apk_info_vt_scan_title), style = MaterialTheme.typography.labelLarge, color = vtColor)
-                if (inProgress) { Spacer(Modifier.width(8.dp)); CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = vtColor) }
-            }
-            // Always state the verdict. This used to be hidden whenever there was a result, on the
-            // assumption the breakdown bar conveyed it — but the bar carries no words, and a clean
-            // file colours none of its segments, so a finished scan rendered a silent grey card.
-            if (vtDesc != null) {
-                Spacer(Modifier.height(8.dp))
-                Text(vtDesc, style = MaterialTheme.typography.bodySmall, color = vtColor)
-            }
-            if (hasResult && vt != null) {
-                val total = vt.malicious + vt.suspicious + vt.harmless + vt.undetected
-                Spacer(Modifier.height(12.dp))
-                VtBreakdownSection(vt = vt, warningColor = extendedColors.warning, cleanColor = extendedColors.success)
-                if (total > 0) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = stringResource(
-                            R.string.apk_info_vt_tally,
-                            vt.malicious + vt.suspicious,
-                            total,
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                // The per-engine results were already being parsed and thrown away; the only way to
-                // see any detail was the card's own click opening a browser, which nothing signposted.
-                if (vt.engineResults.isNotEmpty()) {
-                    VtEngineList(
-                        engines = vt.engineResults,
-                        warningColor = extendedColors.warning,
-                    )
-                }
-                if (sha256.isNotBlank()) {
-                    TextButton(
-                        onClick = onOpenLink,
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                    ) {
-                        Text(
-                            stringResource(R.string.apk_info_vt_open_web),
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Icon(
-                            Icons.AutoMirrored.Rounded.OpenInNew,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                        )
-                    }
-                }
-            }
-            // Telling someone their key is missing is only half an answer — the fix is two
-            // screens away and they are mid-install. Offer both steps here.
-            if (status == VtStatus.NO_API_KEY || status == VtStatus.INVALID_API_KEY) {
-                Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilledTonalButton(
-                        onClick = onOpenSettings,
-                        shape = MaterialTheme.shapes.medium,
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                    ) {
-                        Text(
-                            stringResource(R.string.apk_info_vt_add_key),
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                    }
-                    TextButton(
-                        onClick = onGetKey,
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-                    ) {
-                        Text(
-                            stringResource(R.string.apk_info_vt_get_key),
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * The malicious / suspicious / clean split as a single bar.
- *
- * `undetected` counts as clean: for files VirusTotal reports engines that found nothing under
- * `undetected` and leaves `harmless` at 0, so colouring only `harmless` left every clean scan
- * showing a fully grey bar.
- */
-@Composable
-private fun VtBreakdownSection(vt: VtResult, warningColor: Color, cleanColor: Color) {
-    val total = (vt.malicious + vt.suspicious + vt.harmless + vt.undetected).coerceAtLeast(1)
-    val malFraction = vt.malicious.toFloat() / total
-    val susFraction = vt.suspicious.toFloat() / total
-    val cleanFraction = (vt.harmless + vt.undetected).toFloat() / total
-    val errorColor = MaterialTheme.colorScheme.error
-    Canvas(modifier = Modifier.fillMaxWidth().height(8.dp).clip(MaterialTheme.shapes.small)) {
-        val w = size.width
-        val h = size.height
-        var x = 0f
-        val malW = w * malFraction
-        if (malW > 0f) { drawRect(color = errorColor, topLeft = Offset(x, 0f), size = Size(malW, h)); x += malW }
-        val susW = w * susFraction
-        if (susW > 0f) { drawRect(color = warningColor, topLeft = Offset(x, 0f), size = Size(susW, h)); x += susW }
-        val cleanW = w * cleanFraction
-        if (cleanW > 0f) { drawRect(color = cleanColor, topLeft = Offset(x, 0f), size = Size(cleanW, h)); x += cleanW }
-        // Only reached when the stats add up to nothing — grey means "no data", not "clean".
-        drawRect(color = Color.Gray.copy(alpha = 0.3f), topLeft = Offset(x, 0f), size = Size(w - x, h))
-    }
-}
-
-/**
- * Per-engine verdicts, collapsed to just the engines that flagged the file.
- *
- * Expanding shows all engines VirusTotal returned — for a clean file the collapsed list is empty,
- * so the toggle is the only thing on screen until it is opened.
- */
-@Composable
-private fun VtEngineList(engines: List<VtEngineResult>, warningColor: Color) {
-    var expanded by remember { mutableStateOf(false) }
-    val flagged = engines.filter { it.category == "malicious" || it.category == "suspicious" }
-    val visible = if (expanded) engines else flagged
-    Column(modifier = Modifier.fillMaxWidth()) {
-        if (visible.isNotEmpty()) Spacer(Modifier.height(8.dp))
-        visible.forEach { engine ->
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = engine.engineName,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = engine.result ?: engine.category,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = when (engine.category) {
-                        "malicious" -> MaterialTheme.colorScheme.error
-                        "suspicious" -> warningColor
-                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-        TextButton(
-            onClick = { expanded = !expanded },
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-        ) {
-            Text(
-                // Deliberately uncounted: this list includes engines that could not scan the file
-                // at all, so its size contradicts the "n of m flagged" ratio just above it.
-                text = if (expanded) {
-                    stringResource(R.string.apk_info_vt_engines_hide)
-                } else {
-                    stringResource(R.string.apk_info_vt_engines_show)
-                },
-                style = MaterialTheme.typography.labelMedium,
-            )
-        }
-    }
-}
-
-@Composable
-private fun PermissionsCard(permissions: List<String>) {
-    var expanded by remember { mutableStateOf(false) }
-    val visible = if (expanded) permissions else permissions.take(5)
-    SectionCard(icon = Icons.Rounded.Security, title = stringResource(R.string.apk_info_section_permissions, permissions.size), badge = permissions.size.toString(), defaultExpanded = false) {
-        if (permissions.isEmpty()) {
-            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Rounded.CheckCircle, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.apk_info_permissions_empty),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                visible.forEach { perm ->
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Rounded.CheckCircle, null, tint = Color.Gray, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(perm.substringAfterLast('.'), style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
-                if (permissions.size > 5) TextButton(onClick = { expanded = !expanded }, modifier = Modifier.fillMaxWidth()) { Text(if (expanded) "Show less" else "Show more") }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SplitsCard(splits: List<SplitEntry>, onToggle: (Int) -> Unit) {
-    SectionCard(icon = Icons.Rounded.Memory, title = stringResource(R.string.apk_info_section_splits, splits.size), defaultExpanded = true) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            splits.forEachIndexed { index, split ->
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = split.selected, onCheckedChange = { onToggle(index) }, enabled = split.type != SplitType.Base)
-                    Text(split.name, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
-
-/**
- * The one border every install-detail section shares.
- *
- * These used to be [androidx.compose.material3.ElevatedCard]s: inside the detail sheet the shadow
- * plus a lighter fill stacked surface on surface on surface, which read as muddy floating boxes on
- * a dark background. Flat outlines keep the grouping without the layering.
- */
-@Composable
-private fun sectionCardBorder() = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-
-@Composable
-private fun SectionCard(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, summary: String? = null, badge: String? = null, defaultExpanded: Boolean = true, content: @Composable () -> Unit) {
-    var expanded by remember { mutableStateOf(defaultExpanded) }
-    OutlinedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
-        border = sectionCardBorder(),
-    ) {
-        Column(modifier = Modifier.animateContentSize()) {
-            Row(modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                Spacer(Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(title, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-                    if (!expanded && summary != null) Text(summary, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-                if (badge != null) Text(badge, modifier = Modifier.padding(end = 8.dp), style = MaterialTheme.typography.labelSmall)
-                Icon(if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore, null)
-            }
-            if (expanded) Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) { content() }
-        }
-    }
-}
-
-/**
- * One-chip VirusTotal state for the chip row, shown collapsed and expanded alike.
- *
- * [ApkInfo.vtResult] stays null until a scan is asked for, so this never claims anything about a
- * package nobody scanned.
- */
-@Composable
-private fun VtStatusChip(vt: VtResult) {
-    val extendedColors = LocalExtendedColors.current
-    when (vt.status) {
-        VtStatus.CLEAN -> InfoChip(
-            label = stringResource(R.string.apk_info_vt_chip_clean),
-            leadingIcon = {
-                Icon(Icons.Rounded.GppGood, null, modifier = Modifier.size(16.dp), tint = extendedColors.success)
+        ApkInfoFooter(
+            apkInfo = apkInfo,
+            isExpanded = isExpanded,
+            startCompact = startCompact,
+            strictSecurity = strictSecurity,
+            confirmText = confirmText,
+            cancelText = cancelText,
+            onExpand = { isExpanded = true },
+            onCollapse = { isExpanded = false },
+            onInstall = onInstall,
+            onCancel = onCancel,
+            onCheckVirusTotal = {
+                if (!isExpanded) isExpanded = true
+                onCheckVirusTotal()
             },
-            contentColor = extendedColors.success,
-        )
-        VtStatus.MALICIOUS, VtStatus.SUSPICIOUS -> {
-            val alarming = vt.status == VtStatus.MALICIOUS
-            InfoChip(
-                label = stringResource(R.string.apk_info_vt_chip_flagged, vt.malicious + vt.suspicious),
-                leadingIcon = {
-                    Icon(
-                        Icons.Rounded.Warning,
-                        null,
-                        modifier = Modifier.size(16.dp),
-                        tint = if (alarming) MaterialTheme.colorScheme.onErrorContainer else extendedColors.warning,
-                    )
-                },
-                containerColor = if (alarming) MaterialTheme.colorScheme.errorContainer else extendedColors.warningContainer,
-                contentColor = if (alarming) MaterialTheme.colorScheme.onErrorContainer else extendedColors.warning,
-            )
-        }
-        VtStatus.SCANNING, VtStatus.UPLOADING, VtStatus.QUEUED, VtStatus.ANALYZING -> InfoChip(
-            label = stringResource(R.string.apk_info_vt_chip_scanning),
-            leadingIcon = {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(12.dp),
-                    strokeWidth = 1.5.dp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            },
-        )
-        // Every remaining state is a scan that produced no verdict — missing key, bad key, quota
-        // spent, file too big, unknown to VirusTotal. Say so rather than showing nothing.
-        else -> InfoChip(
-            label = stringResource(R.string.apk_info_vt_chip_no_result),
-            leadingIcon = {
-                Icon(Icons.Rounded.Security, null, modifier = Modifier.size(16.dp), tint = extendedColors.warning)
-            },
-            contentColor = extendedColors.warning,
-        )
-    }
-}
-
-@Composable
-internal fun InfoChip(label: String, leadingIcon: @Composable (() -> Unit)? = null, containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh, contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant) {
-    Surface(shape = MaterialTheme.shapes.small, color = containerColor, contentColor = contentColor) {
-        Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            leadingIcon?.invoke()
-            Text(label, style = MaterialTheme.typography.labelSmall)
-        }
-    }
-}
-
-@Composable
-internal fun InfoRow(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(0.4f))
-        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, modifier = Modifier.weight(0.6f), textAlign = TextAlign.End)
-    }
-}
-
-internal fun sdkToAndroid(sdk: Int): String = when {
-    sdk >= 35 -> "15"; sdk >= 34 -> "14"; sdk >= 33 -> "13"; sdk >= 32 -> "12L"; sdk >= 31 -> "12"; sdk >= 30 -> "11"; sdk >= 29 -> "10"; sdk >= 28 -> "9"; sdk >= 26 -> "8"; sdk >= 24 -> "7"; sdk >= 23 -> "6"; sdk >= 21 -> "5"; else -> "$sdk"
-}
-
-@Composable
-private fun ObbAttachCard(attached: List<AttachedObb>, onAttach: () -> Unit, onRemove: (AttachedObb) -> Unit) {
-    OutlinedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
-        border = sectionCardBorder(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(R.string.apk_info_obb_attach_title), style = MaterialTheme.typography.titleSmall)
-            attached.forEach { obb ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(obb.fileName, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
-                    IconButton(onClick = { onRemove(obb) }) { Icon(Icons.Rounded.Delete, null) }
-                }
-            }
-            OutlinedButton(onClick = onAttach, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.apk_info_obb_attach_button)) }
-        }
-    }
-}
-
-@Composable
-private fun InstallTargetCard(
-    allUsers: Boolean,
-    selectedUserId: Int?,
-    onToggleAllUsers: (Boolean) -> Unit,
-    onSelectUserId: (Int?) -> Unit,
-) {
-    val profiles = rememberDeviceUserProfiles()
-    val allUsersDesc = if (allUsers) {
-        stringResource(R.string.dialog_menu_all_users_on)
-    } else {
-        stringResource(R.string.dialog_menu_all_users_off)
-    }
-
-    SectionCard(
-        icon = Icons.Rounded.Person,
-        title = stringResource(R.string.dialog_menu_install_target),
-        summary = allUsersDesc,
-        defaultExpanded = profiles.size > 1
-    ) {
-        InstallTargetPicker(
-            profiles = profiles,
-            allUsers = allUsers,
-            selectedUserId = selectedUserId,
-            onSelectAllUsers = onToggleAllUsers,
-            onSelectUserId = onSelectUserId,
         )
     }
 }

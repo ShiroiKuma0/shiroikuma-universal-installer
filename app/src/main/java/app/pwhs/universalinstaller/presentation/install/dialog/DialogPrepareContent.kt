@@ -61,6 +61,7 @@ fun DialogPrepareContent(
     onMenu: () -> Unit,
     onCancel: () -> Unit,
     onUnblock: (String) -> Unit = {},
+    onCheckVirusTotal: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val isUpdate = installedVersionCode != null && installedVersionCode > 0
@@ -235,9 +236,19 @@ fun DialogPrepareContent(
             }
         }
 
-        // ── Install engine (tap to switch) ──
+        // ── Install engine (tap to switch) & VirusTotal status / scan prompt ──
         Spacer(modifier = Modifier.height(16.dp))
-        InstallerModeBadge()
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            InstallerModeBadge()
+            VirusTotalInstallPrompt(
+                apkInfo = apkInfo,
+                onScan = onCheckVirusTotal,
+            )
+        }
 
         Spacer(modifier = Modifier.height(20.dp))
 

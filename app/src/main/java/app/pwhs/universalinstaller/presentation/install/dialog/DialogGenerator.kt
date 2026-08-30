@@ -127,6 +127,7 @@ fun generateDialogParams(
                             onMenu = onMenu,
                             onCancel = onCancel,
                             onUnblock = onUnblock,
+                            onCheckVirusTotal = onCheckVirusTotal,
                         )
                     }
                 )

@@ -1,491 +1,48 @@
 package app.pwhs.universalinstaller.presentation.setting
 
 import android.app.Application
-import android.content.Context
-import android.content.pm.PackageManager
-import android.content.Intent
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
-import app.pwhs.core.data.local.dataStore
-import app.pwhs.core.data.local.SharedPrefsKeys
 import androidx.lifecycle.ViewModel
-import app.pwhs.core.domain.ThemeMode
-import app.pwhs.core.domain.AppThemePreset
-
-
 import androidx.lifecycle.viewModelScope
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.domain.AppThemePreset
+import app.pwhs.core.domain.ThemeMode
+import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
+import app.pwhs.universalinstaller.domain.model.InstallUiStyle
+import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
-import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
-import app.pwhs.universalinstaller.util.DhizukuCompat
+import app.pwhs.universalinstaller.presentation.setting.util.SettingPreferencesDelegate
+import app.pwhs.universalinstaller.presentation.setting.util.SettingPrivilegeDelegate
+import app.pwhs.universalinstaller.presentation.setting.util.SettingProfilesDelegate
+import app.pwhs.universalinstaller.presentation.setting.util.SettingUiStateBuilder
 import app.pwhs.universalinstaller.util.DhizukuState
-import app.pwhs.universalinstaller.presentation.install.controller.RootState
-import kotlinx.coroutines.Dispatchers
+import app.pwhs.universalinstaller.util.LocaleHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import app.pwhs.universalinstaller.R
-import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
-import app.pwhs.universalinstaller.domain.model.InstallUiStyle
-import app.pwhs.universalinstaller.domain.model.InstallerProfile
-import app.pwhs.universalinstaller.domain.manager.ProfileManager
-import app.pwhs.universalinstaller.telemetry.Telemetry
-import app.pwhs.universalinstaller.telemetry.TelemetryEvents
-import rikka.shizuku.Shizuku
-import timber.log.Timber
-
-
-data class SettingThemeState(
-    val mode: ThemeMode = ThemeMode.System,
-    val dynamicColor: Boolean = false,
-    val amoledMode: Boolean = false,
-    val themePreset: AppThemePreset = AppThemePreset.Orange
-)
-
-object PreferencesKeys {
-    val THEME_MODE = stringPreferencesKey("theme_mode")
-    val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
-    val AMOLED_MODE = booleanPreferencesKey("amoled_mode")
-    val THEME_PRESET = stringPreferencesKey("theme_preset")
-    val USE_SHIZUKU = booleanPreferencesKey("use_shizuku")
-    val USE_ROOT = booleanPreferencesKey("use_root")
-    val INSTALL_USER_ID = intPreferencesKey("install_user_id")
-    val VIRUSTOTAL_API_KEY = stringPreferencesKey("virustotal_api_key")
-    val STRICT_VIRUSTOTAL_CHECK = booleanPreferencesKey("strict_virustotal_check")
-    val SECURITY_LEVEL = stringPreferencesKey("security_level")
-    val DELETE_APK_AFTER_INSTALL = booleanPreferencesKey("delete_apk_after_install")
-
-    /** Open the app automatically after a successful install (with a 3-second cancellable countdown). */
-    val AUTO_OPEN_AFTER_INSTALL = booleanPreferencesKey("auto_open_after_install")
-
-    /**
-     * How a package opened by another app asks for confirmation — dialog over the caller, or a
-     * notification. Values are [app.pwhs.universalinstaller.domain.model.ExternalOpenMode.value];
-     * missing / unknown reads back as Dialog, which is the behaviour that predates the setting.
-     */
-    val EXTERNAL_OPEN_MODE = stringPreferencesKey("external_open_mode")
-
-    /**
-     * Dialog or bottom sheet for the install UI. Values are
-     * [app.pwhs.universalinstaller.domain.model.InstallUiStyle.value]; missing reads back as
-     * Dialog, the style that predates the setting.
-     */
-    val INSTALL_UI_STYLE = stringPreferencesKey("install_ui_style")
-
-    /**
-     * Per-package installer-source overrides. Stored as one entry per line
-     * (`pkg=installer`) so we don't pull in a JSON dependency. See
-     * [app.pwhs.universalinstaller.presentation.install.dialog.InstallerOverrides]
-     * for the parser. Empty / missing → no override; the global Shizuku/Root
-     * installer pref is used.
-     */
-    val INSTALLER_OVERRIDES = stringPreferencesKey("installer_overrides")
-
-    // Shizuku install options
-    val SHIZUKU_BYPASS_LOW_TARGET_SDK = booleanPreferencesKey("shizuku_bypass_low_target_sdk")
-    val SHIZUKU_ALLOW_TEST = booleanPreferencesKey("shizuku_allow_test")
-    val SHIZUKU_REPLACE_EXISTING = booleanPreferencesKey("shizuku_replace_existing")
-    val SHIZUKU_REQUEST_DOWNGRADE = booleanPreferencesKey("shizuku_request_downgrade")
-    val USE_DHIZUKU = booleanPreferencesKey("use_dhizuku")
-    val DHIZUKU_REQUEST_DOWNGRADE = booleanPreferencesKey("dhizuku_request_downgrade")
-    val SHIZUKU_GRANT_ALL_PERMISSIONS = booleanPreferencesKey("shizuku_grant_all_permissions")
-    val SHIZUKU_ALL_USERS = booleanPreferencesKey("shizuku_all_users")
-    val SHIZUKU_SET_INSTALL_SOURCE = booleanPreferencesKey("shizuku_set_install_source")
-    val SHIZUKU_INSTALLER_PACKAGE_NAME = stringPreferencesKey("shizuku_installer_package_name")
-
-    // Shizuku uninstall options (pm uninstall -k / --user all)
-    val SHIZUKU_UNINSTALL_KEEP_DATA = booleanPreferencesKey("shizuku_uninstall_keep_data")
-    val SHIZUKU_UNINSTALL_ALL_USERS = booleanPreferencesKey("shizuku_uninstall_all_users")
-
-    // Root (libsu) install options — full flavor only, but the keys live here so common
-    // code can read them unconditionally. On the store flavor these stay at their defaults.
-    val ROOT_BYPASS_LOW_TARGET_SDK = booleanPreferencesKey("root_bypass_low_target_sdk")
-    val ROOT_ALLOW_TEST = booleanPreferencesKey("root_allow_test")
-    val ROOT_REPLACE_EXISTING = booleanPreferencesKey("root_replace_existing")
-    val ROOT_REQUEST_DOWNGRADE = booleanPreferencesKey("root_request_downgrade")
-    val ROOT_GRANT_ALL_PERMISSIONS = booleanPreferencesKey("root_grant_all_permissions")
-    val ROOT_ALL_USERS = booleanPreferencesKey("root_all_users")
-    val ROOT_SET_INSTALL_SOURCE = booleanPreferencesKey("root_set_install_source")
-    val ROOT_INSTALLER_PACKAGE_NAME = stringPreferencesKey("root_installer_package_name")
-
-    // Sync options
-    val SYNC_REQUIRE_PIN = booleanPreferencesKey("sync_require_pin")
-    val SYNC_PIN_CODE = stringPreferencesKey("sync_pin_code")
-    val SYNC_SERVER_PORT = stringPreferencesKey("sync_server_port")
-
-    // Biometric gate — independent toggles so users can guard install but not uninstall (or
-    // vice versa) without one switch implying the other.
-    val BIOMETRIC_LOCK_INSTALL = booleanPreferencesKey("biometric_lock_install")
-    val BIOMETRIC_LOCK_UNINSTALL = booleanPreferencesKey("biometric_lock_uninstall")
-
-    /**
-     * Automatically start the installation when an APK is opened from an external intent
-     * (e.g. from a file manager or Obtainium) without showing the confirmation dialog.
-     */
-    val AUTO_CONFIRM_EXTERNAL_INSTALL = booleanPreferencesKey("auto_confirm_external_install")
-
-    /** Whether to show the "Download" tab in the source picker on the main screen. */
-    val SHOW_DOWNLOAD_TAB = booleanPreferencesKey("show_download_tab")
-
-    /**
-     * When true (default), external VIEW/SEND intents land in DialogInstallActivity instead
-     * of the full InstallActivity — i.e. opening an APK from a file manager pops up a focused
-     * dialog over the calling app rather than launching our full UI. Off → fall back to the
-     * historical InstallActivity flow (full screen with bottom bar).
-     */
-    val DIALOG_INSTALL_MODE = booleanPreferencesKey("dialog_install_mode")
-
-    // Manage screen filter-sheet state — persisted so the user's sort/group/filter survives
-    // process death. Enums stored by `name` so renaming a constant breaks loudly rather
-    // than silently mapping to ordinal 0.
-    val MANAGE_SORT_BY = stringPreferencesKey("manage_sort_by")
-    val MANAGE_SORT_DIRECTION = stringPreferencesKey("manage_sort_direction")
-    val MANAGE_GROUP_BY = stringPreferencesKey("manage_group_by")
-    val MANAGE_APP_FILTER = stringSetPreferencesKey("manage_app_filter")
-
-    // APK Extractor options
-    val APK_EXTRACTOR_OUTPUT_PATH = stringPreferencesKey("apk_extractor_output_path")
-    val APK_EXTRACTOR_FILENAME_TEMPLATE = stringPreferencesKey("apk_extractor_filename_template")
-    /** Output container for apps that have split APKs: "apks" (default) or "xapk". */
-    val APK_EXTRACTOR_SPLIT_FORMAT = stringPreferencesKey("apk_extractor_split_format")
-
-    // Installer Profiles
-    val INSTALLER_PROFILES = stringPreferencesKey("installer_profiles")
-    val APP_PROFILE_MAPPING = stringPreferencesKey("app_profile_mapping")
-}
-
-data class SyncOptions(
-    val requirePin: Boolean = true,
-    val pinCode: String = "",
-    val serverPort: String = "8080"
-)
-
-/** Mutually exclusive install backend selection. Stored as two booleans in DataStore
- *  (USE_SHIZUKU, USE_ROOT) for backward compatibility — this enum is the UI-side view. */
-/**
- * The three mutually exclusive privilege levels the picker offers.
- *
- * Dhizuku is deliberately not one of them. It is an alternative privilege *source* with a heavy
- * one-time setup cost and a much smaller feature set, so it sits as its own switch rather than
- * as a fourth peer squeezed into the same row.
- */
-/** The install flags Shizuku and Root share, so the merged UI can read one shape. */
-data class CommonInstallOptions(
-    val replaceExisting: Boolean,
-    val requestDowngrade: Boolean,
-    val grantAllPermissions: Boolean,
-    val allowTest: Boolean,
-    val bypassLowTargetSdk: Boolean,
-    val allUsers: Boolean,
-    val setInstallSource: Boolean,
-    val installerPackageName: String,
-)
-
-fun ShizukuOptions.asCommon() = CommonInstallOptions(
-    replaceExisting, requestDowngrade, grantAllPermissions, allowTest,
-    bypassLowTargetSdk, allUsers, setInstallSource, installerPackageName,
-)
-
-fun RootOptions.asCommon() = CommonInstallOptions(
-    replaceExisting, requestDowngrade, grantAllPermissions, allowTest,
-    bypassLowTargetSdk, allUsers, setInstallSource, installerPackageName,
-)
-
-/**
- * How hard the app pushes VirusTotal.
- *
- * [Normal] is the default: scanning stays available but never takes over the UI, and installing
- * an unscanned file is not treated as a risk. [Strict] is the previous behaviour — Scan becomes
- * the primary action until a verdict exists, and an unscanned file raises the risk dialog.
- *
- * Replaces the old STRICT_VIRUSTOTAL_CHECK boolean, which only covered the risk gate and left the
- * pushy button behaviour on for everyone, including people with no API key.
- */
-enum class SecurityLevel {
-    Normal, Strict;
-
-    companion object {
-        /**
-         * @param legacyStrict the old STRICT_VIRUSTOTAL_CHECK value, honoured when the new key
-         *   has never been written — someone who opted into strict checking keeps it.
-         */
-        fun from(stored: String?, legacyStrict: Boolean = false): SecurityLevel =
-            entries.firstOrNull { it.name == stored }
-                ?: if (legacyStrict) Strict else Normal
-    }
-}
-
-enum class InstallMode {
-    DEFAULT, SHIZUKU, ROOT;
-
-    companion object {
-        fun from(useShizuku: Boolean, useRoot: Boolean): InstallMode = when {
-            useRoot -> ROOT
-            useShizuku -> SHIZUKU
-            else -> DEFAULT
-        }
-    }
-}
-
-
-enum class ShizukuState {
-    NOT_INSTALLED,   // no Shizuku app and no Sui — nothing to talk to
-    NOT_RUNNING,     // Shizuku app installed but service not started (binder dead)
-    UNSUPPORTED,     // pre-v11 Shizuku — modern API calls unavailable
-    NO_PERMISSION,   // binder alive, permission not granted
-    READY,           // binder alive, permission granted
-}
-
-data class ShizukuOptions(
-    val bypassLowTargetSdk: Boolean = false,
-    val allowTest: Boolean = false,
-    val replaceExisting: Boolean = true,
-    val requestDowngrade: Boolean = false,
-    val grantAllPermissions: Boolean = false,
-    val allUsers: Boolean = false,
-    val setInstallSource: Boolean = false,
-    val installerPackageName: String = DEFAULT_INSTALLER_PACKAGE_NAME,
-    val uninstallKeepData: Boolean = false,
-    val uninstallAllUsers: Boolean = false,
-)
-
-const val DEFAULT_INSTALLER_PACKAGE_NAME = "com.android.vending"
-
-private const val SHIZUKU_PERMISSION_REQ_CODE = 0xA17
-
-data class RootOptions(
-    val bypassLowTargetSdk: Boolean = false,
-    val allowTest: Boolean = false,
-    val replaceExisting: Boolean = true,
-    val requestDowngrade: Boolean = false,
-    val grantAllPermissions: Boolean = false,
-    val allUsers: Boolean = false,
-    val setInstallSource: Boolean = false,
-    val installerPackageName: String = DEFAULT_INSTALLER_PACKAGE_NAME,
-)
-
-data class SettingUiState(
-    val isLoading: Boolean = true,
-    val themeMode: ThemeMode = ThemeMode.System,
-    val dynamicColor: Boolean = false,
-    val amoledMode: Boolean = false,
-    val themePreset: AppThemePreset = AppThemePreset.Orange,
-    val useShizuku: Boolean = false,
-    val useRoot: Boolean = false,
-    val virusTotalApiKey: String = "",
-    val deleteApkAfterInstall: Boolean = false,
-    val autoOpenAfterInstall: Boolean = false,
-    val shizukuState: ShizukuState = ShizukuState.NOT_INSTALLED,
-    val shizukuAvailable: Boolean = false,
-    val shizukuOptions: ShizukuOptions = ShizukuOptions(),
-    val rootSupported: Boolean = false,
-    val rootState: RootState = RootState.UNAVAILABLE,
-    val rootOptions: RootOptions = RootOptions(),
-    val syncOptions: SyncOptions = SyncOptions(),
-    val appVersion: String = "",
-    val biometricLockInstall: Boolean = false,
-    val biometricLockUninstall: Boolean = false,
-    val dialogInstallMode: Boolean = true,
-    val autoConfirmExternalInstall: Boolean = false,
-    val showDownloadTab: Boolean = true,
-    val extractorOutputPath: String = "",
-    val extractorFilenameTemplate: String = "{name}-{version}",
-    val installerProfiles: List<InstallerProfile> = emptyList(),
-    val appProfileMapping: Map<String, String> = emptyMap(),
-    val isDefaultInstaller: Boolean = false,
-    val selectedLanguage: String = "",
-    /**
-     * True when the device has at least one biometric or device-credential enrolled.
-     * Used to greyly inform the user that the toggles will be no-ops until they
-     * enrol a fingerprint or set a screen lock. Computed at VM init from
-     * BiometricManager so we don't keep a live device-state dependency.
-     */
-    val biometricEnrolmentAvailable: Boolean = false,
-)
 
 class SettingViewModel(
     private val application: Application,
-    private val backendFactory: InstallerBackendFactory,
+    backendFactory: InstallerBackendFactory,
 ) : ViewModel() {
 
-    private val dataStore = application.dataStore
-
-    private val _shizukuState = MutableStateFlow(ShizukuState.NOT_INSTALLED)
-    // Deliberately not folded into SettingUiState: that is assembled by a large index-based
-    // combine() and adding entries there means renumbering every cast below it.
-    private val _dhizukuState = MutableStateFlow(DhizukuState.NOT_INSTALLED)
-    val dhizukuState: StateFlow<DhizukuState> = _dhizukuState.asStateFlow()
-    val useDhizuku: StateFlow<Boolean> = dataStore.data
-        .map { it[PreferencesKeys.USE_DHIZUKU] ?: false }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
-    private val _rootState = MutableStateFlow(
-        if (backendFactory.rootSupportCompiledIn) RootState.UNKNOWN else RootState.UNAVAILABLE,
-    )
-
-    /**
-     * Kept up here, with the rest of the state [init] touches, because it has to exist before the
-     * constructor reaches that block.
-     *
-     * It used to be declared 480 lines below, and `updateDefaultInstallerStatus()` — launched from
-     * init — assigned it from a coroutine. Property initializers run in declaration order, so the
-     * flow was still null whenever that coroutine won the race, and the process died with an NPE
-     * on a background thread. Physical devices hid it: resolveActivity's IPC took long enough for
-     * the constructor to finish first. An emulator returns fast enough to lose the race.
-     */
-    private val _isDefaultInstaller = MutableStateFlow(false)
-
-    private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
-        Timber.d("Shizuku binder received")
-        updateShizukuState()
-    }
-
-    private val binderDeadListener = Shizuku.OnBinderDeadListener {
-        Timber.d("Shizuku binder dead")
-        updateShizukuState()
-    }
-
-    private val requestPermissionResultListener =
-        Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
-            if (requestCode != SHIZUKU_PERMISSION_REQ_CODE) return@OnRequestPermissionResultListener
-            updateShizukuState()
-            if (grantResult == PackageManager.PERMISSION_GRANTED) {
-                viewModelScope.launch {
-                    dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
-                }
-            } else {
-                viewModelScope.launch {
-                    _events.send(R.string.setting_shizuku_permission_denied)
-                }
-            }
-        }
-
-    // One-shot UI events (toast/snackbar). Channel so events fire once per send, even
-    // when the screen is briefly unmounted, without coalescing or being missed.
-    private fun emitEvent(stringRes: Int) {
-        viewModelScope.launch { _events.send(stringRes) }
-    }
-
-    private val _events = Channel<Int>(Channel.BUFFERED)
-    val events: Flow<Int> = _events.receiveAsFlow()
-
-    init {
-        updateShizukuState()
-        Shizuku.addBinderReceivedListener(binderReceivedListener)
-        Shizuku.addBinderDeadListener(binderDeadListener)
-        Shizuku.addRequestPermissionResultListener(requestPermissionResultListener)
-
-        // Cheap non-blocking root probe — does not trigger a SuperUser prompt.
-        if (backendFactory.rootSupportCompiledIn) {
-            viewModelScope.launch {
-                _rootState.value = backendFactory.probeRootState()
-            }
-        }
-        updateDefaultInstallerStatus()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Shizuku.removeBinderReceivedListener(binderReceivedListener)
-        Shizuku.removeBinderDeadListener(binderDeadListener)
-        Shizuku.removeRequestPermissionResultListener(requestPermissionResultListener)
-    }
-
-    fun setThemeMode(mode: ThemeMode) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.THEME_MODE] = mode.name }
-        }
-    }
-
-    fun setDynamicColor(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.DYNAMIC_COLOR] = enabled }
-        }
-    }
-
-    fun setAmoledMode(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.AMOLED_MODE] = enabled }
-        }
-    }
-
-    fun setThemePreset(preset: AppThemePreset) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.THEME_PRESET] = preset.name }
-        }
-    }
-
-    /**
-     * Three-way switch between the installer backends. Atomic — clears the other flag so
-     * we can't end up in an undefined "both true" state. Picking SHIZUKU still requires
-     * a permission grant and so funnels through the existing setUseShizuku flow; the user
-     * sees the segmented button bounce back to DEFAULT if they decline.
-     */
-    fun setInstallMode(mode: InstallMode) {
-        when (mode) {
-            InstallMode.DEFAULT -> viewModelScope.launch {
-                dataStore.edit { p ->
-                    p[PreferencesKeys.USE_SHIZUKU] = false
-                    p[PreferencesKeys.USE_ROOT] = false
-                    p[PreferencesKeys.USE_DHIZUKU] = false
-                }
-            }
-            InstallMode.SHIZUKU -> {
-                viewModelScope.launch {
-                    dataStore.edit { p ->
-                        p[PreferencesKeys.USE_ROOT] = false
-                        p[PreferencesKeys.USE_DHIZUKU] = false
-                    }
-                }
-                // Reuses the existing permission-prompt / state-check ladder.
-                setUseShizuku(true)
-            }
-            InstallMode.ROOT -> viewModelScope.launch {
-                val state = backendFactory.requestRoot()
-                _rootState.value = state
-                if (state == RootState.READY) {
-                    dataStore.edit { p ->
-                        p[PreferencesKeys.USE_SHIZUKU] = false
-                        p[PreferencesKeys.USE_DHIZUKU] = false
-                        p[PreferencesKeys.USE_ROOT] = true
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Dhizuku has its own permission prompt, handed to us through a listener rather than an
-     * Activity result. Only commit the mode once it actually says yes — otherwise the user ends
-     * up in a mode that silently falls back on every install.
-     */
-    /**
-     * One install option, and the per-backend keys it maps onto.
-     *
-     * Shizuku and Root were never really two settings — [writeProfileFlags] has always written
-     * both from a single profile value. Only the Settings screen split them, which meant the same
-     * switch existed twice and could disagree with itself. Writing every backend's key keeps them
-     * from drifting.
-     */
     enum class PrivilegedOption(
         internal val shizukuKey: Preferences.Key<Boolean>,
         internal val rootKey: Preferences.Key<Boolean>,
         /** Dhizuku only supports downgrade; the rest have no equivalent there. */
         internal val dhizukuKey: Preferences.Key<Boolean>? = null,
     ) {
-        ReplaceExisting(PreferencesKeys.SHIZUKU_REPLACE_EXISTING, PreferencesKeys.ROOT_REPLACE_EXISTING),
+        ReplaceExisting(
+            PreferencesKeys.SHIZUKU_REPLACE_EXISTING,
+            PreferencesKeys.ROOT_REPLACE_EXISTING,
+        ),
         RequestDowngrade(
             PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE,
             PreferencesKeys.ROOT_REQUEST_DOWNGRADE,
@@ -495,499 +52,62 @@ class SettingViewModel(
             PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS,
             PreferencesKeys.ROOT_GRANT_ALL_PERMISSIONS,
         ),
-        AllowTest(PreferencesKeys.SHIZUKU_ALLOW_TEST, PreferencesKeys.ROOT_ALLOW_TEST),
+        AllowTest(
+            PreferencesKeys.SHIZUKU_ALLOW_TEST,
+            PreferencesKeys.ROOT_ALLOW_TEST,
+        ),
         BypassLowTargetSdk(
             PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK,
             PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK,
         ),
-        AllUsers(PreferencesKeys.SHIZUKU_ALL_USERS, PreferencesKeys.ROOT_ALL_USERS),
+        AllUsers(
+            PreferencesKeys.SHIZUKU_ALL_USERS,
+            PreferencesKeys.ROOT_ALL_USERS,
+        ),
         SetInstallSource(
             PreferencesKeys.SHIZUKU_SET_INSTALL_SOURCE,
             PreferencesKeys.ROOT_SET_INSTALL_SOURCE,
         ),
     }
 
-    fun setPrivilegedOption(option: PrivilegedOption, enabled: Boolean) {
+    private val dataStore = application.dataStore
+
+    private val _events = Channel<Int>(Channel.BUFFERED)
+    val events: Flow<Int> = _events.receiveAsFlow()
+
+    private fun emitEvent(stringRes: Int) {
         viewModelScope.launch {
-            dataStore.edit { p ->
-                p[option.shizukuKey] = enabled
-                p[option.rootKey] = enabled
-                option.dhizukuKey?.let { p[it] = enabled }
-            }
+            _events.send(stringRes)
         }
     }
 
-    fun setInstallerPackageName(packageName: String) {
-        viewModelScope.launch {
-            dataStore.edit { p ->
-                p[PreferencesKeys.SHIZUKU_INSTALLER_PACKAGE_NAME] = packageName
-                p[PreferencesKeys.ROOT_INSTALLER_PACKAGE_NAME] = packageName
-            }
-        }
-    }
+    private val privilegeDelegate = SettingPrivilegeDelegate(
+        application = application,
+        scope = viewModelScope,
+        backendFactory = backendFactory,
+        emitEvent = { emitEvent(it) },
+    )
 
-    /**
-     * Normal vs Strict. Its own flow rather than a SettingUiState field: that state is assembled
-     * by an index-based combine whose interfaceFlags slot is a List<Boolean>, and this is neither
-     * a boolean nor worth renumbering the block for.
-     */
-    val securityLevel: StateFlow<SecurityLevel> = dataStore.data
-        .map {
-            SecurityLevel.from(
-                stored = it[PreferencesKeys.SECURITY_LEVEL],
-                legacyStrict = it[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] ?: false,
-            )
-        }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, SecurityLevel.Normal)
+    private val preferencesDelegate = SettingPreferencesDelegate(
+        application = application,
+        scope = viewModelScope,
+        emitEvent = { emitEvent(it) },
+    )
 
-    /**
-     * How a package opened by another app asks for confirmation. Defaults to Dialog, so existing
-     * installs keep the behaviour they already had.
-     */
-    val externalOpenMode: StateFlow<ExternalOpenMode> = dataStore.data
-        .map { ExternalOpenMode.from(it[PreferencesKeys.EXTERNAL_OPEN_MODE]) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ExternalOpenMode.Dialog)
+    private val profilesDelegate = SettingProfilesDelegate(
+        application = application,
+        scope = viewModelScope,
+    )
 
-    val installUiStyle: StateFlow<InstallUiStyle> = dataStore.data
-        .map { InstallUiStyle.from(it[PreferencesKeys.INSTALL_UI_STYLE]) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InstallUiStyle.Dialog)
+    val dhizukuState: StateFlow<DhizukuState> = privilegeDelegate.dhizukuState
+    val useDhizuku: StateFlow<Boolean> = privilegeDelegate.useDhizuku
+    val securityLevel: StateFlow<SecurityLevel> = preferencesDelegate.securityLevel
+    val externalOpenMode: StateFlow<ExternalOpenMode> = preferencesDelegate.externalOpenMode
+    val installUiStyle: StateFlow<InstallUiStyle> = preferencesDelegate.installUiStyle
+    val blacklist: StateFlow<List<String>> = preferencesDelegate.blacklist
+    val analyticsEnabled: StateFlow<Boolean> = preferencesDelegate.analyticsEnabled
 
-    fun setInstallUiStyle(style: InstallUiStyle) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.INSTALL_UI_STYLE] = style.value }
-        }
-    }
-
-    fun setExternalOpenMode(mode: ExternalOpenMode) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.EXTERNAL_OPEN_MODE] = mode.value }
-        }
-    }
-
-    fun setSecurityLevel(level: SecurityLevel) {
-        viewModelScope.launch {
-            dataStore.edit { prefs ->
-                prefs[PreferencesKeys.SECURITY_LEVEL] = level.name
-                // Keep the legacy key in step so anything still reading it agrees.
-                prefs[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] = level == SecurityLevel.Strict
-            }
-        }
-    }
-
-    /** Packages the user has blocked from ever being installed. */
-    val blacklist: StateFlow<List<String>> = dataStore.data
-        .map { InstallBlacklist.read(it).sorted() }
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-
-    fun addToBlacklist(packageName: String) {
-        val trimmed = packageName.trim()
-        if (trimmed.isBlank()) return
-        viewModelScope.launch {
-            dataStore.edit { p ->
-                p[InstallBlacklist.KEY] = InstallBlacklist.add(InstallBlacklist.read(p), trimmed)
-            }
-        }
-    }
-
-    fun removeFromBlacklist(packageName: String) {
-        viewModelScope.launch {
-            dataStore.edit { p ->
-                p[InstallBlacklist.KEY] = InstallBlacklist.remove(InstallBlacklist.read(p), packageName)
-            }
-        }
-    }
-
-    fun setUseDhizuku(enabled: Boolean) {
-        if (!enabled) {
-            viewModelScope.launch {
-                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_DHIZUKU] = false }
-            }
-            return
-        }
-        val state = DhizukuCompat.state(application)
-        _dhizukuState.value = state
-        when (state) {
-            DhizukuState.UNSUPPORTED -> emitEvent(R.string.setting_dhizuku_unsupported)
-            DhizukuState.NOT_INSTALLED -> emitEvent(R.string.setting_dhizuku_not_installed)
-            DhizukuState.NOT_RUNNING -> emitEvent(R.string.setting_dhizuku_not_running)
-            DhizukuState.NOT_AUTHORIZED -> DhizukuCompat.requestPermission(application) { granted ->
-                _dhizukuState.value = if (granted) DhizukuState.READY else DhizukuState.NOT_AUTHORIZED
-                if (granted) commitDhizukuMode() else emitEvent(R.string.setting_dhizuku_denied)
-            }
-            DhizukuState.READY -> commitDhizukuMode()
-        }
-    }
-
-    private fun commitDhizukuMode() = viewModelScope.launch {
-        dataStore.edit { p ->
-            p[PreferencesKeys.USE_SHIZUKU] = false
-            p[PreferencesKeys.USE_ROOT] = false
-            p[PreferencesKeys.USE_DHIZUKU] = true
-        }
-    }
-
-    /**
-     * Called on every Settings resume, so it must not bind to Dhizuku — that prompts. Once the
-     * user is actually on the Dhizuku backend the binding already exists and asking is free.
-     */
-    fun refreshDhizukuState() {
-        _dhizukuState.value = if (useDhizuku.value) {
-            DhizukuCompat.state(application)
-        } else {
-            DhizukuCompat.stateUnbound(application)
-        }
-    }
-
-    fun setUseShizuku(enabled: Boolean) {
-        if (!enabled) {
-            viewModelScope.launch {
-                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = false }
-            }
-            return
-        }
-        // Re-probe before deciding — binder state may have changed since last update.
-        updateShizukuState()
-        when (_shizukuState.value) {
-            ShizukuState.READY -> viewModelScope.launch {
-                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
-            }
-            ShizukuState.NO_PERMISSION -> requestShizukuPermission()
-            ShizukuState.NOT_RUNNING -> viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_start_service_hint)
-            }
-            ShizukuState.NOT_INSTALLED -> viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_install_hint)
-            }
-            ShizukuState.UNSUPPORTED -> viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_unsupported)
-            }
-        }
-    }
-
-    private fun requestShizukuPermission() {
-        try {
-            // Shizuku.requestPermission posts to the manager app; the result comes back
-            // via requestPermissionResultListener which then flips USE_SHIZUKU on grant.
-            Shizuku.requestPermission(SHIZUKU_PERMISSION_REQ_CODE)
-        } catch (t: Throwable) {
-            Timber.w(t, "Shizuku.requestPermission threw")
-            viewModelScope.launch {
-                _events.send(R.string.setting_shizuku_start_service_hint)
-            }
-        }
-    }
-
-    fun setUseRoot(enabled: Boolean) {
-        viewModelScope.launch {
-            if (enabled) {
-                val state = backendFactory.requestRoot()
-                _rootState.value = state
-                if (state == RootState.READY) {
-                    dataStore.edit { prefs -> prefs[PreferencesKeys.USE_ROOT] = true }
-                }
-            } else {
-                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_ROOT] = false }
-            }
-        }
-    }
-
-    fun retryRoot() {
-        viewModelScope.launch {
-            _rootState.value = RootState.UNKNOWN
-            // Backend factory re-checks su availability internally
-        }
-    }
-
-    fun setVirusTotalApiKey(key: String) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.VIRUSTOTAL_API_KEY] = key }
-        }
-    }
-
-    fun setStrictVirusTotalCheck(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] = enabled }
-        }
-    }
-
-    fun setDeleteApkAfterInstall(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.DELETE_APK_AFTER_INSTALL] = enabled }
-        }
-    }
-
-    fun setAutoOpenAfterInstall(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.AUTO_OPEN_AFTER_INSTALL] = enabled }
-        }
-    }
-
-    fun setBiometricLockInstall(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.BIOMETRIC_LOCK_INSTALL] = enabled }
-            _events.send(
-                if (enabled) R.string.setting_biometric_install_enabled
-                else R.string.setting_biometric_install_disabled,
-            )
-        }
-    }
-
-    fun setBiometricLockUninstall(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.BIOMETRIC_LOCK_UNINSTALL] = enabled }
-            _events.send(
-                if (enabled) R.string.setting_biometric_uninstall_enabled
-                else R.string.setting_biometric_uninstall_disabled,
-            )
-        }
-    }
-
-    fun setDialogInstallMode(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.DIALOG_INSTALL_MODE] = enabled }
-        }
-    }
-
-    fun setAutoConfirmExternalInstall(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { it[PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL] = enabled }
-        }
-    }
-
-    fun setShowDownloadTab(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { it[PreferencesKeys.SHOW_DOWNLOAD_TAB] = enabled }
-        }
-    }
-
-
-    fun setShizukuOption(key: Preferences.Key<Boolean>, value: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[key] = value }
-        }
-    }
-
-    fun setShizukuInstallerPackageName(name: String) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.SHIZUKU_INSTALLER_PACKAGE_NAME] = name }
-        }
-    }
-
-    fun setRootOption(key: Preferences.Key<Boolean>, value: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[key] = value }
-        }
-    }
-
-    fun setRootInstallerPackageName(name: String) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.ROOT_INSTALLER_PACKAGE_NAME] = name }
-        }
-    }
-
-    fun setSyncRequirePin(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.SYNC_REQUIRE_PIN] = enabled }
-        }
-    }
-
-    fun setSyncPinCode(code: String) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.SYNC_PIN_CODE] = code }
-        }
-    }
-
-    fun setSyncServerPort(port: String) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.SYNC_SERVER_PORT] = port }
-        }
-    }
-
-    fun setExtractorOutputPath(path: String) {
-        viewModelScope.launch {
-            if (path.startsWith("content://")) {
-                runCatching {
-                    application.contentResolver.takePersistableUriPermission(
-                        android.net.Uri.parse(path),
-                        android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    )
-                }
-            }
-            dataStore.edit { prefs -> prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH] = path }
-        }
-    }
-
-    fun setExtractorFilenameTemplate(template: String) {
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] = template }
-        }
-    }
-
-    /**
-     * Persist [profile], then invoke [onSaved] once the DataStore write has fully
-     * committed. The callback matters because the edit screen finishes its activity
-     * on save — finishing before the write completes would cancel this coroutine
-     * (viewModelScope is tied to that activity's VM) and silently drop the profile.
-     * viewModelScope runs on Main.immediate, so [onSaved] is safe to call finish() from.
-     */
-    fun saveProfile(profile: InstallerProfile, onSaved: () -> Unit = {}) {
-        viewModelScope.launch {
-            dataStore.edit { prefs ->
-                val current = ProfileManager.parseProfiles(prefs[PreferencesKeys.INSTALLER_PROFILES])
-                val index = current.indexOfFirst { it.id == profile.id }
-                val updated = if (index != -1) {
-                    current.toMutableList().apply { set(index, profile) }
-                } else {
-                    current + profile
-                }
-                prefs[PreferencesKeys.INSTALLER_PROFILES] = ProfileManager.serializeProfiles(updated)
-            }
-            onSaved()
-        }
-    }
-
-    fun deleteProfile(profileId: String) {
-        viewModelScope.launch {
-            dataStore.edit { prefs ->
-                val current = ProfileManager.parseProfiles(prefs[PreferencesKeys.INSTALLER_PROFILES])
-                val updated = current.filterNot { it.id == profileId }
-                prefs[PreferencesKeys.INSTALLER_PROFILES] = ProfileManager.serializeProfiles(updated)
-
-                // Cleanup mappings
-                val currentMapping = ProfileManager.parseMapping(prefs[PreferencesKeys.APP_PROFILE_MAPPING])
-                val updatedMapping = currentMapping.filterValues { it != profileId }
-                prefs[PreferencesKeys.APP_PROFILE_MAPPING] = ProfileManager.serializeMapping(updatedMapping)
-            }
-        }
-    }
-
-    /**
-     * Toggles Universal Installer's DialogInstallActivity as the preferred handler for APK
-     * install intents — the same mechanism Android uses when the user taps "Always" in the
-     * resolver dialog. Implemented over either Shizuku (in-process via [ShizukuDefaultInstaller],
-     * runs as shell UID 2000) or libsu RootService (separate UID-0 process via the backend
-     * factory). We do not disable the system installer package — that's a sledgehammer most
-     * ROMs reject and isn't what "default" means in Android's resolver model.
-     */
-    fun toggleDefaultInstaller(enabled: Boolean) {
-        updateShizukuState()
-        val shizukuReady = _shizukuState.value == ShizukuState.READY
-        val rootReady = _rootState.value == RootState.READY
-
-        if (!shizukuReady && !rootReady) {
-            // Worth a line of its own: someone reaching for this feature with no backend ready
-            // is the failure mode the Settings copy is meant to prevent.
-            reportDefaultInstaller("none", enabled, TelemetryEvents.RESULT_BLOCKED)
-            when (_shizukuState.value) {
-                ShizukuState.NO_PERMISSION -> requestShizukuPermission()
-                ShizukuState.NOT_RUNNING -> viewModelScope.launch {
-                    _events.send(R.string.setting_shizuku_start_service_hint)
-                }
-                else -> viewModelScope.launch {
-                    _events.send(R.string.setting_default_installer_needs_backend)
-                }
-            }
-            return
-        }
-
-        val component = defaultInstallerComponent()
-        val method = if (shizukuReady) "shizuku" else "root"
-        viewModelScope.launch(Dispatchers.IO) {
-            val result = if (shizukuReady) {
-                app.pwhs.universalinstaller.util.ShizukuDefaultInstaller
-                    .setDefaultInstaller(component, enabled)
-            } else {
-                backendFactory.setDefaultInstallerViaRoot(application, component, enabled)
-            }
-            result
-                .onSuccess {
-                    reportDefaultInstaller(method, enabled, TelemetryEvents.RESULT_SUCCESS)
-                    updateDefaultInstallerStatus()
-                    _events.send(
-                        if (enabled) R.string.setting_default_installer_enabled
-                        else R.string.setting_default_installer_disabled,
-                    )
-                }
-                .onFailure { e ->
-                    Timber.e(e, "Failed to toggle default installer")
-                    reportDefaultInstaller(method, enabled, TelemetryEvents.RESULT_FAILURE)
-                    _events.send(R.string.setting_default_installer_failed)
-                }
-        }
-    }
-
-    /**
-     * Analytics/crash reporting opt-out. Absent means on, which is what onboarding presents.
-     *
-     * Applied to the sink immediately as well as persisted: turning it off has to stop the very
-     * next event, not the next cold start. On `opensource` [Telemetry] has no sink and this is a
-     * write to a preference nothing reads.
-     */
-    fun setAnalyticsEnabled(enabled: Boolean) {
-        Telemetry.setCollectionEnabled(enabled)
-        viewModelScope.launch {
-            dataStore.edit { prefs -> prefs[SharedPrefsKeys.ANALYTICS_ENABLED] = enabled }
-        }
-    }
-
-    val analyticsEnabled: StateFlow<Boolean> = dataStore.data
-        .map { prefs -> prefs[SharedPrefsKeys.ANALYTICS_ENABLED] ?: true }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
-
-    private fun reportDefaultInstaller(method: String, enabled: Boolean, result: String) {
-        Telemetry.event(
-            TelemetryEvents.DEFAULT_INSTALLER_SET,
-            TelemetryEvents.PARAM_METHOD to method,
-            TelemetryEvents.PARAM_ENABLED to enabled,
-            TelemetryEvents.PARAM_RESULT to result,
-        )
-    }
-
-    private fun defaultInstallerComponent(): android.content.ComponentName =
-        android.content.ComponentName(
-            application,
-            "app.pwhs.universalinstaller.presentation.install.DialogInstallActivity",
-        )
-
-    /**
-     * "Default installer" = our DialogInstallActivity is what `resolveActivity` returns for
-     * a fresh APK-VIEW intent (i.e. the system's preferred-activity store points at us).
-     * `MATCH_DEFAULT_ONLY` is the same flag the resolver uses internally.
-     */
-    private fun updateDefaultInstallerStatus() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val probe = Intent(Intent.ACTION_VIEW).apply {
-                addCategory(Intent.CATEGORY_DEFAULT)
-                setDataAndType(
-                    android.net.Uri.parse("content://storage/emulated/0/test.apk"),
-                    "application/vnd.android.package-archive",
-                )
-            }
-            val resolved = try {
-                application.packageManager.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)
-            } catch (t: Throwable) {
-                Timber.w(t, "resolveActivity failed")
-                null
-            }
-            _isDefaultInstaller.value = resolved?.activityInfo?.packageName == application.packageName
-        }
-    }
-
-    private fun updateShizukuState() {
-        _shizukuState.value = when {
-            !Shizuku.pingBinder() -> ShizukuState.NOT_RUNNING
-            Shizuku.getVersion() < 11 -> ShizukuState.UNSUPPORTED
-            Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuState.NO_PERMISSION
-            else -> ShizukuState.READY
-        }
-    }
-
-    fun setLanguage(tag: String) {
-        app.pwhs.universalinstaller.util.LocaleHelper.setAppLanguage(application, tag)
-        _selectedLanguage.value = tag
-    }
-
-    private val _selectedLanguage = MutableStateFlow(app.pwhs.universalinstaller.util.LocaleHelper.getStoredLanguage(application))
+    private val _selectedLanguage = MutableStateFlow(LocaleHelper.getStoredLanguage(application))
 
     val uiState: StateFlow<SettingUiState> = combine(
         dataStore.data.map { prefs ->
@@ -1001,7 +121,7 @@ class SettingViewModel(
         },
         dataStore.data.map { it[PreferencesKeys.USE_SHIZUKU] ?: false },
         dataStore.data.map { it[PreferencesKeys.VIRUSTOTAL_API_KEY] ?: "" },
-        _shizukuState,
+        privilegeDelegate.shizukuState,
         dataStore.data.map { prefs ->
             ShizukuOptions(
                 bypassLowTargetSdk = prefs[PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK] ?: false,
@@ -1019,7 +139,7 @@ class SettingViewModel(
         },
         dataStore.data.map { it[PreferencesKeys.DELETE_APK_AFTER_INSTALL] ?: false },
         dataStore.data.map { it[PreferencesKeys.USE_ROOT] ?: false },
-        _rootState,
+        privilegeDelegate.rootState,
         dataStore.data.map { prefs ->
             RootOptions(
                 bypassLowTargetSdk = prefs[PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK] ?: false,
@@ -1037,113 +157,100 @@ class SettingViewModel(
             SyncOptions(
                 requirePin = prefs[PreferencesKeys.SYNC_REQUIRE_PIN] ?: true,
                 pinCode = prefs[PreferencesKeys.SYNC_PIN_CODE] ?: "",
-                serverPort = prefs[PreferencesKeys.SYNC_SERVER_PORT] ?: "8080"
+                serverPort = prefs[PreferencesKeys.SYNC_SERVER_PORT] ?: "8080",
             )
         },
         dataStore.data.map { prefs ->
-            // Both biometric toggles share one Flow so we don't blow past combine()'s
-            // vararg comfort zone — Pair carries them through to the SettingUiState build.
             (prefs[PreferencesKeys.BIOMETRIC_LOCK_INSTALL] ?: false) to
-                    (prefs[PreferencesKeys.BIOMETRIC_LOCK_UNINSTALL] ?: false)
+                (prefs[PreferencesKeys.BIOMETRIC_LOCK_UNINSTALL] ?: false)
         },
         dataStore.data.map { prefs ->
-            // Flags: dialog-mode, auto-open, auto-confirm, and show-download-tab, strict-vt
             listOf(
                 prefs[PreferencesKeys.DIALOG_INSTALL_MODE] ?: true,
                 prefs[PreferencesKeys.AUTO_OPEN_AFTER_INSTALL] ?: false,
                 prefs[PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL] ?: false,
                 prefs[PreferencesKeys.SHOW_DOWNLOAD_TAB] ?: true,
-                prefs[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] ?: false
+                prefs[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] ?: false,
             )
         },
         dataStore.data.map { prefs ->
-            // Actually, let's just use a data class or a List to group them.
             listOf(
                 prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH] ?: "",
                 prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] ?: "{name}-{version}",
                 prefs[PreferencesKeys.INSTALLER_PROFILES] ?: "",
-                prefs[PreferencesKeys.APP_PROFILE_MAPPING] ?: ""
+                prefs[PreferencesKeys.APP_PROFILE_MAPPING] ?: "",
             )
         },
         _selectedLanguage,
-        _isDefaultInstaller,
+        privilegeDelegate.isDefaultInstaller,
     ) { flows ->
-        val themeState = flows[0] as SettingThemeState
-        val useShizuku = flows[1] as Boolean
-        val vtKey = flows[2] as String
-        val shizukuState = flows[3] as ShizukuState
-        val shizukuOpts = flows[4] as ShizukuOptions
-        val deleteApk = flows[5] as Boolean
-        val useRoot = flows[6] as Boolean
-        val rootState = flows[7] as RootState
-        val rootOpts = flows[8] as RootOptions
-        val syncOpts = flows[9] as SyncOptions
-        @Suppress("UNCHECKED_CAST")
-        val biometricFlags = flows[10] as Pair<Boolean, Boolean>
-        @Suppress("UNCHECKED_CAST")
-        val interfaceFlags = flows[11] as List<Boolean>
-        val dialogMode = interfaceFlags[0]
-        val autoOpen = interfaceFlags[1]
-        val autoConfirm = interfaceFlags[2]
-        val showDownload = interfaceFlags[3]
-        val strictVirusTotal = interfaceFlags[4]
-        @Suppress("UNCHECKED_CAST")
-        val extractorAndProfiles = flows[12] as List<String>
-        val extractorPath = extractorAndProfiles[0]
-        val extractorTemplate = extractorAndProfiles[1]
-        val profilesJson = extractorAndProfiles[2]
-        val mappingJson = extractorAndProfiles[3]
-        val selectedLang = flows[13] as String
-        val isDefault = flows[14] as Boolean
-
-        val versionName = try {
-            application.packageManager
-                .getPackageInfo(application.packageName, 0)
-                .versionName ?: ""
-        } catch (_: Exception) {
-            ""
-        }
-        SettingUiState(
-            isLoading = false,
-            themeMode = themeState.mode,
-            dynamicColor = themeState.dynamicColor,
-            amoledMode = themeState.amoledMode,
-            themePreset = themeState.themePreset,
-            // Reflect the raw preference so the switch flips immediately when toggled.
-            // Functional gating (do we actually invoke the Shizuku backend?) is enforced
-            // separately at install time via shizukuAvailable / BackendSelfHeal.
-            useShizuku = useShizuku,
-            useRoot = useRoot && (rootState == RootState.READY || rootState == RootState.UNKNOWN),
-            virusTotalApiKey = vtKey,
-            deleteApkAfterInstall = deleteApk,
-            autoOpenAfterInstall = autoOpen,
-            shizukuState = shizukuState,
-            // "Available" means the binder is alive — we can talk to Shizuku/Sui now.
-            shizukuAvailable = shizukuState == ShizukuState.READY ||
-                    shizukuState == ShizukuState.NO_PERMISSION,
-            shizukuOptions = shizukuOpts,
-            rootSupported = backendFactory.rootSupportCompiledIn,
-            rootState = rootState,
-            rootOptions = rootOpts,
-            syncOptions = syncOpts,
-            appVersion = versionName,
-            biometricLockInstall = biometricFlags.first,
-            biometricLockUninstall = biometricFlags.second,
-            biometricEnrolmentAvailable = app.pwhs.universalinstaller.util
-                .BiometricGate.canAuthenticate(application),
-            dialogInstallMode = dialogMode,
-            autoConfirmExternalInstall = autoConfirm,
-            showDownloadTab = showDownload,
-            extractorOutputPath = extractorPath,
-            extractorFilenameTemplate = extractorTemplate,
-            installerProfiles = ProfileManager.parseProfiles(profilesJson),
-            appProfileMapping = ProfileManager.parseMapping(mappingJson),
-            selectedLanguage = selectedLang,
-            isDefaultInstaller = isDefault,
-        )
+        SettingUiStateBuilder.build(application, backendFactory, flows)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SettingUiState(),
     )
+
+    override fun onCleared() {
+        super.onCleared()
+        privilegeDelegate.cleanUp()
+    }
+
+    // ── Theme Delegates ─────────────────────────────────────────────────────
+
+    fun setThemeMode(mode: ThemeMode) = preferencesDelegate.setThemeMode(mode)
+    fun setDynamicColor(enabled: Boolean) = preferencesDelegate.setDynamicColor(enabled)
+    fun setAmoledMode(enabled: Boolean) = preferencesDelegate.setAmoledMode(enabled)
+    fun setThemePreset(preset: AppThemePreset) = preferencesDelegate.setThemePreset(preset)
+
+    // ── Privilege Delegates ─────────────────────────────────────────────────
+
+    fun setInstallMode(mode: InstallMode) = privilegeDelegate.setInstallMode(mode)
+    fun setUseShizuku(enabled: Boolean) = privilegeDelegate.setUseShizuku(enabled)
+    fun setUseRoot(enabled: Boolean) = privilegeDelegate.setUseRoot(enabled)
+    fun retryRoot() = privilegeDelegate.retryRoot()
+    fun setUseDhizuku(enabled: Boolean) = privilegeDelegate.setUseDhizuku(enabled)
+    fun refreshDhizukuState() = privilegeDelegate.refreshDhizukuState()
+    fun setPrivilegedOption(option: PrivilegedOption, enabled: Boolean) = privilegeDelegate.setPrivilegedOption(option, enabled)
+    fun setInstallerPackageName(packageName: String) = privilegeDelegate.setInstallerPackageName(packageName)
+    fun toggleDefaultInstaller(enabled: Boolean) = privilegeDelegate.toggleDefaultInstaller(enabled)
+
+    // ── Preferences Delegates ───────────────────────────────────────────────
+
+    fun setInstallUiStyle(style: InstallUiStyle) = preferencesDelegate.setInstallUiStyle(style)
+    fun setExternalOpenMode(mode: ExternalOpenMode) = preferencesDelegate.setExternalOpenMode(mode)
+    fun setSecurityLevel(level: SecurityLevel) = preferencesDelegate.setSecurityLevel(level)
+    fun addToBlacklist(packageName: String) = preferencesDelegate.addToBlacklist(packageName)
+    fun removeFromBlacklist(packageName: String) = preferencesDelegate.removeFromBlacklist(packageName)
+    fun setVirusTotalApiKey(key: String) = preferencesDelegate.setVirusTotalApiKey(key)
+    fun setStrictVirusTotalCheck(enabled: Boolean) = preferencesDelegate.setStrictVirusTotalCheck(enabled)
+    fun setDeleteApkAfterInstall(enabled: Boolean) = preferencesDelegate.setDeleteApkAfterInstall(enabled)
+    fun setAutoOpenAfterInstall(enabled: Boolean) = preferencesDelegate.setAutoOpenAfterInstall(enabled)
+    fun setBiometricLockInstall(enabled: Boolean) = preferencesDelegate.setBiometricLockInstall(enabled)
+    fun setBiometricLockUninstall(enabled: Boolean) = preferencesDelegate.setBiometricLockUninstall(enabled)
+    fun setDialogInstallMode(enabled: Boolean) = preferencesDelegate.setDialogInstallMode(enabled)
+    fun setAutoConfirmExternalInstall(enabled: Boolean) = preferencesDelegate.setAutoConfirmExternalInstall(enabled)
+    fun setShowDownloadTab(enabled: Boolean) = preferencesDelegate.setShowDownloadTab(enabled)
+    fun setShizukuOption(key: Preferences.Key<Boolean>, value: Boolean) = preferencesDelegate.setShizukuOption(key, value)
+    fun setShizukuInstallerPackageName(name: String) = preferencesDelegate.setShizukuInstallerPackageName(name)
+    fun setRootOption(key: Preferences.Key<Boolean>, value: Boolean) = preferencesDelegate.setRootOption(key, value)
+    fun setRootInstallerPackageName(name: String) = preferencesDelegate.setRootInstallerPackageName(name)
+    fun setSyncRequirePin(enabled: Boolean) = preferencesDelegate.setSyncRequirePin(enabled)
+    fun setSyncPinCode(code: String) = preferencesDelegate.setSyncPinCode(code)
+    fun setSyncServerPort(port: String) = preferencesDelegate.setSyncServerPort(port)
+    fun setExtractorOutputPath(path: String) = preferencesDelegate.setExtractorOutputPath(path)
+    fun setExtractorFilenameTemplate(template: String) = preferencesDelegate.setExtractorFilenameTemplate(template)
+    fun setAnalyticsEnabled(enabled: Boolean) = preferencesDelegate.setAnalyticsEnabled(enabled)
+
+    // ── Profiles Delegates ──────────────────────────────────────────────────
+
+    fun saveProfile(profile: InstallerProfile, onSaved: () -> Unit = {}) = profilesDelegate.saveProfile(profile, onSaved)
+    fun deleteProfile(profileId: String) = profilesDelegate.deleteProfile(profileId)
+
+    // ── Language ────────────────────────────────────────────────────────────
+
+    fun setLanguage(tag: String) {
+        LocaleHelper.setAppLanguage(application, tag)
+        _selectedLanguage.value = tag
+    }
 }

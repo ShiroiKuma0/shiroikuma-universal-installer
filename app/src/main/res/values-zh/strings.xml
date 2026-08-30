@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">隐私</string>
     <string name="setting_analytics_title">共享使用数据</string>
     <string name="setting_analytics_subtitle">报告使用了哪种安装方式以及是否成功，还有崩溃报告。绝不会上报你安装的软件包。</string>
+    <string name="apk_info_root_requested">已请求 Root</string>
+    <string name="apk_info_shizuku_requested">已请求 Shizuku</string>
+    <string name="dialog_fallback_install_unavailable">此设备上没有其他安装程序可以打开 APK 文件</string>
+    <string name="aa_compatibility_title">Android Auto 兼容性</string>
+    <string name="aa_compatibility_ok">兼容 Android Auto</string>
+    <string name="aa_compatibility_ok_desc">通过 Google Play 商店安装。此应用符合 Android Auto 可见性要求。</string>
+    <string name="aa_compatibility_error">不兼容 Android Auto</string>
+    <string name="aa_compatibility_error_desc">Android Auto 要求应用必须通过 Google Play 商店安装。通过侧载或 ADB 安装的应用可能不会出现在汽车屏幕上。</string>
+    <string name="aa_open_settings">Android Auto 设置</string>
+    <string name="aa_open_settings_sub">在开发者选项中启用未知来源</string>
+    <string name="dialog_menu_install_source_aa_hint">使用 Google Play 商店 (%1$s) 以确保应用在 Android Auto 上正常运行。</string>
 </resources>

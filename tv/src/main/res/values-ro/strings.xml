@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Dezactivat</string>
     <string name="tv_manage_extracted_success">Extras ✓</string>
     <string name="tv_manage_extract_error_prefix">Eroare: %s</string>
+    <string name="tv_receive_installed_silent">%s instalat silențios ✓</string>
+    <string name="tv_receive_retry">Reîncearcă</string>
+    <string name="tv_receive_scanning">Se scanează stocarea…</string>
+    <string name="tv_receive_rescan">Rescanează</string>
+    <string name="tv_receive_no_network">Conectați acest televizor la Wi-Fi pentru a primi aplicații</string>
+    <string name="tv_settings_silent_install_title">Instalare silențioasă (Root)</string>
+    <string name="tv_settings_silent_install_on">Activat · instalează fără dialogul de sistem</string>
+    <string name="tv_settings_silent_install_off">Dezactivat · folosește dialogul programului de instalare al sistemului</string>
+    <string name="tv_settings_root_available">Root detectat pe acest dispozitiv</string>
+    <string name="tv_settings_root_unavailable">Root nu a fost detectat — va fi folosit programul de instalare al sistemului</string>
+    <string name="tv_settings_checking_root">Se verifică Root…</string>
+    <string name="tv_manage_action_force_stop">Oprește forțat</string>
+    <string name="tv_manage_action_disable">Dezactivează</string>
+    <string name="tv_manage_action_enable">Activează</string>
+    <string name="tv_manage_action_clear_data">Șterge datele</string>
+    <string name="tv_manage_confirm_uninstall_title">Dezinstalați %s?</string>
+    <string name="tv_manage_confirm_clear_title">Ștergeți toate datele pentru %s?</string>
+    <string name="tv_manage_confirm_irreversible">Această acțiune nu poate fi anulată.</string>
+    <string name="tv_manage_confirm_yes">Confirmă</string>
+    <string name="tv_manage_confirm_cancel">Anulează</string>
+    <string name="tv_manage_no_matches">Niciun rezultat pentru „%s”</string>
+    <string name="tv_manage_clear_search">Șterge căutarea</string>
+    <string name="tv_language_title">Limbă</string>
 </resources>

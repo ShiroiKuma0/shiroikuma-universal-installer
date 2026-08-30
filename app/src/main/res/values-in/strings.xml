@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">Privasi</string>
     <string name="setting_analytics_title">Bagikan data penggunaan</string>
     <string name="setting_analytics_subtitle">Melaporkan metode pemasangan yang dipakai dan apakah berhasil, ditambah laporan error. Tidak pernah paket yang kamu pasang.</string>
+    <string name="apk_info_root_requested">Root Diminta</string>
+    <string name="apk_info_shizuku_requested">Shizuku Diminta</string>
+    <string name="dialog_fallback_install_unavailable">Tidak ada penginstal lain di perangkat ini yang dapat membuka file APK</string>
+    <string name="aa_compatibility_title">Kompatibilitas Android Auto</string>
+    <string name="aa_compatibility_ok">Kompatibel dengan Android Auto</string>
+    <string name="aa_compatibility_ok_desc">Diinstal oleh Google Play Store. Aplikasi ini memenuhi persyaratan visibilitas Android Auto.</string>
+    <string name="aa_compatibility_error">Tidak kompatibel dengan Android Auto</string>
+    <string name="aa_compatibility_error_desc">Android Auto memerlukan aplikasi yang diinstal dari Google Play Store. Aplikasi yang di-sideload atau diinstal melalui ADB mungkin tidak muncul di layar mobil.</string>
+    <string name="aa_open_settings">Pengaturan Android Auto</string>
+    <string name="aa_open_settings_sub">Aktifkan sumber tidak dikenal di opsi pengembang</string>
+    <string name="dialog_menu_install_source_aa_hint">Gunakan Google Play Store (%1$s) untuk memastikan aplikasi berfungsi di Android Auto.</string>
 </resources>

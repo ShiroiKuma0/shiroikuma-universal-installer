@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Dengan disabilitas</string>
     <string name="tv_manage_extracted_success">Diekstraksi ✓</string>
     <string name="tv_manage_extract_error_prefix">Kesalahan: %s</string>
+    <string name="tv_receive_installed_silent">Berhasil menginstal %s tanpa dialog ✓</string>
+    <string name="tv_receive_retry">Coba lagi</string>
+    <string name="tv_receive_scanning">Memindai penyimpanan…</string>
+    <string name="tv_receive_rescan">Pindai ulang</string>
+    <string name="tv_receive_no_network">Hubungkan TV ini ke Wi-Fi untuk menerima aplikasi</string>
+    <string name="tv_settings_silent_install_title">Penginstalan Senyap (Root)</string>
+    <string name="tv_settings_silent_install_on">Aktif · menginstal tanpa dialog sistem</string>
+    <string name="tv_settings_silent_install_off">Mati · menggunakan dialog penginstal sistem</string>
+    <string name="tv_settings_root_available">Root terdeteksi di perangkat ini</string>
+    <string name="tv_settings_root_unavailable">Root tidak terdeteksi — penginstal sistem akan digunakan</string>
+    <string name="tv_settings_checking_root">Memeriksa Root…</string>
+    <string name="tv_manage_action_force_stop">Paksa berhenti</string>
+    <string name="tv_manage_action_disable">Nonaktifkan</string>
+    <string name="tv_manage_action_enable">Aktifkan</string>
+    <string name="tv_manage_action_clear_data">Hapus data</string>
+    <string name="tv_manage_confirm_uninstall_title">Uninstal %s?</string>
+    <string name="tv_manage_confirm_clear_title">Hapus semua data %s?</string>
+    <string name="tv_manage_confirm_irreversible">Tindakan ini tidak dapat dibatalkan.</string>
+    <string name="tv_manage_confirm_yes">Konfirmasi</string>
+    <string name="tv_manage_confirm_cancel">Batal</string>
+    <string name="tv_manage_no_matches">Tidak ada hasil untuk \"%s\"</string>
+    <string name="tv_manage_clear_search">Hapus pencarian</string>
+    <string name="tv_language_title">Bahasa</string>
 </resources>

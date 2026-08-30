@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">عاجز</string>
     <string name="tv_manage_extracted_success">مستخرج ✓</string>
     <string name="tv_manage_extract_error_prefix">الخطأ: %s</string>
+    <string name="tv_receive_installed_silent">تم تثبيت %s تلقائيًا ✓</string>
+    <string name="tv_receive_retry">إعادة المحاولة</string>
+    <string name="tv_receive_scanning">جاري فحص وحدة التخزين…</string>
+    <string name="tv_receive_rescan">إعادة الفحص</string>
+    <string name="tv_receive_no_network">قم بتوصيل هذا التلفزيون بشبكة Wi-Fi لتلقي التطبيقات</string>
+    <string name="tv_settings_silent_install_title">التثبيت الصامت (Root)</string>
+    <string name="tv_settings_silent_install_on">مفعل · يتم التثبيت بدون نافذة النظام</string>
+    <string name="tv_settings_silent_install_off">معطل · يستخدم نافذة مثبت النظام</string>
+    <string name="tv_settings_root_available">تم اكتشاف Root على هذا الجهاز</string>
+    <string name="tv_settings_root_unavailable">لم يتم اكتشاف Root — سيتم استخدام مثبت النظام</string>
+    <string name="tv_settings_checking_root">جاري التحقق من صلاحية Root…</string>
+    <string name="tv_manage_action_force_stop">إيقاف إجباري</string>
+    <string name="tv_manage_action_disable">تعطيل</string>
+    <string name="tv_manage_action_enable">تفعيل</string>
+    <string name="tv_manage_action_clear_data">مسح البيانات</string>
+    <string name="tv_manage_confirm_uninstall_title">إلغاء تثبيت %s؟</string>
+    <string name="tv_manage_confirm_clear_title">مسح جميع بيانات %s؟</string>
+    <string name="tv_manage_confirm_irreversible">لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="tv_manage_confirm_yes">تأكيد</string>
+    <string name="tv_manage_confirm_cancel">إلغاء</string>
+    <string name="tv_manage_no_matches">لا توجد نتائج لـ \"%s\"</string>
+    <string name="tv_manage_clear_search">مسح البحث</string>
+    <string name="tv_language_title">اللغة</string>
 </resources>

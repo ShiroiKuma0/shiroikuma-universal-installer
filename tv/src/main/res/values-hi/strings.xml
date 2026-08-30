@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">अक्षम</string>
     <string name="tv_manage_extracted_success">निकाला गया ✓</string>
     <string name="tv_manage_extract_error_prefix">त्रुटि: %s</string>
+    <string name="tv_receive_installed_silent">%s चुपचाप स्थापित हो गया ✓</string>
+    <string name="tv_receive_retry">पुनः प्रयास करें</string>
+    <string name="tv_receive_scanning">स्टोरेज स्कैन किया जा रहा है…</string>
+    <string name="tv_receive_rescan">पुनः स्कैन करें</string>
+    <string name="tv_receive_no_network">ऐप्स प्राप्त करने के लिए इस टीवी को वाई-फ़ाई से कनेक्ट करें</string>
+    <string name="tv_settings_silent_install_title">साइलेंट इंस्टॉल (Root)</string>
+    <string name="tv_settings_silent_install_on">चालू · सिस्टम संवाद के बिना स्थापित होता है</string>
+    <string name="tv_settings_silent_install_off">बंद · सिस्टम इंस्टॉलर संवाद का उपयोग करता है</string>
+    <string name="tv_settings_root_available">इस डिवाइस पर Root का पता चला</string>
+    <string name="tv_settings_root_unavailable">Root का पता नहीं चला — सिस्टम इंस्टॉलर का उपयोग किया जाएगा</string>
+    <string name="tv_settings_checking_root">Root की जाँच की जा रही है…</string>
+    <string name="tv_manage_action_force_stop">जबरन रोकें</string>
+    <string name="tv_manage_action_disable">अक्षम करें</string>
+    <string name="tv_manage_action_enable">सक्षम करें</string>
+    <string name="tv_manage_action_clear_data">डेटा साफ़ करें</string>
+    <string name="tv_manage_confirm_uninstall_title">क्या %s को अनइंस्टॉल करें?</string>
+    <string name="tv_manage_confirm_clear_title">%s का सारा डेटा साफ़ करें?</string>
+    <string name="tv_manage_confirm_irreversible">यह क्रिया वापस नहीं ली जा सकती।</string>
+    <string name="tv_manage_confirm_yes">पुष्टि करें</string>
+    <string name="tv_manage_confirm_cancel">रद्द करें</string>
+    <string name="tv_manage_no_matches">\"%s\" के लिए कोई मेल नहीं मिला</string>
+    <string name="tv_manage_clear_search">खोज साफ़ करें</string>
+    <string name="tv_language_title">भाषा</string>
 </resources>

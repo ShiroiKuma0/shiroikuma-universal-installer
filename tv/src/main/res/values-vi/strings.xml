@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Tàn tật</string>
     <string name="tv_manage_extracted_success">Đã trích xuất ✓</string>
     <string name="tv_manage_extract_error_prefix">Lỗi: %s</string>
+    <string name="tv_receive_installed_silent">Đã cài đặt %s thành công ✓</string>
+    <string name="tv_receive_retry">Thử lại</string>
+    <string name="tv_receive_scanning">Đang quét bộ nhớ…</string>
+    <string name="tv_receive_rescan">Quét lại</string>
+    <string name="tv_receive_no_network">Kết nối TV này với Wi-Fi để nhận ứng dụng</string>
+    <string name="tv_settings_silent_install_title">Cài đặt tự động (Root)</string>
+    <string name="tv_settings_silent_install_on">Bật · cài đặt không cần hộp thoại hệ thống</string>
+    <string name="tv_settings_silent_install_off">Tắt · sử dụng hộp thoại cài đặt của hệ thống</string>
+    <string name="tv_settings_root_available">Đã phát hiện Root trên thiết bị này</string>
+    <string name="tv_settings_root_unavailable">Không phát hiện Root — sẽ sử dụng trình cài đặt hệ thống</string>
+    <string name="tv_settings_checking_root">Đang kiểm tra Root…</string>
+    <string name="tv_manage_action_force_stop">Buộc dừng</string>
+    <string name="tv_manage_action_disable">Vô hiệu hóa</string>
+    <string name="tv_manage_action_enable">Bật</string>
+    <string name="tv_manage_action_clear_data">Xóa dữ liệu</string>
+    <string name="tv_manage_confirm_uninstall_title">Gỡ cài đặt %s?</string>
+    <string name="tv_manage_confirm_clear_title">Xóa tất cả dữ liệu của %s?</string>
+    <string name="tv_manage_confirm_irreversible">Không thể hoàn tác hành động này.</string>
+    <string name="tv_manage_confirm_yes">Xác nhận</string>
+    <string name="tv_manage_confirm_cancel">Hủy</string>
+    <string name="tv_manage_no_matches">Không tìm thấy kết quả cho \"%s\"</string>
+    <string name="tv_manage_clear_search">Xóa tìm kiếm</string>
+    <string name="tv_language_title">Ngôn ngữ</string>
 </resources>

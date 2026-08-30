@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Ανάπηρος</string>
     <string name="tv_manage_extracted_success">Εξήχθη ✓</string>
     <string name="tv_manage_extract_error_prefix">Σφάλμα: %s</string>
+    <string name="tv_receive_installed_silent">Εγκαταστάθηκε το %s σιωπηρά ✓</string>
+    <string name="tv_receive_retry">Επανάληψη</string>
+    <string name="tv_receive_scanning">Σάρωση αποθηκευτικού χώρου…</string>
+    <string name="tv_receive_rescan">Επανασάρωση</string>
+    <string name="tv_receive_no_network">Συνδέστε αυτήν την τηλεόραση σε Wi-Fi για να λαμβάνετε εφαρμογές</string>
+    <string name="tv_settings_silent_install_title">Σιωπηρή εγκατάσταση (Root)</string>
+    <string name="tv_settings_silent_install_on">Ενεργό · εγκαθίσταται χωρίς παράθυρο διαλόγου συστήματος</string>
+    <string name="tv_settings_silent_install_off">Ανενεργό · χρησιμοποιεί το παράθυρο διαλόγου του συστήματος</string>
+    <string name="tv_settings_root_available">Εντοπίστηκε Root σε αυτήν τη συσκευή</string>
+    <string name="tv_settings_root_unavailable">Δεν εντοπίστηκε Root — θα χρησιμοποιηθεί η εφαρμογή του συστήματος</string>
+    <string name="tv_settings_checking_root">Έλεγχος για Root…</string>
+    <string name="tv_manage_action_force_stop">Αναγκαστική διακοπή</string>
+    <string name="tv_manage_action_disable">Απενεργοποίηση</string>
+    <string name="tv_manage_action_enable">Ενεργοποίηση</string>
+    <string name="tv_manage_action_clear_data">Εκκαθάριση δεδομένων</string>
+    <string name="tv_manage_confirm_uninstall_title">Απεγκατάσταση του %s;</string>
+    <string name="tv_manage_confirm_clear_title">Εκκαθάριση όλων των δεδομένων του %s;</string>
+    <string name="tv_manage_confirm_irreversible">Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</string>
+    <string name="tv_manage_confirm_yes">Επιβεβαίωση</string>
+    <string name="tv_manage_confirm_cancel">Ακύρωση</string>
+    <string name="tv_manage_no_matches">Δεν βρέθηκαν αποτελέσματα για \"%s\"</string>
+    <string name="tv_manage_clear_search">Εκκαθάριση αναζήτησης</string>
+    <string name="tv_language_title">Γλώσσα</string>
 </resources>

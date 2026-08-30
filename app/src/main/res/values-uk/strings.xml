@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">Конфіденційність</string>
     <string name="setting_analytics_title">Надсилати дані про використання</string>
     <string name="setting_analytics_subtitle">Повідомляє, який спосіб встановлення було використано і чи спрацював він, а також звіти про збої. Ніколи — пакети, які ви встановлюєте.</string>
+    <string name="apk_info_root_requested">Потрібен Root</string>
+    <string name="apk_info_shizuku_requested">Потрібен Shizuku</string>
+    <string name="dialog_fallback_install_unavailable">Жоден інший інсталятор на цьому пристрої не може відкривати файли APK</string>
+    <string name="aa_compatibility_title">Сумісність з Android Auto</string>
+    <string name="aa_compatibility_ok">Сумісно з Android Auto</string>
+    <string name="aa_compatibility_ok_desc">Встановлено через Google Play Store. Цей додаток відповідає вимогам відображення Android Auto.</string>
+    <string name="aa_compatibility_error">Несумісно з Android Auto</string>
+    <string name="aa_compatibility_error_desc">Android Auto вимагає встановлення додатків із Google Play Store. Додатки, встановлені через sideload або ADB, можуть не з\'являтися на дисплеї автомобіля.</string>
+    <string name="aa_open_settings">Налаштування Android Auto</string>
+    <string name="aa_open_settings_sub">Увімкнути невідомі джерела в параметрах розробника</string>
+    <string name="dialog_menu_install_source_aa_hint">Використовуйте Google Play Store (%1$s), щоб програми працювали в Android Auto.</string>
 </resources>

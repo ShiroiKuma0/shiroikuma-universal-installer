@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">無効</string>
     <string name="tv_manage_extracted_success">抽出済み ✓</string>
     <string name="tv_manage_extract_error_prefix">エラー: %s</string>
+    <string name="tv_receive_installed_silent">%s をバックグラウンドでインストールしました ✓</string>
+    <string name="tv_receive_retry">再試行</string>
+    <string name="tv_receive_scanning">ストレージをスキャン中…</string>
+    <string name="tv_receive_rescan">再スキャン</string>
+    <string name="tv_receive_no_network">アプリを受信するにはこのテレビをWi-Fiに接続してください</string>
+    <string name="tv_settings_silent_install_title">サイレントインストール (Root)</string>
+    <string name="tv_settings_silent_install_on">オン · システムダイアログなしでインストール</string>
+    <string name="tv_settings_silent_install_off">オフ · システムインストーラーダイアログを使用</string>
+    <string name="tv_settings_root_available">このデバイスでRootが検出されました</string>
+    <string name="tv_settings_root_unavailable">Rootは検出されませんでした — システムインストーラーが使用されます</string>
+    <string name="tv_settings_checking_root">Rootを確認中…</string>
+    <string name="tv_manage_action_force_stop">強制停止</string>
+    <string name="tv_manage_action_disable">無効化</string>
+    <string name="tv_manage_action_enable">有効化</string>
+    <string name="tv_manage_action_clear_data">データを消去</string>
+    <string name="tv_manage_confirm_uninstall_title">%s をアンインストールしますか？</string>
+    <string name="tv_manage_confirm_clear_title">%s のすべてのデータを消去しますか？</string>
+    <string name="tv_manage_confirm_irreversible">この操作は取り消せません。</string>
+    <string name="tv_manage_confirm_yes">確認</string>
+    <string name="tv_manage_confirm_cancel">キャンセル</string>
+    <string name="tv_manage_no_matches">「%s」に一致する結果はありません</string>
+    <string name="tv_manage_clear_search">検索をクリア</string>
+    <string name="tv_language_title">言語</string>
 </resources>

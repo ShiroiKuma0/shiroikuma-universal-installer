@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">Gizlilik</string>
     <string name="setting_analytics_title">Kullanım verilerini paylaş</string>
     <string name="setting_analytics_subtitle">Hangi yükleme yönteminin kullanıldığını ve işe yarayıp yaramadığını, ayrıca çökme raporlarını bildirir. Yüklediğiniz paketleri asla bildirmez.</string>
+    <string name="apk_info_root_requested">Root İstendi</string>
+    <string name="apk_info_shizuku_requested">Shizuku İstendi</string>
+    <string name="dialog_fallback_install_unavailable">Bu cihazdaki başka hiçbir yükleyici APK dosyalarını açamaz</string>
+    <string name="aa_compatibility_title">Android Auto Uyumluluğu</string>
+    <string name="aa_compatibility_ok">Android Auto ile uyumlu</string>
+    <string name="aa_compatibility_ok_desc">Google Play Store tarafından yüklendi. Bu uygulama Android Auto görünürlük gereksinimlerini karşılıyor.</string>
+    <string name="aa_compatibility_error">Android Auto ile uyumsuz</string>
+    <string name="aa_compatibility_error_desc">Android Auto, uygulamaların Google Play Store üzerinden yüklenmesini gerektirir. Sideload veya ADB ile yüklenen uygulamalar araç ekranında görünmeyebilir.</string>
+    <string name="aa_open_settings">Android Auto ayarları</string>
+    <string name="aa_open_settings_sub">Geliştirici seçeneklerinde bilinmeyen kaynakları etkinleştirin</string>
+    <string name="dialog_menu_install_source_aa_hint">Uygulamaların Android Auto\'da çalıştığından emin olmak için Google Play Store\'u (%1$s) kullanın.</string>
 </resources>

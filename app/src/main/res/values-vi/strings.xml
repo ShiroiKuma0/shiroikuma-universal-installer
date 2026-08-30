@@ -780,4 +780,7 @@
     <string name="aa_open_settings">Cài đặt Android Auto</string>
     <string name="aa_open_settings_sub">Bật nguồn không xác định trong tùy chọn nhà phát triển</string>
     <string name="dialog_menu_install_source_aa_hint">Dùng Google Play Store (%1$s) để ứng dụng hoạt động được trên Android Auto.</string>
+    <string name="apk_info_root_requested">Yêu cầu Root</string>
+    <string name="apk_info_shizuku_requested">Yêu cầu Shizuku</string>
+    <string name="dialog_fallback_install_unavailable">Không có trình cài đặt nào khác trên thiết bị này có thể mở tệp APK</string>
 </resources>

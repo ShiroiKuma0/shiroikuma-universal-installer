@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Deaktiviert</string>
     <string name="tv_manage_extracted_success">Extrahiert ✓</string>
     <string name="tv_manage_extract_error_prefix">Fehler: %s</string>
+    <string name="tv_receive_installed_silent">%s stumm installiert ✓</string>
+    <string name="tv_receive_retry">Wiederholen</string>
+    <string name="tv_receive_scanning">Speicher wird gescannt…</string>
+    <string name="tv_receive_rescan">Erneut scannen</string>
+    <string name="tv_receive_no_network">Verbinden Sie diesen Fernseher mit dem WLAN, um Apps zu empfangen</string>
+    <string name="tv_settings_silent_install_title">Stille Installation (Root)</string>
+    <string name="tv_settings_silent_install_on">Ein · installiert ohne Systemdialog</string>
+    <string name="tv_settings_silent_install_off">Aus · verwendet das Dialogfeld des Systeminstallationsprogramms</string>
+    <string name="tv_settings_root_available">Root auf diesem Gerät erkannt</string>
+    <string name="tv_settings_root_unavailable">Root nicht erkannt — das Systeminstallationsprogramm wird verwendet</string>
+    <string name="tv_settings_checking_root">Root wird überprüft…</string>
+    <string name="tv_manage_action_force_stop">Stoppen erzwingen</string>
+    <string name="tv_manage_action_disable">Deaktivieren</string>
+    <string name="tv_manage_action_enable">Aktivieren</string>
+    <string name="tv_manage_action_clear_data">Daten löschen</string>
+    <string name="tv_manage_confirm_uninstall_title">%s deinstallieren?</string>
+    <string name="tv_manage_confirm_clear_title">Alle Daten von %s löschen?</string>
+    <string name="tv_manage_confirm_irreversible">Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="tv_manage_confirm_yes">Bestätigen</string>
+    <string name="tv_manage_confirm_cancel">Abbrechen</string>
+    <string name="tv_manage_no_matches">Keine Treffer für „%s“</string>
+    <string name="tv_manage_clear_search">Suche löschen</string>
+    <string name="tv_language_title">Sprache</string>
 </resources>

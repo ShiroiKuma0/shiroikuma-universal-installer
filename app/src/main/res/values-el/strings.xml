@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">Απόρρητο</string>
     <string name="setting_analytics_title">Κοινή χρήση δεδομένων χρήσης</string>
     <string name="setting_analytics_subtitle">Αναφέρει ποια μέθοδος εγκατάστασης χρησιμοποιήθηκε και αν λειτούργησε, καθώς και αναφορές σφαλμάτων. Ποτέ τα πακέτα που εγκαθιστάτε.</string>
+    <string name="apk_info_root_requested">Απαιτείται Root</string>
+    <string name="apk_info_shizuku_requested">Απαιτείται Shizuku</string>
+    <string name="dialog_fallback_install_unavailable">Καμία άλλη εφαρμογή εγκατάστασης σε αυτήν τη συσκευή δεν μπορεί να ανοίξει αρχεία APK</string>
+    <string name="aa_compatibility_title">Συμβατότητα Android Auto</string>
+    <string name="aa_compatibility_ok">Συμβατό με το Android Auto</string>
+    <string name="aa_compatibility_ok_desc">Εγκαταστάθηκε από το Google Play Store. Αυτή η εφαρμογή πληροί τις απαιτήσεις προβολής του Android Auto.</string>
+    <string name="aa_compatibility_error">Μη συμβατό με το Android Auto</string>
+    <string name="aa_compatibility_error_desc">Το Android Auto απαιτεί οι εφαρμογές να έχουν εγκατασταθεί από το Google Play Store. Οι εφαρμογές που έχουν εγκατασταθεί μέσω sideload ή ADB ενδέχεται να μην εμφανίζονται στην οθόνη του αυτοκινήτου.</string>
+    <string name="aa_open_settings">Ρυθμίσεις Android Auto</string>
+    <string name="aa_open_settings_sub">Ενεργοποίηση άγνωστων πηγών στις επιλογές προγραμματιστή</string>
+    <string name="dialog_menu_install_source_aa_hint">Χρησιμοποιήστε το Google Play Store (%1$s) για να εξασφαλίσετε ότι οι εφαρμογές λειτουργούν στο Android Auto.</string>
 </resources>

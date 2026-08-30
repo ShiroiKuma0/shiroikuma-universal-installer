@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Désactivé</string>
     <string name="tv_manage_extracted_success">Extrait ✓</string>
     <string name="tv_manage_extract_error_prefix">Erreur : %s</string>
+    <string name="tv_receive_installed_silent">%s installé en arrière-plan ✓</string>
+    <string name="tv_receive_retry">Réessayer</string>
+    <string name="tv_receive_scanning">Analyse du stockage en cours…</string>
+    <string name="tv_receive_rescan">Réanalyser</string>
+    <string name="tv_receive_no_network">Connectez ce téléviseur au Wi-Fi pour recevoir des applications</string>
+    <string name="tv_settings_silent_install_title">Installation silencieuse (Root)</string>
+    <string name="tv_settings_silent_install_on">Activé · s\'installe sans la boîte de dialogue du système</string>
+    <string name="tv_settings_silent_install_off">Désactivé · utilise la boîte de dialogue d\'installation du système</string>
+    <string name="tv_settings_root_available">Root détecté sur cet appareil</string>
+    <string name="tv_settings_root_unavailable">Root non détecté — le programme d\'installation du système sera utilisé</string>
+    <string name="tv_settings_checking_root">Vérification du Root…</string>
+    <string name="tv_manage_action_force_stop">Forcer l\'arrêt</string>
+    <string name="tv_manage_action_disable">Désactiver</string>
+    <string name="tv_manage_action_enable">Activer</string>
+    <string name="tv_manage_action_clear_data">Effacer les données</string>
+    <string name="tv_manage_confirm_uninstall_title">Désinstaller %s ?</string>
+    <string name="tv_manage_confirm_clear_title">Effacer toutes les données de %s ?</string>
+    <string name="tv_manage_confirm_irreversible">Cette action est irréversible.</string>
+    <string name="tv_manage_confirm_yes">Confirmer</string>
+    <string name="tv_manage_confirm_cancel">Annuler</string>
+    <string name="tv_manage_no_matches">Aucun résultat pour « %s »</string>
+    <string name="tv_manage_clear_search">Effacer la recherche</string>
+    <string name="tv_language_title">Langue</string>
 </resources>

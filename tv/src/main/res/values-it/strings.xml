@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Disabilitato</string>
     <string name="tv_manage_extracted_success">Estratto ✓</string>
     <string name="tv_manage_extract_error_prefix">Errore: %s</string>
+    <string name="tv_receive_installed_silent">%s installato silenziosamente ✓</string>
+    <string name="tv_receive_retry">Riprova</string>
+    <string name="tv_receive_scanning">Scansione memoria in corso…</string>
+    <string name="tv_receive_rescan">Ripeti scansione</string>
+    <string name="tv_receive_no_network">Collega questa TV al Wi-Fi per ricevere le app</string>
+    <string name="tv_settings_silent_install_title">Installazione invisibile (Root)</string>
+    <string name="tv_settings_silent_install_on">Attivo · installa senza la finestra di sistema</string>
+    <string name="tv_settings_silent_install_off">Disattivo · utilizza la finestra del programma di sistema</string>
+    <string name="tv_settings_root_available">Root rilevato su questo dispositivo</string>
+    <string name="tv_settings_root_unavailable">Root non rilevato: verrà utilizzato il programma di installazione di sistema</string>
+    <string name="tv_settings_checking_root">Verifica Root in corso…</string>
+    <string name="tv_manage_action_force_stop">Chiusura forzata</string>
+    <string name="tv_manage_action_disable">Disattiva</string>
+    <string name="tv_manage_action_enable">Attiva</string>
+    <string name="tv_manage_action_clear_data">Cancella dati</string>
+    <string name="tv_manage_confirm_uninstall_title">Disinstallare %s?</string>
+    <string name="tv_manage_confirm_clear_title">Cancellare tutti i dati di %s?</string>
+    <string name="tv_manage_confirm_irreversible">Questa azione non può essere annullata.</string>
+    <string name="tv_manage_confirm_yes">Conferma</string>
+    <string name="tv_manage_confirm_cancel">Annulla</string>
+    <string name="tv_manage_no_matches">Nessun risultato per \"%s\"</string>
+    <string name="tv_manage_clear_search">Cancella ricerca</string>
+    <string name="tv_language_title">Lingua</string>
 </resources>

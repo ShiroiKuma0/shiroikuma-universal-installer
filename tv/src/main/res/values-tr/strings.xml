@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Engelli</string>
     <string name="tv_manage_extracted_success">Çıkarıldı ✓</string>
     <string name="tv_manage_extract_error_prefix">Hata: %s</string>
+    <string name="tv_receive_installed_silent">%s sessizce yüklendi ✓</string>
+    <string name="tv_receive_retry">Tekrar dene</string>
+    <string name="tv_receive_scanning">Depolama taranıyor…</string>
+    <string name="tv_receive_rescan">Yeniden tara</string>
+    <string name="tv_receive_no_network">Uygulamaları almak için bu TV\'yi Wi-Fi\'ye bağlayın</string>
+    <string name="tv_settings_silent_install_title">Sessiz yükleme (Root)</string>
+    <string name="tv_settings_silent_install_on">Açık · sistem iletişim kutusu olmadan yüklenir</string>
+    <string name="tv_settings_silent_install_off">Kapalı · sistem yükleyici iletişim kutusunu kullanır</string>
+    <string name="tv_settings_root_available">Bu cihazda Root algılandı</string>
+    <string name="tv_settings_root_unavailable">Root algılanmadı — sistem yükleyicisi kullanılacak</string>
+    <string name="tv_settings_checking_root">Root kontrol ediliyor…</string>
+    <string name="tv_manage_action_force_stop">Durmaya zorla</string>
+    <string name="tv_manage_action_disable">Devre dışı bırak</string>
+    <string name="tv_manage_action_enable">Etkinleştir</string>
+    <string name="tv_manage_action_clear_data">Verileri temizle</string>
+    <string name="tv_manage_confirm_uninstall_title">%s kaldırılsın mı?</string>
+    <string name="tv_manage_confirm_clear_title">%s için tüm veriler temizlensin mi?</string>
+    <string name="tv_manage_confirm_irreversible">Bu işlem geri alınamaz.</string>
+    <string name="tv_manage_confirm_yes">Onayla</string>
+    <string name="tv_manage_confirm_cancel">İptal</string>
+    <string name="tv_manage_no_matches">\"%s\" için eşleşme bulunamadı</string>
+    <string name="tv_manage_clear_search">Aramayı temizle</string>
+    <string name="tv_language_title">Dil</string>
 </resources>

@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">Privacidad</string>
     <string name="setting_analytics_title">Compartir datos de uso</string>
     <string name="setting_analytics_subtitle">Informa de qué método de instalación se usó y si funcionó, además de los informes de fallos. Nunca los paquetes que instalas.</string>
+    <string name="apk_info_root_requested">Root solicitado</string>
+    <string name="apk_info_shizuku_requested">Shizuku solicitado</string>
+    <string name="dialog_fallback_install_unavailable">Ningún otro instalador en este dispositivo puede abrir archivos APK</string>
+    <string name="aa_compatibility_title">Compatibilidad con Android Auto</string>
+    <string name="aa_compatibility_ok">Compatible con Android Auto</string>
+    <string name="aa_compatibility_ok_desc">Instalado por Google Play Store. Esta aplicación cumple con los requisitos de visibilidad de Android Auto.</string>
+    <string name="aa_compatibility_error">Incompatible con Android Auto</string>
+    <string name="aa_compatibility_error_desc">Android Auto requiere que las aplicaciones se instalen desde Google Play Store. Las aplicaciones instaladas de forma externa o mediante ADB pueden no aparecer en la pantalla del vehículo.</string>
+    <string name="aa_open_settings">Ajustes de Android Auto</string>
+    <string name="aa_open_settings_sub">Habilitar orígenes desconocidos en opciones de desarrollador</string>
+    <string name="dialog_menu_install_source_aa_hint">Usa Google Play Store (%1$s) para asegurarte de que las apps funcionen en Android Auto.</string>
 </resources>

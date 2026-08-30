@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">プライバシー</string>
     <string name="setting_analytics_title">利用データを共有</string>
     <string name="setting_analytics_subtitle">どのインストール方法が使われ、成功したかどうかを報告します。クラッシュレポートも含みます。インストールしたパッケージが送信されることはありません。</string>
+    <string name="apk_info_root_requested">Rootが必要</string>
+    <string name="apk_info_shizuku_requested">Shizukuが必要</string>
+    <string name="dialog_fallback_install_unavailable">このデバイス上の他のインストーラーはAPKファイルを開けません</string>
+    <string name="aa_compatibility_title">Android Autoとの互換性</string>
+    <string name="aa_compatibility_ok">Android Autoに対応</string>
+    <string name="aa_compatibility_ok_desc">Google Playストアからインストールされました。このアプリはAndroid Autoの表示要件を満たしています。</string>
+    <string name="aa_compatibility_error">Android Autoと互換性がありません</string>
+    <string name="aa_compatibility_error_desc">Android AutoではGoogle Playストアからアプリをインストールする必要があります。サイドロードまたはADBでインストールされたアプリは車載ディスプレイに表示されない場合があります。</string>
+    <string name="aa_open_settings">Android Autoの設定</string>
+    <string name="aa_open_settings_sub">開発者向けオプションで不明なソースを有効化</string>
+    <string name="dialog_menu_install_source_aa_hint">アプリがAndroid Autoで動作することを確認するにはGoogle Playストア (%1$s) を使用してください。</string>
 </resources>

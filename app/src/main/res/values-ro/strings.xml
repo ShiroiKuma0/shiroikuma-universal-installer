@@ -770,4 +770,15 @@
     <string name="setting_section_privacy">Confidențialitate</string>
     <string name="setting_analytics_title">Partajează datele de utilizare</string>
     <string name="setting_analytics_subtitle">Raportează ce metodă de instalare a fost folosită și dacă a funcționat, plus rapoartele de eroare. Niciodată pachetele pe care le instalezi.</string>
+    <string name="apk_info_root_requested">Root Solicitat</string>
+    <string name="apk_info_shizuku_requested">Shizuku Solicitat</string>
+    <string name="dialog_fallback_install_unavailable">Niciun alt program de instalare de pe acest dispozitiv nu poate deschide fișiere APK</string>
+    <string name="aa_compatibility_title">Compatibilitate Android Auto</string>
+    <string name="aa_compatibility_ok">Compatibil cu Android Auto</string>
+    <string name="aa_compatibility_ok_desc">Instalat prin Google Play Store. Această aplicație îndeplinește cerințele de vizibilitate Android Auto.</string>
+    <string name="aa_compatibility_error">Incompatibil cu Android Auto</string>
+    <string name="aa_compatibility_error_desc">Android Auto necesită instalarea aplicațiilor din Google Play Store. Aplicațiile instalate prin sideload sau ADB s-ar putea să nu apară pe ecranul mașinii.</string>
+    <string name="aa_open_settings">Setări Android Auto</string>
+    <string name="aa_open_settings_sub">Activează sursele necunoscute în opțiunile pentru dezvoltatori</string>
+    <string name="dialog_menu_install_source_aa_hint">Folosește Google Play Store (%1$s) pentru a te asigura că aplicațiile funcționează pe Android Auto.</string>
 </resources>

@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Неполноценный</string>
     <string name="tv_manage_extracted_success">Извлечено ✓</string>
     <string name="tv_manage_extract_error_prefix">Ошибка: %s</string>
+    <string name="tv_receive_installed_silent">%s успешно установлен в тихом режиме ✓</string>
+    <string name="tv_receive_retry">Повторить</string>
+    <string name="tv_receive_scanning">Сканирование хранилища…</string>
+    <string name="tv_receive_rescan">Повторить сканирование</string>
+    <string name="tv_receive_no_network">Подключите телевизор к Wi-Fi для приема приложений</string>
+    <string name="tv_settings_silent_install_title">Тихая установка (Root)</string>
+    <string name="tv_settings_silent_install_on">Вкл · установка без системного диалогового окна</string>
+    <string name="tv_settings_silent_install_off">Выкл · использовать стандартный диалог системы</string>
+    <string name="tv_settings_root_available">На этом устройстве обнаружен Root</string>
+    <string name="tv_settings_root_unavailable">Root не обнаружен — будет использован системный установщик</string>
+    <string name="tv_settings_checking_root">Проверка Root…</string>
+    <string name="tv_manage_action_force_stop">Остановить</string>
+    <string name="tv_manage_action_disable">Отключить</string>
+    <string name="tv_manage_action_enable">Включить</string>
+    <string name="tv_manage_action_clear_data">Стереть данные</string>
+    <string name="tv_manage_confirm_uninstall_title">Удалить %s?</string>
+    <string name="tv_manage_confirm_clear_title">Удалить все данные %s?</string>
+    <string name="tv_manage_confirm_irreversible">Это действие нельзя отменить.</string>
+    <string name="tv_manage_confirm_yes">Подтвердить</string>
+    <string name="tv_manage_confirm_cancel">Отмена</string>
+    <string name="tv_manage_no_matches">Нет совпадений для «%s»</string>
+    <string name="tv_manage_clear_search">Очистить поиск</string>
+    <string name="tv_language_title">Язык</string>
 </resources>

@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">Desabilitado</string>
     <string name="tv_manage_extracted_success">Extraído ✓</string>
     <string name="tv_manage_extract_error_prefix">Erro: %s</string>
+    <string name="tv_receive_installed_silent">%s instalado silenciosamente ✓</string>
+    <string name="tv_receive_retry">Tentar novamente</string>
+    <string name="tv_receive_scanning">Verificando armazenamento…</string>
+    <string name="tv_receive_rescan">Verificar novamente</string>
+    <string name="tv_receive_no_network">Conecte esta TV ao Wi-Fi para receber aplicativos</string>
+    <string name="tv_settings_silent_install_title">Instalação silenciosa (Root)</string>
+    <string name="tv_settings_silent_install_on">Ativado · instala sem o diálogo do sistema</string>
+    <string name="tv_settings_silent_install_off">Desativado · usa o diálogo do instalador do sistema</string>
+    <string name="tv_settings_root_available">Root detectado neste dispositivo</string>
+    <string name="tv_settings_root_unavailable">Root não detectado — o instalador do sistema será usado</string>
+    <string name="tv_settings_checking_root">Verificando Root…</string>
+    <string name="tv_manage_action_force_stop">Forçar parada</string>
+    <string name="tv_manage_action_disable">Desativar</string>
+    <string name="tv_manage_action_enable">Ativar</string>
+    <string name="tv_manage_action_clear_data">Limpar dados</string>
+    <string name="tv_manage_confirm_uninstall_title">Desinstalar %s?</string>
+    <string name="tv_manage_confirm_clear_title">Limpar todos os dados de %s?</string>
+    <string name="tv_manage_confirm_irreversible">Esta ação não pode ser desfeita.</string>
+    <string name="tv_manage_confirm_yes">Confirmar</string>
+    <string name="tv_manage_confirm_cancel">Cancelar</string>
+    <string name="tv_manage_no_matches">Nenhum resultado para \"%s\"</string>
+    <string name="tv_manage_clear_search">Limpar pesquisa</string>
+    <string name="tv_language_title">Idioma</string>
 </resources>

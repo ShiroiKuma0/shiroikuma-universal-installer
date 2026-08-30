@@ -62,4 +62,27 @@
     <string name="tv_manage_status_disabled">장애가 있는</string>
     <string name="tv_manage_extracted_success">추출됨 ✓</string>
     <string name="tv_manage_extract_error_prefix">오류: %s</string>
+    <string name="tv_receive_installed_silent">%s 자동 설치 완료 ✓</string>
+    <string name="tv_receive_retry">다시 시도</string>
+    <string name="tv_receive_scanning">저장공간 검색 중…</string>
+    <string name="tv_receive_rescan">다시 검색</string>
+    <string name="tv_receive_no_network">앱을 수신하려면 이 TV를 Wi-Fi에 연결하세요</string>
+    <string name="tv_settings_silent_install_title">자동 설치 (Root)</string>
+    <string name="tv_settings_silent_install_on">켜짐 · 시스템 대화상자 없이 설치</string>
+    <string name="tv_settings_silent_install_off">꺼짐 · 시스템 설치 프로그램 대화상자 사용</string>
+    <string name="tv_settings_root_available">이 기기에서 Root 권한이 감지됨</string>
+    <string name="tv_settings_root_unavailable">Root 권한이 감지되지 않음 — 시스템 설치 프로그램이 사용됩니다</string>
+    <string name="tv_settings_checking_root">Root 확인 중…</string>
+    <string name="tv_manage_action_force_stop">강제 종료</string>
+    <string name="tv_manage_action_disable">사용 중지</string>
+    <string name="tv_manage_action_enable">사용 설정</string>
+    <string name="tv_manage_action_clear_data">데이터 삭제</string>
+    <string name="tv_manage_confirm_uninstall_title">%s을(를) 삭제하시겠습니까?</string>
+    <string name="tv_manage_confirm_clear_title">%s의 모든 데이터를 삭제하시겠습니까?</string>
+    <string name="tv_manage_confirm_irreversible">이 작업은 취소할 수 없습니다.</string>
+    <string name="tv_manage_confirm_yes">확인</string>
+    <string name="tv_manage_confirm_cancel">취소</string>
+    <string name="tv_manage_no_matches">\"%s\"에 대한 검색 결과가 없습니다</string>
+    <string name="tv_manage_clear_search">검색 지우기</string>
+    <string name="tv_language_title">언어</string>
 </resources>

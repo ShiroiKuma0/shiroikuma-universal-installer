@@ -217,6 +217,9 @@ dependencies {
     implementation(libs.libsu.core)
     implementation(libs.libsu.service)
 
+    // App Updater module — opensource flavor only. Keeps Google Play build free of self-updating code.
+    "opensourceImplementation"(project(":updater"))
+
     // Firebase, `play` flavor only. Quoted configuration names because type-safe accessors for
     // flavor configurations aren't generated for the script that declares the flavor.
     "playImplementation"(platform(libs.firebase.bom))

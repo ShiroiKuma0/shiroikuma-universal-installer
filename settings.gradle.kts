@@ -28,5 +28,6 @@ dependencyResolutionManagement {
 rootProject.name = "Universal Installer"
 include(":app")
 include(":core")
+include(":updater")
 include(":tv")
 include(":tv-baselineprofile")

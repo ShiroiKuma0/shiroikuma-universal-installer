@@ -27,20 +27,53 @@ class ApkMetadataReader(private val context: Context) {
     }
 
     private fun readBundleMetadata(uri: Uri): PackageMetadata? {
-        val apks = ZippedApkSplits.getApksForUri(uri, context)
-        var baseApk: Apk.Base? = null
-        try {
-            for (apk in apks) {
-                if (apk is Apk.Base) {
-                    baseApk = apk
-                    break
+        val baseApkUri = runCatching {
+            val apks = ZippedApkSplits.getApksForUri(uri, context)
+            try {
+                var found: Uri? = null
+                for (apk in apks) {
+                    if (apk is Apk.Base) {
+                        found = apk.uri
+                        break
+                    }
                 }
+                found
+            } finally {
+                apks.close()
             }
-        } finally {
-            apks.close()
+        }.getOrNull()
+
+        if (baseApkUri != null) {
+            return readSingleApkMetadata(baseApkUri, isBundle = true)
         }
 
-        return baseApk?.let { readSingleApkMetadata(it.uri, isBundle = true) }
+        // Fallback for generic ZIPs containing any standalone .apk
+        return readZipArchiveMetadata(uri)
+    }
+
+    private fun readZipArchiveMetadata(uri: Uri): PackageMetadata? {
+        val tempFile = File(context.cacheDir, "temp_zip_entry_${System.currentTimeMillis()}.apk")
+        try {
+            val stream = context.contentResolver.openInputStream(uri) ?: return null
+            java.util.zip.ZipInputStream(stream.buffered()).use { zip ->
+                var entry = zip.nextEntry
+                while (entry != null) {
+                    val name = entry.name.substringAfterLast('/')
+                    if (!entry.isDirectory && name.endsWith(".apk", ignoreCase = true)) {
+                        tempFile.outputStream().use { zip.copyTo(it) }
+                        break
+                    }
+                    zip.closeEntry()
+                    entry = zip.nextEntry
+                }
+            }
+            if (!tempFile.exists() || tempFile.length() == 0L) return null
+            return readSingleApkMetadata(Uri.fromFile(tempFile), isBundle = true)
+        } catch (_: Exception) {
+            return null
+        } finally {
+            tempFile.delete()
+        }
     }
 
     private fun readSingleApkMetadata(uri: Uri, isBundle: Boolean = false): PackageMetadata? {

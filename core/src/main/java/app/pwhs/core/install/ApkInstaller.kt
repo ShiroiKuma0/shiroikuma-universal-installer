@@ -9,6 +9,12 @@ import android.content.pm.PackageInstaller
 import android.net.Uri
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.suspendCancellableCoroutine
+import ru.solrudev.ackpine.splits.Apk
+import ru.solrudev.ackpine.splits.ApkSplits.validate
+import ru.solrudev.ackpine.splits.CloseableSequence
+import ru.solrudev.ackpine.splits.SplitPackage.Companion.toSplitPackage
+import ru.solrudev.ackpine.splits.ZippedApkSplits
+import ru.solrudev.ackpine.splits.get
 import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipInputStream
@@ -92,15 +98,46 @@ class ApkInstaller(private val context: Context) {
         context.contentResolver.openInputStream(uri)
             ?: throw IllegalStateException("Cannot open $uri")
 
-    private fun writeBundle(session: PackageInstaller.Session, bundle: Uri, progress: Progress?) {
+    private suspend fun writeBundle(session: PackageInstaller.Session, bundle: Uri, progress: Progress?) {
+        val ackpineWrote = runCatching {
+            val splitPackage = ZippedApkSplits.getApksForUri(bundle, context)
+                .validate()
+                .toSplitPackage()
+                .filterCompatible(context)
+            val sequence = splitPackage.get()
+            val entries = try {
+                sequence.toList()
+            } finally {
+                (sequence as? CloseableSequence<*>)?.close()
+            }
+            var count = 0
+            for (entry in entries) {
+                val apk = entry.apk
+                val name = if (apk is Apk.Base) "base.apk" else apk.name.substringAfterLast('/')
+                context.contentResolver.openInputStream(apk.uri)?.use { input ->
+                    writeEntry(session, name, input, apk.size, progress)
+                    count++
+                }
+            }
+            count
+        }.getOrDefault(0)
+
+        if (ackpineWrote > 0) return
+
         var wrote = 0
         ZipInputStream(openInput(bundle).buffered()).use { zip ->
             var entry = zip.nextEntry
             while (entry != null) {
-                val name = entry.name.substringAfterLast('/')
-                if (!entry.isDirectory && name.endsWith(".apk", ignoreCase = true)) {
-                    // size unknown for zip entries → use -1 so PackageInstaller streams it.
-                    writeEntry(session, "$wrote-$name", zip, -1L, progress)
+                val rawName = entry.name.substringAfterLast('/')
+                if (!entry.isDirectory && rawName.endsWith(".apk", ignoreCase = true)) {
+                    val entryName = if (wrote == 0 || rawName.equals("base.apk", ignoreCase = true)) {
+                        "base.apk"
+                    } else if (rawName.startsWith("split_", ignoreCase = true)) {
+                        rawName
+                    } else {
+                        "split_$wrote.apk"
+                    }
+                    writeEntry(session, entryName, zip, -1L, progress)
                     wrote++
                 }
                 zip.closeEntry()

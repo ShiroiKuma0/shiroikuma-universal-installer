@@ -98,6 +98,8 @@
 
         <activity
             android:name=".presentation.install.InstallActivity"
+            android:autoRemoveFromRecents="true"
+            android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />
 
@@ -107,11 +109,13 @@
              translucent theme lets the calling app remain visible behind the scrim. -->
         <activity
             android:name=".presentation.install.DialogInstallActivity"
+            android:autoRemoveFromRecents="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
             android:excludeFromRecents="true"
             android:exported="true"
             android:label="@string/installer_dialog_label"
             android:launchMode="singleInstance"
+            android:noHistory="true"
             android:taskAffinity=""
             android:theme="@style/Theme.UniversalInstaller.Dialog">
 

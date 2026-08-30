@@ -359,4 +359,9 @@ class DialogInstallActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun finish() {
+        super.finish()
+        finishAndRemoveTask()
+    }
 }

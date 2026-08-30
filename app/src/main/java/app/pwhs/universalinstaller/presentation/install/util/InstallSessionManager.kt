@@ -1,0 +1,267 @@
+package app.pwhs.universalinstaller.presentation.install.util
+
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.drawable.BitmapDrawable
+import android.os.Build
+import androidx.core.graphics.createBitmap
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.util.RootShell
+import app.pwhs.universalinstaller.domain.manager.ProfileManager
+import app.pwhs.universalinstaller.domain.model.ApkInfo
+import app.pwhs.universalinstaller.domain.model.InstallerProfile
+import app.pwhs.universalinstaller.presentation.install.controller.BaseInstallController
+import app.pwhs.universalinstaller.presentation.install.controller.DefaultInstallController
+import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
+import app.pwhs.universalinstaller.presentation.install.controller.ManualInstallController
+import app.pwhs.universalinstaller.presentation.install.controller.RootState
+import app.pwhs.universalinstaller.presentation.install.controller.ShizukuInstallController
+import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.universalinstaller.util.DhizukuCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import ru.solrudev.ackpine.session.Session
+import ru.solrudev.ackpine.session.await
+import ru.solrudev.ackpine.session.parameters.Confirmation
+import ru.solrudev.ackpine.shizuku.shizuku
+import ru.solrudev.ackpine.uninstaller.PackageUninstaller
+import ru.solrudev.ackpine.uninstaller.createSession
+import timber.log.Timber
+import java.io.File
+
+object InstallSessionManager {
+
+    suspend fun activeController(
+        context: Context,
+        profileId: String?,
+        defaultController: DefaultInstallController,
+        shizukuController: ShizukuInstallController,
+        rootController: BaseInstallController?,
+        dhizukuController: BaseInstallController?,
+        backendFactory: InstallerBackendFactory,
+    ): BaseInstallController {
+        val prefs = try { context.dataStore.data.first() } catch (_: Exception) { null }
+        val profiles = ProfileManager.parseProfiles(prefs?.get(PreferencesKeys.INSTALLER_PROFILES))
+        val profile = profiles.find { it.id == profileId }
+
+        val preferredBackend = profile?.preferredBackend
+        if (preferredBackend != null) {
+            when (preferredBackend) {
+                "Root" -> if (rootController != null) {
+                    val state = backendFactory.probeRootState()
+                    val finalState = if (state == RootState.READY) state
+                    else if (state == RootState.UNKNOWN || state == RootState.DENIED) backendFactory.requestRoot()
+                    else state
+                    if (finalState == RootState.READY) return rootController
+                }
+                "Shizuku" -> if (isShizukuReadyForInstall()) return shizukuController
+                "Dhizuku" -> dhizukuController?.let {
+                    if (DhizukuCompat.isReady(context)) return it
+                }
+                "Default" -> return defaultController
+            }
+        }
+
+        val useRoot = prefs?.get(PreferencesKeys.USE_ROOT) ?: false
+        val spoofRoot = prefs?.get(PreferencesKeys.ROOT_SET_INSTALL_SOURCE) ?: false
+
+        if ((useRoot || spoofRoot) && rootController != null) {
+            val state = backendFactory.probeRootState()
+            val finalState = if (state == RootState.READY) state
+            else if (state == RootState.UNKNOWN || state == RootState.DENIED) backendFactory.requestRoot()
+            else state
+
+            if (finalState == RootState.READY) {
+                return rootController
+            }
+            Timber.w("Root prioritized (useRoot=$useRoot, spoof=$spoofRoot) but root probe=$state, request=$finalState — falling back")
+        }
+
+        val useShizuku = prefs?.get(PreferencesKeys.USE_SHIZUKU) ?: false
+        val spoofShizuku = prefs?.get(PreferencesKeys.SHIZUKU_SET_INSTALL_SOURCE) ?: false
+
+        if ((useShizuku || spoofShizuku) && isShizukuReadyForInstall()) {
+            return shizukuController
+        }
+
+        if (useShizuku || spoofShizuku) {
+            Timber.w("Shizuku prioritized but not ready — falling back to default installer")
+        }
+
+        val useDhizuku = prefs?.get(PreferencesKeys.USE_DHIZUKU) ?: false
+        if (useDhizuku) {
+            val controller = dhizukuController
+            if (controller != null && DhizukuCompat.isReady(context)) return controller
+            Timber.w("Dhizuku selected but not ready — falling back to default installer")
+        }
+
+        return defaultController
+    }
+
+    suspend fun resolveTargetedBackend(
+        preferred: String?,
+        rootController: BaseInstallController?,
+        backendFactory: InstallerBackendFactory,
+    ): ManualInstallController.TargetedBackend? {
+        val shizukuReady = isShizukuReadyForInstall()
+        val rootReady = if (rootController != null) {
+            val state = backendFactory.probeRootState()
+            state == RootState.READY
+        } else false
+
+        when (preferred) {
+            "Shizuku" -> if (shizukuReady) return ManualInstallController.TargetedBackend.SHIZUKU
+            "Root" -> if (rootReady) return ManualInstallController.TargetedBackend.ROOT
+        }
+        return when {
+            shizukuReady -> ManualInstallController.TargetedBackend.SHIZUKU
+            rootReady -> ManualInstallController.TargetedBackend.ROOT
+            else -> null
+        }
+    }
+
+    fun isShizukuReadyForInstall(): Boolean = try {
+        rikka.shizuku.Shizuku.pingBinder() &&
+                !rikka.shizuku.Shizuku.isPreV11() &&
+                rikka.shizuku.Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+    } catch (t: Throwable) {
+        Timber.w(t, "Shizuku readiness probe failed")
+        false
+    }
+
+    suspend fun uninstallConflictingApp(
+        context: Context,
+        packageName: String,
+        profileId: String?,
+        defaultController: DefaultInstallController,
+        shizukuController: ShizukuInstallController,
+        rootController: BaseInstallController?,
+        dhizukuController: BaseInstallController?,
+        backendFactory: InstallerBackendFactory,
+        packageUninstaller: PackageUninstaller,
+    ): Boolean {
+        if (packageName.isBlank()) return false
+        val controller = runCatching {
+            activeController(
+                context, profileId, defaultController, shizukuController, rootController, dhizukuController, backendFactory
+            )
+        }.getOrNull()
+
+        return when {
+            controller === shizukuController -> uninstallViaShizuku(packageName, packageUninstaller)
+            rootController != null && controller === rootController -> uninstallViaRoot(packageName)
+            else -> false
+        }
+    }
+
+    private suspend fun uninstallViaShizuku(
+        packageName: String,
+        packageUninstaller: PackageUninstaller,
+    ): Boolean = try {
+        val session = packageUninstaller.createSession(packageName) {
+            confirmation = Confirmation.IMMEDIATE
+            shizuku {}
+        }
+        session.await() == Session.State.Succeeded
+    } catch (e: Exception) {
+        Timber.e(e, "Shizuku uninstall of $packageName failed")
+        false
+    }
+
+    private suspend fun uninstallViaRoot(packageName: String): Boolean = try {
+        RootShell.exec("pm uninstall $packageName").isSuccess
+    } catch (e: Exception) {
+        Timber.e(e, "Root uninstall of $packageName failed")
+        false
+    }
+
+    suspend fun writeProfileFlags(context: Context, profile: InstallerProfile?) {
+        profile ?: return
+        context.dataStore.edit { p ->
+            profile.installerPackageName?.let { pkg ->
+                p[PreferencesKeys.SHIZUKU_INSTALLER_PACKAGE_NAME] = pkg
+                p[PreferencesKeys.ROOT_INSTALLER_PACKAGE_NAME] = pkg
+                p[PreferencesKeys.SHIZUKU_SET_INSTALL_SOURCE] = pkg.isNotBlank()
+                p[PreferencesKeys.ROOT_SET_INSTALL_SOURCE] = pkg.isNotBlank()
+            }
+            profile.replaceExisting?.let {
+                p[PreferencesKeys.SHIZUKU_REPLACE_EXISTING] = it
+                p[PreferencesKeys.ROOT_REPLACE_EXISTING] = it
+            }
+            profile.allowTest?.let {
+                p[PreferencesKeys.SHIZUKU_ALLOW_TEST] = it
+                p[PreferencesKeys.ROOT_ALLOW_TEST] = it
+            }
+            profile.requestDowngrade?.let {
+                p[PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE] = it
+                p[PreferencesKeys.ROOT_REQUEST_DOWNGRADE] = it
+            }
+            profile.grantAllPermissions?.let {
+                p[PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS] = it
+                p[PreferencesKeys.ROOT_GRANT_ALL_PERMISSIONS] = it
+            }
+            profile.bypassLowTargetSdk?.let {
+                p[PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK] = it
+                p[PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK] = it
+            }
+            profile.allUsers?.let {
+                p[PreferencesKeys.SHIZUKU_ALL_USERS] = it
+                p[PreferencesKeys.ROOT_ALL_USERS] = it
+            }
+        }
+    }
+
+    suspend fun readDeleteApkPref(context: Context): Boolean {
+        return try {
+            val prefs = context.dataStore.data.first()
+            prefs[booleanPreferencesKey("delete_apk_after_install")] ?: false
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    fun lookupInstalledVersion(context: Context, packageName: String): Pair<String, Long>? {
+        if (packageName.isBlank()) return null
+        return try {
+            val pi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0L))
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(packageName, 0)
+            }
+            val name = pi.versionName.orEmpty()
+            val code = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                pi.longVersionCode
+            } else {
+                @Suppress("DEPRECATION") pi.versionCode.toLong()
+            }
+            name to code
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    suspend fun cacheIcon(context: Context, apkInfo: ApkInfo?): String? {
+        val drawable = apkInfo?.icon ?: return null
+        return withContext(Dispatchers.IO) {
+            try {
+                val bitmap = (drawable as? BitmapDrawable)?.bitmap
+                    ?: createBitmap(192, 192).also { bmp ->
+                        val canvas = android.graphics.Canvas(bmp)
+                        drawable.setBounds(0, 0, 192, 192)
+                        drawable.draw(canvas)
+                    }
+                val file = File(context.cacheDir, "session_icon_${System.currentTimeMillis()}.png")
+                file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 90, it) }
+                file.absolutePath
+            } catch (_: Exception) {
+                null
+            }
+        }
+    }
+}

@@ -58,6 +58,12 @@ dependencies {
     // WorkManager for background check
     implementation(libs.androidx.work.runtime)
 
+    // Koin DI
+    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

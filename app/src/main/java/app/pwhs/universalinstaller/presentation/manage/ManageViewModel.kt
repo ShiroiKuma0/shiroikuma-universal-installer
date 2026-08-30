@@ -19,6 +19,9 @@ import app.pwhs.universalinstaller.presentation.install.controller.InstallerBack
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuShellExecutor
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
+import app.pwhs.universalinstaller.domain.provider.PrivilegedExecutor
+import app.pwhs.universalinstaller.presentation.manage.util.ManageExtractHelper
+import app.pwhs.universalinstaller.presentation.manage.util.ManageUsageStatsHelper
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.universalinstaller.util.AndroidAutoCompat
@@ -171,6 +174,7 @@ class ManageViewModel(
     private val packageUninstaller: PackageUninstaller,
     private val uninstallLogDao: UninstallLogDao,
     private val backendFactory: InstallerBackendFactory,
+    private val privilegedProvider: app.pwhs.universalinstaller.domain.provider.PrivilegedProvider,
 ) : ViewModel() {
 
     private val notifier = UninstallNotifier(application)
@@ -305,33 +309,8 @@ class ManageViewModel(
      * Launch browser to check VirusTotal detection for the base APK sha256.
      */
     fun scanVirusTotal(context: android.content.Context, app: InstalledApp) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val appInfo = context.packageManager.getApplicationInfo(app.packageName, 0)
-                val baseApkFile = java.io.File(appInfo.sourceDir)
-                if (baseApkFile.exists()) {
-                    val digest = java.security.MessageDigest.getInstance("SHA-256")
-                    val buffer = ByteArray(8192)
-                    baseApkFile.inputStream().use { input ->
-                        var bytes = input.read(buffer)
-                        while (bytes >= 0) {
-                            digest.update(buffer, 0, bytes)
-                            bytes = input.read(buffer)
-                        }
-                    }
-                    val sha256 = digest.digest().joinToString("") { "%02x".format(it) }
-                    
-                    withContext(Dispatchers.Main) {
-                        val intent = android.content.Intent(
-                            android.content.Intent.ACTION_VIEW, 
-                            android.net.Uri.parse("https://www.virustotal.com/gui/file/$sha256/detection")
-                        ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                        runCatching { context.startActivity(intent) }
-                    }
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to scan VT for ${app.packageName}")
-            }
+        viewModelScope.launch {
+            ManageExtractHelper.scanVirusTotal(context, app)
         }
     }
 
@@ -360,7 +339,12 @@ class ManageViewModel(
             // Share / Server / Reinstall target an app-managed cache or server dir; only
             // Backup honours the user's configured output path.
             val useConfiguredPath = mode == ExtractMode.Backup
-            val result = performExtract(packageName, outputDir, useConfiguredPath) { bytes, total ->
+            val result = ManageExtractHelper.performExtract(
+                context = application,
+                packageName = packageName,
+                cacheOutputDir = outputDir,
+                useConfiguredPath = useConfiguredPath,
+            ) { bytes, total ->
                 _extractState.value = ExtractState.Running(packageName, appName, bytes, total, mode)
             }
             _extractState.value = when (result) {
@@ -370,57 +354,8 @@ class ManageViewModel(
         }
     }
 
-    /**
-     * Shared extraction core used by both the single-app entry points and [extractSelected].
-     * Reads the extractor prefs (output path, filename template, split format) each call so
-     * settings changes take effect immediately.
-     */
-    private suspend fun performExtract(
-        packageName: String,
-        cacheOutputDir: java.io.File?,
-        useConfiguredPath: Boolean,
-        onProgress: (Long, Long) -> Unit,
-    ): ApkExtractor.Result {
-        val prefs = application.dataStore.data.first()
-        val customPathUri = prefs[PreferencesKeys.APK_EXTRACTOR_OUTPUT_PATH]
-        val template = prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] ?: "{name}-{version}"
-        val splitFormat = if (prefs[PreferencesKeys.APK_EXTRACTOR_SPLIT_FORMAT] == "xapk") {
-            ApkExtractor.SplitFormat.XAPK
-        } else {
-            ApkExtractor.SplitFormat.APKS
-        }
-        return ApkExtractor.extract(
-            context = application,
-            packageName = packageName,
-            outputDir = if (useConfiguredPath) {
-                resolveConfiguredOutputDir(customPathUri)
-            } else {
-                cacheOutputDir?.let { DocumentFile.fromFile(it) }
-            },
-            filenameTemplate = template,
-            splitFormat = splitFormat,
-            onProgress = onProgress,
-        )
-    }
-
     fun dismissExtractResult() {
         _extractState.value = ExtractState.Idle
-    }
-
-    /**
-     * The configured output path can be either a SAF tree URI (`content://…`, from the system
-     * picker) or a plain filesystem path (from the built-in directory selector — see #78,
-     * lets the user reach folders SAF blocks like Download). Resolve to a [DocumentFile]
-     * accordingly; null/blank → extractor falls back to the default Download subfolder.
-     */
-    private fun resolveConfiguredOutputDir(path: String?): DocumentFile? {
-        if (path.isNullOrBlank()) return null
-        return if (path.startsWith("content://")) {
-            DocumentFile.fromTreeUri(application, Uri.parse(path))
-        } else {
-            val dir = java.io.File(path).apply { if (!exists()) mkdirs() }
-            if (dir.isDirectory) DocumentFile.fromFile(dir) else null
-        }
     }
 
     // ── Bulk extract (selection mode) ───────────────────────────────────────
@@ -451,7 +386,12 @@ class ManageViewModel(
                     bytesCopied = 0L,
                     totalBytes = 1L,
                 )
-                val result = performExtract(pkg, cacheOutputDir = null, useConfiguredPath = true) { bytes, totalBytes ->
+                val result = ManageExtractHelper.performExtract(
+                    context = application,
+                    packageName = pkg,
+                    cacheOutputDir = null,
+                    useConfiguredPath = true,
+                ) { bytes, totalBytes ->
                     _batchExtractState.value = BatchExtractState.Running(
                         completed = index,
                         total = total,
@@ -485,13 +425,13 @@ class ManageViewModel(
      */
     fun refreshPrivilegedReady() {
         viewModelScope.launch {
-            _privilegedReady.value = resolvePrivilegedExecutor() != null
+            _privilegedReady.value = privilegedProvider.resolveExecutor() != null
         }
     }
 
     fun openAppPrivileged(packageName: String, appName: String) {
         viewModelScope.launch {
-            val executor = resolvePrivilegedExecutor()
+            val executor = privilegedProvider.resolveExecutor()
             if (executor == null) {
                 _privilegedActionResult.value = PrivilegedActionResult.Failure(
                     application.getString(R.string.manage_privileged_unavailable)
@@ -520,7 +460,7 @@ class ManageViewModel(
             return
         }
         viewModelScope.launch {
-            val executor = resolvePrivilegedExecutor()
+            val executor = privilegedProvider.resolveExecutor()
             if (executor == null) {
                 _privilegedActionResult.value = PrivilegedActionResult.Failure(
                     application.getString(R.string.manage_privileged_unavailable)
@@ -554,7 +494,7 @@ class ManageViewModel(
             return
         }
         viewModelScope.launch {
-            val executor = resolvePrivilegedExecutor()
+            val executor = privilegedProvider.resolveExecutor()
             if (executor == null) {
                 _privilegedActionResult.value = PrivilegedActionResult.Failure(
                     application.getString(R.string.manage_privileged_unavailable)
@@ -639,7 +579,7 @@ class ManageViewModel(
         if (packages.isEmpty()) return
         _selectedPackages.value = emptySet()
         viewModelScope.launch {
-            val executor = resolvePrivilegedExecutor()
+            val executor = privilegedProvider.resolveExecutor()
             if (executor == null) {
                 _privilegedActionResult.value = PrivilegedActionResult.Failure(
                     application.getString(R.string.manage_privileged_unavailable)
@@ -676,72 +616,11 @@ class ManageViewModel(
      * the user hasn't granted Usage access — UI hides the chart in that case rather than
      * showing a spinner-then-nothing transition.
      */
-    suspend fun queryUsageBuckets(packageName: String): List<UsageBucket> = withContext(Dispatchers.IO) {
-        if (!hasUsageAccess()) return@withContext emptyList()
-        try {
-            val usm = application.getSystemService(android.content.Context.USAGE_STATS_SERVICE)
-                as android.app.usage.UsageStatsManager
-            val now = System.currentTimeMillis()
-            // Roll back to the start of today so all buckets are full days. We index 7
-            // buckets backward from there, keyed by their day-start timestamp.
-            val cal = java.util.Calendar.getInstance().apply {
-                timeInMillis = now
-                set(java.util.Calendar.HOUR_OF_DAY, 0)
-                set(java.util.Calendar.MINUTE, 0)
-                set(java.util.Calendar.SECOND, 0)
-                set(java.util.Calendar.MILLISECOND, 0)
-            }
-            val todayStart = cal.timeInMillis
-            val dayMs = 24L * 60 * 60 * 1000
-            val sevenAgo = todayStart - 6L * dayMs
-            val raw = usm.queryUsageStats(
-                android.app.usage.UsageStatsManager.INTERVAL_DAILY,
-                sevenAgo,
-                now,
-            ) ?: return@withContext emptyList()
-            // Sum any rows for our package falling into each daily window. INTERVAL_DAILY
-            // typically returns one row per day per package, but we sum defensively.
-            val buckets = LongArray(7)
-            for (row in raw) {
-                if (row.packageName != packageName) continue
-                val rowStart = row.firstTimeStamp
-                val idx = ((rowStart - sevenAgo) / dayMs).toInt().coerceIn(0, 6)
-                buckets[idx] += row.totalTimeInForeground
-            }
-            (0 until 7).map { i ->
-                UsageBucket(
-                    dayStartMillis = sevenAgo + i * dayMs,
-                    foregroundMillis = buckets[i],
-                )
-            }
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
+    suspend fun queryUsageBuckets(packageName: String): List<UsageBucket> =
+        ManageUsageStatsHelper.queryUsageBuckets(application, packageName)
 
-    suspend fun queryStorageStats(packageName: String): StorageBreakdown? = withContext(Dispatchers.IO) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@withContext null
-        try {
-            val ssm = application.getSystemService(android.app.usage.StorageStatsManager::class.java)
-                ?: return@withContext null
-            val uuid = android.os.storage.StorageManager.UUID_DEFAULT
-            val stats = ssm.queryStatsForPackage(
-                uuid,
-                packageName,
-                android.os.Process.myUserHandle(),
-            )
-            StorageBreakdown(
-                appBytes = stats.appBytes,
-                dataBytes = stats.dataBytes,
-                cacheBytes = stats.cacheBytes,
-            )
-        } catch (_: SecurityException) {
-            // PACKAGE_USAGE_STATS not granted — silently fall back to no breakdown.
-            null
-        } catch (_: Exception) {
-            null
-        }
-    }
+    suspend fun queryStorageStats(packageName: String): StorageBreakdown? =
+        ManageUsageStatsHelper.queryStorageStats(application, packageName)
 
     fun clearAllData(packageName: String, appName: String) {
         // Don't let the user nuke our own data — we'd lose the install history they're
@@ -753,7 +632,7 @@ class ManageViewModel(
             return
         }
         viewModelScope.launch {
-            val executor = resolvePrivilegedExecutor()
+            val executor = privilegedProvider.resolveExecutor()
             if (executor == null) {
                 _privilegedActionResult.value = PrivilegedActionResult.Failure(
                     application.getString(R.string.manage_privileged_unavailable)
@@ -783,20 +662,8 @@ class ManageViewModel(
         list: List<InstalledApp>,
         sortBy: UninstallSortBy,
         direction: SortDirection,
-    ): List<InstalledApp> {
-        // Primary key chosen per sortBy; name is always the stable tiebreaker so equal
-        // sizes / equal dates still render in a predictable order.
-        val nameKey: (InstalledApp) -> String = { it.appName.lowercase() }
-        val comparator: Comparator<InstalledApp> = when (sortBy) {
-            UninstallSortBy.Name -> compareBy(nameKey)
-            UninstallSortBy.Size -> compareBy<InstalledApp> { it.sizeBytes }.thenBy(nameKey)
-            UninstallSortBy.InstalledAt -> compareBy<InstalledApp> { it.installedAt }.thenBy(nameKey)
-            UninstallSortBy.LastUpdated -> compareBy<InstalledApp> { it.lastUpdatedAt }.thenBy(nameKey)
-            UninstallSortBy.LastUsed -> compareBy<InstalledApp> { it.lastUsedAt }.thenBy(nameKey)
-        }
-        val sorted = list.sortedWith(comparator)
-        return if (direction == SortDirection.Asc) sorted else sorted.reversed()
-    }
+    ): List<InstalledApp> =
+        app.pwhs.universalinstaller.presentation.manage.util.ManageFilterHelper.applySort(list, sortBy, direction)
 
     fun setSort(sortBy: UninstallSortBy) {
         if (_sortBy.value == sortBy) {
@@ -815,24 +682,8 @@ class ManageViewModel(
         _usageAccess.value = hasUsageAccess()
     }
 
-    private fun hasUsageAccess(): Boolean {
-        val appOps = application.getSystemService(android.content.Context.APP_OPS_SERVICE) as android.app.AppOpsManager
-        val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            appOps.unsafeCheckOpNoThrow(
-                android.app.AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(),
-                application.packageName,
-            )
-        } else {
-            @Suppress("DEPRECATION")
-            appOps.checkOpNoThrow(
-                android.app.AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(),
-                application.packageName,
-            )
-        }
-        return mode == android.app.AppOpsManager.MODE_ALLOWED
-    }
+    private fun hasUsageAccess(): Boolean =
+        ManageUsageStatsHelper.hasUsageAccess(application)
 
     init {
         _usageAccess.value = hasUsageAccess()
@@ -949,7 +800,7 @@ class ManageViewModel(
 
         // Keep selection visible behind the dialog — user may cancel and want to edit.
         viewModelScope.launch {
-            _systemAppPrompt.value = if (resolvePrivilegedExecutor() == null) {
+            _systemAppPrompt.value = if (privilegedProvider.resolveExecutor() == null) {
                 SystemAppPrompt.PrivilegedRequired(
                     systemApps = systemApps,
                     userAppsAvailable = userApps.map { it.first },
@@ -995,7 +846,7 @@ class ManageViewModel(
         val app = _apps.value.firstOrNull { it.packageName == packageName }
         if (app != null && app.isSystemApp) {
             viewModelScope.launch {
-                _systemAppPrompt.value = if (resolvePrivilegedExecutor() == null) {
+                _systemAppPrompt.value = if (privilegedProvider.resolveExecutor() == null) {
                     SystemAppPrompt.PrivilegedRequired(
                         systemApps = listOf(packageName to app.appName),
                         userAppsAvailable = emptyList(),
@@ -1026,7 +877,7 @@ class ManageViewModel(
             // Resolve once up front so the batch doesn't ping the shell state mid-loop.
             // Null is possible if the user revoked Root/Shizuku access between opening the
             // dialog and pressing Continue — we bail cleanly in that case.
-            val executor = resolvePrivilegedExecutor()
+            val executor = privilegedProvider.resolveExecutor()
             when (prompt) {
                 is SystemAppPrompt.Single -> {
                     if (systemMethod == null || executor == null) return@launch
@@ -1110,41 +961,6 @@ class ManageViewModel(
         }
         return system to user
     }
-
-    private enum class PrivilegedExecutor { Root, Shizuku }
-
-    /**
-     * Pick the strongest privileged backend that's currently ready. Root wins over Shizuku
-     * when both are available — libsu's shell is already warm and doesn't cross a binder,
-     * so it's faster end-to-end for batch operations.
-     */
-    private suspend fun resolvePrivilegedExecutor(): PrivilegedExecutor? {
-        if (backendFactory.rootSupportCompiledIn) {
-            val usingRoot = readPref(PreferencesKeys.USE_ROOT)
-            if (usingRoot) {
-                val state = backendFactory.probeRootState()
-                if (state == RootState.READY) return PrivilegedExecutor.Root
-                
-                // If it's UNKNOWN (no shell yet) or was previously DENIED, try an active 
-                // request. This may trigger a SuperUser prompt but ensures the action 
-                // succeeds if root is actually available.
-                if (state == RootState.UNKNOWN || state == RootState.DENIED) {
-                    if (backendFactory.requestRoot() == RootState.READY) {
-                        return PrivilegedExecutor.Root
-                    }
-                }
-            }
-        }
-        val usingShizuku = readPref(PreferencesKeys.USE_SHIZUKU)
-        if (usingShizuku && ShizukuShellExecutor.isReady()) {
-            return PrivilegedExecutor.Shizuku
-        }
-        return null
-    }
-
-    private suspend fun readPref(key: androidx.datastore.preferences.core.Preferences.Key<Boolean>): Boolean = try {
-        application.dataStore.data.first()[key] ?: false
-    } catch (_: Exception) { false }
 
     private suspend fun performSystemUninstall(
         packageName: String,
@@ -1259,129 +1075,10 @@ class ManageViewModel(
             } else {
                 _isLoading.value = true
             }
-            val apps = withContext(Dispatchers.IO) {
-                val pm = application.packageManager
-                val installedInfos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    pm.getInstalledApplications(
-                        PackageManager.ApplicationInfoFlags.of(0)
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    pm.getInstalledApplications(0)
-                }
-
-                // Last-used lookup: single batch query over the past year — much cheaper than
-                // querying per package. Skipped entirely when the permission isn't granted.
-                val lastUsedMap = queryLastUsedMap()
-
-                // Batch query for Android Auto services — single batch query for all apps
-                val autoServicePackages: Set<String> = runCatching {
-                    val mediaIntent = android.content.Intent("android.media.browse.MediaBrowserService")
-                    val carAppIntent = android.content.Intent("androidx.car.app.CarAppService")
-                    val mediaList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        pm.queryIntentServices(mediaIntent, PackageManager.ResolveInfoFlags.of(0))
-                    } else {
-                        @Suppress("DEPRECATION")
-                        pm.queryIntentServices(mediaIntent, 0)
-                    }
-                    val carList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        pm.queryIntentServices(carAppIntent, PackageManager.ResolveInfoFlags.of(0))
-                    } else {
-                        @Suppress("DEPRECATION")
-                        pm.queryIntentServices(carAppIntent, 0)
-                    }
-                    (mediaList.mapNotNull { it.serviceInfo?.packageName } +
-                        carList.mapNotNull { it.serviceInfo?.packageName }).toSet()
-                }.getOrDefault(emptySet())
-
-                installedInfos.map { appInfo ->
-                    val pkgInfo = try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            pm.getPackageInfo(
-                                appInfo.packageName,
-                                PackageManager.PackageInfoFlags.of(0)
-                            )
-                        } else {
-                            @Suppress("DEPRECATION")
-                            pm.getPackageInfo(appInfo.packageName, 0)
-                        }
-                    } catch (_: Exception) { null }
-
-                    val sourceDir = appInfo.sourceDir
-                    val sizeBytes = if (!sourceDir.isNullOrBlank()) {
-                        runCatching { java.io.File(sourceDir).length() }.getOrDefault(0L)
-                    } else 0L
-
-                    var installer: String? = null
-                    var initiating: String? = null
-                    var originating: String? = null
-
-                    try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            val sourceInfo = pm.getInstallSourceInfo(appInfo.packageName)
-                            installer = sourceInfo.installingPackageName
-                            initiating = sourceInfo.initiatingPackageName
-                            originating = sourceInfo.originatingPackageName
-                        } else {
-                            @Suppress("DEPRECATION")
-                            installer = pm.getInstallerPackageName(appInfo.packageName)
-                        }
-                    } catch (_: Exception) { null }
-
-                    val isAaSupported = autoServicePackages.contains(appInfo.packageName) ||
-                        AndroidAutoCompat.supportsAndroidAuto(application, appInfo.packageName)
-
-                    InstalledApp(
-                        packageName = appInfo.packageName,
-                        appName = appInfo.loadLabel(pm).toString(),
-                        versionName = pkgInfo?.versionName ?: "",
-                        isSystemApp = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0,
-                        sizeBytes = sizeBytes,
-                        installedAt = pkgInfo?.firstInstallTime ?: 0L,
-                        lastUpdatedAt = pkgInfo?.lastUpdateTime ?: 0L,
-                        lastUsedAt = lastUsedMap[appInfo.packageName] ?: 0L,
-                        hasSplits = !appInfo.splitSourceDirs.isNullOrEmpty(),
-                        enabled = appInfo.enabled,
-                        installerPackage = installer,
-                        initiatingPackage = initiating,
-                        originatingPackage = originating,
-                        isAndroidAutoSupported = isAaSupported,
-                    )
-                }
-            }
+            val apps = app.pwhs.universalinstaller.presentation.manage.util.InstalledAppsLoader.loadInstalledApps(application)
             _apps.value = apps
             _isLoading.value = false
             _isRefreshing.value = false
-        }
-    }
-
-    /**
-     * Batch lookup for last-used timestamps via `UsageStatsManager`. Requires the user to
-     * have granted "Usage access" in system settings — we silently return an empty map if
-     * they haven't, and the UI offers a "grant" action from the Last Used sort option.
-     */
-    private fun queryLastUsedMap(): Map<String, Long> {
-        if (!hasUsageAccess()) return emptyMap()
-        return try {
-            val usm = application.getSystemService(android.content.Context.USAGE_STATS_SERVICE)
-                as android.app.usage.UsageStatsManager
-            val now = System.currentTimeMillis()
-            val yearAgo = now - 365L * 24 * 60 * 60 * 1000
-            val stats = usm.queryUsageStats(
-                android.app.usage.UsageStatsManager.INTERVAL_YEARLY, yearAgo, now
-            ) ?: return emptyMap()
-            // A package may appear multiple times — keep the max lastTimeUsed.
-            val map = HashMap<String, Long>(stats.size)
-            for (s in stats) {
-                val t = s.lastTimeUsed
-                if (t <= 0L) continue
-                val prev = map[s.packageName] ?: 0L
-                if (t > prev) map[s.packageName] = t
-            }
-            map
-        } catch (e: Exception) {
-            Timber.w(e, "queryUsageStats failed")
-            emptyMap()
         }
     }
 }

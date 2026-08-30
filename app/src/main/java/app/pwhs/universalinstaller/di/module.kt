@@ -92,6 +92,9 @@ val appModule = module {
     single { PackageDownloadService(get()) }
     single { InstallProgressNotifier(get(), get(), get()) }
     single { app.pwhs.universalinstaller.presentation.install.InstallPromptNotifier(get()) }
+    single<app.pwhs.universalinstaller.domain.provider.PrivilegedProvider> {
+        app.pwhs.universalinstaller.domain.provider.PrivilegedProviderImpl(get(), get())
+    }
 
     viewModel {
         InstallViewModel(

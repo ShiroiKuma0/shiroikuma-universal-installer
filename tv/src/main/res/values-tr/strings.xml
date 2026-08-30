@@ -8,10 +8,8 @@
     <string name="tv_receive_installing_plain">Yükleniyor…</string>
     <string name="tv_receive_installed_success">%s kuruldu ✓</string>
     <string name="tv_receive_failed">Başarısız: %s</string>
-    <string name="tv_receive_received_title">Alınan: %s</string>
     <string name="tv_receive_install">Düzenlemek</string>
     <string name="tv_receive_dismiss">Azletmek</string>
-    <string name="tv_receive_on_tv">Bu televizyonda</string>
     <string name="tv_receive_allow_storage_title">Depolama alanına erişime izin ver</string>
     <string name="tv_receive_allow_storage_subtitle">Bu T\'ye önceden indirilmiş olan AP\'ları listelemek için</string>
     <string name="tv_receive_no_apks">Depolama alanında APK dosyası bulunamadı</string>
@@ -23,8 +21,6 @@
     <string name="tv_settings_section_install">Düzenlemek</string>
     <string name="tv_settings_allow_installs_title">Bu uygulamadan yükleme yapılmasına izin ver</string>
     <string name="tv_settings_allow_installs_subtitle">Sistemin \'bilinmeyen kaynaklar\' ayarını açın</string>
-    <string name="tv_settings_receiver_title">Alıcı</string>
-    <string name="tv_settings_receiver_subtitle">Bağlantı Noktası 8787 · belirteç korumalı LAN yüklemesi</string>
     <string name="tv_settings_section_device">Cihaz</string>
     <string name="tv_settings_device_title">Bu cihaz</string>
     <string name="tv_settings_device_info">%1$s %2$s · Android %3$s (API %4$d)</string>
@@ -34,10 +30,6 @@
     <string name="tv_settings_open_source_title">Açık kaynak</string>
     <string name="tv_settings_scan_to_view">Projeyi görüntülemek için tarayın</string>
     <string name="tv_manage_title">Yüklü uygulamalar</string>
-    <string name="tv_manage_loading">Yükleniyor…</string>
-    <string name="tv_manage_apps_count">%d uygulama · kaldırmayı seçin</string>
-    <string name="tv_manage_badge_disabled">Engelli</string>
-    <string name="tv_manage_badge_system">Sistem</string>
     <string name="tv_manage_filter_user">Kullanıcı</string>
     <string name="tv_manage_filter_system">Sistem</string>
     <string name="tv_manage_filter_disabled">Engelli</string>
@@ -50,16 +42,9 @@
     <string name="tv_manage_action_settings">Sistem Ayarları</string>
     <string name="tv_manage_action_close">Kapalı</string>
     <string name="tv_manage_extracting">Çıkarılıyor... %d%%</string>
-    <string name="tv_manage_extract_success">Başarıyla çıkarıldı!</string>
-    <string name="tv_manage_extract_error">Çıkarma başarısız oldu: %s</string>
     <string name="tv_manage_search_placeholder">Uygulamaları ara...</string>
     <string name="tv_manage_empty">Hiçbir uygulama bulunamadı</string>
-    <string name="tv_receiver_channel_name">Alıcı</string>
-    <string name="tv_receiver_notification_title">Uygulamaları almaya hazır</string>
-    <string name="tv_receiver_notification_text">APK göndermek için T\'nizdeki Q\'yi tarayın</string>
     <string name="tv_app_tab_install">Düzenlemek</string>
-    <string name="tv_app_tab_manage">Üstesinden gelmek</string>
-    <string name="tv_app_tab_settings">Ayarlar</string>
     <string name="tv_common_qr_code">QR kodu</string>
     <string name="tv_common_size_gb">%.1f GB</string>
     <string name="tv_common_size_mb">%.0f MB</string>

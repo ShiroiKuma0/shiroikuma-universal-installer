@@ -8,10 +8,8 @@
     <string name="tv_receive_installing_plain">इंस्टाल किया जा रहा है...</string>
     <string name="tv_receive_installed_success">स्थापित %s ✓</string>
     <string name="tv_receive_failed">विफल: %s</string>
-    <string name="tv_receive_received_title">प्राप्त: %s</string>
     <string name="tv_receive_install">स्थापित करना</string>
     <string name="tv_receive_dismiss">नकार देना</string>
-    <string name="tv_receive_on_tv">इस टीवी पर</string>
     <string name="tv_receive_allow_storage_title">भंडारण तक पहुंच की अनुमति दें</string>
     <string name="tv_receive_allow_storage_subtitle">इस टीवी पर पहले से डाउनलोड किए गए APK को सूचीबद्ध करने के लिए</string>
     <string name="tv_receive_no_apks">स्टोरेज में कोई APK फ़ाइल नहीं मिली</string>
@@ -23,8 +21,6 @@
     <string name="tv_settings_section_install">स्थापित करना</string>
     <string name="tv_settings_allow_installs_title">इस ऐप से इंस्टॉल की अनुमति दें</string>
     <string name="tv_settings_allow_installs_subtitle">सिस्टम \'अज्ञात स्रोत\' सेटिंग खोलें</string>
-    <string name="tv_settings_receiver_title">रिसीवर</string>
-    <string name="tv_settings_receiver_subtitle">पोर्ट 8787 · टोकन-संरक्षित लैन अपलोड</string>
     <string name="tv_settings_section_device">उपकरण</string>
     <string name="tv_settings_device_title">यह डिवाइस</string>
     <string name="tv_settings_device_info">%1$s %2$s · एंड्रॉइड %3$s (एपीआई %4$d)</string>
@@ -34,10 +30,6 @@
     <string name="tv_settings_open_source_title">खुला स्त्रोत</string>
     <string name="tv_settings_scan_to_view">प्रोजेक्ट देखने के लिए स्कैन करें</string>
     <string name="tv_manage_title">इंस्टॉल किए गए ऐप्स</string>
-    <string name="tv_manage_loading">लोड हो रहा है...</string>
-    <string name="tv_manage_apps_count">%d ऐप्स · अनइंस्टॉल करने का चयन करें</string>
-    <string name="tv_manage_badge_disabled">अक्षम</string>
-    <string name="tv_manage_badge_system">प्रणाली</string>
     <string name="tv_manage_filter_user">उपयोगकर्ता</string>
     <string name="tv_manage_filter_system">प्रणाली</string>
     <string name="tv_manage_filter_disabled">अक्षम</string>
@@ -50,16 +42,9 @@
     <string name="tv_manage_action_settings">सिस्टम सेटिंग्स</string>
     <string name="tv_manage_action_close">बंद करना</string>
     <string name="tv_manage_extracting">निकाला जा रहा है... %d%%</string>
-    <string name="tv_manage_extract_success">सफलतापूर्वक निकाला गया!</string>
-    <string name="tv_manage_extract_error">निष्कर्षण विफल: %s</string>
     <string name="tv_manage_search_placeholder">ऐप्स खोजें...</string>
     <string name="tv_manage_empty">कोई ऐप्स नहीं मिला</string>
-    <string name="tv_receiver_channel_name">रिसीवर</string>
-    <string name="tv_receiver_notification_title">ऐप्स प्राप्त करने के लिए तैयार</string>
-    <string name="tv_receiver_notification_text">एपीके भेजने के लिए अपने टीवी पर क्यूआर स्कैन करें</string>
     <string name="tv_app_tab_install">स्थापित करना</string>
-    <string name="tv_app_tab_manage">प्रबंधित करना</string>
-    <string name="tv_app_tab_settings">सेटिंग्स</string>
     <string name="tv_common_qr_code">क्यू आर संहिता</string>
     <string name="tv_common_size_gb">%.1f जीबी</string>
     <string name="tv_common_size_mb">%%एमबी</string>

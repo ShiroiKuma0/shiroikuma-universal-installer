@@ -12,11 +12,9 @@
     <string name="tv_receive_installed_success">Installed %s ✓</string>
     <string name="tv_receive_installed_silent">Installed %s silently ✓</string>
     <string name="tv_receive_failed">Failed: %s</string>
-    <string name="tv_receive_received_title">Received: %s</string>
     <string name="tv_receive_install">Install</string>
     <string name="tv_receive_dismiss">Dismiss</string>
     <string name="tv_receive_retry">Retry</string>
-    <string name="tv_receive_on_tv">On this TV</string>
     <string name="tv_receive_allow_storage_title">Allow access to storage</string>
     <string name="tv_receive_allow_storage_subtitle">To list APKs already downloaded on this TV</string>
     <string name="tv_receive_no_apks">No APK files found in storage</string>
@@ -39,8 +37,6 @@
     <string name="tv_settings_root_available">Root detected on this device</string>
     <string name="tv_settings_root_unavailable">Root not detected — the system installer will be used</string>
     <string name="tv_settings_checking_root">Checking for root…</string>
-    <string name="tv_settings_receiver_title">Receiver</string>
-    <string name="tv_settings_receiver_subtitle">Port 8787 · token-guarded LAN upload</string>
     <string name="tv_settings_section_device">Device</string>
     <string name="tv_settings_device_title">This device</string>
     <string name="tv_settings_device_info">%1$s %2$s · Android %3$s (API %4$d)</string>
@@ -52,10 +48,6 @@
 
     <!-- TV Manage Screen -->
     <string name="tv_manage_title">Installed apps</string>
-    <string name="tv_manage_loading">Loading…</string>
-    <string name="tv_manage_apps_count">%d apps · select to uninstall</string>
-    <string name="tv_manage_badge_disabled">Disabled</string>
-    <string name="tv_manage_badge_system">System</string>
     <string name="tv_manage_filter_user">User</string>
     <string name="tv_manage_filter_system">System</string>
     <string name="tv_manage_filter_disabled">Disabled</string>
@@ -71,19 +63,12 @@
     <string name="tv_manage_action_disable">Disable</string>
     <string name="tv_manage_action_enable">Enable</string>
     <string name="tv_manage_action_clear_data">Clear data</string>
-    <string name="tv_manage_action_select">Select</string>
     <string name="tv_manage_confirm_uninstall_title">Uninstall %s?</string>
     <string name="tv_manage_confirm_clear_title">Clear all data of %s?</string>
     <string name="tv_manage_confirm_irreversible">This action can\'t be undone.</string>
     <string name="tv_manage_confirm_yes">Confirm</string>
     <string name="tv_manage_confirm_cancel">Cancel</string>
-    <string name="tv_manage_selected_count">%d selected</string>
-    <string name="tv_manage_select_all">Select all</string>
-    <string name="tv_manage_batch_uninstall">Uninstall selected</string>
-    <string name="tv_manage_selection_hint">Pick apps, then uninstall them together</string>
     <string name="tv_manage_extracting">Extracting... %d%%</string>
-    <string name="tv_manage_extract_success">Extracted successfully!</string>
-    <string name="tv_manage_extract_error">Extraction failed: %s</string>
     <string name="tv_manage_search_placeholder">Search apps...</string>
     <string name="tv_manage_empty">No apps found</string>
     <string name="tv_manage_no_matches">No matches for \"%s\"</string>
@@ -92,14 +77,9 @@
 
 
     <!-- TV Receiver Service -->
-    <string name="tv_receiver_channel_name">Receiver</string>
-    <string name="tv_receiver_notification_title">Ready to receive apps</string>
-    <string name="tv_receiver_notification_text">Scan the QR on your TV to send an APK</string>
 
     <!-- TV Main Tabs -->
     <string name="tv_app_tab_install">Install</string>
-    <string name="tv_app_tab_manage">Manage</string>
-    <string name="tv_app_tab_settings">Settings</string>
 
     <!-- TV Common -->
     <string name="tv_common_qr_code">QR code</string>

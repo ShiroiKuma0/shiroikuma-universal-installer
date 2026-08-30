@@ -8,10 +8,8 @@
     <string name="tv_receive_installing_plain">Đang cài đặt…</string>
     <string name="tv_receive_installed_success">Đã cài đặt %s ✓</string>
     <string name="tv_receive_failed">Thất bại: %s</string>
-    <string name="tv_receive_received_title">Đã nhận: %s</string>
     <string name="tv_receive_install">Cài đặt</string>
     <string name="tv_receive_dismiss">Miễn nhiệm</string>
-    <string name="tv_receive_on_tv">Trên TV này</string>
     <string name="tv_receive_allow_storage_title">Cho phép truy cập vào bộ lưu trữ</string>
     <string name="tv_receive_allow_storage_subtitle">Để liệt kê các APK đã được tải xuống trên TV này</string>
     <string name="tv_receive_no_apks">Không tìm thấy tệp APK nào trong bộ nhớ</string>
@@ -23,8 +21,6 @@
     <string name="tv_settings_section_install">Cài đặt</string>
     <string name="tv_settings_allow_installs_title">Cho phép cài đặt từ ứng dụng này</string>
     <string name="tv_settings_allow_installs_subtitle">Mở cài đặt \'nguồn không xác định\' của hệ thống</string>
-    <string name="tv_settings_receiver_title">Người nhận</string>
-    <string name="tv_settings_receiver_subtitle">Cổng 8787 · tải lên mạng LAN được bảo vệ bằng mã thông báo</string>
     <string name="tv_settings_section_device">Thiết bị</string>
     <string name="tv_settings_device_title">Thiết bị này</string>
     <string name="tv_settings_device_info">%1$s %2$s · Android %3$s (API %4$d)</string>
@@ -34,10 +30,6 @@
     <string name="tv_settings_open_source_title">Nguồn mở</string>
     <string name="tv_settings_scan_to_view">Quét để xem dự án</string>
     <string name="tv_manage_title">Ứng dụng đã cài đặt</string>
-    <string name="tv_manage_loading">Đang tải…</string>
-    <string name="tv_manage_apps_count">%d ứng dụng · chọn để gỡ cài đặt</string>
-    <string name="tv_manage_badge_disabled">Tàn tật</string>
-    <string name="tv_manage_badge_system">Hệ thống</string>
     <string name="tv_manage_filter_user">người dùng</string>
     <string name="tv_manage_filter_system">Hệ thống</string>
     <string name="tv_manage_filter_disabled">Tàn tật</string>
@@ -50,16 +42,9 @@
     <string name="tv_manage_action_settings">Cài đặt hệ thống</string>
     <string name="tv_manage_action_close">Đóng</string>
     <string name="tv_manage_extracting">Đang trích xuất... %d%%</string>
-    <string name="tv_manage_extract_success">Đã giải nén thành công!</string>
-    <string name="tv_manage_extract_error">Trích xuất không thành công: %s</string>
     <string name="tv_manage_search_placeholder">Tìm kiếm ứng dụng...</string>
     <string name="tv_manage_empty">Không tìm thấy ứng dụng nào</string>
-    <string name="tv_receiver_channel_name">Người nhận</string>
-    <string name="tv_receiver_notification_title">Sẵn sàng nhận ứng dụng</string>
-    <string name="tv_receiver_notification_text">Quét mã QR trên TV của bạn để gửi APK</string>
     <string name="tv_app_tab_install">Cài đặt</string>
-    <string name="tv_app_tab_manage">Quản lý</string>
-    <string name="tv_app_tab_settings">Cài đặt</string>
     <string name="tv_common_qr_code">mã QR</string>
     <string name="tv_common_size_gb">%.1f GB</string>
     <string name="tv_common_size_mb">%.0f MB</string>

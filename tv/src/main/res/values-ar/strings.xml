@@ -8,10 +8,8 @@
     <string name="tv_receive_installing_plain">جارٍ التثبيت…</string>
     <string name="tv_receive_installed_success">تم تثبيت %s ✓</string>
     <string name="tv_receive_failed">فشل: %s</string>
-    <string name="tv_receive_received_title">تم الاستلام: %s</string>
     <string name="tv_receive_install">ثَبَّتَ</string>
     <string name="tv_receive_dismiss">رفض</string>
-    <string name="tv_receive_on_tv">على هذا التلفزيون</string>
     <string name="tv_receive_allow_storage_title">السماح بالوصول إلى التخزين</string>
     <string name="tv_receive_allow_storage_subtitle">لسرد ملفات APK التي تم تنزيلها بالفعل على هذا التلفزيون</string>
     <string name="tv_receive_no_apks">لم يتم العثور على ملفات APK في التخزين</string>
@@ -23,8 +21,6 @@
     <string name="tv_settings_section_install">ثَبَّتَ</string>
     <string name="tv_settings_allow_installs_title">السماح بعمليات التثبيت من هذا التطبيق</string>
     <string name="tv_settings_allow_installs_subtitle">افتح إعداد \'مصادر غير معروفة\' للنظام</string>
-    <string name="tv_settings_receiver_title">المتلقي</string>
-    <string name="tv_settings_receiver_subtitle">المنفذ 8787 · تحميل الشبكة المحلية (LAN) الخاضعة لحراسة الرمز المميز</string>
     <string name="tv_settings_section_device">جهاز</string>
     <string name="tv_settings_device_title">هذا الجهاز</string>
     <string name="tv_settings_device_info">%1$s %2$s · Android %3$s (واجهة برمجة التطبيقات %4$d)</string>
@@ -34,10 +30,6 @@
     <string name="tv_settings_open_source_title">مفتوح المصدر</string>
     <string name="tv_settings_scan_to_view">قم بالمسح الضوئي لعرض المشروع</string>
     <string name="tv_manage_title">التطبيقات المثبتة</string>
-    <string name="tv_manage_loading">تحميل…</string>
-    <string name="tv_manage_apps_count">%d تطبيق · حدد لإلغاء التثبيت</string>
-    <string name="tv_manage_badge_disabled">عاجز</string>
-    <string name="tv_manage_badge_system">نظام</string>
     <string name="tv_manage_filter_user">مستخدم</string>
     <string name="tv_manage_filter_system">نظام</string>
     <string name="tv_manage_filter_disabled">عاجز</string>
@@ -50,16 +42,9 @@
     <string name="tv_manage_action_settings">إعدادات النظام</string>
     <string name="tv_manage_action_close">يغلق</string>
     <string name="tv_manage_extracting">جارٍ الاستخراج... %d%%</string>
-    <string name="tv_manage_extract_success">تم الاستخراج بنجاح!</string>
-    <string name="tv_manage_extract_error">فشل الاستخراج: %s</string>
     <string name="tv_manage_search_placeholder">تطبيقات البحث...</string>
     <string name="tv_manage_empty">لم يتم العثور على أي تطبيقات</string>
-    <string name="tv_receiver_channel_name">المتلقي</string>
-    <string name="tv_receiver_notification_title">جاهز لاستقبال التطبيقات</string>
-    <string name="tv_receiver_notification_text">قم بمسح QR على جهاز التلفزيون الخاص بك لإرسال APK</string>
     <string name="tv_app_tab_install">ثَبَّتَ</string>
-    <string name="tv_app_tab_manage">يدير</string>
-    <string name="tv_app_tab_settings">إعدادات</string>
     <string name="tv_common_qr_code">رمز الاستجابة السريعة</string>
     <string name="tv_common_size_gb">%.1f غيغابايت</string>
     <string name="tv_common_size_mb">%.0f ميغابايت</string>

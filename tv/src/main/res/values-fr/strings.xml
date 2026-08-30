@@ -8,10 +8,8 @@
     <string name="tv_receive_installing_plain">Installation…</string>
     <string name="tv_receive_installed_success">%s installé ✓</string>
     <string name="tv_receive_failed">Échec : %s</string>
-    <string name="tv_receive_received_title">Reçu : %s</string>
     <string name="tv_receive_install">Installer</string>
     <string name="tv_receive_dismiss">Rejeter</string>
-    <string name="tv_receive_on_tv">Sur cette télé</string>
     <string name="tv_receive_allow_storage_title">Autoriser \'accès au stockage</string>
     <string name="tv_receive_allow_storage_subtitle">Pour lister les APK déjà téléchargés sur ce téléviseur</string>
     <string name="tv_receive_no_apks">Aucun fichier APK trouvé dans le stockage</string>
@@ -23,8 +21,6 @@
     <string name="tv_settings_section_install">Installer</string>
     <string name="tv_settings_allow_installs_title">Autoriser les installations à partir de cette application</string>
     <string name="tv_settings_allow_installs_subtitle">Ouvrez le paramètre système « Sources inconnues »</string>
-    <string name="tv_settings_receiver_title">Récepteur</string>
-    <string name="tv_settings_receiver_subtitle">Port 8787 · Téléchargement LAN protégé par jeton</string>
     <string name="tv_settings_section_device">Appareil</string>
     <string name="tv_settings_device_title">Cet appareil</string>
     <string name="tv_settings_device_info">%1$s %2$s · Android %3$s (API %4$d)</string>
@@ -34,10 +30,6 @@
     <string name="tv_settings_open_source_title">Source ouverte</string>
     <string name="tv_settings_scan_to_view">Scannez pour voir le projet</string>
     <string name="tv_manage_title">Applications installées</string>
-    <string name="tv_manage_loading">Chargement…</string>
-    <string name="tv_manage_apps_count">%d applications · sélectionnez pour désinstaller</string>
-    <string name="tv_manage_badge_disabled">Désactivé</string>
-    <string name="tv_manage_badge_system">Système</string>
     <string name="tv_manage_filter_user">Utilisateur</string>
     <string name="tv_manage_filter_system">Système</string>
     <string name="tv_manage_filter_disabled">Désactivé</string>
@@ -50,16 +42,9 @@
     <string name="tv_manage_action_settings">Paramètres système</string>
     <string name="tv_manage_action_close">Fermer</string>
     <string name="tv_manage_extracting">Extraction... %d%%</string>
-    <string name="tv_manage_extract_success">Extrait avec succès !</string>
-    <string name="tv_manage_extract_error">Échec de \'extraction : %s</string>
     <string name="tv_manage_search_placeholder">Rechercher des applications...</string>
     <string name="tv_manage_empty">Aucune application trouvée</string>
-    <string name="tv_receiver_channel_name">Récepteur</string>
-    <string name="tv_receiver_notification_title">Prêt à recevoir des applications</string>
-    <string name="tv_receiver_notification_text">Scannez le QR sur votre téléviseur pour envoyer un APK</string>
     <string name="tv_app_tab_install">Installer</string>
-    <string name="tv_app_tab_manage">Gérer</string>
-    <string name="tv_app_tab_settings">Paramètres</string>
     <string name="tv_common_qr_code">Code QR</string>
     <string name="tv_common_size_gb">%.1f Go</string>
     <string name="tv_common_size_mb">%.0f Mo</string>

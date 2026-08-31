@@ -32,6 +32,10 @@ data class UpdatesUiState(
     val error: String? = null,
     val showAddDialog: Boolean = false,
     val showAppPickerDialog: Boolean = false,
+    val showSourceTokensDialog: Boolean = false,
+    val githubToken: String = "",
+    val gitlabToken: String = "",
+    val codebergToken: String = "",
     val installedApps: List<InstalledAppItem> = emptyList(),
     val isLoadingInstalledApps: Boolean = false,
 ) {

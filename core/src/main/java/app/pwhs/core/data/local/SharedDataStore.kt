@@ -43,6 +43,12 @@ object SharedPrefsKeys {
     /** Optional GitHub Personal Access Token to avoid rate limiting (60 req/hr -> 5000 req/hr). */
     val GITHUB_PAT_TOKEN = stringPreferencesKey("github_pat_token")
 
+    /** Optional GitLab Personal Access Token. */
+    val GITLAB_PAT_TOKEN = stringPreferencesKey("gitlab_pat_token")
+
+    /** Optional Codeberg / Gitea Access Token. */
+    val CODEBERG_PAT_TOKEN = stringPreferencesKey("codeberg_pat_token")
+
     /** Auto-update check interval in hours (6, 12, 24, or 0 for disabled). Default: 12 */
     val UPDATE_CHECK_INTERVAL_HOURS = stringPreferencesKey("update_check_interval_hours")
 

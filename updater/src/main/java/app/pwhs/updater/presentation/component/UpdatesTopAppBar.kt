@@ -11,6 +11,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material.icons.rounded.FileUpload
+import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
@@ -27,6 +28,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,10 +48,12 @@ fun UpdatesTopAppBar(
     context: Context,
     searchActive: Boolean = false,
     onToggleSearch: () -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior? = null,
     onBackClick: (() -> Unit)?,
     onUpdateAll: () -> Unit,
     onSortOptionChanged: (AppSortOption) -> Unit,
     onCheckAllUpdates: () -> Unit,
+    onTokensClick: () -> Unit = {},
     onImportClick: () -> Unit,
     onExportClick: () -> Unit,
 ) {
@@ -57,6 +61,7 @@ fun UpdatesTopAppBar(
     var showSortMenu by remember { mutableStateOf(false) }
 
     LargeTopAppBar(
+        scrollBehavior = scrollBehavior,
         title = {
             Column {
                 Text(text = stringResource(R.string.updates_title))
@@ -185,6 +190,14 @@ fun UpdatesTopAppBar(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
                 ) {
+                    DropdownMenuItem(
+                        text = { Text("Source API Tokens") },
+                        leadingIcon = { Icon(Icons.Rounded.Key, contentDescription = null) },
+                        onClick = {
+                            showMenu = false
+                            onTokensClick()
+                        },
+                    )
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.updates_menu_import)) },
                         leadingIcon = { Icon(Icons.Rounded.FileUpload, contentDescription = null) },

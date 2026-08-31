@@ -59,6 +59,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.focus.FocusRequester
 import app.pwhs.updater.presentation.component.UpdaterSearchBar
 
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import app.pwhs.updater.presentation.dialog.SourceTokensDialog
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdatesScreen(
@@ -72,6 +77,7 @@ fun UpdatesScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val detailSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
     var searchActive by rememberSaveable { mutableStateOf(false) }
     val searchFocusRequester = remember { FocusRequester() }
@@ -108,12 +114,15 @@ fun UpdatesScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             UpdatesTopAppBar(
                 uiState = uiState,
                 context = context,
                 searchActive = searchActive,
+                scrollBehavior = scrollBehavior,
                 onToggleSearch = {
                     searchActive = !searchActive
                     if (!searchActive) {
@@ -124,6 +133,7 @@ fun UpdatesScreen(
                 onUpdateAll = { viewModel.updateAll(context) },
                 onSortOptionChanged = viewModel::onSortOptionChanged,
                 onCheckAllUpdates = { viewModel.checkAllUpdates() },
+                onTokensClick = { viewModel.showSourceTokensDialog(true) },
                 onImportClick = { importLauncher.launch("*/*") },
                 onExportClick = {
                     val jsonString = viewModel.exportTrackedAppsJson()
@@ -314,6 +324,18 @@ fun UpdatesScreen(
             },
             onDownloadAndInstall = { appToInstall ->
                 viewModel.downloadAndInstall(context, appToInstall)
+            },
+        )
+    }
+
+    if (uiState.showSourceTokensDialog) {
+        SourceTokensDialog(
+            initialGithubToken = uiState.githubToken,
+            initialGitlabToken = uiState.gitlabToken,
+            initialCodebergToken = uiState.codebergToken,
+            onDismiss = { viewModel.showSourceTokensDialog(false) },
+            onSave = { gh, gl, cb ->
+                viewModel.saveSourceTokens(gh, gl, cb)
             },
         )
     }

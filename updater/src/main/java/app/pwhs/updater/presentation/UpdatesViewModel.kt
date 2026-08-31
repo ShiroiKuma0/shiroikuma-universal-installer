@@ -28,9 +28,15 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 
+import androidx.datastore.preferences.core.edit
+import app.pwhs.core.data.local.SharedPrefsKeys
+import app.pwhs.core.data.local.dataStore
+import kotlinx.coroutines.flow.firstOrNull
+
 class UpdatesViewModel(
     private val repository: AppUpdateRepository,
     private val downloader: AppDownloader,
+    private val context: Context,
     private val providers: List<UpdateSourceProvider> = listOf(GitHubReleaseProvider()),
 ) : ViewModel() {
 
@@ -39,6 +45,7 @@ class UpdatesViewModel(
 
     init {
         loadTrackedApps()
+        loadSourceTokens()
     }
 
     private fun loadTrackedApps() {
@@ -46,6 +53,56 @@ class UpdatesViewModel(
             repository.getAllTrackedApps().collect { apps ->
                 _uiState.update { it.copy(trackedApps = apps) }
             }
+        }
+    }
+
+    private fun loadSourceTokens() {
+        viewModelScope.launch {
+            context.dataStore.data.collect { prefs ->
+                val gh = prefs[SharedPrefsKeys.GITHUB_PAT_TOKEN].orEmpty()
+                val gl = prefs[SharedPrefsKeys.GITLAB_PAT_TOKEN].orEmpty()
+                val cb = prefs[SharedPrefsKeys.CODEBERG_PAT_TOKEN].orEmpty()
+                _uiState.update {
+                    it.copy(
+                        githubToken = gh,
+                        gitlabToken = gl,
+                        codebergToken = cb,
+                    )
+                }
+            }
+        }
+    }
+
+    fun showSourceTokensDialog(show: Boolean) {
+        _uiState.update { it.copy(showSourceTokensDialog = show) }
+    }
+
+    fun saveSourceTokens(githubToken: String, gitlabToken: String, codebergToken: String) {
+        viewModelScope.launch {
+            context.dataStore.edit { prefs ->
+                prefs[SharedPrefsKeys.GITHUB_PAT_TOKEN] = githubToken
+                prefs[SharedPrefsKeys.GITLAB_PAT_TOKEN] = gitlabToken
+                prefs[SharedPrefsKeys.CODEBERG_PAT_TOKEN] = codebergToken
+            }
+            _uiState.update {
+                it.copy(
+                    showSourceTokensDialog = false,
+                    githubToken = githubToken,
+                    gitlabToken = gitlabToken,
+                    codebergToken = codebergToken,
+                )
+            }
+        }
+    }
+
+    fun getTokenForUrl(url: String): String? {
+        val state = _uiState.value
+        val lower = url.lowercase()
+        return when {
+            lower.contains("github.com") -> state.githubToken.takeIf { it.isNotBlank() }
+            lower.contains("gitlab.com") -> state.gitlabToken.takeIf { it.isNotBlank() }
+            lower.contains("codeberg.org") -> state.codebergToken.takeIf { it.isNotBlank() }
+            else -> null
         }
     }
 
@@ -128,12 +185,15 @@ class UpdatesViewModel(
         }
     }
 
-    fun checkAllUpdates(apiToken: String? = null) {
+    fun checkAllUpdates() {
         if (_uiState.value.isChecking) return
         viewModelScope.launch {
             _uiState.update { it.copy(isChecking = true, error = null) }
             try {
-                repository.checkAllUpdates(apiToken)
+                for (app in _uiState.value.trackedApps) {
+                    val token = getTokenForUrl(app.sourceUrl)
+                    repository.checkForUpdate(app.packageName, token)
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Check all updates failed")
                 _uiState.update { it.copy(error = e.message ?: "Failed to check updates") }
@@ -143,11 +203,13 @@ class UpdatesViewModel(
         }
     }
 
-    fun checkSingleUpdate(packageName: String, apiToken: String? = null) {
+    fun checkSingleUpdate(packageName: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isChecking = true) }
             try {
-                repository.checkForUpdate(packageName, apiToken)
+                val app = _uiState.value.trackedApps.firstOrNull { it.packageName == packageName }
+                val token = app?.sourceUrl?.let { getTokenForUrl(it) }
+                repository.checkForUpdate(packageName, token)
             } catch (e: Exception) {
                 Timber.e(e, "Check update failed for $packageName")
             } finally {
@@ -163,20 +225,19 @@ class UpdatesViewModel(
         apiToken: String? = null,
         targetPackageName: String? = null,
         category: String? = null,
+        onSuccess: () -> Unit = {},
     ) {
+        val effectiveToken = apiToken?.takeIf { it.isNotBlank() } ?: getTokenForUrl(url)
         viewModelScope.launch {
             _uiState.update { it.copy(isAdding = true, error = null) }
             try {
                 val provider = providers.firstOrNull { it.canHandle(url) }
-                if (provider == null) {
-                    _uiState.update { it.copy(isAdding = false, error = "Unsupported URL source") }
-                    return@launch
-                }
+                    ?: throw IllegalArgumentException("No provider available for URL: $url")
 
                 val releaseResult = provider.fetchLatestRelease(
                     url = url,
                     includePrereleases = includePrereleases,
-                    apiToken = apiToken,
+                    apiToken = effectiveToken,
                 )
 
                 val release = releaseResult.getOrNull()
@@ -245,6 +306,7 @@ class UpdatesViewModel(
 
                 repository.saveTrackedApp(trackedApp)
                 _uiState.update { it.copy(isAdding = false, showAddDialog = false, showAppPickerDialog = false) }
+                onSuccess()
             } catch (e: Exception) {
                 Timber.e(e, "Add tracked app failed for $url")
                 _uiState.update { it.copy(isAdding = false, error = e.message ?: "Failed to add app") }
@@ -287,6 +349,7 @@ class UpdatesViewModel(
         onComplete: (() -> Unit)? = null,
     ) {
         val downloadUrl = app.latestDownloadUrl ?: return
+        val token = apiToken?.takeIf { it.isNotBlank() } ?: getTokenForUrl(app.sourceUrl)
         viewModelScope.launch {
             _uiState.update { it.copy(downloadingPackage = app.packageName, downloadProgress = 0f, downloadBytesText = null) }
             try {
@@ -294,7 +357,7 @@ class UpdatesViewModel(
                     downloadUrl = downloadUrl,
                     packageName = app.packageName,
                     versionName = app.latestVersionName ?: "latest",
-                    apiToken = apiToken,
+                    apiToken = token,
                     onProgress = { written, total ->
                         val fraction = if (total > 0) (written.toFloat() / total).coerceIn(0f, 1f) else 0f
                         val text = if (total > 0) {
@@ -336,6 +399,7 @@ class UpdatesViewModel(
             _uiState.update { it.copy(isUpdatingAll = true) }
             for (app in appsToUpdate) {
                 val downloadUrl = app.latestDownloadUrl ?: continue
+                val token = apiToken?.takeIf { it.isNotBlank() } ?: getTokenForUrl(app.sourceUrl)
                 _uiState.update { it.copy(downloadingPackage = app.packageName, downloadProgress = 0f, downloadBytesText = null) }
 
                 try {
@@ -343,7 +407,7 @@ class UpdatesViewModel(
                         downloadUrl = downloadUrl,
                         packageName = app.packageName,
                         versionName = app.latestVersionName ?: "latest",
-                        apiToken = apiToken,
+                        apiToken = token,
                         onProgress = { written, total ->
                             val fraction = if (total > 0) (written.toFloat() / total).coerceIn(0f, 1f) else 0f
                             val text = if (total > 0) {

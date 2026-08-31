@@ -39,6 +39,7 @@ val updaterModule = module {
         UpdatesViewModel(
             repository = get(),
             downloader = get(),
+            context = get(),
             providers = listOf(
                 get<GitHubReleaseProvider>(),
                 get<GitLabReleaseProvider>(),

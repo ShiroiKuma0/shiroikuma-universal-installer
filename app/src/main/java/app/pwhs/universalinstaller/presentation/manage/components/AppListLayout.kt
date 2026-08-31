@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -51,6 +52,9 @@ internal fun AppListLayout(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            item(key = "updates_banner") {
+                UpdatesBanner(modifier = Modifier.padding(bottom = 4.dp))
+            }
             if (groupBy == GroupBy.Installer) {
                 // Group-by-installer view. We compute the bucket label per app
                 // (known store → display name; everything else → sideload), then

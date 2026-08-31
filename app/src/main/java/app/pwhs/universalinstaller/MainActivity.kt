@@ -127,6 +127,8 @@ class MainActivity : ComponentActivity() {
                                 when (uri.host) {
                                     "sync" -> SyncActivity::class.java
                                     "uninstall" -> ManageActivity::class.java
+                                    "updates" -> runCatching { Class.forName("app.pwhs.updater.presentation.UpdatesActivity") }.getOrNull()
+                                        ?: InstallActivity::class.java
                                     else -> InstallActivity::class.java
                                 }
                             } else {

@@ -39,4 +39,13 @@ object SharedPrefsKeys {
      * governs is in :app; both sides have to agree on the key name.
      */
     val ANALYTICS_ENABLED = booleanPreferencesKey("analytics_enabled")
+
+    /** Optional GitHub Personal Access Token to avoid rate limiting (60 req/hr -> 5000 req/hr). */
+    val GITHUB_PAT_TOKEN = stringPreferencesKey("github_pat_token")
+
+    /** Auto-update check interval in hours (6, 12, 24, or 0 for disabled). Default: 12 */
+    val UPDATE_CHECK_INTERVAL_HOURS = stringPreferencesKey("update_check_interval_hours")
+
+    /** Only check for updates when connected to Wi-Fi. Default: false */
+    val UPDATE_CHECK_WIFI_ONLY = booleanPreferencesKey("update_check_wifi_only")
 }

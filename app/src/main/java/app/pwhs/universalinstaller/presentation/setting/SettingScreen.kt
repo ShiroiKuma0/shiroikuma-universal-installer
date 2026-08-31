@@ -17,56 +17,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.AdminPanelSettings
-import androidx.compose.material.icons.rounded.Badge
-import androidx.compose.material.icons.rounded.BugReport
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Fingerprint
-import androidx.compose.material.icons.automirrored.rounded.HelpOutline
-import androidx.compose.material.icons.rounded.Replay
-import androidx.compose.material.icons.rounded.Block
-import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Key
-import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.Lock
-import androidx.compose.material.icons.rounded.Palette
-import androidx.compose.material.icons.rounded.PrivacyTip
-import androidx.compose.material.icons.rounded.RocketLaunch
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
-import androidx.compose.material.icons.rounded.SettingsApplications
-import androidx.compose.material.icons.rounded.Terminal
-import androidx.compose.material.icons.rounded.Wallpaper
-import androidx.compose.material.icons.rounded.WifiTethering
-import androidx.compose.material.icons.rounded.DirectionsCar
-import app.pwhs.universalinstaller.util.AndroidAutoCompat
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Switch
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -107,6 +69,9 @@ import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.setting.profile.PackageNamePickerDialog
 import androidx.datastore.preferences.core.Preferences
 import org.koin.androidx.compose.koinViewModel
+import app.pwhs.universalinstaller.presentation.setting.sections.AboutSection
+import app.pwhs.universalinstaller.presentation.setting.sections.AdvancedSection
+import app.pwhs.universalinstaller.presentation.setting.sections.ProfilesSection
 import app.pwhs.universalinstaller.presentation.setting.sections.InstallOptionsSection
 import app.pwhs.universalinstaller.presentation.setting.sections.InstallSection
 import app.pwhs.universalinstaller.presentation.setting.sections.InterfaceSection
@@ -193,6 +158,8 @@ fun SettingScreen(
         },
         analyticsEnabled = analyticsEnabled,
         onAnalyticsEnabledChanged = viewModel::setAnalyticsEnabled,
+        githubPatToken = viewModel.githubPatToken.collectAsState().value,
+        onGithubPatTokenChanged = viewModel::setGithubPatToken,
     )
 }
 
@@ -237,6 +204,8 @@ private fun SettingUi(
     onProfilesClick: () -> Unit = {},
     analyticsEnabled: Boolean = true,
     onAnalyticsEnabledChanged: (Boolean) -> Unit = {},
+    githubPatToken: String = "",
+    onGithubPatTokenChanged: (String) -> Unit = {},
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -411,42 +380,11 @@ private fun SettingUi(
                 )
 
                 // ── Profiles Section ─────────────────────────
-                if (matchesQuery(q, profileLabels)) item {
-                    SettingsSection(
-                        title = stringResource(R.string.setting_section_profiles),
-                        icon = Icons.Rounded.Badge
-                    ) {
-                        ListItem(
-                            headlineContent = {
-                                Text(stringResource(R.string.setting_profiles_title), style = MaterialTheme.typography.bodyLarge)
-                            },
-                            supportingContent = {
-                                Text(
-                                    text = stringResource(R.string.setting_profiles_subtitle),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            },
-                            leadingContent = {
-                                Icon(
-                                    imageVector = Icons.Rounded.Badge,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp),
-                                )
-                            },
-                            trailingContent = {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            },
-                            modifier = Modifier.clickable(onClick = onProfilesClick),
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        )
-                    }
-                }
+                ProfilesSection(
+                    q = q,
+                    profileLabels = profileLabels,
+                    onProfilesClick = onProfilesClick,
+                )
 
                 // ── Interface Section ────────────────────────
                 InterfaceSection(
@@ -491,78 +429,25 @@ private fun SettingUi(
                 )
 
                 // ── Advanced Options ─────────────────────────
-                if (matchesQuery(q, advancedLabels)) item {
-                    SettingsSection(title = stringResource(R.string.setting_section_advanced), icon = Icons.Rounded.Terminal) {
-                        OutlinedTextField(
-                            value = uiState.virusTotalApiKey,
-                            onValueChange = onVirusTotalKeyChanged,
-                            label = { Text(stringResource(R.string.setting_vt_api_key_title)) },
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            leadingIcon = { Icon(Icons.Rounded.Key, null, tint = MaterialTheme.colorScheme.primary) },
-                            placeholder = { Text(stringResource(R.string.setting_vt_api_key_placeholder)) },
-                            singleLine = true,
-                        )
-                        SecurityLevelSelector(
-                            current = securityLevel,
-                            onChange = onSecurityLevelChanged,
-                        )
-                    }
-                }
+                AdvancedSection(
+                    q = q,
+                    advancedLabels = advancedLabels,
+                    virusTotalApiKey = uiState.virusTotalApiKey,
+                    onVirusTotalKeyChanged = onVirusTotalKeyChanged,
+                    githubPatToken = githubPatToken,
+                    onGithubPatTokenChanged = onGithubPatTokenChanged,
+                    securityLevel = securityLevel,
+                    onSecurityLevelChanged = onSecurityLevelChanged,
+                )
 
                 // ── About Section ────────────────────────────
-                if (matchesQuery(q, aboutLabels)) item {
-                    SettingsSection(title = stringResource(R.string.setting_section_about), icon = Icons.Rounded.Info) {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.help_title)) },
-                            leadingContent = { Icon(Icons.AutoMirrored.Rounded.HelpOutline, null, tint = MaterialTheme.colorScheme.primary) },
-                            modifier = Modifier.clickable {
-                                context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.help.HelpActivity::class.java))
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                        // The onboarding tour is the other half of #102, and existing installs
-                        // have ONBOARDING_COMPLETED set, so it is unreachable without this.
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.help_replay_tutorial)) },
-                            supportingContent = { Text(stringResource(R.string.help_replay_tutorial_sub)) },
-                            leadingContent = { Icon(Icons.Rounded.Replay, null, tint = MaterialTheme.colorScheme.primary) },
-                            modifier = Modifier.clickable { onReplayTutorial() },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.setting_section_about)) },
-                            supportingContent = { Text("v${uiState.appVersion}") },
-                            leadingContent = { Icon(Icons.Rounded.Info, null, tint = MaterialTheme.colorScheme.primary) },
-                            modifier = Modifier.clickable {
-                                context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.about.AboutActivity::class.java))
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.setting_diagnostics_title)) },
-                            leadingContent = { Icon(Icons.Rounded.BugReport, null, tint = MaterialTheme.colorScheme.primary) },
-                            modifier = Modifier.clickable {
-                                context.startActivity(android.content.Intent(context, app.pwhs.universalinstaller.presentation.setting.diagnostics.DiagnosticsActivity::class.java))
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                        val isAaInstalled = remember { AndroidAutoCompat.isAndroidAutoInstalled(context) }
-                        if (isAaInstalled) {
-                            ListItem(
-                                headlineContent = { Text(stringResource(R.string.aa_open_settings)) },
-                                supportingContent = { Text(stringResource(R.string.aa_open_settings_sub)) },
-                                leadingContent = { Icon(Icons.Rounded.DirectionsCar, null, tint = MaterialTheme.colorScheme.primary) },
-                                modifier = Modifier.clickable {
-                                    val aaIntent = AndroidAutoCompat.getSettingsIntent(context)
-                                    if (aaIntent != null) {
-                                        runCatching { context.startActivity(aaIntent) }
-                                    }
-                                },
-                                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                            )
-                        }
-                    }
-                }
+                AboutSection(
+                    q = q,
+                    aboutLabels = aboutLabels,
+                    context = context,
+                    appVersion = uiState.appVersion,
+                    onReplayTutorial = onReplayTutorial,
+                )
 
                 if (q.isNotBlank() && !anyVisible) item {
                     EmptyStateView(

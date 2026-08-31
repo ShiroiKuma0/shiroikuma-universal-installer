@@ -7,7 +7,17 @@
     <application>
         <activity
             android:name=".presentation.UpdatesActivity"
-            android:exported="false"
-            android:label="App Updates" />
+            android:exported="true"
+            android:label="App Updates"
+            android:theme="@style/Theme.UniversalInstaller">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="updates"
+                    android:scheme="universalinstaller" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/tv" />
             <option value="$PROJECT_DIR$/tv-baselineprofile" />
+            <option value="$PROJECT_DIR$/updater" />
           </set>
         </option>
       </GradleProjectSettings>

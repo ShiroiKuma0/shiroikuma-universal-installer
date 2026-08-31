@@ -54,6 +54,16 @@ class SettingPreferencesDelegate(
         .map { prefs -> prefs[SharedPrefsKeys.ANALYTICS_ENABLED] ?: true }
         .stateIn(scope, SharingStarted.WhileSubscribed(5000), true)
 
+    val githubPatToken: StateFlow<String> = dataStore.data
+        .map { it[SharedPrefsKeys.GITHUB_PAT_TOKEN].orEmpty() }
+        .stateIn(scope, SharingStarted.WhileSubscribed(5000), "")
+
+    fun setGithubPatToken(token: String) {
+        scope.launch {
+            dataStore.edit { prefs -> prefs[SharedPrefsKeys.GITHUB_PAT_TOKEN] = token }
+        }
+    }
+
     fun setThemeMode(mode: ThemeMode) {
         scope.launch {
             dataStore.edit { prefs -> prefs[PreferencesKeys.THEME_MODE] = mode.name }

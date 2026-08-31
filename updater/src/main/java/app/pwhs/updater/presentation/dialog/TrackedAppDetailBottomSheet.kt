@@ -94,6 +94,7 @@ fun TrackedAppDetailBottomSheet(
                     packageName = app.packageName,
                     appName = app.appName,
                     iconUrl = app.iconUrl,
+                    sourceUrl = app.sourceUrl,
                     size = 56.dp,
                 )
                 Spacer(modifier = Modifier.width(Spacing.M))

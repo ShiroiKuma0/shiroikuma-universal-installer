@@ -1,6 +1,6 @@
 package app.pwhs.updater.presentation.component
 
-import android.graphics.drawable.Drawable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -14,11 +14,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import coil3.compose.AsyncImage
 
 @Composable
@@ -26,15 +29,27 @@ fun AppIconView(
     packageName: String,
     appName: String,
     iconUrl: String? = null,
+    sourceUrl: String? = null,
     size: Dp = 48.dp,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
 
-    val installedIcon: Drawable? = remember(packageName) {
+    // 1. Direct synchronous PackageManager icon bitmap extraction
+    val installedBitmap: ImageBitmap? = remember(packageName) {
         runCatching {
-            context.packageManager.getApplicationIcon(packageName)
+            if (!packageName.startsWith("tracked.")) {
+                val drawable = context.packageManager.getApplicationIcon(packageName)
+                drawable.toBitmap(192, 192).asImageBitmap()
+            } else {
+                null
+            }
         }.getOrNull()
+    }
+
+    // 2. Resolve remote icon URL if not provided directly
+    val resolvedRemoteUrl = remember(iconUrl, sourceUrl, packageName) {
+        iconUrl?.takeIf { it.isNotBlank() } ?: resolveFallbackIconUrl(sourceUrl, packageName)
     }
 
     val shape = MaterialTheme.shapes.medium
@@ -45,15 +60,15 @@ fun AppIconView(
             .clip(shape),
         contentAlignment = Alignment.Center,
     ) {
-        if (installedIcon != null) {
-            AsyncImage(
-                model = installedIcon,
+        if (installedBitmap != null) {
+            Image(
+                bitmap = installedBitmap,
                 contentDescription = appName,
                 modifier = Modifier.size(size),
             )
-        } else if (!iconUrl.isNullOrBlank()) {
+        } else if (!resolvedRemoteUrl.isNullOrBlank()) {
             AsyncImage(
-                model = iconUrl,
+                model = resolvedRemoteUrl,
                 contentDescription = appName,
                 modifier = Modifier.size(size),
             )
@@ -85,5 +100,28 @@ fun AppIconView(
                 }
             }
         }
+    }
+}
+
+private fun resolveFallbackIconUrl(sourceUrl: String?, packageName: String): String? {
+    if (sourceUrl.isNullOrBlank()) return null
+    val lower = sourceUrl.lowercase().trim()
+    return when {
+        lower.contains("github.com") -> {
+            val clean = sourceUrl.removePrefix("https://").removePrefix("http://").removePrefix("www.")
+                .removePrefix("github.com/").trim()
+            val parts = clean.split("/").filter { it.isNotBlank() }
+            if (parts.isNotEmpty()) "https://github.com/${parts[0]}.png" else null
+        }
+        lower.contains("f-droid.org") || lower.contains("apt.izzysoft.de") -> {
+            "https://f-droid.org/repo/icons-640/$packageName.png"
+        }
+        lower.contains("gitlab.com") -> {
+            val clean = sourceUrl.removePrefix("https://").removePrefix("http://").removePrefix("www.")
+                .removePrefix("gitlab.com/").trim()
+            val parts = clean.split("/").filter { it.isNotBlank() }
+            if (parts.isNotEmpty()) "https://gitlab.com/${parts[0]}.png" else null
+        }
+        else -> null
     }
 }

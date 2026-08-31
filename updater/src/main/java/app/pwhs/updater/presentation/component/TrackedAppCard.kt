@@ -78,6 +78,7 @@ fun TrackedAppCard(
                     packageName = app.packageName,
                     appName = app.appName,
                     iconUrl = app.iconUrl,
+                    sourceUrl = app.sourceUrl,
                     size = 44.dp,
                 )
                 Spacer(modifier = Modifier.width(Spacing.M))

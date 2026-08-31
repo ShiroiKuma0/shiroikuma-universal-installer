@@ -52,8 +52,6 @@ import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.domain.model.TrackedApp
 import app.pwhs.updater.presentation.component.TrackedAppCard
 import app.pwhs.updater.presentation.component.UpdatesTopAppBar
-import app.pwhs.updater.presentation.dialog.AddTrackedAppDialog
-import app.pwhs.updater.presentation.dialog.AppPickerDialog
 import app.pwhs.updater.presentation.dialog.EditCategoryDialog
 import app.pwhs.updater.presentation.dialog.TrackedAppDetailBottomSheet
 import kotlinx.coroutines.launch
@@ -62,6 +60,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun UpdatesScreen(
     viewModel: UpdatesViewModel,
+    onNavigateToAddApp: () -> Unit,
     onBackClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -71,7 +70,6 @@ fun UpdatesScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val detailSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    var selectedAppToTrack by remember { mutableStateOf<InstalledAppItem?>(null) }
     var appToEditCategory by remember { mutableStateOf<TrackedApp?>(null) }
 
     val importLauncher = rememberLauncherForActivityResult(
@@ -122,10 +120,7 @@ fun UpdatesScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = {
-                    selectedAppToTrack = null
-                    viewModel.showAddDialog(true)
-                },
+                onClick = onNavigateToAddApp,
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 text = { Text(stringResource(R.string.updates_track_app)) },
                 shape = MaterialTheme.shapes.large,
@@ -217,7 +212,7 @@ fun UpdatesScreen(
                             title = stringResource(R.string.updates_no_apps_title),
                             subtitle = stringResource(R.string.updates_no_apps_subtitle),
                             actionLabel = stringResource(R.string.updates_track_first_app),
-                            onAction = { viewModel.showAddDialog(true) },
+                            onAction = onNavigateToAddApp,
                         )
                     }
                 } else if (uiState.filteredApps.isEmpty()) {
@@ -273,43 +268,6 @@ fun UpdatesScreen(
                 }
             }
         }
-    }
-
-    if (uiState.showAddDialog) {
-        AddTrackedAppDialog(
-            isAdding = uiState.isAdding,
-            errorMessage = uiState.error,
-            selectedAppName = selectedAppToTrack?.appName,
-            onSelectFromInstalled = {
-                viewModel.showAppPickerDialog(true)
-            },
-            onDismiss = {
-                viewModel.showAddDialog(false)
-                selectedAppToTrack = null
-            },
-            onConfirm = { url, prereleases, category ->
-                viewModel.addTrackedAppFromUrl(
-                    context = context,
-                    url = url,
-                    includePrereleases = prereleases,
-                    targetPackageName = selectedAppToTrack?.packageName,
-                    category = category,
-                )
-            },
-        )
-    }
-
-    if (uiState.showAppPickerDialog) {
-        AppPickerDialog(
-            installedApps = uiState.installedApps,
-            isLoading = uiState.isLoadingInstalledApps,
-            onLoadApps = { viewModel.loadInstalledApps(context) },
-            onAppSelected = { app ->
-                selectedAppToTrack = app
-                viewModel.showAppPickerDialog(false)
-            },
-            onDismiss = { viewModel.showAppPickerDialog(false) },
-        )
     }
 
     if (appToEditCategory != null) {

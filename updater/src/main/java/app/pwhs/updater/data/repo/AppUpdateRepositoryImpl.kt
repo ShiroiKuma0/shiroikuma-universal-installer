@@ -1,7 +1,9 @@
 package app.pwhs.updater.data.repo
 
+import android.content.Context
 import app.pwhs.updater.data.local.TrackedAppDao
 import app.pwhs.updater.data.local.TrackedAppEntity
+import app.pwhs.updater.domain.matcher.InstalledAppMatcher
 import app.pwhs.updater.domain.matcher.SmartAbiMatcher
 import app.pwhs.updater.domain.model.TrackedApp
 import app.pwhs.updater.domain.provider.GitHubReleaseProvider
@@ -17,11 +19,25 @@ import timber.log.Timber
 
 class AppUpdateRepositoryImpl(
     private val dao: TrackedAppDao,
+    private val context: Context,
     private val providers: List<UpdateSourceProvider> = listOf(GitHubReleaseProvider()),
 ) : AppUpdateRepository {
 
     override fun getAllTrackedApps(): Flow<List<TrackedApp>> {
-        return dao.getAllTrackedApps().map { list -> list.map { it.toDomain() } }
+        return dao.getAllTrackedApps().map { list ->
+            list.map { entity ->
+                val domain = entity.toDomain()
+                val installedVer = InstalledAppMatcher.getInstalledVersion(context.packageManager, domain.packageName)
+                if (installedVer != null && (installedVer.first != domain.currentVersionName || installedVer.second != domain.currentVersionCode)) {
+                    domain.copy(
+                        currentVersionName = installedVer.first,
+                        currentVersionCode = installedVer.second,
+                    )
+                } else {
+                    domain
+                }
+            }
+        }
     }
 
     override fun getTrackedApp(packageName: String): Flow<TrackedApp?> {
@@ -33,7 +49,16 @@ class AppUpdateRepositoryImpl(
     }
 
     override suspend fun saveTrackedApp(app: TrackedApp) = withContext(Dispatchers.IO) {
-        dao.insertOrUpdate(TrackedAppEntity.fromDomain(app))
+        val installedVer = InstalledAppMatcher.getInstalledVersion(context.packageManager, app.packageName)
+        val toSave = if (installedVer != null) {
+            app.copy(
+                currentVersionName = installedVer.first,
+                currentVersionCode = installedVer.second,
+            )
+        } else {
+            app
+        }
+        dao.insertOrUpdate(TrackedAppEntity.fromDomain(toSave))
     }
 
     override suspend fun removeTrackedApp(packageName: String) = withContext(Dispatchers.IO) {
@@ -47,7 +72,15 @@ class AppUpdateRepositoryImpl(
         val entity = dao.getByPackageName(packageName)
             ?: return@withContext Result.failure(NoSuchElementException("App $packageName not tracked"))
 
-        val currentApp = entity.toDomain()
+        var currentApp = entity.toDomain()
+        val installedVer = InstalledAppMatcher.getInstalledVersion(context.packageManager, currentApp.packageName)
+        if (installedVer != null) {
+            currentApp = currentApp.copy(
+                currentVersionName = installedVer.first,
+                currentVersionCode = installedVer.second,
+            )
+        }
+
         val provider = providers.firstOrNull { it.canHandle(currentApp.sourceUrl) }
             ?: return@withContext Result.failure(
                 IllegalArgumentException("No provider available for URL: ${currentApp.sourceUrl}")
@@ -65,7 +98,6 @@ class AppUpdateRepositoryImpl(
         releaseResult.fold(
             onSuccess = { releaseDetails ->
                 if (releaseDetails == null) {
-                    // HTTP 304 Not Modified: Still up to date
                     val updated = currentApp.copy(lastCheckedAt = now)
                     dao.update(TrackedAppEntity.fromDomain(updated))
                     return@withContext Result.success(updated)

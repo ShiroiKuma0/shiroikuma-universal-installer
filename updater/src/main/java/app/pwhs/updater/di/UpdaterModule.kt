@@ -23,6 +23,7 @@ val updaterModule = module {
     single<AppUpdateRepository> {
         AppUpdateRepositoryImpl(
             dao = get(),
+            context = get(),
             providers = listOf(
                 get<GitHubReleaseProvider>(),
                 get<GitLabReleaseProvider>(),

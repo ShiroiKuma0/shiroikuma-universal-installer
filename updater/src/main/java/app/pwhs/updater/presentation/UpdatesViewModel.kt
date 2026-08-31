@@ -167,33 +167,51 @@ class UpdatesViewModel(
                 }
 
                 val bestAsset = SmartAbiMatcher.selectBestAsset(release.assets)
-                val defaultAppName = release.title?.takeIf { it.isNotBlank() }
-                    ?: url.substringBefore('?').substringAfterLast('/').removeSuffix(".git")
-
-                val pm = context.packageManager
-                val (installedPkg, installedVerName, installedVerCode) = if (!targetPackageName.isNullOrBlank()) {
-                    val pkgInfo = runCatching { pm.getPackageInfo(targetPackageName, 0) }.getOrNull()
-                    val vCode = if (pkgInfo != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        pkgInfo.longVersionCode
-                    } else {
-                        @Suppress("DEPRECATION")
-                        pkgInfo?.versionCode?.toLong()
-                    }
-                    Triple(targetPackageName, pkgInfo?.versionName, vCode)
-                } else {
-                    findInstalledAppMatch(pm, defaultAppName)
+                val rawRepoName = url.substringBefore('?').removeSuffix(".git").substringAfterLast('/')
+                val cleanAppName = rawRepoName.split('-', '_', '.').joinToString(" ") { word ->
+                    word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
                 }
 
-                val finalPkg = targetPackageName ?: installedPkg
-                    ?: "tracked.${defaultAppName.lowercase().replace(Regex("[^a-z0-9_]"), "_")}"
+                val pm = context.packageManager
+                val matchResult = if (!targetPackageName.isNullOrBlank()) {
+                    val pkgInfo = runCatching { pm.getPackageInfo(targetPackageName, 0) }.getOrNull()
+                    if (pkgInfo != null) {
+                        val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            pkgInfo.longVersionCode
+                        } else {
+                            @Suppress("DEPRECATION")
+                            pkgInfo.versionCode.toLong()
+                        }
+                        val appLabel = runCatching {
+                            pkgInfo.applicationInfo?.let { pm.getApplicationLabel(it).toString() }
+                        }.getOrNull() ?: cleanAppName
+                        app.pwhs.updater.domain.matcher.InstalledAppMatchResult(
+                            packageName = targetPackageName,
+                            appName = appLabel,
+                            versionName = pkgInfo.versionName ?: "1.0",
+                            versionCode = vCode,
+                        )
+                    } else null
+                } else {
+                    app.pwhs.updater.domain.matcher.InstalledAppMatcher.findMatch(
+                        pm = pm,
+                        repoUrl = url,
+                        candidateName = cleanAppName,
+                        assetNames = release.assets.map { it.name },
+                    )
+                }
+
+                val finalPkg = matchResult?.packageName ?: targetPackageName
+                    ?: "tracked.${rawRepoName.lowercase().replace(Regex("[^a-z0-9_]"), "_")}"
+                val finalAppName = matchResult?.appName ?: cleanAppName
 
                 val trackedApp = TrackedApp(
                     packageName = finalPkg,
-                    appName = defaultAppName,
+                    appName = finalAppName,
                     sourceType = UpdateSourceType.fromUrl(url),
                     sourceUrl = url,
-                    currentVersionName = installedVerName ?: "Not Installed",
-                    currentVersionCode = installedVerCode ?: 0L,
+                    currentVersionName = matchResult?.versionName ?: "Not Installed",
+                    currentVersionCode = matchResult?.versionCode ?: 0L,
                     latestVersionName = release.versionName,
                     latestReleaseTag = release.tagName,
                     latestDownloadUrl = bestAsset?.downloadUrl,
@@ -212,33 +230,6 @@ class UpdatesViewModel(
                 _uiState.update { it.copy(isAdding = false, error = e.message ?: "Failed to add app") }
             }
         }
-    }
-
-    private fun findInstalledAppMatch(pm: PackageManager, appName: String): Triple<String?, String?, Long?> {
-        return runCatching {
-            val installedApps = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
-            } else {
-                pm.getInstalledPackages(0)
-            }
-            val match = installedApps.firstOrNull { pkg ->
-                val label = runCatching {
-                    pkg.applicationInfo?.let { pm.getApplicationLabel(it).toString() }
-                }.getOrNull()
-                label?.equals(appName, ignoreCase = true) == true || pkg.packageName.contains(appName, ignoreCase = true)
-            }
-            if (match != null) {
-                val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    match.longVersionCode
-                } else {
-                    @Suppress("DEPRECATION")
-                    match.versionCode.toLong()
-                }
-                Triple(match.packageName, match.versionName, vCode)
-            } else {
-                Triple(null, null, null)
-            }
-        }.getOrDefault(Triple(null, null, null))
     }
 
     fun exportTrackedAppsJson(): String {

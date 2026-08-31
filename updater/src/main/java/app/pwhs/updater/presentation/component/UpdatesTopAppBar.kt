@@ -1,11 +1,8 @@
 package app.pwhs.updater.presentation.component
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -16,7 +13,8 @@ import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.SystemUpdate
-import androidx.compose.material3.Button
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.core.R
-import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.presentation.AppSortOption
 import app.pwhs.updater.presentation.UpdatesUiState
 
@@ -80,22 +77,27 @@ fun UpdatesTopAppBar(
         },
         actions = {
             if (uiState.updateCount > 0) {
-                Button(
+                IconButton(
                     onClick = onUpdateAll,
                     enabled = !uiState.isUpdatingAll,
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier.padding(end = Spacing.S),
                 ) {
-                    if (uiState.isUpdatingAll) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    } else {
-                        Icon(Icons.Rounded.SystemUpdate, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.size(Spacing.XS))
-                        Text("Update All (${uiState.updateCount})")
+                    BadgedBox(
+                        badge = {
+                            Badge { Text(uiState.updateCount.toString()) }
+                        },
+                    ) {
+                        if (uiState.isUpdatingAll) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Rounded.SystemUpdate,
+                                contentDescription = "Update All",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
             }

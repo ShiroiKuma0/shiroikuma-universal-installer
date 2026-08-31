@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.androidx.foundation)
 
     implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
     implementation(libs.timber)
 
     testImplementation(libs.junit)

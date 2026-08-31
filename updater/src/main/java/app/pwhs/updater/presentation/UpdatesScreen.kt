@@ -232,7 +232,12 @@ fun UpdatesScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(Spacing.L),
+                        contentPadding = PaddingValues(
+                            start = Spacing.L,
+                            end = Spacing.L,
+                            top = Spacing.M,
+                            bottom = 100.dp,
+                        ),
                         verticalArrangement = Arrangement.spacedBy(Spacing.M),
                     ) {
                         items(
@@ -260,10 +265,6 @@ fun UpdatesScreen(
                                     viewModel.selectAppForDetail(app)
                                 },
                             )
-                        }
-                        // Bottom spacing for FAB
-                        item {
-                            Spacer(modifier = Modifier.height(72.dp))
                         }
                     }
                 }

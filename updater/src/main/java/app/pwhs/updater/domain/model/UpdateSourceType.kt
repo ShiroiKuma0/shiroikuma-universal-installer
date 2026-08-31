@@ -4,6 +4,7 @@ enum class UpdateSourceType {
     GITHUB,
     GITLAB,
     CODEBERG,
+    FDROID,
     DIRECT,
     UNKNOWN;
 
@@ -13,8 +14,9 @@ enum class UpdateSourceType {
             return when {
                 lower.contains("github.com") -> GITHUB
                 lower.contains("gitlab.com") -> GITLAB
-                lower.contains("codeberg.org") -> CODEBERG
-                lower.endsWith(".apk") -> DIRECT
+                lower.contains("codeberg.org") || lower.contains("gitea") -> CODEBERG
+                lower.contains("f-droid.org") || lower.contains("apt.izzysoft.de") -> FDROID
+                lower.endsWith(".apk") || lower.contains("/download") -> DIRECT
                 else -> UNKNOWN
             }
         }

@@ -9,8 +9,10 @@ import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.pwhs.core.data.ApkMetadataReader
 import app.pwhs.updater.data.remote.AppDownloader
 import app.pwhs.updater.data.repo.AppUpdateRepository
+import app.pwhs.updater.domain.matcher.InstalledAppMatcher
 import app.pwhs.updater.domain.matcher.SmartAbiMatcher
 import app.pwhs.updater.domain.model.TrackedApp
 import app.pwhs.updater.domain.model.UpdateSourceType
@@ -60,6 +62,23 @@ class UpdatesViewModel(
             val app = _uiState.value.trackedApps.firstOrNull { it.packageName == packageName } ?: return@launch
             val updated = app.copy(category = category?.takeIf { it.isNotBlank() })
             repository.saveTrackedApp(updated)
+        }
+    }
+
+    fun onSortOptionChanged(option: AppSortOption) {
+        _uiState.update { it.copy(sortOption = option) }
+    }
+
+    fun selectAppForDetail(app: TrackedApp?) {
+        _uiState.update { it.copy(selectedAppForDetail = app) }
+    }
+
+    fun updateTrackedApp(app: TrackedApp) {
+        viewModelScope.launch {
+            repository.saveTrackedApp(app)
+            if (_uiState.value.selectedAppForDetail?.packageName == app.packageName) {
+                _uiState.update { it.copy(selectedAppForDetail = app) }
+            }
         }
     }
 
@@ -176,7 +195,7 @@ class UpdatesViewModel(
                 val matchResult = if (!targetPackageName.isNullOrBlank()) {
                     val pkgInfo = runCatching { pm.getPackageInfo(targetPackageName, 0) }.getOrNull()
                     if (pkgInfo != null) {
-                        val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val vCode: Long = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                             pkgInfo.longVersionCode
                         } else {
                             @Suppress("DEPRECATION")
@@ -185,7 +204,7 @@ class UpdatesViewModel(
                         val appLabel = runCatching {
                             pkgInfo.applicationInfo?.let { pm.getApplicationLabel(it).toString() }
                         }.getOrNull() ?: cleanAppName
-                        app.pwhs.updater.domain.matcher.InstalledAppMatchResult(
+                        InstalledAppMatcher.findMatch(pm, url, appLabel) ?: app.pwhs.updater.domain.matcher.InstalledAppMatchResult(
                             packageName = targetPackageName,
                             appName = appLabel,
                             versionName = pkgInfo.versionName ?: "1.0",
@@ -193,7 +212,7 @@ class UpdatesViewModel(
                         )
                     } else null
                 } else {
-                    app.pwhs.updater.domain.matcher.InstalledAppMatcher.findMatch(
+                    InstalledAppMatcher.findMatch(
                         pm = pm,
                         repoUrl = url,
                         candidateName = cleanAppName,
@@ -285,6 +304,12 @@ class UpdatesViewModel(
 
                 val apkFile = downloadResult.getOrNull()
                 if (apkFile != null && apkFile.exists()) {
+                    // Verify APK metadata before installing
+                    val metadataReader = ApkMetadataReader(context)
+                    val metadata = metadataReader.readMetadata(Uri.fromFile(apkFile), isBundle = false)
+                    if (metadata != null && metadata.packageName.isNotBlank()) {
+                        Timber.i("Verified APK package: ${metadata.packageName} (v${metadata.versionName})")
+                    }
                     launchInstallerForFile(context, apkFile)
                     onComplete?.invoke()
                 } else {

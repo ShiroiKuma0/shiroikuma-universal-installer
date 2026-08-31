@@ -2,6 +2,13 @@ package app.pwhs.updater.presentation
 
 import app.pwhs.updater.domain.model.TrackedApp
 
+enum class AppSortOption {
+    NAME_ASC,
+    NAME_DESC,
+    UPDATES_FIRST,
+    LAST_CHECKED,
+}
+
 data class InstalledAppItem(
     val packageName: String,
     val appName: String,
@@ -19,6 +26,8 @@ data class UpdatesUiState(
     val downloadProgress: Float = 0f,
     val searchQuery: String = "",
     val selectedCategory: String? = null,
+    val sortOption: AppSortOption = AppSortOption.UPDATES_FIRST,
+    val selectedAppForDetail: TrackedApp? = null,
     val error: String? = null,
     val showAddDialog: Boolean = false,
     val showAppPickerDialog: Boolean = false,
@@ -36,7 +45,7 @@ data class UpdatesUiState(
 
     val filteredApps: List<TrackedApp>
         get() {
-            return trackedApps.filter { app ->
+            val base = trackedApps.filter { app ->
                 val matchesSearch = searchQuery.isBlank() ||
                     app.appName.contains(searchQuery, ignoreCase = true) ||
                     app.packageName.contains(searchQuery, ignoreCase = true)
@@ -48,6 +57,16 @@ data class UpdatesUiState(
                 }
 
                 matchesSearch && matchesCategory
+            }
+
+            return when (sortOption) {
+                AppSortOption.NAME_ASC -> base.sortedBy { it.appName.lowercase() }
+                AppSortOption.NAME_DESC -> base.sortedByDescending { it.appName.lowercase() }
+                AppSortOption.UPDATES_FIRST -> base.sortedWith(
+                    compareByDescending<TrackedApp> { it.hasUpdate }
+                        .thenBy { it.appName.lowercase() }
+                )
+                AppSortOption.LAST_CHECKED -> base.sortedByDescending { it.lastCheckedAt }
             }
         }
 

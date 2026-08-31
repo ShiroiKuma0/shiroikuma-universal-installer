@@ -6,6 +6,7 @@ import app.pwhs.updater.data.repo.AppUpdateRepository
 import app.pwhs.updater.data.repo.AppUpdateRepositoryImpl
 import app.pwhs.updater.domain.provider.CodebergReleaseProvider
 import app.pwhs.updater.domain.provider.DirectApkProvider
+import app.pwhs.updater.domain.provider.FDroidReleaseProvider
 import app.pwhs.updater.domain.provider.GitHubReleaseProvider
 import app.pwhs.updater.domain.provider.GitLabReleaseProvider
 import app.pwhs.updater.presentation.UpdatesViewModel
@@ -18,6 +19,7 @@ val updaterModule = module {
     single { GitHubReleaseProvider() }
     single { GitLabReleaseProvider() }
     single { CodebergReleaseProvider() }
+    single { FDroidReleaseProvider() }
     single { DirectApkProvider() }
     single { AppDownloader(get()) }
     single<AppUpdateRepository> {
@@ -28,6 +30,7 @@ val updaterModule = module {
                 get<GitHubReleaseProvider>(),
                 get<GitLabReleaseProvider>(),
                 get<CodebergReleaseProvider>(),
+                get<FDroidReleaseProvider>(),
                 get<DirectApkProvider>(),
             ),
         )
@@ -40,6 +43,7 @@ val updaterModule = module {
                 get<GitHubReleaseProvider>(),
                 get<GitLabReleaseProvider>(),
                 get<CodebergReleaseProvider>(),
+                get<FDroidReleaseProvider>(),
                 get<DirectApkProvider>(),
             ),
         )

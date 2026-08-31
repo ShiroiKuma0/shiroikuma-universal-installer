@@ -24,6 +24,7 @@ data class TrackedAppEntity(
     val includePrereleases: Boolean = false,
     val customRegexFilter: String? = null,
     val category: String? = null,
+    val ignoredVersion: String? = null,
     val eTag: String? = null,
 ) {
     fun toDomain(): TrackedApp = TrackedApp(
@@ -44,6 +45,7 @@ data class TrackedAppEntity(
         includePrereleases = includePrereleases,
         customRegexFilter = customRegexFilter,
         category = category,
+        ignoredVersion = ignoredVersion,
         eTag = eTag,
     )
 
@@ -66,6 +68,7 @@ data class TrackedAppEntity(
             includePrereleases = domain.includePrereleases,
             customRegexFilter = domain.customRegexFilter,
             category = domain.category,
+            ignoredVersion = domain.ignoredVersion,
             eTag = domain.eTag,
         )
     }

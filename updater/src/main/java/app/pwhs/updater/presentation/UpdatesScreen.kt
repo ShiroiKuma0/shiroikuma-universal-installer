@@ -243,6 +243,7 @@ fun UpdatesScreen(
                                 app = app,
                                 isDownloading = uiState.downloadingPackage == app.packageName,
                                 downloadProgress = uiState.downloadProgress,
+                                downloadBytesText = uiState.downloadBytesText,
                                 onUpdateClick = {
                                     viewModel.downloadAndInstall(context, app)
                                 },

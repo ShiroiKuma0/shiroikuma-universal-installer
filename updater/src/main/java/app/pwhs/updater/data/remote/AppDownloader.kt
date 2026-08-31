@@ -10,20 +10,20 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.readRemaining
+import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.io.readByteArray
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
 /**
- * Downloads release APK files with progress reporting.
+ * Downloads release APK files with real-time chunked progress reporting.
  */
 class AppDownloader(
     private val context: Context,
     private val client: HttpClient = HttpClient(CIO) {
+        followRedirects = true
         install(HttpTimeout) {
             requestTimeoutMillis = 600_000 // 10 mins for large APKs
             connectTimeoutMillis = 30_000
@@ -60,17 +60,29 @@ class AppDownloader(
             val channel: ByteReadChannel = response.bodyAsChannel()
 
             var downloadedBytes = 0L
+            val buffer = ByteArray(16 * 1024) // 16KB chunk buffer
+            var lastReportTime = 0L
+
             FileOutputStream(outputFile).use { output ->
                 while (!channel.isClosedForRead) {
-                    val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-                    while (!packet.exhausted()) {
-                        val bytes = packet.readByteArray()
-                        output.write(bytes)
-                        downloadedBytes += bytes.size
+                    val bytesRead = channel.readAvailable(buffer, 0, buffer.size)
+                    if (bytesRead <= 0) break
+
+                    output.write(buffer, 0, bytesRead)
+                    downloadedBytes += bytesRead
+
+                    val now = System.currentTimeMillis()
+                    // Report progress on intervals (or when complete) to prevent flooding the UI thread
+                    if (now - lastReportTime >= 50 || channel.isClosedForRead || (totalBytes > 0 && downloadedBytes >= totalBytes)) {
+                        lastReportTime = now
                         onProgress(downloadedBytes, totalBytes)
                     }
                 }
+                output.flush()
             }
+
+            // Final 100% progress callback
+            onProgress(downloadedBytes, if (totalBytes > 0) totalBytes else downloadedBytes)
 
             if (outputFile.exists() && outputFile.length() > 0) {
                 Result.success(outputFile)

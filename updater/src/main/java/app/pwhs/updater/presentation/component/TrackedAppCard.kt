@@ -49,6 +49,7 @@ fun TrackedAppCard(
     app: TrackedApp,
     isDownloading: Boolean,
     downloadProgress: Float,
+    downloadBytesText: String? = null,
     onUpdateClick: () -> Unit,
     onCheckClick: () -> Unit,
     onDeleteClick: () -> Unit,
@@ -177,18 +178,25 @@ fun TrackedAppCard(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = stringResource(R.string.updates_card_downloading),
+                            text = if (!downloadBytesText.isNullOrBlank()) {
+                                downloadBytesText
+                            } else {
+                                stringResource(R.string.updates_card_downloading)
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
-                        Text(
-                            text = "${(downloadProgress * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                        if (downloadProgress > 0f) {
+                            Text(
+                                text = "${(downloadProgress * 100).toInt()}%",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.height(Spacing.XS))
                     if (downloadProgress > 0f) {

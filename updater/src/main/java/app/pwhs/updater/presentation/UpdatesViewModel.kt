@@ -287,7 +287,7 @@ class UpdatesViewModel(
     ) {
         val downloadUrl = app.latestDownloadUrl ?: return
         viewModelScope.launch {
-            _uiState.update { it.copy(downloadingPackage = app.packageName, downloadProgress = 0f) }
+            _uiState.update { it.copy(downloadingPackage = app.packageName, downloadProgress = 0f, downloadBytesText = null) }
             try {
                 val downloadResult = downloader.downloadApk(
                     downloadUrl = downloadUrl,
@@ -295,10 +295,13 @@ class UpdatesViewModel(
                     versionName = app.latestVersionName ?: "latest",
                     apiToken = apiToken,
                     onProgress = { written, total ->
-                        if (total > 0) {
-                            val fraction = (written.toFloat() / total).coerceIn(0f, 1f)
-                            _uiState.update { it.copy(downloadProgress = fraction) }
+                        val fraction = if (total > 0) (written.toFloat() / total).coerceIn(0f, 1f) else 0f
+                        val text = if (total > 0) {
+                            "${formatBytes(written)} / ${formatBytes(total)}"
+                        } else {
+                            formatBytes(written)
                         }
+                        _uiState.update { it.copy(downloadProgress = fraction, downloadBytesText = text) }
                     },
                 )
 
@@ -319,7 +322,7 @@ class UpdatesViewModel(
                 Timber.e(e, "Download and install failed for ${app.packageName}")
                 _uiState.update { it.copy(error = e.message ?: "Download failed") }
             } finally {
-                _uiState.update { it.copy(downloadingPackage = null, downloadProgress = 0f) }
+                _uiState.update { it.copy(downloadingPackage = null, downloadProgress = 0f, downloadBytesText = null) }
             }
         }
     }
@@ -332,7 +335,7 @@ class UpdatesViewModel(
             _uiState.update { it.copy(isUpdatingAll = true) }
             for (app in appsToUpdate) {
                 val downloadUrl = app.latestDownloadUrl ?: continue
-                _uiState.update { it.copy(downloadingPackage = app.packageName, downloadProgress = 0f) }
+                _uiState.update { it.copy(downloadingPackage = app.packageName, downloadProgress = 0f, downloadBytesText = null) }
 
                 try {
                     val result = downloader.downloadApk(
@@ -341,10 +344,13 @@ class UpdatesViewModel(
                         versionName = app.latestVersionName ?: "latest",
                         apiToken = apiToken,
                         onProgress = { written, total ->
-                            if (total > 0) {
-                                val fraction = (written.toFloat() / total).coerceIn(0f, 1f)
-                                _uiState.update { it.copy(downloadProgress = fraction) }
+                            val fraction = if (total > 0) (written.toFloat() / total).coerceIn(0f, 1f) else 0f
+                            val text = if (total > 0) {
+                                "${formatBytes(written)} / ${formatBytes(total)}"
+                            } else {
+                                formatBytes(written)
                             }
+                            _uiState.update { it.copy(downloadProgress = fraction, downloadBytesText = text) }
                         },
                     )
 
@@ -358,8 +364,16 @@ class UpdatesViewModel(
                     Timber.e(e, "Batch update failed for ${app.packageName}")
                 }
             }
-            _uiState.update { it.copy(isUpdatingAll = false, downloadingPackage = null, downloadProgress = 0f) }
+            _uiState.update { it.copy(isUpdatingAll = false, downloadingPackage = null, downloadProgress = 0f, downloadBytesText = null) }
         }
+    }
+
+    private fun formatBytes(bytes: Long): String {
+        if (bytes <= 0) return "0 B"
+        val units = arrayOf("B", "KB", "MB", "GB")
+        val digitGroups = (Math.log10(bytes.toDouble()) / Math.log10(1024.0)).toInt().coerceIn(0, units.size - 1)
+        val value = bytes / Math.pow(1024.0, digitGroups.toDouble())
+        return String.format(java.util.Locale.US, "%.1f %s", value, units[digitGroups])
     }
 
     private fun launchInstallerForFile(context: Context, file: File) {

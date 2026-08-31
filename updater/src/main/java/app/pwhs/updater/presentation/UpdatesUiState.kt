@@ -24,6 +24,7 @@ data class UpdatesUiState(
     val isUpdatingAll: Boolean = false,
     val downloadingPackage: String? = null,
     val downloadProgress: Float = 0f,
+    val downloadBytesText: String? = null,
     val searchQuery: String = "",
     val selectedCategory: String? = null,
     val sortOption: AppSortOption = AppSortOption.UPDATES_FIRST,

@@ -8,10 +8,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FileDownload
 import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -42,6 +44,8 @@ import app.pwhs.updater.presentation.UpdatesUiState
 fun UpdatesTopAppBar(
     uiState: UpdatesUiState,
     context: Context,
+    searchActive: Boolean = false,
+    onToggleSearch: () -> Unit = {},
     onBackClick: (() -> Unit)?,
     onUpdateAll: () -> Unit,
     onSortOptionChanged: (AppSortOption) -> Unit,
@@ -76,6 +80,13 @@ fun UpdatesTopAppBar(
             }
         },
         actions = {
+            IconButton(onClick = onToggleSearch) {
+                Icon(
+                    imageVector = if (searchActive) Icons.Rounded.Close else Icons.Rounded.Search,
+                    contentDescription = if (searchActive) "Close search" else "Search",
+                )
+            }
+
             if (uiState.updateCount > 0) {
                 IconButton(
                     onClick = onUpdateAll,

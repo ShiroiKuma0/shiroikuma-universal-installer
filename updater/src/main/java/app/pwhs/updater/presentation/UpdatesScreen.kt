@@ -56,6 +56,10 @@ import app.pwhs.updater.presentation.dialog.EditCategoryDialog
 import app.pwhs.updater.presentation.dialog.TrackedAppDetailBottomSheet
 import kotlinx.coroutines.launch
 
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.focus.FocusRequester
+import app.pwhs.updater.presentation.component.UpdaterSearchBar
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdatesScreen(
@@ -70,7 +74,15 @@ fun UpdatesScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val detailSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    var searchActive by rememberSaveable { mutableStateOf(false) }
+    val searchFocusRequester = remember { FocusRequester() }
     var appToEditCategory by remember { mutableStateOf<TrackedApp?>(null) }
+
+    LaunchedEffect(searchActive) {
+        if (searchActive) {
+            searchFocusRequester.requestFocus()
+        }
+    }
 
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -102,6 +114,13 @@ fun UpdatesScreen(
             UpdatesTopAppBar(
                 uiState = uiState,
                 context = context,
+                searchActive = searchActive,
+                onToggleSearch = {
+                    searchActive = !searchActive
+                    if (!searchActive) {
+                        viewModel.onSearchQueryChanged("")
+                    }
+                },
                 onBackClick = onBackClick,
                 onUpdateAll = { viewModel.updateAll(context) },
                 onSortOptionChanged = viewModel::onSortOptionChanged,
@@ -136,23 +155,16 @@ fun UpdatesScreen(
                 .padding(innerPadding),
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                // Search Bar
-                if (uiState.trackedApps.isNotEmpty()) {
-                    OutlinedTextField(
-                        value = uiState.searchQuery,
-                        onValueChange = viewModel::onSearchQueryChanged,
-                        placeholder = { Text(stringResource(R.string.updates_search_placeholder)) },
-                        leadingIcon = {
-                            Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
-                        },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.large,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Spacing.L, vertical = Spacing.S),
-                    )
+                // Collapsible Search Bar
+                UpdaterSearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = viewModel::onSearchQueryChanged,
+                    active = searchActive,
+                    focusRequester = searchFocusRequester,
+                )
 
-                    // Category Filter Chips
+                // Category Filter Chips
+                if (uiState.trackedApps.isNotEmpty()) {
                     LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()

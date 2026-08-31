@@ -48,4 +48,10 @@ object SharedPrefsKeys {
 
     /** Only check for updates when connected to Wi-Fi. Default: false */
     val UPDATE_CHECK_WIFI_ONLY = booleanPreferencesKey("update_check_wifi_only")
+
+    /** Theme configuration keys */
+    val THEME_MODE = stringPreferencesKey("theme_mode")
+    val THEME_PRESET = stringPreferencesKey("theme_preset")
+    val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
+    val AMOLED_MODE = booleanPreferencesKey("amoled_mode")
 }

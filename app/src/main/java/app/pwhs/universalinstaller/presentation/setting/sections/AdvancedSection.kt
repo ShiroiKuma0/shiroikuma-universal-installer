@@ -43,10 +43,10 @@ internal fun LazyListScope.AdvancedSection(
             OutlinedTextField(
                 value = githubPatToken,
                 onValueChange = onGithubPatTokenChanged,
-                label = { Text("GitHub Token (Tùy chọn)") },
+                label = { Text(stringResource(app.pwhs.core.R.string.setting_github_token_title)) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                 leadingIcon = { Icon(Icons.Rounded.Key, null, tint = MaterialTheme.colorScheme.primary) },
-                placeholder = { Text("ghp_... (Tăng hạn mức API 5,000 req/h)") },
+                placeholder = { Text(stringResource(app.pwhs.core.R.string.setting_github_token_placeholder)) },
                 singleLine = true,
             )
             SecurityLevelSelector(

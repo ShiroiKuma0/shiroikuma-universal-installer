@@ -14,16 +14,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -37,9 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.pwhs.core.R
+import app.pwhs.core.ui.theme.LocalExtendedColors
+import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.domain.model.TrackedApp
 
 @Composable
@@ -54,17 +55,17 @@ fun TrackedAppCard(
 ) {
     var expandedNotes by remember { mutableStateOf(false) }
 
-    Card(
+    ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(Spacing.L),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -89,35 +90,35 @@ fun TrackedAppCard(
 
                 if (app.hasUpdate) {
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
+                        shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.primaryContainer,
                     ) {
                         Text(
-                            text = "New: ${app.latestVersionName}",
+                            text = stringResource(R.string.updates_card_badge_new, app.latestVersionName.orEmpty()),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier.padding(horizontal = Spacing.S, vertical = Spacing.XS),
                         )
                     }
                 } else {
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
+                        shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier.padding(horizontal = Spacing.S, vertical = Spacing.XS),
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.CheckCircle,
                                 contentDescription = null,
                                 modifier = Modifier.size(12.dp),
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = LocalExtendedColors.current.success.takeIf { it != androidx.compose.ui.graphics.Color.Unspecified } ?: MaterialTheme.colorScheme.primary,
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(Spacing.XS))
                             Text(
-                                text = "Up to date",
+                                text = stringResource(R.string.updates_card_badge_up_to_date),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -126,7 +127,7 @@ fun TrackedAppCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Spacing.M))
 
             // Versions info
             Row(
@@ -134,13 +135,13 @@ fun TrackedAppCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = "Current: ${app.currentVersionName}",
+                    text = stringResource(R.string.updates_card_current_version, app.currentVersionName),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (app.latestReleaseTag != null) {
                     Text(
-                        text = "Tag: ${app.latestReleaseTag}",
+                        text = stringResource(R.string.updates_card_tag, app.latestReleaseTag.orEmpty()),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -149,14 +150,14 @@ fun TrackedAppCard(
 
             // Download Progress Bar
             if (isDownloading) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(Spacing.M))
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(
-                            text = "Downloading update...",
+                            text = stringResource(R.string.updates_card_downloading),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -167,7 +168,7 @@ fun TrackedAppCard(
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(Spacing.XS))
                     if (downloadProgress > 0f) {
                         LinearProgressIndicator(
                             progress = { downloadProgress },
@@ -181,15 +182,14 @@ fun TrackedAppCard(
 
             // Release Notes Expandable
             if (!app.releaseNotes.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Spacing.S))
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "Changelog / Release Notes",
+                        text = stringResource(R.string.updates_card_changelog_title),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
@@ -200,22 +200,22 @@ fun TrackedAppCard(
                     ) {
                         Icon(
                             imageVector = if (expandedNotes) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                            contentDescription = "Toggle release notes",
+                            contentDescription = stringResource(R.string.updates_card_changelog_title),
                         )
                     }
                 }
                 AnimatedVisibility(visible = expandedNotes) {
                     Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.surface,
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 4.dp),
+                            .padding(top = Spacing.XS),
                     ) {
                         Text(
                             text = app.releaseNotes.orEmpty(),
                             style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(8.dp),
+                            modifier = Modifier.padding(Spacing.S),
                             maxLines = 10,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -223,7 +223,7 @@ fun TrackedAppCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Spacing.M))
 
             // Action Buttons
             Row(
@@ -234,7 +234,7 @@ fun TrackedAppCard(
                 IconButton(onClick = onDeleteClick) {
                     Icon(
                         imageVector = Icons.Rounded.DeleteOutline,
-                        contentDescription = "Delete",
+                        contentDescription = stringResource(R.string.updates_card_btn_delete),
                         tint = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -242,16 +242,16 @@ fun TrackedAppCard(
                 IconButton(onClick = onCheckClick) {
                     Icon(
                         imageVector = Icons.Rounded.Refresh,
-                        contentDescription = "Check update",
+                        contentDescription = stringResource(R.string.updates_card_btn_check),
                     )
                 }
 
                 if (app.hasUpdate && !app.latestDownloadUrl.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(Spacing.S))
                     Button(
                         onClick = onUpdateClick,
                         enabled = !isDownloading,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.medium,
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.SystemUpdate,
@@ -259,7 +259,7 @@ fun TrackedAppCard(
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "Update")
+                        Text(text = stringResource(R.string.updates_card_btn_update))
                     }
                 }
             }

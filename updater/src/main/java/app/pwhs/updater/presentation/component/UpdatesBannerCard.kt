@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.CloudDownload
@@ -24,8 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.pwhs.core.R
+import app.pwhs.core.ui.theme.Spacing
 
 @Composable
 fun UpdatesBannerCard(
@@ -50,15 +52,15 @@ fun UpdatesBannerCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(MaterialTheme.shapes.extraLarge)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = containerColor),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(Spacing.L),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -67,7 +69,7 @@ fun UpdatesBannerCard(
                 modifier = Modifier.weight(1f),
             ) {
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     color = if (hasUpdates) {
                         MaterialTheme.colorScheme.primary
                     } else {
@@ -89,14 +91,14 @@ fun UpdatesBannerCard(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(Spacing.M))
 
                 Column {
                     Text(
                         text = if (hasUpdates) {
-                            "Có $updateCount bản cập nhật mới"
+                            stringResource(R.string.updates_banner_title_has_updates, updateCount)
                         } else {
-                            "Theo dõi cập nhật ứng dụng"
+                            stringResource(R.string.updates_banner_title_idle)
                         },
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
@@ -104,9 +106,9 @@ fun UpdatesBannerCard(
                     )
                     Text(
                         text = if (hasUpdates) {
-                            "Nhấn để tải và cài đặt phiên bản mới nhất"
+                            stringResource(R.string.updates_banner_desc_has_updates)
                         } else {
-                            "Tự động theo dõi release từ GitHub / GitLab"
+                            stringResource(R.string.updates_banner_desc_idle)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = contentColor.copy(alpha = 0.8f),
@@ -116,7 +118,7 @@ fun UpdatesBannerCard(
 
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                contentDescription = "Open updates",
+                contentDescription = stringResource(R.string.updates_title),
                 tint = contentColor.copy(alpha = 0.7f),
             )
         }

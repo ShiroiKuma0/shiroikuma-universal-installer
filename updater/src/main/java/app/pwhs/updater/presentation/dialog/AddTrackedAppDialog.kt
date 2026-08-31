@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddLink
 import androidx.compose.material3.AlertDialog
@@ -27,7 +25,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import app.pwhs.core.R
+import app.pwhs.core.ui.theme.Spacing
 
 @Composable
 fun AddTrackedAppDialog(
@@ -48,24 +49,24 @@ fun AddTrackedAppDialog(
                 tint = MaterialTheme.colorScheme.primary,
             )
         },
-        title = { Text(text = "Track GitHub / GitLab App") },
+        title = { Text(text = stringResource(R.string.updates_dialog_title)) },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Paste a repository release link to track and receive automatic updates.",
+                    text = stringResource(R.string.updates_dialog_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Spacing.L))
 
                 OutlinedTextField(
                     value = urlText,
                     onValueChange = { urlText = it },
-                    label = { Text("Release or Repo URL") },
+                    label = { Text(stringResource(R.string.updates_dialog_url_label)) },
                     placeholder = { Text("https://github.com/owner/repo") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.medium,
                     isError = !errorMessage.isNullOrBlank(),
                     supportingText = {
                         if (!errorMessage.isNullOrBlank()) {
@@ -74,7 +75,7 @@ fun AddTrackedAppDialog(
                     },
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(Spacing.M))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -82,7 +83,7 @@ fun AddTrackedAppDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = "Include Pre-releases",
+                        text = stringResource(R.string.updates_dialog_prerelease),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Switch(
@@ -96,7 +97,7 @@ fun AddTrackedAppDialog(
             Button(
                 onClick = { onConfirm(urlText.trim(), includePrereleases) },
                 enabled = urlText.isNotBlank() && !isAdding,
-                shape = RoundedCornerShape(12.dp),
+                shape = MaterialTheme.shapes.medium,
             ) {
                 if (isAdding) {
                     CircularProgressIndicator(
@@ -105,13 +106,13 @@ fun AddTrackedAppDialog(
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 } else {
-                    Text("Add App")
+                    Text(stringResource(R.string.updates_dialog_add_btn))
                 }
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss, enabled = !isAdding) {
-                Text("Cancel")
+                Text(stringResource(android.R.string.cancel))
             }
         },
     )

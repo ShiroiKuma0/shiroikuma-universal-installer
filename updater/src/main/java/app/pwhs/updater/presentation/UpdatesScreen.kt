@@ -12,16 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -43,8 +40,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import app.pwhs.core.R
+import app.pwhs.core.ui.component.EmptyStateView
+import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.presentation.component.TrackedAppCard
 import app.pwhs.updater.presentation.dialog.AddTrackedAppDialog
 
@@ -71,10 +71,10 @@ fun UpdatesScreen(
             LargeTopAppBar(
                 title = {
                     Column {
-                        Text(text = "App Updates")
+                        Text(text = stringResource(R.string.updates_title))
                         if (uiState.updateCount > 0) {
                             Text(
-                                text = "${uiState.updateCount} update(s) available",
+                                text = stringResource(R.string.updates_available_count, uiState.updateCount),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -104,7 +104,7 @@ fun UpdatesScreen(
                         } else {
                             Icon(
                                 imageVector = Icons.Rounded.Refresh,
-                                contentDescription = "Check for updates",
+                                contentDescription = stringResource(R.string.updates_check_all),
                             )
                         }
                     }
@@ -118,8 +118,8 @@ fun UpdatesScreen(
             ExtendedFloatingActionButton(
                 onClick = { viewModel.showAddDialog(true) },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("Track App") },
-                shape = RoundedCornerShape(16.dp),
+                text = { Text(stringResource(R.string.updates_track_app)) },
+                shape = MaterialTheme.shapes.large,
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -135,15 +135,15 @@ fun UpdatesScreen(
                     OutlinedTextField(
                         value = uiState.searchQuery,
                         onValueChange = viewModel::onSearchQueryChanged,
-                        placeholder = { Text("Search tracked apps...") },
+                        placeholder = { Text(stringResource(R.string.updates_search_placeholder)) },
                         leadingIcon = {
                             Icon(imageVector = Icons.Rounded.Search, contentDescription = null)
                         },
                         singleLine = true,
-                        shape = RoundedCornerShape(16.dp),
+                        shape = MaterialTheme.shapes.large,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = Spacing.L, vertical = Spacing.S),
                     )
                 }
 
@@ -152,71 +152,36 @@ fun UpdatesScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(32.dp),
+                            .padding(Spacing.XXL),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.CloudDownload,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "No Apps Tracked Yet",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Paste GitHub or GitLab release links to keep your sideloaded apps up to date automatically.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                            )
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Button(
-                                onClick = { viewModel.showAddDialog(true) },
-                                shape = RoundedCornerShape(12.dp),
-                            ) {
-                                Icon(imageVector = Icons.Rounded.Add, contentDescription = null)
-                                Spacer(modifier = Modifier.size(8.dp))
-                                Text("Track First App")
-                            }
-                        }
+                        EmptyStateView(
+                            icon = Icons.Rounded.CloudDownload,
+                            title = stringResource(R.string.updates_no_apps_title),
+                            subtitle = stringResource(R.string.updates_no_apps_subtitle),
+                            actionLabel = stringResource(R.string.updates_track_first_app),
+                            onAction = { viewModel.showAddDialog(true) },
+                        )
                     }
                 } else if (uiState.filteredApps.isEmpty()) {
                     // Search Empty State
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(32.dp),
+                            .padding(Spacing.XXL),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Rounded.SearchOff,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "No apps match \"${uiState.searchQuery}\"",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+                        EmptyStateView(
+                            icon = Icons.Rounded.SearchOff,
+                            title = stringResource(R.string.updates_no_results_title),
+                            subtitle = stringResource(R.string.updates_no_results_subtitle, uiState.searchQuery),
+                        )
                     }
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(Spacing.L),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.M),
                     ) {
                         items(
                             items = uiState.filteredApps,

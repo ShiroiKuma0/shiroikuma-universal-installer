@@ -32,4 +32,35 @@
     <string name="onboarding_analytics_desc">Việc cài ứng dụng chạy khác nhau trên mỗi máy, và chỉ khi ứng dụng báo về thì mới biết chỗ nào hỏng. Nó gửi kết quả cài đặt thành công hay thất bại và lỗi gì — không bao giờ gửi bạn đã cài ứng dụng nào.</string>
     <string name="onboarding_analytics_switch">Chia sẻ chẩn đoán ẩn danh</string>
     <string name="onboarding_analytics_switch_sub">Bạn có thể đổi bất cứ lúc nào trong Cài đặt.</string>
+    <!-- App Updates Tracking Shared (VI) -->
+    <string name="updates_title">Cập nhật ứng dụng</string>
+    <string name="updates_available_count">%1$d bản cập nhật mới</string>
+    <string name="updates_check_all">Kiểm tra cập nhật</string>
+    <string name="updates_track_app">Theo dõi ứng dụng</string>
+    <string name="updates_track_first_app">Theo dõi ứng dụng đầu tiên</string>
+    <string name="updates_search_placeholder">Tìm kiếm ứng dụng đang theo dõi…</string>
+    <string name="updates_no_apps_title">Chưa theo dõi ứng dụng nào</string>
+    <string name="updates_no_apps_subtitle">Dán liên kết release từ GitHub hoặc GitLab để tự động cập nhật các ứng dụng sideload.</string>
+    <string name="updates_no_results_title">Không tìm thấy kết quả</string>
+    <string name="updates_no_results_subtitle">Không có ứng dụng nào khớp với \"%1$s\"</string>
+    <string name="updates_dialog_title">Theo dõi ứng dụng GitHub / GitLab</string>
+    <string name="updates_dialog_subtitle">Dán liên kết release của kho lưu trữ để theo dõi và nhận bản cập nhật tự động.</string>
+    <string name="updates_dialog_url_label">URL Release hoặc Repository</string>
+    <string name="updates_dialog_prerelease">Bao gồm bản phát hành trước (Pre-release)</string>
+    <string name="updates_dialog_add_btn">Thêm ứng dụng</string>
+    <string name="updates_banner_title_has_updates">Có %1$d bản cập nhật mới</string>
+    <string name="updates_banner_desc_has_updates">Nhấn để tải và cài đặt phiên bản mới nhất</string>
+    <string name="updates_banner_title_idle">Theo dõi cập nhật ứng dụng</string>
+    <string name="updates_banner_desc_idle">Tự động theo dõi release từ GitHub / GitLab</string>
+    <string name="updates_card_badge_new">Mới: %1$s</string>
+    <string name="updates_card_badge_up_to_date">Đã mới nhất</string>
+    <string name="updates_card_current_version">Hiện tại: %1$s</string>
+    <string name="updates_card_tag">Tag: %1$s</string>
+    <string name="updates_card_downloading">Đang tải bản cập nhật…</string>
+    <string name="updates_card_changelog_title">Nhật ký thay đổi / Ghi chú phát hành</string>
+    <string name="updates_card_btn_update">Cập nhật</string>
+    <string name="updates_card_btn_delete">Xóa</string>
+    <string name="updates_card_btn_check">Kiểm tra bản mới</string>
+    <string name="setting_github_token_title">GitHub Token (Tùy chọn)</string>
+    <string name="setting_github_token_placeholder">ghp_… (Tăng hạn mức API 5,000 req/h)</string>
 </resources>

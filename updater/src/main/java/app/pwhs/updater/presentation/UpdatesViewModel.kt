@@ -343,9 +343,21 @@ class UpdatesViewModel(
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/vnd.android.package-archive")
+            setClassName(context.packageName, "app.pwhs.universalinstaller.presentation.install.DialogInstallActivity")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        context.startActivity(intent)
+
+        val fallbackIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        runCatching {
+            context.startActivity(intent)
+        }.onFailure {
+            context.startActivity(fallbackIntent)
+        }
     }
 }

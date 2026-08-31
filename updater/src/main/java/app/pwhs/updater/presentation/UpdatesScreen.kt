@@ -1,5 +1,8 @@
 package app.pwhs.updater.presentation
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +19,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.CloudDownload
+import androidx.compose.material.icons.rounded.FileDownload
+import androidx.compose.material.icons.rounded.FileUpload
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -40,6 +48,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +61,7 @@ import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.presentation.component.TrackedAppCard
 import app.pwhs.updater.presentation.dialog.AddTrackedAppDialog
 import app.pwhs.updater.presentation.dialog.AppPickerDialog
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,10 +71,30 @@ fun UpdatesScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedAppToTrack by remember { mutableStateOf<InstalledAppItem?>(null) }
+    var showMenu by remember { mutableStateOf(false) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+    ) { uri ->
+        if (uri != null) {
+            runCatching {
+                val stream = context.contentResolver.openInputStream(uri)
+                val jsonString = stream?.bufferedReader()?.use { it.readText() }.orEmpty()
+                if (jsonString.isNotBlank()) {
+                    viewModel.importTrackedAppsFromJson(jsonString) { count ->
+                        scope.launch {
+                            snackbarHostState.showSnackbar(context.getString(R.string.updates_import_success, count))
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
@@ -133,6 +163,39 @@ fun UpdatesScreen(
                             Icon(
                                 imageVector = Icons.Rounded.Refresh,
                                 contentDescription = stringResource(R.string.updates_check_all),
+                            )
+                        }
+                    }
+
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Rounded.MoreVert, contentDescription = "More")
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.updates_menu_import)) },
+                                leadingIcon = { Icon(Icons.Rounded.FileUpload, contentDescription = null) },
+                                onClick = {
+                                    showMenu = false
+                                    importLauncher.launch("*/*")
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.updates_menu_export)) },
+                                leadingIcon = { Icon(Icons.Rounded.FileDownload, contentDescription = null) },
+                                onClick = {
+                                    showMenu = false
+                                    val jsonString = viewModel.exportTrackedAppsJson()
+                                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "application/json"
+                                        putExtra(Intent.EXTRA_TEXT, jsonString)
+                                        putExtra(Intent.EXTRA_TITLE, "universal_installer_apps.json")
+                                    }
+                                    context.startActivity(Intent.createChooser(sendIntent, "Export Tracked Apps"))
+                                },
                             )
                         }
                     }

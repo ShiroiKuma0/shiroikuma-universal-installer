@@ -227,6 +227,28 @@ class UpdatesViewModel(
         }.getOrDefault(Triple(null, null, null))
     }
 
+    fun exportTrackedAppsJson(): String {
+        return app.pwhs.updater.domain.backup.TrackedAppsBackupHelper.exportToJson(_uiState.value.trackedApps)
+    }
+
+    fun importTrackedAppsFromJson(jsonContent: String, onComplete: (Int) -> Unit) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAdding = true) }
+            try {
+                val imported = app.pwhs.updater.domain.backup.TrackedAppsBackupHelper.importFromJson(jsonContent)
+                for (app in imported) {
+                    repository.saveTrackedApp(app)
+                }
+                onComplete(imported.size)
+            } catch (e: Exception) {
+                Timber.e(e, "Import tracked apps failed")
+                _uiState.update { it.copy(error = "Failed to import apps: ${e.message}") }
+            } finally {
+                _uiState.update { it.copy(isAdding = false) }
+            }
+        }
+    }
+
     fun removeTrackedApp(packageName: String) {
         viewModelScope.launch {
             repository.removeTrackedApp(packageName)

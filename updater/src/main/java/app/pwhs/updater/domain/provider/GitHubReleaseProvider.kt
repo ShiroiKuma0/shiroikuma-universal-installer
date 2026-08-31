@@ -113,6 +113,7 @@ class GitHubReleaseProvider(
             )
         } ?: emptyList()
 
+        val avatarUrl = obj["author"]?.jsonObject?.get("avatar_url")?.jsonPrimitive?.content
         val cleanVersion = extractCleanVersion(tagName)
 
         return ReleaseDetails(
@@ -123,6 +124,7 @@ class GitHubReleaseProvider(
             publishedAt = parseIsoDate(publishedAtStr),
             isPrerelease = isPrerelease,
             assets = assets,
+            iconUrl = avatarUrl,
             eTag = eTag,
         )
     }

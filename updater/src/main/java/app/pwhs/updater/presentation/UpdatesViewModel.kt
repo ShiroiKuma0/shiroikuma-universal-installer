@@ -227,6 +227,7 @@ class UpdatesViewModel(
                 val trackedApp = TrackedApp(
                     packageName = finalPkg,
                     appName = finalAppName,
+                    iconUrl = release.iconUrl,
                     sourceType = UpdateSourceType.fromUrl(url),
                     sourceUrl = url,
                     currentVersionName = matchResult?.versionName ?: "Not Installed",

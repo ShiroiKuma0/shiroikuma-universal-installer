@@ -98,6 +98,7 @@ class FDroidReleaseProvider(
                         sizeBytes = sizeBytes,
                     )
                 ),
+                iconUrl = "https://f-droid.org/repo/icons-640/$packageName.png",
                 eTag = newETag,
             )
 

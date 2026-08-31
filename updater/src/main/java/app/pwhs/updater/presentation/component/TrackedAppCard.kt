@@ -74,6 +74,13 @@ fun TrackedAppCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                AppIconView(
+                    packageName = app.packageName,
+                    appName = app.appName,
+                    iconUrl = app.iconUrl,
+                    size = 44.dp,
+                )
+                Spacer(modifier = Modifier.width(Spacing.M))
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(

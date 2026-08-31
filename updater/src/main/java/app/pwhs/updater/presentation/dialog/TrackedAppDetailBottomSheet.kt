@@ -55,6 +55,7 @@ import app.pwhs.core.R
 import app.pwhs.core.ui.theme.LocalExtendedColors
 import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.domain.model.TrackedApp
+import app.pwhs.updater.presentation.component.AppIconView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,6 +90,13 @@ fun TrackedAppDetailBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                AppIconView(
+                    packageName = app.packageName,
+                    appName = app.appName,
+                    iconUrl = app.iconUrl,
+                    size = 56.dp,
+                )
+                Spacer(modifier = Modifier.width(Spacing.M))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = app.appName,

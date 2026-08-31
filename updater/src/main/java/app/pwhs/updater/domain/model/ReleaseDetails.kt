@@ -11,5 +11,6 @@ data class ReleaseDetails(
     val publishedAt: Long? = null,
     val isPrerelease: Boolean = false,
     val assets: List<AssetArtifact> = emptyList(),
+    val iconUrl: String? = null,
     val eTag: String? = null,
 )

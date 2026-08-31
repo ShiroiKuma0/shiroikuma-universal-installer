@@ -115,6 +115,7 @@ class AppUpdateRepositoryImpl(
                     releaseNotes = releaseDetails.releaseNotes,
                     publishedAt = releaseDetails.publishedAt,
                     lastCheckedAt = now,
+                    iconUrl = releaseDetails.iconUrl ?: currentApp.iconUrl,
                     eTag = releaseDetails.eTag,
                 )
 

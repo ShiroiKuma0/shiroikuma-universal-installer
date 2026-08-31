@@ -19,6 +19,8 @@ import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
+import androidx.compose.material.icons.rounded.SystemUpdate
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -36,7 +38,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +51,7 @@ import app.pwhs.core.ui.component.EmptyStateView
 import app.pwhs.core.ui.theme.Spacing
 import app.pwhs.updater.presentation.component.TrackedAppCard
 import app.pwhs.updater.presentation.dialog.AddTrackedAppDialog
+import app.pwhs.updater.presentation.dialog.AppPickerDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +63,8 @@ fun UpdatesScreen(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    var selectedAppToTrack by remember { mutableStateOf<InstalledAppItem?>(null) }
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
@@ -92,6 +99,27 @@ fun UpdatesScreen(
                     }
                 },
                 actions = {
+                    if (uiState.updateCount > 0) {
+                        Button(
+                            onClick = { viewModel.updateAll(context) },
+                            enabled = !uiState.isUpdatingAll,
+                            shape = MaterialTheme.shapes.medium,
+                            modifier = Modifier.padding(end = Spacing.S),
+                        ) {
+                            if (uiState.isUpdatingAll) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                            } else {
+                                Icon(Icons.Rounded.SystemUpdate, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.size(Spacing.XS))
+                                Text("Update All (${uiState.updateCount})")
+                            }
+                        }
+                    }
+
                     IconButton(
                         onClick = { viewModel.checkAllUpdates() },
                         enabled = !uiState.isChecking,
@@ -116,7 +144,10 @@ fun UpdatesScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { viewModel.showAddDialog(true) },
+                onClick = {
+                    selectedAppToTrack = null
+                    viewModel.showAddDialog(true)
+                },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 text = { Text(stringResource(R.string.updates_track_app)) },
                 shape = MaterialTheme.shapes.large,
@@ -216,10 +247,35 @@ fun UpdatesScreen(
         AddTrackedAppDialog(
             isAdding = uiState.isAdding,
             errorMessage = uiState.error,
-            onDismiss = { viewModel.showAddDialog(false) },
-            onConfirm = { url, prereleases ->
-                viewModel.addTrackedAppFromUrl(context, url, prereleases)
+            selectedAppName = selectedAppToTrack?.appName,
+            onSelectFromInstalled = {
+                viewModel.showAppPickerDialog(true)
             },
+            onDismiss = {
+                viewModel.showAddDialog(false)
+                selectedAppToTrack = null
+            },
+            onConfirm = { url, prereleases ->
+                viewModel.addTrackedAppFromUrl(
+                    context = context,
+                    url = url,
+                    includePrereleases = prereleases,
+                    targetPackageName = selectedAppToTrack?.packageName,
+                )
+            },
+        )
+    }
+
+    if (uiState.showAppPickerDialog) {
+        AppPickerDialog(
+            installedApps = uiState.installedApps,
+            isLoading = uiState.isLoadingInstalledApps,
+            onLoadApps = { viewModel.loadInstalledApps(context) },
+            onAppSelected = { app ->
+                selectedAppToTrack = app
+                viewModel.showAppPickerDialog(false)
+            },
+            onDismiss = { viewModel.showAppPickerDialog(false) },
         )
     }
 }

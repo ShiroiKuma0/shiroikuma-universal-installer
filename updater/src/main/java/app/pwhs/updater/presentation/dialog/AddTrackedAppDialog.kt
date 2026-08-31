@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddLink
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -34,10 +36,13 @@ import app.pwhs.core.ui.theme.Spacing
 fun AddTrackedAppDialog(
     isAdding: Boolean,
     errorMessage: String?,
+    initialUrl: String = "",
+    selectedAppName: String? = null,
+    onSelectFromInstalled: (() -> Unit)? = null,
     onDismiss: () -> Unit,
     onConfirm: (url: String, includePrereleases: Boolean) -> Unit,
 ) {
-    var urlText by remember { mutableStateOf("") }
+    var urlText by remember(initialUrl) { mutableStateOf(initialUrl) }
     var includePrereleases by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -49,7 +54,9 @@ fun AddTrackedAppDialog(
                 tint = MaterialTheme.colorScheme.primary,
             )
         },
-        title = { Text(text = stringResource(R.string.updates_dialog_title)) },
+        title = {
+            Text(text = selectedAppName?.let { "Track $it" } ?: stringResource(R.string.updates_dialog_title))
+        },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
@@ -57,13 +64,26 @@ fun AddTrackedAppDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Spacer(modifier = Modifier.height(Spacing.L))
+                Spacer(modifier = Modifier.height(Spacing.M))
+
+                if (onSelectFromInstalled != null) {
+                    OutlinedButton(
+                        onClick = onSelectFromInstalled,
+                        shape = MaterialTheme.shapes.medium,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Rounded.Apps, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.size(Spacing.S))
+                        Text("Pick from installed apps")
+                    }
+                    Spacer(modifier = Modifier.height(Spacing.M))
+                }
 
                 OutlinedTextField(
                     value = urlText,
                     onValueChange = { urlText = it },
                     label = { Text(stringResource(R.string.updates_dialog_url_label)) },
-                    placeholder = { Text("https://github.com/owner/repo") },
+                    placeholder = { Text("GitHub, GitLab, Codeberg or APK link") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium,

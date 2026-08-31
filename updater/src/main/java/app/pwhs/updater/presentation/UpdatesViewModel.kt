@@ -2,19 +2,20 @@ package app.pwhs.updater.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.pwhs.core.data.ApkMetadataReader
 import app.pwhs.updater.data.remote.AppDownloader
 import app.pwhs.updater.data.repo.AppUpdateRepository
 import app.pwhs.updater.domain.matcher.SmartAbiMatcher
 import app.pwhs.updater.domain.model.TrackedApp
 import app.pwhs.updater.domain.model.UpdateSourceType
 import app.pwhs.updater.domain.provider.GitHubReleaseProvider
+import app.pwhs.updater.domain.provider.UpdateSourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +29,7 @@ import java.io.File
 class UpdatesViewModel(
     private val repository: AppUpdateRepository,
     private val downloader: AppDownloader,
-    private val gitHubProvider: GitHubReleaseProvider = GitHubReleaseProvider(),
+    private val providers: List<UpdateSourceProvider> = listOf(GitHubReleaseProvider()),
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UpdatesUiState())
@@ -52,6 +53,48 @@ class UpdatesViewModel(
 
     fun showAddDialog(show: Boolean) {
         _uiState.update { it.copy(showAddDialog = show, error = null) }
+    }
+
+    fun showAppPickerDialog(show: Boolean) {
+        _uiState.update { it.copy(showAppPickerDialog = show) }
+    }
+
+    fun loadInstalledApps(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(isLoadingInstalledApps = true) }
+            val pm = context.packageManager
+            val trackedPkgSet = _uiState.value.trackedApps.map { it.packageName }.toSet()
+
+            val installedPackages = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.getInstalledPackages(PackageManager.PackageInfoFlags.of(0))
+            } else {
+                pm.getInstalledPackages(0)
+            }
+
+            val appList = installedPackages.mapNotNull { pkg ->
+                val appInfo = pkg.applicationInfo ?: return@mapNotNull null
+                val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                if (isSystem && pkg.packageName != "app.pwhs.universalinstaller") return@mapNotNull null
+
+                val appName = runCatching { pm.getApplicationLabel(appInfo).toString() }.getOrDefault(pkg.packageName)
+                val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    pkg.longVersionCode
+                } else {
+                    @Suppress("DEPRECATION")
+                    pkg.versionCode.toLong()
+                }
+
+                InstalledAppItem(
+                    packageName = pkg.packageName,
+                    appName = appName,
+                    versionName = pkg.versionName ?: "1.0",
+                    versionCode = vCode,
+                    isTracked = trackedPkgSet.contains(pkg.packageName),
+                )
+            }.sortedBy { it.appName.lowercase() }
+
+            _uiState.update { it.copy(installedApps = appList, isLoadingInstalledApps = false) }
+        }
     }
 
     fun checkAllUpdates(apiToken: String? = null) {
@@ -87,17 +130,18 @@ class UpdatesViewModel(
         url: String,
         includePrereleases: Boolean = false,
         apiToken: String? = null,
+        targetPackageName: String? = null,
     ) {
         viewModelScope.launch {
             _uiState.update { it.copy(isAdding = true, error = null) }
             try {
-                val sourceType = UpdateSourceType.fromUrl(url)
-                if (sourceType == UpdateSourceType.UNKNOWN) {
+                val provider = providers.firstOrNull { it.canHandle(url) }
+                if (provider == null) {
                     _uiState.update { it.copy(isAdding = false, error = "Unsupported URL source") }
                     return@launch
                 }
 
-                val releaseResult = gitHubProvider.fetchLatestRelease(
+                val releaseResult = provider.fetchLatestRelease(
                     url = url,
                     includePrereleases = includePrereleases,
                     apiToken = apiToken,
@@ -110,17 +154,30 @@ class UpdatesViewModel(
                 }
 
                 val bestAsset = SmartAbiMatcher.selectBestAsset(release.assets)
-                val repoPath = GitHubReleaseProvider.extractRepoPath(url) ?: url
-                val defaultAppName = repoPath.substringAfterLast('/')
+                val defaultAppName = release.title?.takeIf { it.isNotBlank() }
+                    ?: url.substringBefore('?').substringAfterLast('/').removeSuffix(".git")
 
-                // Try to check if already installed on device
                 val pm = context.packageManager
-                val (installedPkg, installedVerName, installedVerCode) = findInstalledAppMatch(pm, defaultAppName)
+                val (installedPkg, installedVerName, installedVerCode) = if (!targetPackageName.isNullOrBlank()) {
+                    val pkgInfo = runCatching { pm.getPackageInfo(targetPackageName, 0) }.getOrNull()
+                    val vCode = if (pkgInfo != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        pkgInfo.longVersionCode
+                    } else {
+                        @Suppress("DEPRECATION")
+                        pkgInfo?.versionCode?.toLong()
+                    }
+                    Triple(targetPackageName, pkgInfo?.versionName, vCode)
+                } else {
+                    findInstalledAppMatch(pm, defaultAppName)
+                }
+
+                val finalPkg = targetPackageName ?: installedPkg
+                    ?: "tracked.${defaultAppName.lowercase().replace(Regex("[^a-z0-9_]"), "_")}"
 
                 val trackedApp = TrackedApp(
-                    packageName = installedPkg ?: "tracked.${defaultAppName.lowercase().replace('-', '_')}",
+                    packageName = finalPkg,
                     appName = defaultAppName,
-                    sourceType = sourceType,
+                    sourceType = UpdateSourceType.fromUrl(url),
                     sourceUrl = url,
                     currentVersionName = installedVerName ?: "Not Installed",
                     currentVersionCode = installedVerCode ?: 0L,
@@ -135,7 +192,7 @@ class UpdatesViewModel(
                 )
 
                 repository.saveTrackedApp(trackedApp)
-                _uiState.update { it.copy(isAdding = false, showAddDialog = false) }
+                _uiState.update { it.copy(isAdding = false, showAddDialog = false, showAppPickerDialog = false) }
             } catch (e: Exception) {
                 Timber.e(e, "Add tracked app failed for $url")
                 _uiState.update { it.copy(isAdding = false, error = e.message ?: "Failed to add app") }
@@ -180,6 +237,7 @@ class UpdatesViewModel(
         context: Context,
         app: TrackedApp,
         apiToken: String? = null,
+        onComplete: (() -> Unit)? = null,
     ) {
         val downloadUrl = app.latestDownloadUrl ?: return
         viewModelScope.launch {
@@ -200,8 +258,8 @@ class UpdatesViewModel(
 
                 val apkFile = downloadResult.getOrNull()
                 if (apkFile != null && apkFile.exists()) {
-                    // Launch installer
                     launchInstallerForFile(context, apkFile)
+                    onComplete?.invoke()
                 } else {
                     _uiState.update { it.copy(error = "Download failed") }
                 }
@@ -211,6 +269,44 @@ class UpdatesViewModel(
             } finally {
                 _uiState.update { it.copy(downloadingPackage = null, downloadProgress = 0f) }
             }
+        }
+    }
+
+    fun updateAll(context: Context, apiToken: String? = null) {
+        val appsToUpdate = _uiState.value.trackedApps.filter { it.hasUpdate && !it.latestDownloadUrl.isNullOrBlank() }
+        if (appsToUpdate.isEmpty() || _uiState.value.isUpdatingAll) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isUpdatingAll = true) }
+            for (app in appsToUpdate) {
+                val downloadUrl = app.latestDownloadUrl ?: continue
+                _uiState.update { it.copy(downloadingPackage = app.packageName, downloadProgress = 0f) }
+
+                try {
+                    val result = downloader.downloadApk(
+                        downloadUrl = downloadUrl,
+                        packageName = app.packageName,
+                        versionName = app.latestVersionName ?: "latest",
+                        apiToken = apiToken,
+                        onProgress = { written, total ->
+                            if (total > 0) {
+                                val fraction = (written.toFloat() / total).coerceIn(0f, 1f)
+                                _uiState.update { it.copy(downloadProgress = fraction) }
+                            }
+                        },
+                    )
+
+                    val apkFile = result.getOrNull()
+                    if (apkFile != null && apkFile.exists()) {
+                        withContext(Dispatchers.Main) {
+                            launchInstallerForFile(context, apkFile)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "Batch update failed for ${app.packageName}")
+                }
+            }
+            _uiState.update { it.copy(isUpdatingAll = false, downloadingPackage = null, downloadProgress = 0f) }
         }
     }
 

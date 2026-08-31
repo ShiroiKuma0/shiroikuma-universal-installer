@@ -55,7 +55,6 @@ import app.pwhs.updater.presentation.component.UpdatesTopAppBar
 import app.pwhs.updater.presentation.dialog.EditCategoryDialog
 import app.pwhs.updater.presentation.dialog.TrackedAppDetailBottomSheet
 import kotlinx.coroutines.launch
-
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.focus.FocusRequester
 import app.pwhs.updater.presentation.component.UpdaterSearchBar
@@ -261,6 +260,9 @@ fun UpdatesScreen(
                                 isDownloading = uiState.downloadingPackage == app.packageName,
                                 downloadProgress = uiState.downloadProgress,
                                 downloadBytesText = uiState.downloadBytesText,
+                                onClick = {
+                                    viewModel.selectAppForDetail(app)
+                                },
                                 onUpdateClick = {
                                     viewModel.downloadAndInstall(context, app)
                                 },
@@ -272,9 +274,6 @@ fun UpdatesScreen(
                                 },
                                 onEditCategoryClick = {
                                     appToEditCategory = app
-                                },
-                                modifier = Modifier.clickable {
-                                    viewModel.selectAppForDetail(app)
                                 },
                             )
                         }

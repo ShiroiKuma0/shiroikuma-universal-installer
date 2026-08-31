@@ -19,6 +19,7 @@ data class TrackedAppBackupDto(
     val sourceType: String,
     val includePrereleases: Boolean = false,
     val customRegexFilter: String? = null,
+    val category: String? = null,
 )
 
 @Serializable
@@ -45,6 +46,7 @@ object TrackedAppsBackupHelper {
                 sourceType = app.sourceType.name,
                 includePrereleases = app.includePrereleases,
                 customRegexFilter = app.customRegexFilter,
+                category = app.category,
             )
         }
         val container = UniversalInstallerBackupContainer(
@@ -71,6 +73,7 @@ object TrackedAppsBackupHelper {
                         currentVersionCode = 0L,
                         includePrereleases = dto.includePrereleases,
                         customRegexFilter = dto.customRegexFilter,
+                        category = dto.category,
                     )
                 }
             }
@@ -108,6 +111,9 @@ object TrackedAppsBackupHelper {
                 val customFilter = obj["filter"]?.jsonPrimitive?.content
                     ?: obj["customRegexFilter"]?.jsonPrimitive?.content
 
+                val category = obj["category"]?.jsonPrimitive?.content
+                    ?: obj["categories"]?.jsonArray?.firstOrNull()?.jsonPrimitive?.content
+
                 results.add(
                     TrackedApp(
                         packageName = id,
@@ -118,6 +124,7 @@ object TrackedAppsBackupHelper {
                         currentVersionCode = 0L,
                         includePrereleases = includePrereleases,
                         customRegexFilter = customFilter,
+                        category = category,
                     )
                 )
             }

@@ -51,6 +51,18 @@ class UpdatesViewModel(
         _uiState.update { it.copy(searchQuery = query) }
     }
 
+    fun onCategorySelected(category: String?) {
+        _uiState.update { it.copy(selectedCategory = category) }
+    }
+
+    fun updateAppCategory(packageName: String, category: String?) {
+        viewModelScope.launch {
+            val app = _uiState.value.trackedApps.firstOrNull { it.packageName == packageName } ?: return@launch
+            val updated = app.copy(category = category?.takeIf { it.isNotBlank() })
+            repository.saveTrackedApp(updated)
+        }
+    }
+
     fun showAddDialog(show: Boolean) {
         _uiState.update { it.copy(showAddDialog = show, error = null) }
     }
@@ -131,6 +143,7 @@ class UpdatesViewModel(
         includePrereleases: Boolean = false,
         apiToken: String? = null,
         targetPackageName: String? = null,
+        category: String? = null,
     ) {
         viewModelScope.launch {
             _uiState.update { it.copy(isAdding = true, error = null) }
@@ -188,6 +201,7 @@ class UpdatesViewModel(
                     publishedAt = release.publishedAt,
                     lastCheckedAt = System.currentTimeMillis(),
                     includePrereleases = includePrereleases,
+                    category = category?.trim()?.takeIf { it.isNotBlank() },
                     eTag = release.eTag,
                 )
 

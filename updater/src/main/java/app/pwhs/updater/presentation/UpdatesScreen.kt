@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -32,6 +33,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -58,9 +60,11 @@ import androidx.compose.ui.unit.dp
 import app.pwhs.core.R
 import app.pwhs.core.ui.component.EmptyStateView
 import app.pwhs.core.ui.theme.Spacing
+import app.pwhs.updater.domain.model.TrackedApp
 import app.pwhs.updater.presentation.component.TrackedAppCard
 import app.pwhs.updater.presentation.dialog.AddTrackedAppDialog
 import app.pwhs.updater.presentation.dialog.AppPickerDialog
+import app.pwhs.updater.presentation.dialog.EditCategoryDialog
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,6 +80,7 @@ fun UpdatesScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var selectedAppToTrack by remember { mutableStateOf<InstalledAppItem?>(null) }
+    var appToEditCategory by remember { mutableStateOf<TrackedApp?>(null) }
     var showMenu by remember { mutableStateOf(false) }
 
     val importLauncher = rememberLauncherForActivityResult(
@@ -239,6 +244,52 @@ fun UpdatesScreen(
                             .fillMaxWidth()
                             .padding(horizontal = Spacing.L, vertical = Spacing.S),
                     )
+
+                    // Category Filter Chips
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.L, vertical = Spacing.XS),
+                        horizontalArrangement = Arrangement.spacedBy(Spacing.S),
+                    ) {
+                        item {
+                            FilterChip(
+                                selected = uiState.selectedCategory == null,
+                                onClick = { viewModel.onCategorySelected(null) },
+                                label = { Text("All") },
+                            )
+                        }
+
+                        if (uiState.updateCount > 0) {
+                            item {
+                                FilterChip(
+                                    selected = uiState.selectedCategory == UpdatesUiState.CATEGORY_UPDATES,
+                                    onClick = {
+                                        if (uiState.selectedCategory == UpdatesUiState.CATEGORY_UPDATES) {
+                                            viewModel.onCategorySelected(null)
+                                        } else {
+                                            viewModel.onCategorySelected(UpdatesUiState.CATEGORY_UPDATES)
+                                        }
+                                    },
+                                    label = { Text("Updates (${uiState.updateCount})") },
+                                )
+                            }
+                        }
+
+                        items(uiState.categories) { category ->
+                            FilterChip(
+                                selected = uiState.selectedCategory == category,
+                                onClick = {
+                                    if (uiState.selectedCategory == category) {
+                                        viewModel.onCategorySelected(null)
+                                    } else {
+                                        viewModel.onCategorySelected(category)
+                                    }
+                                },
+                                label = { Text(category) },
+                            )
+                        }
+                    }
                 }
 
                 if (uiState.trackedApps.isEmpty()) {
@@ -294,6 +345,9 @@ fun UpdatesScreen(
                                 onDeleteClick = {
                                     viewModel.removeTrackedApp(app.packageName)
                                 },
+                                onEditCategoryClick = {
+                                    appToEditCategory = app
+                                },
                             )
                         }
                         // Bottom spacing for FAB
@@ -318,12 +372,13 @@ fun UpdatesScreen(
                 viewModel.showAddDialog(false)
                 selectedAppToTrack = null
             },
-            onConfirm = { url, prereleases ->
+            onConfirm = { url, prereleases, category ->
                 viewModel.addTrackedAppFromUrl(
                     context = context,
                     url = url,
                     includePrereleases = prereleases,
                     targetPackageName = selectedAppToTrack?.packageName,
+                    category = category,
                 )
             },
         )
@@ -339,6 +394,20 @@ fun UpdatesScreen(
                 viewModel.showAppPickerDialog(false)
             },
             onDismiss = { viewModel.showAppPickerDialog(false) },
+        )
+    }
+
+    if (appToEditCategory != null) {
+        val currentApp = appToEditCategory!!
+        EditCategoryDialog(
+            appName = currentApp.appName,
+            currentCategory = currentApp.category,
+            existingCategories = uiState.categories,
+            onDismiss = { appToEditCategory = null },
+            onConfirm = { newCategory ->
+                viewModel.updateAppCategory(currentApp.packageName, newCategory)
+                appToEditCategory = null
+            },
         )
     }
 }

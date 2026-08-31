@@ -18,6 +18,7 @@ data class UpdatesUiState(
     val downloadingPackage: String? = null,
     val downloadProgress: Float = 0f,
     val searchQuery: String = "",
+    val selectedCategory: String? = null,
     val error: String? = null,
     val showAddDialog: Boolean = false,
     val showAppPickerDialog: Boolean = false,
@@ -27,12 +28,30 @@ data class UpdatesUiState(
     val updateCount: Int
         get() = trackedApps.count { it.hasUpdate }
 
+    val categories: List<String>
+        get() = trackedApps.mapNotNull { it.category?.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
+            .sortedBy { it.lowercase() }
+
     val filteredApps: List<TrackedApp>
         get() {
-            if (searchQuery.isBlank()) return trackedApps
-            return trackedApps.filter {
-                it.appName.contains(searchQuery, ignoreCase = true) ||
-                    it.packageName.contains(searchQuery, ignoreCase = true)
+            return trackedApps.filter { app ->
+                val matchesSearch = searchQuery.isBlank() ||
+                    app.appName.contains(searchQuery, ignoreCase = true) ||
+                    app.packageName.contains(searchQuery, ignoreCase = true)
+
+                val matchesCategory = when (selectedCategory) {
+                    null -> true
+                    CATEGORY_UPDATES -> app.hasUpdate
+                    else -> app.category?.equals(selectedCategory, ignoreCase = true) == true
+                }
+
+                matchesSearch && matchesCategory
             }
         }
+
+    companion object {
+        const val CATEGORY_UPDATES = "__UPDATES_ONLY__"
+    }
 }

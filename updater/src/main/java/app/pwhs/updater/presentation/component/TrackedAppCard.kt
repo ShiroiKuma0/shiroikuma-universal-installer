@@ -1,6 +1,7 @@
 package app.pwhs.updater.presentation.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.ExpandLess
@@ -51,6 +52,7 @@ fun TrackedAppCard(
     onUpdateClick: () -> Unit,
     onCheckClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onEditCategoryClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     var expandedNotes by remember { mutableStateOf(false) }
@@ -59,7 +61,7 @@ fun TrackedAppCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
     ) {
         Column(
@@ -72,13 +74,33 @@ fun TrackedAppCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = app.appName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = app.appName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+                        if (!app.category.isNullOrBlank()) {
+                            Spacer(modifier = Modifier.width(Spacing.S))
+                            Surface(
+                                shape = MaterialTheme.shapes.extraSmall,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
+                                modifier = Modifier.clickable(enabled = onEditCategoryClick != null) {
+                                    onEditCategoryClick?.invoke()
+                                },
+                            ) {
+                                Text(
+                                    text = app.category.orEmpty(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
+                    }
                     Text(
                         text = app.sourceUrl.removePrefix("https://"),
                         style = MaterialTheme.typography.bodySmall,
@@ -180,45 +202,47 @@ fun TrackedAppCard(
                 }
             }
 
-            // Release Notes Expandable
+            // Release Notes Expandable Section
             if (!app.releaseNotes.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(Spacing.S))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { expandedNotes = !expandedNotes },
                 ) {
-                    Text(
-                        text = stringResource(R.string.updates_card_changelog_title),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    IconButton(
-                        onClick = { expandedNotes = !expandedNotes },
-                        modifier = Modifier.size(24.dp),
-                    ) {
-                        Icon(
-                            imageVector = if (expandedNotes) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                            contentDescription = stringResource(R.string.updates_card_changelog_title),
-                        )
-                    }
-                }
-                AnimatedVisibility(visible = expandedNotes) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = Spacing.XS),
-                    ) {
-                        Text(
-                            text = app.releaseNotes.orEmpty(),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(Spacing.S),
-                            maxLines = 10,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                    Column(modifier = Modifier.padding(Spacing.M)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = stringResource(R.string.updates_card_changelog_title),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            Icon(
+                                imageVector = if (expandedNotes) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+
+                        AnimatedVisibility(visible = expandedNotes) {
+                            Column(modifier = Modifier.padding(top = Spacing.S)) {
+                                Text(
+                                    text = app.releaseNotes.orEmpty(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 15,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -231,6 +255,15 @@ fun TrackedAppCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
             ) {
+                if (onEditCategoryClick != null) {
+                    IconButton(onClick = onEditCategoryClick) {
+                        Icon(
+                            imageVector = Icons.Rounded.Category,
+                            contentDescription = "Edit Category",
+                        )
+                    }
+                }
+
                 IconButton(onClick = onDeleteClick) {
                     Icon(
                         imageVector = Icons.Rounded.DeleteOutline,

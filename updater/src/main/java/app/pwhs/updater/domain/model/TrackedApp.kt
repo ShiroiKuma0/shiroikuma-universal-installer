@@ -17,6 +17,7 @@ data class TrackedApp(
     val lastCheckedAt: Long = 0L,
     val includePrereleases: Boolean = false,
     val customRegexFilter: String? = null,
+    val category: String? = null,
     val eTag: String? = null,
 ) {
     val hasUpdate: Boolean

@@ -40,9 +40,10 @@ fun AddTrackedAppDialog(
     selectedAppName: String? = null,
     onSelectFromInstalled: (() -> Unit)? = null,
     onDismiss: () -> Unit,
-    onConfirm: (url: String, includePrereleases: Boolean) -> Unit,
+    onConfirm: (url: String, includePrereleases: Boolean, category: String?) -> Unit,
 ) {
     var urlText by remember(initialUrl) { mutableStateOf(initialUrl) }
+    var categoryText by remember { mutableStateOf("") }
     var includePrereleases by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -97,6 +98,18 @@ fun AddTrackedAppDialog(
 
                 Spacer(modifier = Modifier.height(Spacing.M))
 
+                OutlinedTextField(
+                    value = categoryText,
+                    onValueChange = { categoryText = it },
+                    label = { Text("Category (Optional)") },
+                    placeholder = { Text("e.g. Games, Tools, Utilities") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                )
+
+                Spacer(modifier = Modifier.height(Spacing.M))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -115,7 +128,7 @@ fun AddTrackedAppDialog(
         },
         confirmButton = {
             Button(
-                onClick = { onConfirm(urlText.trim(), includePrereleases) },
+                onClick = { onConfirm(urlText.trim(), includePrereleases, categoryText.trim().takeIf { it.isNotBlank() }) },
                 enabled = urlText.isNotBlank() && !isAdding,
                 shape = MaterialTheme.shapes.medium,
             ) {

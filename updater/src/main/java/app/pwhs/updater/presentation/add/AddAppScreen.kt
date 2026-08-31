@@ -84,7 +84,6 @@ fun AddAppScreen(
     var urlText by remember { mutableStateOf("") }
     var categoryText by remember { mutableStateOf("") }
     var customRegexText by remember { mutableStateOf("") }
-    var apiTokenText by remember { mutableStateOf("") }
     var includePrereleases by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf<InstalledAppItem?>(null) }
     var showAppPicker by remember { mutableStateOf(false) }
@@ -134,13 +133,10 @@ fun AddAppScreen(
                             context = context,
                             url = urlText.trim(),
                             includePrereleases = includePrereleases,
-                            apiToken = apiTokenText.trim().takeIf { it.isNotBlank() },
                             targetPackageName = selectedApp?.packageName,
                             category = categoryText.trim().takeIf { it.isNotBlank() },
+                            onSuccess = onBackClick,
                         )
-                        if (uiState.error == null && !uiState.isAdding) {
-                            onBackClick()
-                        }
                     },
                     enabled = urlText.isNotBlank() && !uiState.isAdding,
                     shape = MaterialTheme.shapes.large,
@@ -397,20 +393,6 @@ fun AddAppScreen(
                         placeholder = { Text("e.g. .*-arm64-v8a.*\\.apk") },
                         leadingIcon = {
                             Icon(Icons.Rounded.FilterAlt, contentDescription = null)
-                        },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.medium,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-
-                    // API Token
-                    OutlinedTextField(
-                        value = apiTokenText,
-                        onValueChange = { apiTokenText = it },
-                        label = { Text("Personal Access Token (Optional)") },
-                        placeholder = { Text("For private repositories or rate limits") },
-                        leadingIcon = {
-                            Icon(Icons.Rounded.Key, contentDescription = null)
                         },
                         singleLine = true,
                         shape = MaterialTheme.shapes.medium,

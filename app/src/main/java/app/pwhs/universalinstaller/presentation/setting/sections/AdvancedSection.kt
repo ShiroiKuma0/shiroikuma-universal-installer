@@ -24,8 +24,6 @@ internal fun LazyListScope.AdvancedSection(
     advancedLabels: List<String>,
     virusTotalApiKey: String,
     onVirusTotalKeyChanged: (String) -> Unit,
-    githubPatToken: String,
-    onGithubPatTokenChanged: (String) -> Unit,
     securityLevel: SecurityLevel,
     onSecurityLevelChanged: (SecurityLevel) -> Unit,
 ) {
@@ -38,15 +36,6 @@ internal fun LazyListScope.AdvancedSection(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 leadingIcon = { Icon(Icons.Rounded.Key, null, tint = MaterialTheme.colorScheme.primary) },
                 placeholder = { Text(stringResource(R.string.setting_vt_api_key_placeholder)) },
-                singleLine = true,
-            )
-            OutlinedTextField(
-                value = githubPatToken,
-                onValueChange = onGithubPatTokenChanged,
-                label = { Text(stringResource(app.pwhs.core.R.string.setting_github_token_title)) },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
-                leadingIcon = { Icon(Icons.Rounded.Key, null, tint = MaterialTheme.colorScheme.primary) },
-                placeholder = { Text(stringResource(app.pwhs.core.R.string.setting_github_token_placeholder)) },
                 singleLine = true,
             )
             SecurityLevelSelector(

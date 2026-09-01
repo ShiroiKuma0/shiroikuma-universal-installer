@@ -158,8 +158,6 @@ fun SettingScreen(
         },
         analyticsEnabled = analyticsEnabled,
         onAnalyticsEnabledChanged = viewModel::setAnalyticsEnabled,
-        githubPatToken = viewModel.githubPatToken.collectAsState().value,
-        onGithubPatTokenChanged = viewModel::setGithubPatToken,
     )
 }
 
@@ -204,8 +202,6 @@ private fun SettingUi(
     onProfilesClick: () -> Unit = {},
     analyticsEnabled: Boolean = true,
     onAnalyticsEnabledChanged: (Boolean) -> Unit = {},
-    githubPatToken: String = "",
-    onGithubPatTokenChanged: (String) -> Unit = {},
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -434,8 +430,6 @@ private fun SettingUi(
                     advancedLabels = advancedLabels,
                     virusTotalApiKey = uiState.virusTotalApiKey,
                     onVirusTotalKeyChanged = onVirusTotalKeyChanged,
-                    githubPatToken = githubPatToken,
-                    onGithubPatTokenChanged = onGithubPatTokenChanged,
                     securityLevel = securityLevel,
                     onSecurityLevelChanged = onSecurityLevelChanged,
                 )

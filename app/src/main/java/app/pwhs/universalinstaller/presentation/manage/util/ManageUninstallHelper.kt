@@ -16,6 +16,8 @@ import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import kotlinx.coroutines.flow.first
+import ru.solrudev.ackpine.libsu.libsu
+import ru.solrudev.ackpine.privileged.TargetUser
 import ru.solrudev.ackpine.session.Session
 import ru.solrudev.ackpine.session.await
 import ru.solrudev.ackpine.session.parameters.Confirmation
@@ -111,7 +113,7 @@ object ManageUninstallHelper {
                 if (systemMethod == null || executor == null) return
                 val notifId = notifier.notifySingleStart(prompt.appName)
                 val ok = performSystemUninstall(
-                    prompt.pkg, prompt.appName, systemMethod, executor, backendFactory, uninstallLogDao
+                    prompt.pkg, prompt.appName, systemMethod, executor, backendFactory, packageUninstaller, uninstallLogDao
                 )
                 if (ok) onAppRemoved(prompt.pkg)
                 notifier.notifySingleResult(notifId, prompt.appName, success = ok)
@@ -144,7 +146,7 @@ object ManageUninstallHelper {
                 if (runSystem) {
                     for ((pkg, name) in systemPkgs) {
                         notifier.notifyBatchProgress(notifId, completed = processed, total = totalToRun, currentAppName = name)
-                        val ok = performSystemUninstall(pkg, name, systemMethod, executor, backendFactory, uninstallLogDao)
+                        val ok = performSystemUninstall(pkg, name, systemMethod, executor, backendFactory, packageUninstaller, uninstallLogDao)
                         if (ok) {
                             successful++
                             onAppRemoved(pkg)
@@ -210,14 +212,50 @@ object ManageUninstallHelper {
         method: SystemAppMethod,
         executor: PrivilegedExecutor,
         backendFactory: InstallerBackendFactory,
+        packageUninstaller: PackageUninstaller,
         uninstallLogDao: UninstallLogDao,
     ): Boolean {
+        if (method == SystemAppMethod.UninstallForUser0) {
+            try {
+                val session = packageUninstaller.createSession(packageName) {
+                    confirmation = Confirmation.IMMEDIATE
+                    when (executor) {
+                        PrivilegedExecutor.Shizuku -> {
+                            shizuku {
+                                systemApp = true
+                                targetUser = TargetUser(0)
+                            }
+                        }
+                        PrivilegedExecutor.Root -> {
+                            libsu {
+                                systemApp = true
+                                targetUser = TargetUser(0)
+                            }
+                        }
+                    }
+                }
+                when (val ackResult = session.await()) {
+                    Session.State.Succeeded -> {
+                        Timber.d("System app removed via Ackpine $executor/$method: $packageName")
+                        saveLog(uninstallLogDao, packageName, appName, success = true, errorMessage = null)
+                        return true
+                    }
+                    is Session.State.Failed -> {
+                        val reason = ackResult.failure.message?.takeIf { it.isNotBlank() }
+                        Timber.w("Ackpine system app uninstall failed ($executor/$method) for $packageName: $reason, falling back to shell")
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.w(e, "Ackpine system app uninstall error for $packageName, falling back to shell")
+            }
+        }
+
         val result = when (executor) {
             PrivilegedExecutor.Root -> backendFactory.uninstallSystemAppViaRoot(packageName, method)
             PrivilegedExecutor.Shizuku -> ShizukuShellExecutor.uninstallSystemApp(packageName, method)
         }
         return if (result.isSuccess) {
-            Timber.d("System app removed via $executor/$method: $packageName")
+            Timber.d("System app removed via shell $executor/$method: $packageName")
             saveLog(uninstallLogDao, packageName, appName, success = true, errorMessage = null)
             true
         } else {

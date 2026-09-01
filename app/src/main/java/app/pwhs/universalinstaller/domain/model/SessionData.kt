@@ -29,4 +29,5 @@ data class SessionData(
     val originalUri: @RawValue Uri? = null,
     val deleteAfterInstall: Boolean = false,
     val allowDowngrade: Boolean = false,
+    val targetUserId: Int? = null,
 ): Parcelable

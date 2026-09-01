@@ -49,6 +49,7 @@ class ManualInstallController(
         name: String,
         packageName: String,
         allowDowngrade: Boolean,
+        targetUserId: Int?,
     ): ProgressSession<InstallFailure> {
         // This is not used as we override the main install() method.
         throw UnsupportedOperationException("ManualInstallController uses targetedInstall instead")

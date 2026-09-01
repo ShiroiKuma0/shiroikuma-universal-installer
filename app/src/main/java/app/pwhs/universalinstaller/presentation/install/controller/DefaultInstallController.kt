@@ -23,10 +23,8 @@ class DefaultInstallController(
         uris: List<Uri>,
         name: String,
         packageName: String,
-        // The platform PackageInstaller exposes no public downgrade flag — INSTALL_ALLOW_DOWNGRADE
-        // is hidden API. A downgrade through this backend fails no matter what the user consented
-        // to; the error guidance points them at Shizuku/root instead.
         allowDowngrade: Boolean,
+        targetUserId: Int?,
     ): ProgressSession<InstallFailure> {
         return packageInstaller.createSession(uris) {
             this.name = name

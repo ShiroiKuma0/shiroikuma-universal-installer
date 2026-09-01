@@ -129,6 +129,7 @@ class RootInstallController(
         name: String,
         packageName: String,
         allowDowngrade: Boolean,
+        targetUserId: Int?,
     ): ProgressSession<InstallFailure> {
         val prefs = application.dataStore.data.first()
         
@@ -136,6 +137,9 @@ class RootInstallController(
             this.name = name
             confirmation = Confirmation.IMMEDIATE
             libsu {
+                if (targetUserId != null && targetUserId >= 0) {
+                    targetUser = ru.solrudev.ackpine.privileged.TargetUser(targetUserId)
+                }
                 bypassLowTargetSdkBlock = prefs[PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK] ?: false
                 allowTest = prefs[PreferencesKeys.ROOT_ALLOW_TEST] ?: false
                 // Default ON to match the UI (`?: true` in Settings/dialog). ackpine only sets

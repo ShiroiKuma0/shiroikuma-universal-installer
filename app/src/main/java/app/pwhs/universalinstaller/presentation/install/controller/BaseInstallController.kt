@@ -95,6 +95,7 @@ abstract class BaseInstallController(
         name: String,
         packageName: String,
         allowDowngrade: Boolean,
+        targetUserId: Int? = null,
     ): ProgressSession<InstallFailure>
 
     open fun install(
@@ -109,7 +110,7 @@ abstract class BaseInstallController(
         onSessionCreated: ((UUID) -> Unit)? = null,
     ) {
         scope.launch {
-            val session = createSession(uris, sessionData.name, sessionData.packageName, allowDowngrade)
+            val session = createSession(uris, sessionData.name, sessionData.packageName, allowDowngrade, sessionData.targetUserId)
             activeSessions[session.id] = session
             sessionUris[session.id] = uris
             if (originalUri != null) originalFileUris[session.id] = originalUri
@@ -121,6 +122,7 @@ abstract class BaseInstallController(
                 originalUri = originalUri,
                 deleteAfterInstall = deleteAfterInstall,
                 allowDowngrade = allowDowngrade,
+                targetUserId = sessionData.targetUserId,
             )
             sessionDataRepository.addSessionData(data)
             // Hand the real ackpine session ID back to the caller. The dialog flow keys its

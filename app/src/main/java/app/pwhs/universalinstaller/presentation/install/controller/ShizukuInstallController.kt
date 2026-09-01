@@ -32,12 +32,16 @@ class ShizukuInstallController(
         name: String,
         packageName: String,
         allowDowngrade: Boolean,
+        targetUserId: Int?,
     ): ProgressSession<InstallFailure> {
         val prefs = application.dataStore.data.first()
         return packageInstaller.createSession(uris) {
             this.name = name
             confirmation = Confirmation.IMMEDIATE
             shizuku {
+                if (targetUserId != null && targetUserId >= 0) {
+                    targetUser = ru.solrudev.ackpine.privileged.TargetUser(targetUserId)
+                }
                 bypassLowTargetSdkBlock = prefs[PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK] ?: false
                 allowTest = prefs[PreferencesKeys.SHIZUKU_ALLOW_TEST] ?: false
                 // Default ON to match the UI (Settings/dialog show this as `?: true`). ackpine only

@@ -39,6 +39,7 @@ class DhizukuInstallController(
         name: String,
         packageName: String,
         allowDowngrade: Boolean,
+        targetUserId: Int?,
     ): ProgressSession<InstallFailure> {
         val prefs = application.dataStore.data.first()
         return packageInstaller.createSession(uris) {

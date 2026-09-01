@@ -60,6 +60,7 @@
     <string name="updates_card_btn_update">अपडेट करें</string>
     <string name="updates_card_btn_delete">हटाएं</string>
     <string name="updates_card_btn_check">अपडेट जांचें</string>
-    <string name="setting_github_token_title">GitHub टोकन (वैकल्पिक)</string>
-    <string name="setting_github_token_placeholder">ghp_… (API दर सीमा 5,000 अनुरोध/घंटा तक बढ़ाता है)</string>
+    <string name="updates_menu_import">ऐप्स आयात करें (JSON)</string>
+    <string name="updates_menu_export">ऐप्स निर्यात करें (JSON)</string>
+    <string name="updates_import_success">%1$d ऐप आयात किए गए</string>
 </resources>

@@ -60,6 +60,7 @@
     <string name="updates_card_btn_update">Güncelle</string>
     <string name="updates_card_btn_delete">Sil</string>
     <string name="updates_card_btn_check">Güncellemeyi kontrol et</string>
-    <string name="setting_github_token_title">GitHub Belirteci (İsteğe bağlı)</string>
-    <string name="setting_github_token_placeholder">ghp_… (API hız sınırını 5.000 istek/saate çıkarır)</string>
+    <string name="updates_menu_import">Uygulamaları İçe Aktar (JSON)</string>
+    <string name="updates_menu_export">Uygulamaları Dışa Aktar (JSON)</string>
+    <string name="updates_import_success">%1$d uygulama içe aktarıldı</string>
 </resources>

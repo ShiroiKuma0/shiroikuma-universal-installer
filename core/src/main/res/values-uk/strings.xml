@@ -60,6 +60,7 @@
     <string name="updates_card_btn_update">Оновити</string>
     <string name="updates_card_btn_delete">Видалити</string>
     <string name="updates_card_btn_check">Перевірити оновлення</string>
-    <string name="setting_github_token_title">Токен GitHub (необов\'язково)</string>
-    <string name="setting_github_token_placeholder">ghp_… (Збільшує ліміт API до 5 000 запитів/год)</string>
+    <string name="updates_menu_import">Імпорт додатків (JSON)</string>
+    <string name="updates_menu_export">Експорт додатків (JSON)</string>
+    <string name="updates_import_success">Імпортовано %1$d додатків</string>
 </resources>

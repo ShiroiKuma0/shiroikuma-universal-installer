@@ -60,6 +60,7 @@
     <string name="updates_card_btn_update">Actualizar</string>
     <string name="updates_card_btn_delete">Eliminar</string>
     <string name="updates_card_btn_check">Comprobar actualización</string>
-    <string name="setting_github_token_title">Token de GitHub (Opcional)</string>
-    <string name="setting_github_token_placeholder">ghp_… (Aumenta el límite de API a 5.000 solicitudes/h)</string>
+    <string name="updates_menu_import">Importar aplicaciones (JSON)</string>
+    <string name="updates_menu_export">Exportar aplicaciones (JSON)</string>
+    <string name="updates_import_success">Se importaron %1$d aplicación(es)</string>
 </resources>

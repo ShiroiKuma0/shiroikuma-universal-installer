@@ -60,6 +60,7 @@
     <string name="updates_card_btn_update">Perbarui</string>
     <string name="updates_card_btn_delete">Hapus</string>
     <string name="updates_card_btn_check">Periksa pembaruan</string>
-    <string name="setting_github_token_title">Token GitHub (Opsional)</string>
-    <string name="setting_github_token_placeholder">ghp_… (Meningkatkan batas API ke 5.000 req/jam)</string>
+    <string name="updates_menu_import">Impor Aplikasi (JSON)</string>
+    <string name="updates_menu_export">Ekspor Aplikasi (JSON)</string>
+    <string name="updates_import_success">Berhasil mengimpor %1$d aplikasi</string>
 </resources>

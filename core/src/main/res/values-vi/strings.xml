@@ -64,6 +64,4 @@
     <string name="updates_menu_import">Nhập danh sách (JSON / Obtainium)</string>
     <string name="updates_menu_export">Xuất danh sách (JSON)</string>
     <string name="updates_import_success">Đã nhập thành công %1$d ứng dụng</string>
-    <string name="setting_github_token_title">GitHub Token (Tùy chọn)</string>
-    <string name="setting_github_token_placeholder">ghp_… (Tăng hạn mức API 5,000 req/h)</string>
 </resources>

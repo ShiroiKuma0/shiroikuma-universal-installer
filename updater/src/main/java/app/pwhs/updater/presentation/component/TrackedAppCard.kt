@@ -91,13 +91,16 @@ fun TrackedAppCard(
                 )
                 Spacer(modifier = Modifier.width(Spacing.M))
                 Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Text(
                             text = app.appName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                            softWrap = false,
                             modifier = Modifier
                                 .weight(1f, fill = false)
                                 .basicMarquee(),
@@ -107,9 +110,8 @@ fun TrackedAppCard(
                             Surface(
                                 shape = MaterialTheme.shapes.extraSmall,
                                 color = MaterialTheme.colorScheme.secondaryContainer,
-                                modifier = Modifier.clickable(enabled = onEditCategoryClick != null) {
-                                    onEditCategoryClick?.invoke()
-                                },
+                                onClick = { onEditCategoryClick?.invoke() },
+                                enabled = onEditCategoryClick != null,
                             ) {
                                 Text(
                                     text = app.category.orEmpty(),
@@ -125,7 +127,8 @@ fun TrackedAppCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false,
+                        modifier = Modifier.basicMarquee(),
                     )
                 }
 
@@ -232,11 +235,14 @@ fun TrackedAppCard(
             if (!app.releaseNotes.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(Spacing.S))
                 Surface(
+                    onClick = { expandedNotes = !expandedNotes },
                     shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { expandedNotes = !expandedNotes },
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(modifier = Modifier.padding(Spacing.M)) {
                         Row(

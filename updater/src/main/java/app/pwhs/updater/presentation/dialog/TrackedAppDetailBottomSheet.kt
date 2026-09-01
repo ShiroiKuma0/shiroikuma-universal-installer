@@ -3,6 +3,7 @@ package app.pwhs.updater.presentation.dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -103,11 +104,17 @@ fun TrackedAppDetailBottomSheet(
                         text = app.appName,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.basicMarquee(),
                     )
                     Text(
                         text = app.packageName,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.basicMarquee(),
                     )
                 }
 

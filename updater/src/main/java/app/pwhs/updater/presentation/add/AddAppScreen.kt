@@ -2,6 +2,7 @@ package app.pwhs.updater.presentation.add
 
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -106,6 +107,9 @@ fun AddAppScreen(
                     Text(
                         text = stringResource(R.string.updates_dialog_title),
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.basicMarquee(),
                     )
                 },
                 navigationIcon = {

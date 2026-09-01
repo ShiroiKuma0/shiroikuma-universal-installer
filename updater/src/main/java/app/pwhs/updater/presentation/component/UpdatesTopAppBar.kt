@@ -1,6 +1,7 @@
 package app.pwhs.updater.presentation.component
 
 import android.content.Context
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -64,12 +65,20 @@ fun UpdatesTopAppBar(
         scrollBehavior = scrollBehavior,
         title = {
             Column {
-                Text(text = stringResource(R.string.updates_title))
+                Text(
+                    text = stringResource(R.string.updates_title),
+                    maxLines = 1,
+                    softWrap = false,
+                    modifier = Modifier.basicMarquee(),
+                )
                 if (uiState.updateCount > 0) {
                     Text(
                         text = stringResource(R.string.updates_available_count, uiState.updateCount),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
+                        maxLines = 1,
+                        softWrap = false,
+                        modifier = Modifier.basicMarquee(),
                     )
                 }
             }

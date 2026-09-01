@@ -27,10 +27,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
-
 import androidx.datastore.preferences.core.edit
 import app.pwhs.core.data.local.SharedPrefsKeys
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.updater.domain.seed.DefaultAppSeeder
 import kotlinx.coroutines.flow.firstOrNull
 
 class UpdatesViewModel(
@@ -46,6 +46,7 @@ class UpdatesViewModel(
     init {
         loadTrackedApps()
         loadSourceTokens()
+        seedDefaultApps()
     }
 
     private fun loadTrackedApps() {
@@ -53,6 +54,27 @@ class UpdatesViewModel(
             repository.getAllTrackedApps().collect { apps ->
                 _uiState.update { it.copy(trackedApps = apps) }
             }
+        }
+    }
+
+    /**
+     * On first launch, seed the default tracked app (Universal Installer itself)
+     * so users get a self-update mechanism out of the box.
+     */
+    private fun seedDefaultApps() {
+        viewModelScope.launch {
+            if (DefaultAppSeeder.isSeeded(context)) return@launch
+            val existing = repository.getAllTrackedApps().firstOrNull()
+            if (!existing.isNullOrEmpty()) {
+                DefaultAppSeeder.markSeeded(context)
+                return@launch
+            }
+            addTrackedAppFromUrl(
+                context = context,
+                url = "https://github.com/pass-with-high-score/universal-installer",
+                targetPackageName = "app.pwhs.universalinstaller",
+            )
+            DefaultAppSeeder.markSeeded(context)
         }
     }
 

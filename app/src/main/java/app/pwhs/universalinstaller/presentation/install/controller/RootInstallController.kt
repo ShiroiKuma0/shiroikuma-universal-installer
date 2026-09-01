@@ -106,6 +106,7 @@ class RootInstallController(
                     if (deleteAfterInstall && originalUri != null) {
                         deleteSourceFileAndWarn(context ?: application, originalUri)
                     }
+                    autoOpenAppIfNeeded(data.packageName, context ?: application)
                     sessionDataRepository.removeSessionData(sessionId)
                 },
                 onFailure = { e ->

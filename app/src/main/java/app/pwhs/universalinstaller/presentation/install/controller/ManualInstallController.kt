@@ -104,6 +104,7 @@ class ManualInstallController(
                     kotlinx.coroutines.delay(500)
                     reportInstallResult(TelemetryEvents.RESULT_SUCCESS, method)
                     saveHistory(data, success = true)
+                    autoOpenAppIfNeeded(data.packageName, application)
                     sessionDataRepository.removeSessionData(sessionId)
                 },
                 onFailure = { e ->

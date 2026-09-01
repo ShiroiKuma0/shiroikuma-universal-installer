@@ -222,7 +222,10 @@ fun DialogInstallContent(
                             onAttachObb = { obbPickerLauncher.launch(arrayOf("*/*")) },
                             onBackground = onDismissAndFinish,
                             onOpenInstalledApp = { pkg ->
-                                viewModel.getAppLaunchIntent(pkg)?.let { context.startActivity(it) }
+                                viewModel.getAppLaunchIntent(pkg)?.let { intent ->
+                                    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    context.startActivity(intent)
+                                }
                                 onDismissAndFinish()
                             },
                             onCloseAfterResult = onDismissAndFinish,

@@ -15,10 +15,13 @@ import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
 import app.pwhs.universalinstaller.review.ReviewGate
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -255,6 +258,7 @@ abstract class BaseInstallController(
                             }
                         }
                         deleteSourceFileIfNeeded(session.id, context)
+                        autoOpenAppIfNeeded(sessionData?.packageName, context)
                         sessionDataRepository.removeSessionData(session.id)
                         activeSessions.remove(session.id)
                         sessionUris.remove(session.id)
@@ -387,5 +391,21 @@ abstract class BaseInstallController(
     private fun handleError(message: String?, sessionId: UUID) {
         val err = ResolvableString.raw(message ?: "Installation failed")
         sessionDataRepository.setError(sessionId, err)
+    }
+
+    protected suspend fun autoOpenAppIfNeeded(packageName: String?, context: Context?) {
+        if (packageName.isNullOrBlank()) return
+        val targetContext = context ?: this.context
+        val prefs = runCatching { targetContext.dataStore.data.first() }.getOrNull()
+        val autoOpen = prefs?.get(PreferencesKeys.AUTO_OPEN_AFTER_INSTALL) ?: false
+        if (!autoOpen) return
+        withContext(Dispatchers.Main) {
+            val intent = targetContext.packageManager.getLaunchIntentForPackage(packageName)
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                runCatching { targetContext.startActivity(intent) }
+                    .onFailure { Timber.e(it, "Failed to auto-open app $packageName") }
+            }
+        }
     }
 }

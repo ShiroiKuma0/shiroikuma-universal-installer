@@ -17,7 +17,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -197,9 +201,23 @@ fun generateDialogParams(
                 DialogParams(
                     content = DialogInnerParams("success_${dialogTarget.sessionId}") {
                         val context = LocalContext.current
-                        val canOpen = remember(dialogTarget.packageName) {
-                            dialogTarget.packageName.isNotBlank() &&
-                                    context.packageManager.getLaunchIntentForPackage(dialogTarget.packageName) != null
+                        var canOpen by remember(dialogTarget.packageName) {
+                            mutableStateOf(
+                                dialogTarget.packageName.isNotBlank() &&
+                                        context.packageManager.getLaunchIntentForPackage(dialogTarget.packageName) != null
+                            )
+                        }
+                        LaunchedEffect(dialogTarget.packageName) {
+                            if (!canOpen && dialogTarget.packageName.isNotBlank()) {
+                                repeat(10) {
+                                    val intent = context.packageManager.getLaunchIntentForPackage(dialogTarget.packageName)
+                                    if (intent != null) {
+                                        canOpen = true
+                                        return@LaunchedEffect
+                                    }
+                                    kotlinx.coroutines.delay(250)
+                                }
+                            }
                         }
                         DialogSuccessContent(
                             target = dialogTarget,

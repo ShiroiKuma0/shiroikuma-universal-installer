@@ -268,10 +268,18 @@ class DialogInstallActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall) {
+            LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall, autoOpenAfterInstall) {
                 if (uiState.dialogStage == DialogStage.Prepare && autoConfirmExternalInstall) {
                     proceedInstall()
                 } else if (uiState.dialogStage == DialogStage.Success && autoConfirmExternalInstall) {
+                    if (autoOpenAfterInstall) {
+                        dialogTarget?.packageName?.takeIf { it.isNotBlank() }?.let { pkg ->
+                            viewModel.getAppLaunchIntent(pkg)?.let { intent ->
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context.startActivity(intent)
+                            }
+                        }
+                    }
                     viewModel.dialogClose()
                     finish()
                 }

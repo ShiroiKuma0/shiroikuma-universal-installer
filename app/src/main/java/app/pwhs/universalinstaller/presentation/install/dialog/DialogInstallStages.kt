@@ -181,14 +181,14 @@ fun DialogSuccessContent(
     var remaining by remember(autoOpenCountdownStartSeconds, canOpen) {
         mutableStateOf(autoOpenCountdownStartSeconds.takeIf { countdownActive } ?: 0)
     }
-    if (countdownActive) {
-        LaunchedEffect(autoOpenCountdownStartSeconds) {
-            while (remaining > 0) {
-                kotlinx.coroutines.delay(1000)
-                remaining -= 1
-            }
-            onOpen()
+    LaunchedEffect(countdownActive, autoOpenCountdownStartSeconds) {
+        if (!countdownActive || autoOpenCountdownStartSeconds == null) return@LaunchedEffect
+        remaining = autoOpenCountdownStartSeconds
+        while (remaining > 0) {
+            kotlinx.coroutines.delay(1000)
+            remaining -= 1
         }
+        onOpen()
     }
 
     Column(

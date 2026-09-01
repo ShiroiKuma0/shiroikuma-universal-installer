@@ -103,6 +103,7 @@ internal fun AppActionSheet(
             AppActionHeader(
                 app = app,
                 context = context,
+                isBlocked = isBlocked,
             )
 
             // Usage chart
@@ -115,8 +116,33 @@ internal fun AppActionSheet(
                 )
             }
 
-            // Storage breakdown
-            storage?.let { s ->
+            // Storage breakdown (from UsageStatsManager/StorageStatsManager or fallback to APK size)
+            if (storage != null) {
+                storage?.let { s ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        StorageChip(
+                            label = stringResource(R.string.manage_storage_app),
+                            value = android.text.format.Formatter.formatShortFileSize(context, s.appBytes),
+                            weight = 1f,
+                        )
+                        StorageChip(
+                            label = stringResource(R.string.manage_storage_data),
+                            value = android.text.format.Formatter.formatShortFileSize(context, s.dataBytes),
+                            weight = 1f,
+                        )
+                        StorageChip(
+                            label = stringResource(R.string.manage_storage_cache),
+                            value = android.text.format.Formatter.formatShortFileSize(context, s.cacheBytes),
+                            weight = 1f,
+                        )
+                    }
+                }
+            } else if (app.sizeBytes > 0) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,17 +151,7 @@ internal fun AppActionSheet(
                 ) {
                     StorageChip(
                         label = stringResource(R.string.manage_storage_app),
-                        value = android.text.format.Formatter.formatShortFileSize(context, s.appBytes),
-                        weight = 1f,
-                    )
-                    StorageChip(
-                        label = stringResource(R.string.manage_storage_data),
-                        value = android.text.format.Formatter.formatShortFileSize(context, s.dataBytes),
-                        weight = 1f,
-                    )
-                    StorageChip(
-                        label = stringResource(R.string.manage_storage_cache),
-                        value = android.text.format.Formatter.formatShortFileSize(context, s.cacheBytes),
+                        value = android.text.format.Formatter.formatShortFileSize(context, app.sizeBytes),
                         weight = 1f,
                     )
                 }

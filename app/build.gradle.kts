@@ -1,4 +1,3 @@
-import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -25,7 +24,7 @@ val hasFirebaseConfig = firebaseConfig.exists()
 val strayFirebaseConfig = file("google-services.json")
 require(!strayFirebaseConfig.exists()) {
     "$strayFirebaseConfig applies to every flavor, including the open-source build. " +
-        "Move it to ${firebaseConfig} — that is the only location the `play` flavor reads."
+        "Move it to $firebaseConfig — that is the only location the `play` flavor reads."
 }
 
 if (hasFirebaseConfig) {

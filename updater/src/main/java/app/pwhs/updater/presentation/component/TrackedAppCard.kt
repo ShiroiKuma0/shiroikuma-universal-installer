@@ -1,6 +1,7 @@
 package app.pwhs.updater.presentation.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -97,7 +98,9 @@ fun TrackedAppCard(
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false),
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .basicMarquee(),
                         )
                         if (!app.category.isNullOrBlank()) {
                             Spacer(modifier = Modifier.width(Spacing.S))

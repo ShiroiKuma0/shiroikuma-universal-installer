@@ -86,6 +86,8 @@ object InstallExecutionCoordinator {
                 userId = targetedUserId,
                 backend = targetedBackend,
                 scope = if (trackDialogTarget) appScope else scope,
+                originalUri = originalUri,
+                deleteAfterInstall = deleteAfterInstall,
                 onSessionCreated = if (trackDialogTarget) {
                     { realId -> onDialogTargetCreated(DialogTarget(realId, pkgForTarget, nameForTarget, iconPath, originalUri)) }
                 } else null,

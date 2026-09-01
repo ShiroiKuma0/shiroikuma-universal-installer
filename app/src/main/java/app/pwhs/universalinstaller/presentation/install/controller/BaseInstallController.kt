@@ -338,9 +338,7 @@ abstract class BaseInstallController(
      * like the setting did nothing at all.
      */
     protected fun deleteSourceFile(context: Context, uri: Uri): Boolean {
-        // `file://` never reaches a DocumentsProvider, so deleteDocument can't touch it —
-        // DialogInstallActivity.collectIncomingUris accepts this scheme from external intents.
-        // MANAGE_EXTERNAL_STORAGE (declared in the manifest) is what makes the plain delete work.
+        // 1. Direct file:// scheme
         if (uri.scheme == ContentResolver.SCHEME_FILE) {
             val path = uri.path
             if (path == null) {
@@ -359,12 +357,79 @@ abstract class BaseInstallController(
                 uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             )
         }
-        // Only documents from a DocumentsProvider can be deleted this way. A third-party
-        // FileProvider URI (a file manager sharing us an APK) has no delete method to call, and
-        // there is no supported way to remove it — we report that rather than guessing at a path.
-        return runCatching { DocumentsContract.deleteDocument(context.contentResolver, uri) }
-            .onFailure { Timber.e(it, "Failed to delete source file: $uri") }
+
+        // 2. DocumentsContract.deleteDocument (DocumentsProvider URIs)
+        val docDeleted = runCatching {
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                DocumentsContract.deleteDocument(context.contentResolver, uri)
+            } else {
+                false
+            }
+        }.getOrDefault(false)
+        if (docDeleted) return true
+
+        // 3. DocumentFile delete (Single or tree document)
+        val docFileDeleted = runCatching {
+            androidx.documentfile.provider.DocumentFile.fromSingleUri(context, uri)?.delete() == true
+        }.getOrDefault(false)
+        if (docFileDeleted) return true
+
+        // 4. ContentResolver.delete (MediaStore or generic ContentProvider)
+        val crDeleted = runCatching {
+            context.contentResolver.delete(uri, null, null) > 0
+        }.getOrDefault(false)
+        if (crDeleted) return true
+
+        // 5. Direct path resolution fallback (when All Files Access / MANAGE_EXTERNAL_STORAGE is granted)
+        return runCatching {
+            val resolvedPath = resolveFilePathFromUri(context, uri)
+            if (resolvedPath != null) {
+                val file = File(resolvedPath)
+                file.exists() && file.delete()
+            } else {
+                false
+            }
+        }.onFailure { Timber.e(it, "Failed to delete resolved file from uri: $uri") }
             .getOrDefault(false)
+    }
+
+    private fun resolveFilePathFromUri(context: Context, uri: Uri): String? {
+        return runCatching {
+            // Check raw path inside URI
+            val rawPath = uri.path
+            if (rawPath != null) {
+                val storageIdx = rawPath.indexOf("/storage/")
+                if (storageIdx != -1) {
+                    val candidate = rawPath.substring(storageIdx)
+                    if (File(candidate).exists()) return candidate
+                }
+            }
+
+            // DocumentsProvider primary volume
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                val docId = DocumentsContract.getDocumentId(uri)
+                if (docId.startsWith("primary:")) {
+                    val relativePath = docId.substringAfter("primary:")
+                    val file = File(android.os.Environment.getExternalStorageDirectory(), relativePath)
+                    if (file.exists()) return file.absolutePath
+                }
+            }
+
+            // MediaStore DATA column
+            val projection = arrayOf(android.provider.MediaStore.MediaColumns.DATA)
+            context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val colIdx = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DATA)
+                    if (colIdx != -1) {
+                        val filePath = cursor.getString(colIdx)
+                        if (!filePath.isNullOrBlank() && File(filePath).exists()) {
+                            return filePath
+                        }
+                    }
+                }
+            }
+            null
+        }.getOrNull()
     }
 
     /** [deleteSourceFile], plus a toast when the file survived so the user isn't left guessing. */

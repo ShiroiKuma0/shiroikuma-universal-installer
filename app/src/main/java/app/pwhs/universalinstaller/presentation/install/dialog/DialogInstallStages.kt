@@ -182,8 +182,9 @@ fun DialogSuccessContent(
         mutableStateOf(autoOpenCountdownStartSeconds.takeIf { countdownActive } ?: 0)
     }
     LaunchedEffect(countdownActive, autoOpenCountdownStartSeconds) {
-        if (!countdownActive) return@LaunchedEffect
-        remaining = autoOpenCountdownStartSeconds ?: return@LaunchedEffect
+        val start = autoOpenCountdownStartSeconds
+        if (!countdownActive || start == null) return@LaunchedEffect
+        remaining = start
         while (remaining > 0) {
             kotlinx.coroutines.delay(1000)
             remaining -= 1

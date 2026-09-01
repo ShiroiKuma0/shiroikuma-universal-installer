@@ -67,6 +67,8 @@ class ManualInstallController(
         userId: Int,
         backend: TargetedBackend,
         scope: CoroutineScope,
+        originalUri: Uri? = null,
+        deleteAfterInstall: Boolean = false,
         onSessionCreated: ((UUID) -> Unit)? = null,
     ) {
         val sessionId = UUID.randomUUID()
@@ -104,6 +106,9 @@ class ManualInstallController(
                     kotlinx.coroutines.delay(500)
                     reportInstallResult(TelemetryEvents.RESULT_SUCCESS, method)
                     saveHistory(data, success = true)
+                    if (deleteAfterInstall && originalUri != null) {
+                        deleteSourceFileAndWarn(application, originalUri)
+                    }
                     autoOpenAppIfNeeded(data.packageName, application)
                     sessionDataRepository.removeSessionData(sessionId)
                 },

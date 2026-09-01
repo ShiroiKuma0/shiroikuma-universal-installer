@@ -3,7 +3,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.kotlinx.serialization)
@@ -45,7 +44,7 @@ if (hasFirebaseConfig) {
 
 android {
     namespace = "app.pwhs.universalinstaller"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "app.pwhs.universalinstaller"
@@ -180,7 +179,6 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)

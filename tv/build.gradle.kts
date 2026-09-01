@@ -3,7 +3,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     // Consumer side: packages the profile that :tv-baselineprofile generates into the APK.
     // Without this the profile is produced but never shipped.
@@ -12,7 +11,7 @@ plugins {
 
 android {
     namespace = "app.pwhs.tv"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "app.pwhs.universalinstaller.tv"

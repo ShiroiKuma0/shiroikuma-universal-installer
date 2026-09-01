@@ -1,13 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "app.pwhs.core"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
@@ -44,6 +43,7 @@ dependencies {
 
     // DataStore for shared preferences
     api(libs.androidx.datastore.preferences)
+    api(libs.androidx.documentfile)
 
     // Compose requirements for shared UI
     implementation(platform(libs.androidx.compose.bom))
@@ -56,5 +56,5 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.ext.junit)
 }

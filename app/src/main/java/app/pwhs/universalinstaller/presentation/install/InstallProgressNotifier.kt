@@ -66,6 +66,7 @@ class InstallProgressNotifier(
         var progress: Int = 0,
         var indeterminate: Boolean = true,
         var sawInList: Boolean = false,
+        val trackedAt: Long = System.currentTimeMillis(),
     )
 
     private val tracked = ConcurrentHashMap<UUID, TrackedInstall>()
@@ -127,10 +128,13 @@ class InstallProgressNotifier(
                             // Was in the repo, now gone — controller removed it on success
                             // (or user cancelled, which we collapse into success).
                             finishTracked(entry, success = true, errorText = null)
+                        } else if (System.currentTimeMillis() - entry.trackedAt > STALE_TIMEOUT_MS) {
+                            // Session never appeared in the repo within the timeout window.
+                            // The install likely completed (or was cancelled) before the
+                            // observer could see it. Clean up the stuck notification.
+                            Timber.w("Stale tracked install for %s — auto-finishing", entry.packageName)
+                            finishTracked(entry, success = true, errorText = null)
                         }
-                        // If !sawInList AND not in list yet, the install hasn't been registered
-                        // by the controller yet (it's a brief window between dialog dismiss and
-                        // controller.install() suspending past addSessionData). Keep waiting.
                     }
                     refreshProgressNotification()
                 }
@@ -289,6 +293,8 @@ class InstallProgressNotifier(
     companion object {
         private const val CHANNEL_ID = "install_progress"
         private const val NOTIF_ID_PROGRESS = 5000
+        /** If a tracked session never appears in the repo within this window, clean it up. */
+        private const val STALE_TIMEOUT_MS = 30_000L
         private val resultIdSeq = AtomicInteger(5001)
         private fun nextResultId(): Int = resultIdSeq.incrementAndGet()
     }

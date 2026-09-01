@@ -18,6 +18,10 @@
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
 
+# Repackage all obfuscated classes into the root package to minimize DEX string pool overhead
+-repackageclasses ''
+-allowaccessmodification
+
 # libsu (com.topjohnwu.superuser) — full flavor only. Harmless on store (no-op when
 # the class is absent). Kept defensively because JitPack-built artifacts occasionally
 # drop consumer-rules in ways that break reflective shell plumbing under R8. If a

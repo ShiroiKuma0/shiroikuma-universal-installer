@@ -11,7 +11,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlin { compilerOptions { jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11 } }
 
     defaultConfig {
         // Baseline profiles need API 28+ to generate, even though the profile they produce
@@ -23,6 +22,12 @@ android {
 
     targetProjectPath = ":tv"
 
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+    }
 }
 
 baselineProfile {

@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "app.pwhs.tv.baselineprofile"
-    compileSdk = 37
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -15,8 +15,8 @@ android {
     defaultConfig {
         // Baseline profiles need API 28+ to generate, even though the profile they produce
         // benefits every device the app runs on.
-        minSdk = 28
-        targetSdk = 37
+        minSdk = libs.versions.baselineProfileMinSdk.get().toInt()
+        targetSdk = libs.versions.compileSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

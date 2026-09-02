@@ -1,4 +1,8 @@
 [versions]
+compileSdk = "37"
+minSdk = "24"
+targetSdk = "36"
+baselineProfileMinSdk = "28"
 agp = "9.1.0"
 core = "2.3.0"
 coreVersion = "3.5.4"

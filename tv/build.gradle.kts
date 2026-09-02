@@ -19,12 +19,12 @@ if (hasFirebaseConfig) {
 
 android {
     namespace = "app.pwhs.tv"
-    compileSdk = 37
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "app.pwhs.universalinstaller.tv"
-        minSdk = 24
-        targetSdk = 36
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 25
         versionName = "1.11.0"
 

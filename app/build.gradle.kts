@@ -44,12 +44,12 @@ if (hasFirebaseConfig) {
 
 android {
     namespace = "app.pwhs.universalinstaller"
-    compileSdk = 37
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "app.pwhs.universalinstaller"
-        minSdk = 24
-        targetSdk = 36
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 34
         versionName = "1.11.0"
 

@@ -15,16 +15,19 @@ object DialogInstallUriHelper {
         val out = mutableListOf<Uri>()
 
         // 1. Data URI (VIEW / INSTALL_PACKAGE)
-        source.data?.takeIf { it.scheme == "content" || it.scheme == "file" }?.let(out::add)
+        source.data?.takeIf { isSupportedScheme(it.scheme) }?.let(out::add)
 
         // 2. EXTRA_STREAM (SEND / SEND_MULTIPLE)
         @Suppress("DEPRECATION")
         when (source.action) {
             Intent.ACTION_SEND ->
-                (source.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri)?.let(out::add)
+                (source.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri)
+                    ?.takeIf { isSupportedScheme(it.scheme) }
+                    ?.let(out::add)
             Intent.ACTION_SEND_MULTIPLE ->
                 source.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
                     ?.filterNotNull()
+                    ?.filter { isSupportedScheme(it.scheme) }
                     ?.let(out::addAll)
         }
 
@@ -32,12 +35,15 @@ object DialogInstallUriHelper {
         source.clipData?.let { clip ->
             for (i in 0 until clip.itemCount) {
                 val u = clip.getItemAt(i).uri ?: continue
-                if (u.scheme == "content" || u.scheme == "file") out.add(u)
+                if (isSupportedScheme(u.scheme)) out.add(u)
             }
         }
 
         return out.distinct()
     }
+
+    private fun isSupportedScheme(scheme: String?): Boolean =
+        scheme == "content" || scheme == "file" || scheme == "http" || scheme == "https"
 
     fun forwardIncomingUris(source: Intent?, target: Intent) {
         if (source == null) return
@@ -55,10 +61,32 @@ object DialogInstallUriHelper {
         target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 
-    fun parseAndPush(context: Context, uri: Uri, viewModel: InstallViewModel) {
-        val displayName = context.contentResolver.getDisplayName(uri)
+    suspend fun parseAndPush(
+        context: Context,
+        uri: Uri,
+        viewModel: InstallViewModel,
+        onDownloadProgress: ((app.pwhs.core.network.DownloadProgress) -> Unit)? = null,
+    ) {
+        val targetUri = if (uri.scheme == "http" || uri.scheme == "https") {
+            val downloader = app.pwhs.core.network.NetworkApkDownloader(context)
+            when (val result = downloader.download(uri.toString(), onDownloadProgress ?: {})) {
+                is app.pwhs.core.network.DownloadResult.Success -> {
+                    Uri.fromFile(result.file)
+                }
+                is app.pwhs.core.network.DownloadResult.Error -> {
+                    throw java.io.IOException(result.message, result.throwable)
+                }
+                app.pwhs.core.network.DownloadResult.Cancelled -> {
+                    return
+                }
+            }
+        } else {
+            uri
+        }
+
+        val displayName = context.contentResolver.getDisplayName(targetUri)
         val ext = displayName.substringAfterLast('.', "").lowercase()
-        val splitProvider = InstallApkSplitsHelper.buildSplitProvider(context, uri, ext)
-        viewModel.parseApkInfo(context, uri, splitProvider, displayName)
+        val splitProvider = InstallApkSplitsHelper.buildSplitProvider(context, targetUri, ext)
+        viewModel.parseApkInfo(context, targetUri, splitProvider, displayName)
     }
 }

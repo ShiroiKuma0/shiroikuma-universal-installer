@@ -1,18 +1,18 @@
 package app.pwhs.core.receiver
 
 import android.content.Context
+import android.util.Log
 import fi.iki.elonen.NanoHTTPD
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
+import java.io.InputStream
 
 /**
  * LAN receiver: a phone (scanning the TV's QR) opens the upload page or POSTs an APK here;
  * the file is staged in cache and emitted via [TvReceiverState] for the TV UI to install.
  *
- * The reverse of the mobile sync [ApkHttpServer] (which *serves* files); same NanoHTTPD
- * stack. Uploads must carry the [token] from the QR — a lightweight guard so only a device
- * that scanned this TV's code can push.
+ * Streams uploads directly from the socket input stream with live progress updates.
  */
 class ApkReceiverServer(
     private val context: Context,
@@ -21,12 +21,6 @@ class ApkReceiverServer(
 ) : NanoHTTPD(port) {
 
     private val stageDir: File = File(context.cacheDir, "received").apply { mkdirs() }
-
-    init {
-        tempFileManagerFactory = TempFileManagerFactory {
-            ProgressTempFileManager(stageDir)
-        }
-    }
 
     override fun serve(session: IHTTPSession): Response {
         return when {
@@ -48,8 +42,8 @@ class ApkReceiverServer(
             val canvas = android.graphics.Canvas(bitmap)
             drawable.setBounds(0, 0, canvas.width, canvas.height)
             drawable.draw(canvas)
-            
-            val stream = java.io.ByteArrayOutputStream()
+
+            val stream = ByteArrayOutputStream()
             bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, stream)
             val bytes = stream.toByteArray()
             newFixedLengthResponse(Response.Status.OK, "image/png", java.io.ByteArrayInputStream(bytes), bytes.size.toLong())
@@ -82,12 +76,20 @@ class ApkReceiverServer(
         val reqToken = session.parms["token"] ?: session.parameters["token"]?.firstOrNull()
         if (reqToken == token) {
             TvReceiverState.updateConnectedClient(null)
+            TvReceiverState.emitReceivingProgress(null)
         }
         return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "ok")
     }
 
+    private fun cleanIp(raw: String?): String {
+        if (raw.isNullOrBlank()) return "Phone"
+        var ip = raw.trimStart('/')
+        if (ip == "0:0:0:0:0:0:0:1" || ip == "::1") ip = "127.0.0.1"
+        return ip
+    }
+
     private fun recordClient(session: IHTTPSession) {
-        val clientIp = session.remoteIpAddress ?: "Phone"
+        val clientIp = cleanIp(session.remoteIpAddress)
         val userAgent = session.headers["user-agent"]
         val deviceName = parseDeviceFromUserAgent(userAgent) ?: clientIp
         TvReceiverState.updateConnectedClient(ConnectedClient(ip = clientIp, deviceName = deviceName))
@@ -96,6 +98,9 @@ class ApkReceiverServer(
     private fun parseDeviceFromUserAgent(ua: String?): String? {
         if (ua == null) return null
         return when {
+            ua.contains("Universal Installer App", ignoreCase = true) -> {
+                ua.substringBefore(" (Universal").trim()
+            }
             ua.contains("Android", ignoreCase = true) -> {
                 val match = Regex(";\\s*([^;]+)\\s*Build").find(ua)?.groupValues?.get(1)
                 match?.trim() ?: "Android Device"
@@ -110,125 +115,189 @@ class ApkReceiverServer(
     }
 
     private fun handleUpload(session: IHTTPSession): Response {
-        if (session.parms["token"] != token && session.parameters["token"]?.firstOrNull() != token) {
+        val reqToken = session.parms["token"] ?: session.parameters["token"]?.firstOrNull()
+        if (reqToken != token) {
             return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Bad token")
         }
         recordClient(session)
+
         val contentLength = session.headers["content-length"]?.toLongOrNull() ?: 0L
-        TvReceiverState.currentExpectedBytes = contentLength.takeIf { it > 0 }
+        val contentType = session.headers["content-type"] ?: ""
+        val boundary = Regex("boundary=([^;\\s]+)").find(contentType)?.groupValues?.get(1)?.trim('"')
+
+        // Initial progress: 0%
         TvReceiverState.emitReceivingProgress(
-            ReceivingProgress(
-                bytesReceived = 0L,
-                totalBytes = contentLength.takeIf { it > 0 } ?: 1L,
-                progress = 0f,
-                percent = 0
-            )
+            ReceivingProgress(bytesReceived = 0L, totalBytes = contentLength.coerceAtLeast(1L))
         )
-        // NanoHTTPD writes multipart file parts to temp files; the map gives their paths.
-        val files = HashMap<String, String>()
+
         return try {
-            session.parseBody(files)
-            val tempPath = files.values.firstOrNull()
-                ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "No file")
-            val original = session.parameters["apk"]?.firstOrNull()?.substringAfterLast('/')
-                ?.takeIf { it.isNotBlank() } ?: "received-${System.nanoTime()}.apk"
-            val dest = File(stageDir, sanitize(original))
-            File(tempPath).copyTo(dest, overwrite = true)
-            
+            val savedFile = if (!boundary.isNullOrBlank()) {
+                streamMultipartUpload(session.inputStream, boundary, contentLength, stageDir)
+            } else {
+                val files = HashMap<String, String>()
+                session.parseBody(files)
+                val tempPath = files.values.firstOrNull()
+                    ?: return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "No file")
+                val original = session.parameters["apk"]?.firstOrNull()?.substringAfterLast('/')
+                    ?.takeIf { it.isNotBlank() } ?: "received-${System.currentTimeMillis()}.apk"
+                val dest = File(stageDir, sanitize(original))
+                File(tempPath).copyTo(dest, overwrite = true)
+                dest
+            }
+
+            // Show 100% briefly
             TvReceiverState.emitReceivingProgress(
-                ReceivingProgress(
-                    bytesReceived = dest.length(),
-                    totalBytes = dest.length(),
-                    progress = 1f,
-                    percent = 100
-                )
+                ReceivingProgress(bytesReceived = savedFile.length(), totalBytes = savedFile.length())
             )
-            Thread.sleep(350)
+            Thread.sleep(100)
             TvReceiverState.emitReceivingProgress(null)
+            TvReceiverState.updateConnectedClient(null)
             TvReceiverState.emitReceived(
-                ReceivedApk(path = dest.absolutePath, fileName = dest.name, sizeBytes = dest.length())
+                ReceivedApk(path = savedFile.absolutePath, fileName = savedFile.name, sizeBytes = savedFile.length())
             )
+
             newFixedLengthResponse(Response.Status.OK, MIME_HTML, "<h2>Sent ✓ — confirm the install on your TV.</h2>")
         } catch (t: Throwable) {
+            Log.e(TAG, "Upload failed", t)
             TvReceiverState.emitReceivingProgress(null)
             newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Upload failed: ${t.message}")
         }
     }
 
+    /**
+     * Streams the multipart request body directly from [input] to disk,
+     * emitting [TvReceiverState.emitReceivingProgress] as bytes stream in real-time.
+     */
+    private fun streamMultipartUpload(
+        input: InputStream,
+        boundary: String,
+        contentLength: Long,
+        destDir: File
+    ): File {
+        var fileName = "received-${System.currentTimeMillis()}.apk"
+        val headerBytes = ByteArrayOutputStream()
+        var prev = -1
+        var prevPrev = -1
+        var prev3 = -1
+
+        var b = input.read()
+        var headerCount = 0
+        while (b != -1) {
+            headerCount++
+            headerBytes.write(b)
+            if (prev3 == '\r'.code && prevPrev == '\n'.code && prev == '\r'.code && b == '\n'.code) {
+                break
+            }
+            if (prev == '\n'.code && b == '\n'.code) {
+                break
+            }
+            prev3 = prevPrev
+            prevPrev = prev
+            prev = b
+            if (headerCount > 8192) break
+            b = input.read()
+        }
+
+        val headerText = headerBytes.toString("UTF-8")
+        val fnMatch = Regex("filename=\"([^\"]+)\"").find(headerText)
+            ?: Regex("filename=([^;\\r\\n]+)").find(headerText)
+        if (fnMatch != null) {
+            val rawName = fnMatch.groupValues[1].trim().substringAfterLast('/').substringAfterLast('\\')
+            if (rawName.isNotBlank()) fileName = sanitize(rawName)
+        }
+
+        val destFile = File(destDir, fileName)
+        val tempFile = File(destDir, "$fileName.tmp")
+
+        val boundaryMarker = ("\r\n--$boundary").toByteArray(Charsets.US_ASCII)
+        val markerLen = boundaryMarker.size
+        val totalExpected = (contentLength - headerCount - markerLen - 4).coerceAtLeast(1L)
+
+        var lastProgressMs = 0L
+        var totalWritten = 0L
+        var remainingBodyBytes = if (contentLength > 0) (contentLength - headerCount) else Long.MAX_VALUE
+
+        FileOutputStream(tempFile).use { fos ->
+            val buf = ByteArray(64 * 1024)
+            val tail = ByteArray(markerLen + 8)
+            var tailLen = 0
+
+            while (remainingBodyBytes > 0) {
+                val toRead = minOf(buf.size.toLong(), remainingBodyBytes).toInt()
+                val read = input.read(buf, 0, toRead)
+                if (read == -1) break
+                remainingBodyBytes -= read
+
+                if (tailLen > 0) {
+                    val combined = ByteArray(tailLen + read)
+                    System.arraycopy(tail, 0, combined, 0, tailLen)
+                    System.arraycopy(buf, 0, combined, tailLen, read)
+
+                    val toWrite = (combined.size - tail.size).coerceAtLeast(0)
+                    if (toWrite > 0) {
+                        fos.write(combined, 0, toWrite)
+                        totalWritten += toWrite
+                    }
+                    tailLen = combined.size - toWrite
+                    System.arraycopy(combined, toWrite, tail, 0, tailLen)
+                } else {
+                    if (read > tail.size) {
+                        val toWrite = read - tail.size
+                        fos.write(buf, 0, toWrite)
+                        totalWritten += toWrite
+                        tailLen = tail.size
+                        System.arraycopy(buf, toWrite, tail, 0, tailLen)
+                    } else {
+                        System.arraycopy(buf, 0, tail, 0, read)
+                        tailLen = read
+                    }
+                }
+
+                val now = System.currentTimeMillis()
+                if (now - lastProgressMs >= 50L || totalWritten >= totalExpected) {
+                    lastProgressMs = now
+                    TvReceiverState.emitReceivingProgress(
+                        ReceivingProgress(
+                            bytesReceived = totalWritten.coerceAtMost(totalExpected),
+                            totalBytes = totalExpected
+                        )
+                    )
+                }
+            }
+
+            if (tailLen > 0) {
+                var boundaryIdx = -1
+                for (i in 0..(tailLen - markerLen)) {
+                    var match = true
+                    for (j in 0 until markerLen) {
+                        if (tail[i + j] != boundaryMarker[j]) {
+                            match = false
+                            break
+                        }
+                    }
+                    if (match) {
+                        boundaryIdx = i
+                        break
+                    }
+                }
+                val finalBytesToWrite = if (boundaryIdx >= 0) boundaryIdx else tailLen
+                if (finalBytesToWrite > 0) {
+                    fos.write(tail, 0, finalBytesToWrite)
+                    totalWritten += finalBytesToWrite
+                }
+            }
+            fos.flush()
+        }
+
+        if (destFile.exists()) destFile.delete()
+        tempFile.renameTo(destFile)
+        return destFile
+    }
+
     private fun sanitize(name: String): String =
         name.map { if (it.isLetterOrDigit() || it in "-_.") it else '_' }.joinToString("").take(120)
 
-    private class ProgressTempFileManager(private val tempDir: File) : TempFileManager {
-        private val tempFiles = mutableListOf<TempFile>()
-
-        override fun clear() {
-            for (file in tempFiles) {
-                try {
-                    file.delete()
-                } catch (_: Exception) {}
-            }
-            tempFiles.clear()
-            TvReceiverState.emitReceivingProgress(null)
-        }
-
-        override fun createTempFile(filename_hint: String?): TempFile {
-            val tempFile = ProgressTempFile(tempDir)
-            tempFiles.add(tempFile)
-            return tempFile
-        }
-    }
-
-    private class ProgressTempFile(tempDir: File) : TempFile {
-        private val file = File.createTempFile("NanoHTTPD-", "", tempDir)
-        private var outputStream: OutputStream? = null
-
-        override fun delete() {
-            try {
-                outputStream?.close()
-            } catch (_: Exception) {}
-            file.delete()
-        }
-
-        override fun getName(): String = file.absolutePath
-
-        override fun open(): OutputStream {
-            val fos = FileOutputStream(file)
-            return object : OutputStream() {
-                private var totalWritten = 0L
-                private var lastProgressMs = 0L
-
-                override fun write(b: Int) {
-                    fos.write(b)
-                    totalWritten++
-                    notifyProgress(totalWritten)
-                }
-
-                override fun write(b: ByteArray, off: Int, len: Int) {
-                    fos.write(b, off, len)
-                    totalWritten += len
-                    notifyProgress(totalWritten)
-                }
-
-                override fun flush() = fos.flush()
-
-                override fun close() {
-                    fos.close()
-                }
-
-                private fun notifyProgress(written: Long) {
-                    val now = System.currentTimeMillis()
-                    if (now - lastProgressMs > 100L) {
-                        lastProgressMs = now
-                        val total = TvReceiverState.currentExpectedBytes ?: written
-                        TvReceiverState.emitReceivingProgress(
-                            ReceivingProgress(
-                                bytesReceived = written,
-                                totalBytes = total,
-                            )
-                        )
-                    }
-                }
-            }.also { outputStream = it }
-        }
+    companion object {
+        private const val TAG = "ApkReceiverServer"
     }
 }

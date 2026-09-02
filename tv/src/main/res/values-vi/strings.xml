@@ -13,6 +13,12 @@
     <string name="tv_receive_allow_storage_title">Cho phép truy cập vào bộ lưu trữ</string>
     <string name="tv_receive_allow_storage_subtitle">Để liệt kê các APK đã được tải xuống trên TV này</string>
     <string name="tv_receive_no_apks">Không tìm thấy tệp APK nào trong bộ nhớ</string>
+    <string name="tv_receive_receiving_title">Đang nhận gói cài đặt từ điện thoại…</string>
+    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Thiết bị đã kết nối</string>
+    <string name="tv_receive_device_connected_subtitle">Chọn hoặc thả tệp APK trên thiết bị của bạn để gửi tới TV này</string>
+    <string name="tv_receive_btn_disconnect">Ngắt kết nối</string>
+    <string name="tv_receive_btn_disconnect_desc">Ngắt kết nối thiết bị đang kết nối</string>
     <string name="tv_settings_title">Cài đặt</string>
     <string name="tv_settings_section_about">Về</string>
     <string name="tv_settings_app_name">Trình cài đặt phổ quát</string>
@@ -85,8 +91,4 @@
     <string name="tv_manage_no_matches">Không tìm thấy kết quả cho \"%s\"</string>
     <string name="tv_manage_clear_search">Xóa tìm kiếm</string>
     <string name="tv_language_title">Ngôn ngữ</string>
-    <string name="tv_receive_receiving_title">Đang nhận gói cài đặt từ điện thoại…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
-    <string name="tv_receive_device_connected_title">Đã kết nối với thiết bị</string>
-    <string name="tv_receive_device_connected_subtitle">Chọn hoặc kéo thả file APK trên điện thoại để truyền sang TV</string>
 </resources>

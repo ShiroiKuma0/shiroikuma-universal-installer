@@ -645,6 +645,7 @@
   <string name="tv_sync_status_connected">Đã kết nối với %1$s</string>
   <string name="tv_sync_btn_choose_apk">Chọn APK để gửi</string>
   <string name="tv_sync_btn_rescan">Quét một TV khác</string>
+  <string name="tv_sync_btn_disconnect">Ngắt kết nối</string>
   <string name="tv_sync_status_sending">Đang gửi…</string>
   <string name="tv_sync_status_sent">Đã gửi ✓ — xác nhận cài đặt trên TV của bạn</string>
   <string name="tv_sync_status_failed">Thất bại: %1$s</string>

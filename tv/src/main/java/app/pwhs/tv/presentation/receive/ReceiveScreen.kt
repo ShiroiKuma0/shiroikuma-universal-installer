@@ -42,6 +42,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Storage
@@ -227,7 +228,8 @@ fun ReceiveScreen(
                         installingLabel = installingLabel,
                         installFocus = installFocus,
                         onInstall = { selectedApk = TvApkItem.Received(it) },
-                        onDismissPending = { viewModel.dismissPending() }
+                        onDismissPending = { viewModel.dismissPending() },
+                        onDisconnectClient = { viewModel.disconnect() }
                     )
                     InstallTab.LocalFiles -> LocalFilesContent(
                         hasStorage = hasStorage,
@@ -428,7 +430,8 @@ private fun ReceiveContent(
     installingLabel: String?,
     installFocus: FocusRequester,
     onInstall: (ReceivedApk) -> Unit,
-    onDismissPending: () -> Unit
+    onDismissPending: () -> Unit,
+    onDisconnectClient: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         if (pending != null) {
@@ -468,7 +471,7 @@ private fun ReceiveContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                ConnectedDeviceCard(connectedClient)
+                ConnectedDeviceCard(connectedClient, onDisconnect = onDisconnectClient)
             }
         } else {
             // QR Connection Hub - Improved layout for better text flow
@@ -532,7 +535,7 @@ private fun ReceivingProgressCard(progress: ReceivingProgress) {
     val context = LocalContext.current
     val animatedProgress by androidx.compose.animation.core.animateFloatAsState(
         targetValue = progress.progress,
-        animationSpec = androidx.compose.animation.core.tween(durationMillis = 200),
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = 150),
         label = "uploadProgress"
     )
     Surface(
@@ -541,7 +544,7 @@ private fun ReceivingProgressCard(progress: ReceivingProgress) {
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
         ),
         modifier = Modifier
-            .widthIn(max = 480.dp)
+            .widthIn(max = 500.dp)
             .fillMaxWidth()
             .padding(16.dp)
     ) {
@@ -610,7 +613,10 @@ private fun ReceivingProgressCard(progress: ReceivingProgress) {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun ConnectedDeviceCard(client: ConnectedClient) {
+private fun ConnectedDeviceCard(
+    client: ConnectedClient,
+    onDisconnect: () -> Unit
+) {
     Surface(
         shape = RoundedCornerShape(24.dp),
         colors = SurfaceDefaults.colors(
@@ -672,6 +678,26 @@ private fun ConnectedDeviceCard(client: ConnectedClient) {
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(Modifier.height(24.dp))
+            Button(
+                onClick = onDisconnect,
+                colors = ButtonDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f),
+                    focusedContainerColor = MaterialTheme.colorScheme.error
+                ),
+                shape = ButtonDefaults.shape(shape = RoundedCornerShape(12.dp))
+            ) {
+                Icon(
+                    Icons.Rounded.LinkOff,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    stringResource(R.string.tv_receive_btn_disconnect),
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
         }
     }
 }

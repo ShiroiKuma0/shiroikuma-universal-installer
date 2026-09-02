@@ -38,4 +38,12 @@ object TvReceiver {
         server = null
         TvReceiverState.setStatus(ReceiverStatus.Stopped)
     }
+
+    @Synchronized
+    fun restart(context: Context): ReceiverStatus {
+        stop()
+        TvReceiverState.updateConnectedClient(null)
+        TvReceiverState.emitReceivingProgress(null)
+        return start(context)
+    }
 }

@@ -25,6 +25,8 @@
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Device Connected</string>
     <string name="tv_receive_device_connected_subtitle">Select or drop an APK file on your device to send it to this TV</string>
+    <string name="tv_receive_btn_disconnect">Disconnect</string>
+    <string name="tv_receive_btn_disconnect_desc">Disconnect connected device</string>
 
     <!-- TV Settings Screen -->
     <string name="tv_settings_title">Settings</string>

@@ -697,6 +697,7 @@
     <string name="tv_sync_status_connected">Connected to %1$s</string>
     <string name="tv_sync_btn_choose_apk">Choose APK to send</string>
     <string name="tv_sync_btn_rescan">Scan a different TV</string>
+    <string name="tv_sync_btn_disconnect">Disconnect</string>
     <string name="tv_sync_status_sending">Sending…</string>
     <string name="tv_sync_status_sent">Sent ✓ — confirm the install on your TV</string>
     <string name="tv_sync_status_failed">Failed: %1$s</string>

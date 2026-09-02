@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -210,6 +213,44 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !uploading,
                     ) { Text(stringResource(R.string.tv_sync_btn_rescan)) }
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = {
+                            val currentTarget = scanned
+                            if (currentTarget != null) {
+                                scope.launch(Dispatchers.IO) {
+                                    runCatching {
+                                        val parsed = Uri.parse(currentTarget)
+                                        val host = parsed.host
+                                        val port = parsed.port.takeIf { it > 0 } ?: 8787
+                                        val token = parsed.getQueryParameter("token").orEmpty()
+                                        (URL("http://$host:$port/disconnect?token=$token").openConnection() as HttpURLConnection).apply {
+                                            connectTimeout = 2000
+                                            readTimeout = 2000
+                                            responseCode
+                                            disconnect()
+                                        }
+                                    }
+                                }
+                            }
+                            scanned = null
+                            status = null
+                            uploadProgress = null
+                            uploadBytes = null
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !uploading,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.Logout,
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = 6.dp)
+                        )
+                        Text(stringResource(R.string.tv_sync_btn_disconnect))
+                    }
                 }
 
                 if (uploading && uploadProgress != null) {

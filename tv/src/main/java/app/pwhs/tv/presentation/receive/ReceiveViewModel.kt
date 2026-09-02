@@ -16,16 +16,15 @@ import app.pwhs.core.receiver.ReceivedApk
 import app.pwhs.core.receiver.ReceivingProgress
 import app.pwhs.core.receiver.ReceiverStatus
 import app.pwhs.core.receiver.TvReceiverState
+import app.pwhs.core.receiver.TvReceiver
 import app.pwhs.core.util.RootShell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,13 +38,8 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
     private val rootInstaller = RootInstaller(context)
 
     val status: StateFlow<ReceiverStatus> = TvReceiverState.status
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReceiverStatus.Stopped)
-
     val connectedClient: StateFlow<ConnectedClient?> = TvReceiverState.connectedClient
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
     val receivingProgress: StateFlow<ReceivingProgress?> = TvReceiverState.receivingProgress
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _pendingApk = MutableStateFlow<ReceivedApk?>(null)
     val pendingApk: StateFlow<ReceivedApk?> = _pendingApk.asStateFlow()
@@ -77,6 +71,9 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
     private data class InstallRequest(val uri: Uri, val isBundle: Boolean, val label: String, val sizeBytes: Long)
 
     init {
+        // Clear any stale progress from previous session
+        TvReceiverState.emitReceivingProgress(null)
+
         viewModelScope.launch {
             while (isActive) {
                 delay(3000)
@@ -94,6 +91,12 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
                 _pendingApk.value = received.copy(metadata = metadata)
             }
         }
+    }
+
+    fun disconnect() {
+        TvReceiverState.updateConnectedClient(null)
+        TvReceiverState.emitReceivingProgress(null)
+        TvReceiver.restart(context)
     }
 
     /** True once a scan has been kicked off, so tab revisits don't redundantly re-scan. */

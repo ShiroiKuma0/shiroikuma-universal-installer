@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Universal Installer</string>
+    <string name="hello_world">Hello, %1$s!</string>
+    <string name="tile_label">Installer tile</string>
+    <string name="complication_label">Installer complication</string>
+
+    <!-- Home screen -->
+    <string name="home_title">APK Queue</string>
+    <string name="home_empty">No APKs yet.\nSend one from your phone.</string>
+
+    <!-- Detail screen -->
+    <string name="install">Install</string>
+    <string name="delete">Delete</string>
+    <string name="retry">Retry</string>
+    <string name="installing">Installing…</string>
+    <string name="install_failed">Install failed</string>
+    <string name="loading">Loading…</string>
+
+    <!-- Notification -->
+    <string name="apk_received_title">APK received</string>
+</resources>

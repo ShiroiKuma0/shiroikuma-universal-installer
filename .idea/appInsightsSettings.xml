@@ -22,8 +22,8 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="app.pwhs.universalinstaller" />
-                  <option name="mobileSdkAppId" value="1:466719970426:android:6b971973fbb71b702597c3" />
+                  <option name="appId" value="app.pwhs.universalinstaller.tv" />
+                  <option name="mobileSdkAppId" value="1:466719970426:android:d990420031e6c5752597c3" />
                   <option name="projectId" value="aurora-8cef9" />
                   <option name="projectNumber" value="466719970426" />
                 </ConnectionSetting>

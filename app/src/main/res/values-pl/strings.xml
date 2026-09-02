@@ -791,4 +791,24 @@
     <string name="tv_sync_sent_title">Przesyłanie ukończone!</string>
     <string name="tv_sync_sent_desc">Aplikacja została wysłana na telewizor. Spójrz na ekran TV i kliknij Zainstaluj, aby zakończyć.</string>
     <string name="tv_sync_btn_send_another">Wyślij inną aplikację</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Zezwalaj na ograniczone uprawnienia</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Dodaj ograniczone uprawnienia (np. Dostępność) do dozwolonych w Androidzie 13+</string>
+    <string name="setting_shizuku_dont_kill_app">Nie zamykaj aplikacji</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Unikaj zamykania aplikacji podczas instalowania pakietów dzielonych</string>
+    <string name="setting_shizuku_disable_verification">Wyłącz weryfikację</string>
+    <string name="setting_shizuku_disable_verification_sub">Wyłącz weryfikację pakietu podczas instalacji (nie dotyczy podpisu)</string>
+    <string name="setting_shizuku_enable_rollback">Włącz wycofywanie</string>
+    <string name="setting_shizuku_enable_rollback_sub">Zezwalaj na przyszłe wycofywanie tego pakietu (wymaga obsługi systemu)</string>
+    <string name="setting_shizuku_request_update_ownership">Zażądaj prawa do aktualizacji</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Wymuś prawo własności do aktualizacji w Androidzie 14+, aby zapobiec nadpisaniu</string>
+    <string name="dialog_menu_allow_restricted_permissions">Zezwalaj na ograniczone uprawnienia</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Zezwalaj na ograniczone uprawnienia w Androidzie 13+</string>
+    <string name="dialog_menu_dont_kill_app">Nie zamykaj aplikacji</string>
+    <string name="dialog_menu_dont_kill_app_desc">Nie zamykaj aplikacji podczas instalacji pakietu dzielonego</string>
+    <string name="dialog_menu_disable_verification">Wyłącz weryfikację</string>
+    <string name="dialog_menu_disable_verification_desc">Pomiń weryfikację (nie dotyczy podpisu)</string>
+    <string name="dialog_menu_enable_rollback">Włącz wycofywanie</string>
+    <string name="dialog_menu_enable_rollback_desc">Zezwól na przyszłe wycofywanie pakietów</string>
+    <string name="dialog_menu_request_update_ownership">Zażądaj prawa do aktualizacji</string>
+    <string name="dialog_menu_request_update_ownership_desc">Zablokuj prawo do aktualizacji w Androidzie 14+</string>
 </resources>

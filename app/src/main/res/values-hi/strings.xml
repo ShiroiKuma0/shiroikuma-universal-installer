@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">स्थानांतरण पूरा हुआ!</string>
     <string name="tv_sync_sent_desc">ऐप आपके टीवी पर भेजा गया था। कृपया अपनी टीवी स्क्रीन देखें और समाप्त करने के लिए इंस्टॉल पर क्लिक करें।</string>
     <string name="tv_sync_btn_send_another">दूसरा ऐप भेजें</string>
+    <string name="setting_shizuku_allow_restricted_permissions">प्रतिबंधित अनुमतियों की अनुमति दें</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Android 13+ पर प्रतिबंधित अनुमतियों (उदा. सुगम्यता) को श्वेतसूची में जोड़ें</string>
+    <string name="setting_shizuku_dont_kill_app">ऐप बंद न करें</string>
+    <string name="setting_shizuku_dont_kill_app_sub">स्प्लिट या फीचर एपीके इंस्टॉल करते समय ऐप बंद होने से बचाएं</string>
+    <string name="setting_shizuku_disable_verification">सत्यापन अक्षम करें</string>
+    <string name="setting_shizuku_disable_verification_sub">इंस्टॉल करते समय पैकेज सत्यापन अक्षम करें (हस्ताक्षर सत्यापन नहीं)</string>
+    <string name="setting_shizuku_enable_rollback">रोलबैक सक्षम करें</string>
+    <string name="setting_shizuku_enable_rollback_sub">इस पैकेज के भविष्य के रोलबैक की अनुमति दें (सिस्टम समर्थन आवश्यक है)</string>
+    <string name="setting_shizuku_request_update_ownership">अपडेट स्वामित्व का अनुरोध करें</string>
+    <string name="setting_shizuku_request_update_ownership_sub">अनधिकृत ओवरराइट को रोकने के लिए Android 14+ पर अपडेट स्वामित्व लागू करें</string>
+    <string name="dialog_menu_allow_restricted_permissions">प्रतिबंधित अनुमतियों की अनुमति दें</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Android 13+ पर प्रतिबंधित अनुमतियों की अनुमति दें</string>
+    <string name="dialog_menu_dont_kill_app">ऐप बंद न करें</string>
+    <string name="dialog_menu_dont_kill_app_desc">स्प्लिट इंस्टॉल के दौरान ऐप बंद होने से बचाएं</string>
+    <string name="dialog_menu_disable_verification">सत्यापन अक्षम करें</string>
+    <string name="dialog_menu_disable_verification_desc">सत्यापन छोड़ें (हस्ताक्षर जांच नहीं)</string>
+    <string name="dialog_menu_enable_rollback">रोलबैक सक्षम करें</string>
+    <string name="dialog_menu_enable_rollback_desc">भविष्य के पैकेज रोलबैक की अनुमति दें</string>
+    <string name="dialog_menu_request_update_ownership">अपडेट स्वामित्व का अनुरोध करें</string>
+    <string name="dialog_menu_request_update_ownership_desc">Android 14+ पर अपडेट स्वामित्व लॉक करें</string>
 </resources>

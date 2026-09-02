@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">发送成功！</string>
     <string name="tv_sync_sent_desc">应用已成功发送至电视，请在电视屏幕上点击“安装”以完成。</string>
     <string name="tv_sync_btn_send_another">继续发送其他应用</string>
+    <string name="setting_shizuku_allow_restricted_permissions">允许受限权限</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">在 Android 13+ 上将受限权限（如无障碍）加入白名单</string>
+    <string name="setting_shizuku_dont_kill_app">不终止应用</string>
+    <string name="setting_shizuku_dont_kill_app_sub">安装分包或动态特性 APK 时避免终止正在运行的应用</string>
+    <string name="setting_shizuku_disable_verification">禁用验证</string>
+    <string name="setting_shizuku_disable_verification_sub">安装时禁用软件包验证（并非签名验证）</string>
+    <string name="setting_shizuku_enable_rollback">启用回滚</string>
+    <string name="setting_shizuku_enable_rollback_sub">允许将来回滚此软件包（需要系统回滚支持）</string>
+    <string name="setting_shizuku_request_update_ownership">请求更新所有权</string>
+    <string name="setting_shizuku_request_update_ownership_sub">在 Android 14+ 上强制执行更新所有权以防止未授权覆盖</string>
+    <string name="dialog_menu_allow_restricted_permissions">允许受限权限</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">在 Android 13+ 上允许受限权限</string>
+    <string name="dialog_menu_dont_kill_app">不终止应用</string>
+    <string name="dialog_menu_dont_kill_app_desc">分包安装期间避免终止应用</string>
+    <string name="dialog_menu_disable_verification">禁用验证</string>
+    <string name="dialog_menu_disable_verification_desc">跳过验证（非签名检查）</string>
+    <string name="dialog_menu_enable_rollback">启用回滚</string>
+    <string name="dialog_menu_enable_rollback_desc">允许将来的软件包回滚</string>
+    <string name="dialog_menu_request_update_ownership">请求更新所有权</string>
+    <string name="dialog_menu_request_update_ownership_desc">在 Android 14+ 上锁定更新所有权</string>
 </resources>

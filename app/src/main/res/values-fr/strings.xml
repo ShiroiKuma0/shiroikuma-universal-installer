@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">Transfert terminé !</string>
     <string name="tv_sync_sent_desc">L\'application a été envoyée sur votre téléviseur. Regardez votre écran et cliquez sur Installer.</string>
     <string name="tv_sync_btn_send_another">Envoyer une autre application</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Autoriser les autorisations restreintes</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Autoriser les autorisations restreintes (ex. Accessibilité) sur Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">Ne pas fermer l\'application</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Éviter de fermer l\'application lors de l\'installation d\'APK fractionnés</string>
+    <string name="setting_shizuku_disable_verification">Désactiver la vérification</string>
+    <string name="setting_shizuku_disable_verification_sub">Désactiver la vérification du paquet à l\'installation (pas la vérification de signature)</string>
+    <string name="setting_shizuku_enable_rollback">Activer le rollback</string>
+    <string name="setting_shizuku_enable_rollback_sub">Autoriser les futurs rollbacks pour ce paquet (nécessite la prise en charge du système)</string>
+    <string name="setting_shizuku_request_update_ownership">Revendiquer la propriété des mises à jour</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Verrouiller la propriété des mises à jour sur Android 14+ pour éviter les écrasements</string>
+    <string name="dialog_menu_allow_restricted_permissions">Autoriser les autorisations restreintes</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Autoriser les autorisations restreintes sur Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">Ne pas fermer l\'application</string>
+    <string name="dialog_menu_dont_kill_app_desc">Éviter de fermer l\'application pendant l\'installation fractionnée</string>
+    <string name="dialog_menu_disable_verification">Désactiver la vérification</string>
+    <string name="dialog_menu_disable_verification_desc">Ignorer la vérification (hors vérification de signature)</string>
+    <string name="dialog_menu_enable_rollback">Activer le rollback</string>
+    <string name="dialog_menu_enable_rollback_desc">Autoriser les rollbacks futurs</string>
+    <string name="dialog_menu_request_update_ownership">Revendiquer la propriété des màj</string>
+    <string name="dialog_menu_request_update_ownership_desc">Verrouiller la propriété des mises à jour sur Android 14+</string>
 </resources>

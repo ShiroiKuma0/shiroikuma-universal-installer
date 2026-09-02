@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">¡Transferencia completa!</string>
     <string name="tv_sync_sent_desc">La aplicación se envió a su televisor. Mire la pantalla de su TV y haga clic en Instalar.</string>
     <string name="tv_sync_btn_send_another">Enviar otra aplicación</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Permitir permisos restringidos</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Permitir permisos restringidos (ej. Accesibilidad) en Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">No cerrar la app</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Evitar cerrar la app al instalar APKs divididos o funciones</string>
+    <string name="setting_shizuku_disable_verification">Desactivar verificación</string>
+    <string name="setting_shizuku_disable_verification_sub">Desactivar verificación de paquetes al instalar (no verificación de firma)</string>
+    <string name="setting_shizuku_enable_rollback">Habilitar reversión</string>
+    <string name="setting_shizuku_enable_rollback_sub">Permitir futuras reversiones de este paquete (requiere soporte del sistema)</string>
+    <string name="setting_shizuku_request_update_ownership">Solicitar propiedad de actualización</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Hacer cumplir la propiedad de actualización en Android 14+ para evitar sobrescrituras</string>
+    <string name="dialog_menu_allow_restricted_permissions">Permitir permisos restringidos</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Permitir permisos restringidos en Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">No cerrar la app</string>
+    <string name="dialog_menu_dont_kill_app_desc">Evitar cerrar la app durante la instalación dividida</string>
+    <string name="dialog_menu_disable_verification">Desactivar verificación</string>
+    <string name="dialog_menu_disable_verification_desc">Omitir verificación (no comprobación de firma)</string>
+    <string name="dialog_menu_enable_rollback">Habilitar reversión</string>
+    <string name="dialog_menu_enable_rollback_desc">Permitir futuras reversiones de paquetes</string>
+    <string name="dialog_menu_request_update_ownership">Solicitar propiedad de actualización</string>
+    <string name="dialog_menu_request_update_ownership_desc">Bloquear propiedad de actualización en Android 14+</string>
 </resources>

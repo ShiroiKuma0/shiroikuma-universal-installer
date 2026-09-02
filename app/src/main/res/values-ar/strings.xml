@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">اكتمل النقل!</string>
     <string name="tv_sync_sent_desc">تم إرسال التطبيق إلى التلفزيون. يرجى النظر إلى شاشة التلفزيون والنقر فوق تثبيت للإنهاء.</string>
     <string name="tv_sync_btn_send_another">إرسال تطبيق آخر</string>
+    <string name="setting_shizuku_allow_restricted_permissions">السماح بالأذونات المقيدة</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">إدراج الأذونات المقيدة (مثل إمكانية الوصول) في القائمة البيضاء على Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">عدم إغلاق التطبيق</string>
+    <string name="setting_shizuku_dont_kill_app_sub">تجنب إغلاق التطبيق أثناء تثبيت حزم APK المجزأة أو الميزات</string>
+    <string name="setting_shizuku_disable_verification">تعطيل التحقق</string>
+    <string name="setting_shizuku_disable_verification_sub">تعطيل التحقق من الحزمة أثناء التثبيت (وليس التحقق من التوقيع)</string>
+    <string name="setting_shizuku_enable_rollback">تمكين التراجع</string>
+    <string name="setting_shizuku_enable_rollback_sub">السماح بالتراجع المستقبلي لهذه الحزمة (يتطلب دعم النظام)</string>
+    <string name="setting_shizuku_request_update_ownership">طلب ملكية التحديث</string>
+    <string name="setting_shizuku_request_update_ownership_sub">فرض ملكية التحديث على Android 14+ لمنع الكتابة فوقها غير المصرح بها</string>
+    <string name="dialog_menu_allow_restricted_permissions">السماح بالأذونات المقيدة</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">السماح بالأذونات المقيدة على Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">عدم إغلاق التطبيق</string>
+    <string name="dialog_menu_dont_kill_app_desc">تجنب إغلاق التطبيق أثناء التثبيت المجزأ</string>
+    <string name="dialog_menu_disable_verification">تعطيل التحقق</string>
+    <string name="dialog_menu_disable_verification_desc">تخطي التحقق (وليس فحص التوقيع)</string>
+    <string name="dialog_menu_enable_rollback">تمكين التراجع</string>
+    <string name="dialog_menu_enable_rollback_desc">السماح بالتراجع المستقبلي للحزمة</string>
+    <string name="dialog_menu_request_update_ownership">طلب ملكية التحديث</string>
+    <string name="dialog_menu_request_update_ownership_desc">قفل ملكية التحديث على Android 14+</string>
 </resources>

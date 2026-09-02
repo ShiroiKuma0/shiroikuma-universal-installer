@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">Transfer Selesai!</string>
     <string name="tv_sync_sent_desc">Aplikasi telah dikirim ke TV Anda. Silakan lihat layar TV Anda dan klik Instal untuk selesai.</string>
     <string name="tv_sync_btn_send_another">Kirim Aplikasi Lain</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Izinkan izin terbatas</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Izinkan izin terbatas (mis. Aksesibilitas) di Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">Jangan tutup aplikasi</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Hindari menutup aplikasi saat memasang APK terpisah atau fitur</string>
+    <string name="setting_shizuku_disable_verification">Nonaktifkan verifikasi</string>
+    <string name="setting_shizuku_disable_verification_sub">Nonaktifkan verifikasi paket saat pemasangan (bukan verifikasi tanda tangan)</string>
+    <string name="setting_shizuku_enable_rollback">Aktifkan pengembalian versi (rollback)</string>
+    <string name="setting_shizuku_enable_rollback_sub">Izinkan pengembalian versi paket ini di masa mendatang (memerlukan dukungan sistem)</string>
+    <string name="setting_shizuku_request_update_ownership">Minta kepemilikan pembaruan</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Terapkan kepemilikan pembaruan di Android 14+ untuk mencegah penimpaan tidak sah</string>
+    <string name="dialog_menu_allow_restricted_permissions">Izinkan izin terbatas</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Izinkan izin terbatas di Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">Jangan tutup aplikasi</string>
+    <string name="dialog_menu_dont_kill_app_desc">Hindari menutup aplikasi saat pemasangan terpisah</string>
+    <string name="dialog_menu_disable_verification">Nonaktifkan verifikasi</string>
+    <string name="dialog_menu_disable_verification_desc">Lewati verifikasi (bukan pemeriksaan tanda tangan)</string>
+    <string name="dialog_menu_enable_rollback">Aktifkan pengembalian versi</string>
+    <string name="dialog_menu_enable_rollback_desc">Izinkan pengembalian versi paket di masa mendatang</string>
+    <string name="dialog_menu_request_update_ownership">Minta kepemilikan pembaruan</string>
+    <string name="dialog_menu_request_update_ownership_desc">Kunci kepemilikan pembaruan di Android 14+</string>
 </resources>

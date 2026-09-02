@@ -14,5 +14,10 @@ data class InstallerProfile(
     val grantAllPermissions: Boolean? = null,
     val bypassLowTargetSdk: Boolean? = null,
     val allUsers: Boolean? = null,
+    val allowRestrictedPermissions: Boolean? = null,
+    val dontKillApp: Boolean? = null,
+    val disableVerification: Boolean? = null,
+    val enableRollback: Boolean? = null,
+    val requestUpdateOwnership: Boolean? = null,
     val targetUserId: Int? = null,
 )

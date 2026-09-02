@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">Transfer finalizat!</string>
     <string name="tv_sync_sent_desc">Aplicația a fost trimisă pe televizor. Priviți ecranul televizorului și faceți clic pe Instalare.</string>
     <string name="tv_sync_btn_send_another">Trimiteți o altă aplicație</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Permite permisiuni restricționate</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Permite permisiuni restricționate (ex. Accesibilitate) pe Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">Nu închide aplicația</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Evită oprirea aplicației la instalarea de APK-uri divizate</string>
+    <string name="setting_shizuku_disable_verification">Dezactivează verificarea</string>
+    <string name="setting_shizuku_disable_verification_sub">Dezactivează verificarea pachetelor la instalare (nu verificarea semnăturii)</string>
+    <string name="setting_shizuku_enable_rollback">Activează revenirea (rollback)</string>
+    <string name="setting_shizuku_enable_rollback_sub">Permite revenirea la versiuni anterioare (necesită suport de sistem)</string>
+    <string name="setting_shizuku_request_update_ownership">Solicită dreptul de actualizare</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Impune dreptul de actualizare pe Android 14+ pentru a preveni suprascrierea</string>
+    <string name="dialog_menu_allow_restricted_permissions">Permite permisiuni restricționate</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Permite permisiuni restricționate pe Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">Nu închide aplicația</string>
+    <string name="dialog_menu_dont_kill_app_desc">Evită oprirea aplicației în timpul instalării divizate</string>
+    <string name="dialog_menu_disable_verification">Dezactivează verificarea</string>
+    <string name="dialog_menu_disable_verification_desc">Omite verificarea (nu verificarea semnăturii)</string>
+    <string name="dialog_menu_enable_rollback">Activează revenirea</string>
+    <string name="dialog_menu_enable_rollback_desc">Permite revenirea la o versiune anterioară</string>
+    <string name="dialog_menu_request_update_ownership">Solicită dreptul de actualizare</string>
+    <string name="dialog_menu_request_update_ownership_desc">Blochează dreptul de actualizare pe Android 14+</string>
 </resources>

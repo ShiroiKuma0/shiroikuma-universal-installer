@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">Передачу завершено!</string>
     <string name="tv_sync_sent_desc">Додаток надіслано на телевізор. Подивіться на екран телевізора та натисніть «Встановити».</string>
     <string name="tv_sync_btn_send_another">Надіслати інший додаток</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Дозволити обмежені дозволи</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Дозволити обмежені дозволи (наприклад, Спеціальні можливості) в Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">Не закривати додаток</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Запобігати закриттю додатка під час встановлення спліт-APK</string>
+    <string name="setting_shizuku_disable_verification">Вимкнути перевірку</string>
+    <string name="setting_shizuku_disable_verification_sub">Вимкнути перевірку пакетів під час встановлення (не перевірку підпису)</string>
+    <string name="setting_shizuku_enable_rollback">Увімкнути відкат</string>
+    <string name="setting_shizuku_enable_rollback_sub">Дозволити майбутній відкат цього пакета (потрібна підтримка системи)</string>
+    <string name="setting_shizuku_request_update_ownership">Запросити право власності на оновлення</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Закріпити право на оновлення в Android 14+, щоб уникнути перезапису</string>
+    <string name="dialog_menu_allow_restricted_permissions">Дозволити обмежені дозволи</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Дозволити обмежені дозволи в Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">Не закривати додаток</string>
+    <string name="dialog_menu_dont_kill_app_desc">Не закривати додаток під час спліт-встановлення</string>
+    <string name="dialog_menu_disable_verification">Вимкнути перевірку</string>
+    <string name="dialog_menu_disable_verification_desc">Пропустити перевірку (крім підпису)</string>
+    <string name="dialog_menu_enable_rollback">Увімкнути відкат</string>
+    <string name="dialog_menu_enable_rollback_desc">Дозволити майбутній відкат пакета</string>
+    <string name="dialog_menu_request_update_ownership">Запросити право власності на оновлення</string>
+    <string name="dialog_menu_request_update_ownership_desc">Закріпити право на оновлення в Android 14+</string>
 </resources>

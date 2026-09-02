@@ -211,6 +211,51 @@ fun DialogMenuContent(
         }
     }
 
+    val onToggleAllowRestrictedPermissions: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_ALLOW_RESTRICTED_PERMISSIONS] = enabled
+                it[PreferencesKeys.ROOT_ALLOW_RESTRICTED_PERMISSIONS] = enabled
+            }
+        }
+    }
+
+    val onToggleDontKillApp: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_DONT_KILL_APP] = enabled
+                it[PreferencesKeys.ROOT_DONT_KILL_APP] = enabled
+            }
+        }
+    }
+
+    val onToggleDisableVerification: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_DISABLE_VERIFICATION] = enabled
+                it[PreferencesKeys.ROOT_DISABLE_VERIFICATION] = enabled
+            }
+        }
+    }
+
+    val onToggleEnableRollback: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_ENABLE_ROLLBACK] = enabled
+                it[PreferencesKeys.ROOT_ENABLE_ROLLBACK] = enabled
+            }
+        }
+    }
+
+    val onToggleRequestUpdateOwnership: (Boolean) -> Unit = { enabled ->
+        scope.launch {
+            context.dataStore.edit {
+                it[PreferencesKeys.SHIZUKU_REQUEST_UPDATE_OWNERSHIP] = enabled
+                it[PreferencesKeys.ROOT_REQUEST_UPDATE_OWNERSHIP] = enabled
+            }
+        }
+    }
+
     // "Remember for this app" toggle — true when an override row exists for the
     // current package. Writing flips the row in/out of the INSTALLER_OVERRIDES map.
     val onSetRemember: (Boolean) -> Unit = { remember ->
@@ -324,6 +369,11 @@ fun DialogMenuContent(
                         requestDowngrade = prefs?.get(PreferencesKeys.SHIZUKU_REQUEST_DOWNGRADE) ?: false,
                         grantAllPermissions = prefs?.get(PreferencesKeys.SHIZUKU_GRANT_ALL_PERMISSIONS) ?: false,
                         bypassLowTargetSdk = prefs?.get(PreferencesKeys.SHIZUKU_BYPASS_LOW_TARGET_SDK) ?: false,
+                        allowRestrictedPermissions = prefs?.get(PreferencesKeys.SHIZUKU_ALLOW_RESTRICTED_PERMISSIONS) ?: false,
+                        dontKillApp = prefs?.get(PreferencesKeys.SHIZUKU_DONT_KILL_APP) ?: false,
+                        disableVerification = prefs?.get(PreferencesKeys.SHIZUKU_DISABLE_VERIFICATION) ?: false,
+                        enableRollback = prefs?.get(PreferencesKeys.SHIZUKU_ENABLE_ROLLBACK) ?: false,
+                        requestUpdateOwnership = prefs?.get(PreferencesKeys.SHIZUKU_REQUEST_UPDATE_OWNERSHIP) ?: false,
                         showAdvancedFlags = (prefs?.get(PreferencesKeys.USE_SHIZUKU) == true) || (prefs?.get(PreferencesKeys.USE_ROOT) == true),
                         onToggleAllUsers = onToggleAllUsers,
                         onSelectUserId = onSelectUserId,
@@ -335,6 +385,11 @@ fun DialogMenuContent(
                         onToggleRequestDowngrade = onToggleRequestDowngrade,
                         onToggleGrantAllPermissions = onToggleGrantAllPermissions,
                         onToggleBypassLowTargetSdk = onToggleBypassLowTargetSdk,
+                        onToggleAllowRestrictedPermissions = onToggleAllowRestrictedPermissions,
+                        onToggleDontKillApp = onToggleDontKillApp,
+                        onToggleDisableVerification = onToggleDisableVerification,
+                        onToggleEnableRollback = onToggleEnableRollback,
+                        onToggleRequestUpdateOwnership = onToggleRequestUpdateOwnership,
                     )
                 }
                 

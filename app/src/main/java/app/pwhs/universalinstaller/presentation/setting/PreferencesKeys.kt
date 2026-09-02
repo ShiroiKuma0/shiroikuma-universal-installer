@@ -56,6 +56,12 @@ object PreferencesKeys {
     val SHIZUKU_SET_INSTALL_SOURCE = booleanPreferencesKey("shizuku_set_install_source")
     val SHIZUKU_INSTALLER_PACKAGE_NAME = stringPreferencesKey("shizuku_installer_package_name")
 
+    val SHIZUKU_ALLOW_RESTRICTED_PERMISSIONS = booleanPreferencesKey("shizuku_allow_restricted_permissions")
+    val SHIZUKU_DONT_KILL_APP = booleanPreferencesKey("shizuku_dont_kill_app")
+    val SHIZUKU_DISABLE_VERIFICATION = booleanPreferencesKey("shizuku_disable_verification")
+    val SHIZUKU_ENABLE_ROLLBACK = booleanPreferencesKey("shizuku_enable_rollback")
+    val SHIZUKU_REQUEST_UPDATE_OWNERSHIP = booleanPreferencesKey("shizuku_request_update_ownership")
+
     // Shizuku uninstall options (pm uninstall -k / --user all)
     val SHIZUKU_UNINSTALL_KEEP_DATA = booleanPreferencesKey("shizuku_uninstall_keep_data")
     val SHIZUKU_UNINSTALL_ALL_USERS = booleanPreferencesKey("shizuku_uninstall_all_users")
@@ -70,6 +76,11 @@ object PreferencesKeys {
     val ROOT_ALL_USERS = booleanPreferencesKey("root_all_users")
     val ROOT_SET_INSTALL_SOURCE = booleanPreferencesKey("root_set_install_source")
     val ROOT_INSTALLER_PACKAGE_NAME = stringPreferencesKey("root_installer_package_name")
+    val ROOT_ALLOW_RESTRICTED_PERMISSIONS = booleanPreferencesKey("root_allow_restricted_permissions")
+    val ROOT_DONT_KILL_APP = booleanPreferencesKey("root_dont_kill_app")
+    val ROOT_DISABLE_VERIFICATION = booleanPreferencesKey("root_disable_verification")
+    val ROOT_ENABLE_ROLLBACK = booleanPreferencesKey("root_enable_rollback")
+    val ROOT_REQUEST_UPDATE_OWNERSHIP = booleanPreferencesKey("root_request_update_ownership")
 
     // Sync options
     val SYNC_REQUIRE_PIN = booleanPreferencesKey("sync_require_pin")

@@ -64,6 +64,26 @@ class SettingViewModel(
             PreferencesKeys.SHIZUKU_ALL_USERS,
             PreferencesKeys.ROOT_ALL_USERS,
         ),
+        AllowRestrictedPermissions(
+            PreferencesKeys.SHIZUKU_ALLOW_RESTRICTED_PERMISSIONS,
+            PreferencesKeys.ROOT_ALLOW_RESTRICTED_PERMISSIONS,
+        ),
+        DontKillApp(
+            PreferencesKeys.SHIZUKU_DONT_KILL_APP,
+            PreferencesKeys.ROOT_DONT_KILL_APP,
+        ),
+        DisableVerification(
+            PreferencesKeys.SHIZUKU_DISABLE_VERIFICATION,
+            PreferencesKeys.ROOT_DISABLE_VERIFICATION,
+        ),
+        EnableRollback(
+            PreferencesKeys.SHIZUKU_ENABLE_ROLLBACK,
+            PreferencesKeys.ROOT_ENABLE_ROLLBACK,
+        ),
+        RequestUpdateOwnership(
+            PreferencesKeys.SHIZUKU_REQUEST_UPDATE_OWNERSHIP,
+            PreferencesKeys.ROOT_REQUEST_UPDATE_OWNERSHIP,
+        ),
         SetInstallSource(
             PreferencesKeys.SHIZUKU_SET_INSTALL_SOURCE,
             PreferencesKeys.ROOT_SET_INSTALL_SOURCE,
@@ -133,6 +153,11 @@ class SettingViewModel(
                 setInstallSource = prefs[PreferencesKeys.SHIZUKU_SET_INSTALL_SOURCE] ?: false,
                 installerPackageName = prefs[PreferencesKeys.SHIZUKU_INSTALLER_PACKAGE_NAME]
                     ?: DEFAULT_INSTALLER_PACKAGE_NAME,
+                allowRestrictedPermissions = prefs[PreferencesKeys.SHIZUKU_ALLOW_RESTRICTED_PERMISSIONS] ?: false,
+                dontKillApp = prefs[PreferencesKeys.SHIZUKU_DONT_KILL_APP] ?: false,
+                disableVerification = prefs[PreferencesKeys.SHIZUKU_DISABLE_VERIFICATION] ?: false,
+                enableRollback = prefs[PreferencesKeys.SHIZUKU_ENABLE_ROLLBACK] ?: false,
+                requestUpdateOwnership = prefs[PreferencesKeys.SHIZUKU_REQUEST_UPDATE_OWNERSHIP] ?: false,
                 uninstallKeepData = prefs[PreferencesKeys.SHIZUKU_UNINSTALL_KEEP_DATA] ?: false,
                 uninstallAllUsers = prefs[PreferencesKeys.SHIZUKU_UNINSTALL_ALL_USERS] ?: false,
             )
@@ -151,6 +176,11 @@ class SettingViewModel(
                 setInstallSource = prefs[PreferencesKeys.ROOT_SET_INSTALL_SOURCE] ?: false,
                 installerPackageName = prefs[PreferencesKeys.ROOT_INSTALLER_PACKAGE_NAME]
                     ?: DEFAULT_INSTALLER_PACKAGE_NAME,
+                allowRestrictedPermissions = prefs[PreferencesKeys.ROOT_ALLOW_RESTRICTED_PERMISSIONS] ?: false,
+                dontKillApp = prefs[PreferencesKeys.ROOT_DONT_KILL_APP] ?: false,
+                disableVerification = prefs[PreferencesKeys.ROOT_DISABLE_VERIFICATION] ?: false,
+                enableRollback = prefs[PreferencesKeys.ROOT_ENABLE_ROLLBACK] ?: false,
+                requestUpdateOwnership = prefs[PreferencesKeys.ROOT_REQUEST_UPDATE_OWNERSHIP] ?: false,
             )
         },
         dataStore.data.map { prefs ->

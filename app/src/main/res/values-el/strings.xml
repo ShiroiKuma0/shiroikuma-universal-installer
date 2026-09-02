@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">Η μεταφορά ολοκληρώθηκε!</string>
     <string name="tv_sync_sent_desc">Η εφαρμογή στάλθηκε στην τηλεόρασή σας. Δείτε την τηλεόραση και πατήστε Εγκατάσταση.</string>
     <string name="tv_sync_btn_send_another">Αποστολή άλλης εφαρμογής</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Να επιτρέπονται περιορισμένες άδειες</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Επιτρέψτε περιορισμένες άδειες (π.χ. Προσβασιμότητα) στο Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">Να μην τερματίζεται η εφαρμογή</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Αποτροπή τερματισμού της εφαρμογής κατά την εγκατάσταση διαιρεμένων APK</string>
+    <string name="setting_shizuku_disable_verification">Απενεργοποίηση επαλήθευσης</string>
+    <string name="setting_shizuku_disable_verification_sub">Απενεργοποίηση επαλήθευσης πακέτων κατά την εγκατάσταση (όχι υπογραφής)</string>
+    <string name="setting_shizuku_enable_rollback">Ενεργοποίηση επαναφοράς</string>
+    <string name="setting_shizuku_enable_rollback_sub">Να επιτρέπεται μελλοντική επαναφορά αυτού του πακέτου (απαιτεί υποστήριξη συστήματος)</string>
+    <string name="setting_shizuku_request_update_ownership">Αίτημα ιδιοκτησίας ενημέρωσης</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Επιβολή ιδιοκτησίας ενημερώσεων στο Android 14+ για αποφυγή αντικατάστασης</string>
+    <string name="dialog_menu_allow_restricted_permissions">Να επιτρέπονται περιορισμένες άδειες</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Επιτρέψτε περιορισμένες άδειες στο Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">Να μην τερματίζεται η εφαρμογή</string>
+    <string name="dialog_menu_dont_kill_app_desc">Αποτροπή τερματισμού κατά την εγκατάσταση split</string>
+    <string name="dialog_menu_disable_verification">Απενεργοποίηση επαλήθευσης</string>
+    <string name="dialog_menu_disable_verification_desc">Παράλειψη επαλήθευσης (όχι ελέγχου υπογραφής)</string>
+    <string name="dialog_menu_enable_rollback">Ενεργοποίηση επαναφοράς</string>
+    <string name="dialog_menu_enable_rollback_desc">Να επιτρέπεται μελλοντική επαναφορά</string>
+    <string name="dialog_menu_request_update_ownership">Αίτημα ιδιοκτησίας ενημέρωσης</string>
+    <string name="dialog_menu_request_update_ownership_desc">Κλείδωμα ιδιοκτησίας ενημερώσεων στο Android 14+</string>
 </resources>

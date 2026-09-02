@@ -93,6 +93,36 @@ internal fun LazyListScope.InstallOptionsSection(
                         checked = opts.allUsers,
                         onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllUsers, it) },
                     )
+                    OptionSwitch(
+                        title = stringResource(R.string.setting_shizuku_allow_restricted_permissions),
+                        subtitle = stringResource(R.string.setting_shizuku_allow_restricted_permissions_sub),
+                        checked = opts.allowRestrictedPermissions,
+                        onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.AllowRestrictedPermissions, it) },
+                    )
+                    OptionSwitch(
+                        title = stringResource(R.string.setting_shizuku_dont_kill_app),
+                        subtitle = stringResource(R.string.setting_shizuku_dont_kill_app_sub),
+                        checked = opts.dontKillApp,
+                        onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.DontKillApp, it) },
+                    )
+                    OptionSwitch(
+                        title = stringResource(R.string.setting_shizuku_disable_verification),
+                        subtitle = stringResource(R.string.setting_shizuku_disable_verification_sub),
+                        checked = opts.disableVerification,
+                        onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.DisableVerification, it) },
+                    )
+                    OptionSwitch(
+                        title = stringResource(R.string.setting_shizuku_enable_rollback),
+                        subtitle = stringResource(R.string.setting_shizuku_enable_rollback_sub),
+                        checked = opts.enableRollback,
+                        onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.EnableRollback, it) },
+                    )
+                    OptionSwitch(
+                        title = stringResource(R.string.setting_shizuku_request_update_ownership),
+                        subtitle = stringResource(R.string.setting_shizuku_request_update_ownership_sub),
+                        checked = opts.requestUpdateOwnership,
+                        onCheckedChange = { onPrivilegedOptionChanged(SettingViewModel.PrivilegedOption.RequestUpdateOwnership, it) },
+                    )
                 }
                 InstallSourceItem(
                     title = stringResource(R.string.setting_shizuku_set_source),

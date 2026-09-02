@@ -211,6 +211,26 @@ object InstallSessionManager {
                 p[PreferencesKeys.SHIZUKU_ALL_USERS] = it
                 p[PreferencesKeys.ROOT_ALL_USERS] = it
             }
+            profile.allowRestrictedPermissions?.let {
+                p[PreferencesKeys.SHIZUKU_ALLOW_RESTRICTED_PERMISSIONS] = it
+                p[PreferencesKeys.ROOT_ALLOW_RESTRICTED_PERMISSIONS] = it
+            }
+            profile.dontKillApp?.let {
+                p[PreferencesKeys.SHIZUKU_DONT_KILL_APP] = it
+                p[PreferencesKeys.ROOT_DONT_KILL_APP] = it
+            }
+            profile.disableVerification?.let {
+                p[PreferencesKeys.SHIZUKU_DISABLE_VERIFICATION] = it
+                p[PreferencesKeys.ROOT_DISABLE_VERIFICATION] = it
+            }
+            profile.enableRollback?.let {
+                p[PreferencesKeys.SHIZUKU_ENABLE_ROLLBACK] = it
+                p[PreferencesKeys.ROOT_ENABLE_ROLLBACK] = it
+            }
+            profile.requestUpdateOwnership?.let {
+                p[PreferencesKeys.SHIZUKU_REQUEST_UPDATE_OWNERSHIP] = it
+                p[PreferencesKeys.ROOT_REQUEST_UPDATE_OWNERSHIP] = it
+            }
         }
     }
 

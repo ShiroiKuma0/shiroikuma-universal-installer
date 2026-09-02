@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">Aktarım Tamamlandı!</string>
     <string name="tv_sync_sent_desc">Uygulama TV\'nize gönderildi. Lütfen TV ekranınıza bakın ve bitirmek için Yükle\'ye tıklayın.</string>
     <string name="tv_sync_btn_send_another">Başka Bir Uygulama Gönder</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Kısıtlanmış izinlere izin ver</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Android 13+\'ta kısıtlanmış izinleri (örn. Erişilebilirlik) beyaz listeye ekle</string>
+    <string name="setting_shizuku_dont_kill_app">Uygulamayı sonlandırma</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Bölünmüş veya özellik APK\'ları yüklenirken uygulamanın kapatılmasını önle</string>
+    <string name="setting_shizuku_disable_verification">Doğrulamayı devre dışı bırak</string>
+    <string name="setting_shizuku_disable_verification_sub">Yükleme sırasında paket doğrulamasını devre dışı bırak (imza doğrulamasını değil)</string>
+    <string name="setting_shizuku_enable_rollback">Geri almayı etkinleştir</string>
+    <string name="setting_shizuku_enable_rollback_sub">Bu paketin gelecekte geri alınmasına izin ver (sistem desteği gerekir)</string>
+    <string name="setting_shizuku_request_update_ownership">Güncelleme sahipliği talep et</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Yetkisiz üzerine yazmaları önlemek için Android 14+\'ta güncelleme sahipliğini zorunlu kıl</string>
+    <string name="dialog_menu_allow_restricted_permissions">Kısıtlanmış izinlere izin ver</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Android 13+\'ta kısıtlanmış izinlere izin ver</string>
+    <string name="dialog_menu_dont_kill_app">Uygulamayı sonlandırma</string>
+    <string name="dialog_menu_dont_kill_app_desc">Bölünmüş yükleme sırasında uygulamanın kapanmasını önle</string>
+    <string name="dialog_menu_disable_verification">Doğrulamayı devre dışı bırak</string>
+    <string name="dialog_menu_disable_verification_desc">Doğrulamayı atla (imza kontrolünü değil)</string>
+    <string name="dialog_menu_enable_rollback">Geri almayı etkinleştir</string>
+    <string name="dialog_menu_enable_rollback_desc">Gelecekte paket geri alımına izin ver</string>
+    <string name="dialog_menu_request_update_ownership">Güncelleme sahipliği talep et</string>
+    <string name="dialog_menu_request_update_ownership_desc">Android 14+\'ta güncelleme sahipliğini kilitle</string>
 </resources>

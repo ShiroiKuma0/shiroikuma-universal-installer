@@ -53,6 +53,11 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.advancedTab(
     requestDowngrade: Boolean,
     grantAllPermissions: Boolean,
     bypassLowTargetSdk: Boolean,
+    allowRestrictedPermissions: Boolean = false,
+    dontKillApp: Boolean = false,
+    disableVerification: Boolean = false,
+    enableRollback: Boolean = false,
+    requestUpdateOwnership: Boolean = false,
     showAdvancedFlags: Boolean,
     onToggleAllUsers: (Boolean) -> Unit,
     onSelectUserId: (Int?) -> Unit,
@@ -64,6 +69,11 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.advancedTab(
     onToggleRequestDowngrade: (Boolean) -> Unit,
     onToggleGrantAllPermissions: (Boolean) -> Unit,
     onToggleBypassLowTargetSdk: (Boolean) -> Unit,
+    onToggleAllowRestrictedPermissions: (Boolean) -> Unit = {},
+    onToggleDontKillApp: (Boolean) -> Unit = {},
+    onToggleDisableVerification: (Boolean) -> Unit = {},
+    onToggleEnableRollback: (Boolean) -> Unit = {},
+    onToggleRequestUpdateOwnership: (Boolean) -> Unit = {},
 ) {
     // 1. OBB Files
     if (apkInfo.obbFileNames.isNotEmpty() || attachedObbFiles.isNotEmpty()) {
@@ -288,6 +298,36 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.advancedTab(
                         description = stringResource(R.string.dialog_menu_grant_permissions_desc),
                         checked = grantAllPermissions,
                         onCheckedChange = onToggleGrantAllPermissions
+                    )
+                    AdvancedToggle(
+                        title = stringResource(R.string.dialog_menu_allow_restricted_permissions),
+                        description = stringResource(R.string.dialog_menu_allow_restricted_permissions_desc),
+                        checked = allowRestrictedPermissions,
+                        onCheckedChange = onToggleAllowRestrictedPermissions
+                    )
+                    AdvancedToggle(
+                        title = stringResource(R.string.dialog_menu_dont_kill_app),
+                        description = stringResource(R.string.dialog_menu_dont_kill_app_desc),
+                        checked = dontKillApp,
+                        onCheckedChange = onToggleDontKillApp
+                    )
+                    AdvancedToggle(
+                        title = stringResource(R.string.dialog_menu_disable_verification),
+                        description = stringResource(R.string.dialog_menu_disable_verification_desc),
+                        checked = disableVerification,
+                        onCheckedChange = onToggleDisableVerification
+                    )
+                    AdvancedToggle(
+                        title = stringResource(R.string.dialog_menu_enable_rollback),
+                        description = stringResource(R.string.dialog_menu_enable_rollback_desc),
+                        checked = enableRollback,
+                        onCheckedChange = onToggleEnableRollback
+                    )
+                    AdvancedToggle(
+                        title = stringResource(R.string.dialog_menu_request_update_ownership),
+                        description = stringResource(R.string.dialog_menu_request_update_ownership_desc),
+                        checked = requestUpdateOwnership,
+                        onCheckedChange = onToggleRequestUpdateOwnership
                     )
                 }
             }

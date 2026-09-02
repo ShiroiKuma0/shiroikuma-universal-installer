@@ -29,6 +29,11 @@ data class CommonInstallOptions(
     val allUsers: Boolean,
     val setInstallSource: Boolean,
     val installerPackageName: String,
+    val allowRestrictedPermissions: Boolean = false,
+    val dontKillApp: Boolean = false,
+    val disableVerification: Boolean = false,
+    val enableRollback: Boolean = false,
+    val requestUpdateOwnership: Boolean = false,
 )
 
 fun ShizukuOptions.asCommon() = CommonInstallOptions(
@@ -40,6 +45,11 @@ fun ShizukuOptions.asCommon() = CommonInstallOptions(
     allUsers = allUsers,
     setInstallSource = setInstallSource,
     installerPackageName = installerPackageName,
+    allowRestrictedPermissions = allowRestrictedPermissions,
+    dontKillApp = dontKillApp,
+    disableVerification = disableVerification,
+    enableRollback = enableRollback,
+    requestUpdateOwnership = requestUpdateOwnership,
 )
 
 fun RootOptions.asCommon() = CommonInstallOptions(
@@ -51,6 +61,11 @@ fun RootOptions.asCommon() = CommonInstallOptions(
     allUsers = allUsers,
     setInstallSource = setInstallSource,
     installerPackageName = installerPackageName,
+    allowRestrictedPermissions = allowRestrictedPermissions,
+    dontKillApp = dontKillApp,
+    disableVerification = disableVerification,
+    enableRollback = enableRollback,
+    requestUpdateOwnership = requestUpdateOwnership,
 )
 
 enum class SecurityLevel {
@@ -95,6 +110,11 @@ data class ShizukuOptions(
     val allUsers: Boolean = false,
     val setInstallSource: Boolean = false,
     val installerPackageName: String = DEFAULT_INSTALLER_PACKAGE_NAME,
+    val allowRestrictedPermissions: Boolean = false,
+    val dontKillApp: Boolean = false,
+    val disableVerification: Boolean = false,
+    val enableRollback: Boolean = false,
+    val requestUpdateOwnership: Boolean = false,
     val uninstallKeepData: Boolean = false,
     val uninstallAllUsers: Boolean = false,
 )
@@ -108,6 +128,11 @@ data class RootOptions(
     val allUsers: Boolean = false,
     val setInstallSource: Boolean = false,
     val installerPackageName: String = DEFAULT_INSTALLER_PACKAGE_NAME,
+    val allowRestrictedPermissions: Boolean = false,
+    val dontKillApp: Boolean = false,
+    val disableVerification: Boolean = false,
+    val enableRollback: Boolean = false,
+    val requestUpdateOwnership: Boolean = false,
 )
 
 data class SettingUiState(

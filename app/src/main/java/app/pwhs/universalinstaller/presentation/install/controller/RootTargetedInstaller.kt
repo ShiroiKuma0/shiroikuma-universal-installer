@@ -103,6 +103,16 @@ object RootTargetedInstaller {
         if (prefs?.get(PreferencesKeys.ROOT_BYPASS_LOW_TARGET_SDK) == true &&
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
         ) args += "--bypass-low-target-sdk-block"
+        if (prefs?.get(PreferencesKeys.ROOT_DONT_KILL_APP) == true) args += "--dont-kill"
+        if (prefs?.get(PreferencesKeys.ROOT_DISABLE_VERIFICATION) == true &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        ) args += "--skip-verification"
+        if (prefs?.get(PreferencesKeys.ROOT_ENABLE_ROLLBACK) == true &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        ) args += "--enable-rollback"
+        if (prefs?.get(PreferencesKeys.ROOT_REQUEST_UPDATE_OWNERSHIP) == true &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        ) args += "--update-ownership"
         if (prefs?.get(PreferencesKeys.ROOT_SET_INSTALL_SOURCE) == true) {
             val override = if (packageName.isNotBlank()) {
                 InstallerOverrides.get(prefs[PreferencesKeys.INSTALLER_OVERRIDES], packageName)

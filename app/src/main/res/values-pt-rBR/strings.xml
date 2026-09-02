@@ -815,4 +815,24 @@
     <string name="tv_sync_sent_title">Transferência concluída!</string>
     <string name="tv_sync_sent_desc">O app foi enviado para sua TV. Olhe para a tela da TV e clique em Instalar para concluir.</string>
     <string name="tv_sync_btn_send_another">Enviar outro aplicativo</string>
+    <string name="setting_shizuku_allow_restricted_permissions">Permitir permissões restritas</string>
+    <string name="setting_shizuku_allow_restricted_permissions_sub">Permitir permissões restritas (ex.: Acessibilidade) no Android 13+</string>
+    <string name="setting_shizuku_dont_kill_app">Não encerrar app</string>
+    <string name="setting_shizuku_dont_kill_app_sub">Evitar encerrar o app ao instalar APKs divididos ou recursos</string>
+    <string name="setting_shizuku_disable_verification">Desativar verificação</string>
+    <string name="setting_shizuku_disable_verification_sub">Desativar verificação de pacote na instalação (não a de assinatura)</string>
+    <string name="setting_shizuku_enable_rollback">Ativar reversão (rollback)</string>
+    <string name="setting_shizuku_enable_rollback_sub">Permitir futuras reversões deste pacote (requer suporte do sistema)</string>
+    <string name="setting_shizuku_request_update_ownership">Solicitar propriedade de atualização</string>
+    <string name="setting_shizuku_request_update_ownership_sub">Impor propriedade de atualização no Android 14+ para evitar substituições</string>
+    <string name="dialog_menu_allow_restricted_permissions">Permitir permissões restritas</string>
+    <string name="dialog_menu_allow_restricted_permissions_desc">Permitir permissões restritas no Android 13+</string>
+    <string name="dialog_menu_dont_kill_app">Não encerrar app</string>
+    <string name="dialog_menu_dont_kill_app_desc">Evitar encerrar app durante instalação dividida</string>
+    <string name="dialog_menu_disable_verification">Desativar verificação</string>
+    <string name="dialog_menu_disable_verification_desc">Ignorar verificação (não verificação de assinatura)</string>
+    <string name="dialog_menu_enable_rollback">Ativar reversão (rollback)</string>
+    <string name="dialog_menu_enable_rollback_desc">Permitir futuras reversões de pacote</string>
+    <string name="dialog_menu_request_update_ownership">Solicitar propriedade de atualização</string>
+    <string name="dialog_menu_request_update_ownership_desc">Bloquear propriedade de atualização no Android 14+</string>
 </resources>

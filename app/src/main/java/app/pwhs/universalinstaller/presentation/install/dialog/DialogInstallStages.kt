@@ -176,7 +176,7 @@ fun DialogDownloadingContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = stringResource(R.string.install_from_url_downloading),
+            text = stringResource(R.string.dialog_downloading_package),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
             textAlign = TextAlign.Center,
         )
@@ -233,7 +233,7 @@ fun DialogDownloadingContent(
             onClick = onCancel,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(stringResource(R.string.install_from_url_cancel))
+            Text(stringResource(R.string.dialog_download_cancel))
         }
     }
 }

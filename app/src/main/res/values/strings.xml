@@ -226,11 +226,8 @@
     <string name="remote_download_cancel">Cancel</string>
     <string name="remote_download_failed">Download failed: %s</string>
     <string name="remote_download_unsupported">Downloaded file is not a supported package</string>
-    <string name="install_from_url_title">Install from URL</string>
-    <string name="install_from_url_hint">Paste direct APK or package link (HTTP or HTTPS)</string>
-    <string name="install_from_url_download">Download &amp; Install</string>
-    <string name="install_from_url_downloading">Downloading package…</string>
-    <string name="install_from_url_cancel">Cancel</string>
+    <string name="dialog_downloading_package">Downloading package…</string>
+    <string name="dialog_download_cancel">Cancel</string>
     <string name="session_installed_success">Installed successfully</string>
     <string name="session_installing_progress">%d%% installing…</string>
     <string name="session_retry">Retry</string>

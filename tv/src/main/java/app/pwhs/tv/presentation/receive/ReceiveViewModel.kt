@@ -179,5 +179,5 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun String.isBundleName(): Boolean =
-        substringAfterLast('.', "").lowercase() in setOf("apks", "xapk", "apkm", "apk+")
+        substringAfterLast('.', "").lowercase() in setOf("apks", "xapk", "apkm", "apk+", "zip")
 }

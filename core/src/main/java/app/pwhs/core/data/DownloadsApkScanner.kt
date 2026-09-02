@@ -14,8 +14,8 @@ import java.io.File
  */
 object DownloadsApkScanner {
 
-    private val BUNDLE_EXTS = setOf("apks", "xapk", "apkm", "apk+")
-    private val APK_EXTS = setOf("apk", "apks", "xapk", "apkm")
+    private val BUNDLE_EXTS = setOf("apks", "xapk", "apkm", "apk+", "zip")
+    private val APK_EXTS = setOf("apk", "apks", "xapk", "apkm", "apk+", "zip")
 
     fun scan(context: Context): List<ApkFile> {
         val results = mutableMapOf<String, ApkFile>()

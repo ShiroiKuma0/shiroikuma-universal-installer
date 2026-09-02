@@ -94,28 +94,38 @@ class RootInstaller(private val context: Context) {
             if (!ackpineFiles.isNullOrEmpty()) {
                 ackpineFiles
             } else {
-                var index = 0
-                val out = mutableListOf<File>()
+                val tempFiles = mutableListOf<Pair<String, File>>()
                 ZipInputStream(openInput(uri).buffered()).use { zip ->
                     var entry = zip.nextEntry
                     while (entry != null) {
                         val rawName = entry.name.substringAfterLast('/')
                         if (!entry.isDirectory && rawName.endsWith(".apk", ignoreCase = true)) {
-                            val fName = if (index == 0 || rawName.equals("base.apk", ignoreCase = true)) {
-                                "base.apk"
-                            } else if (rawName.startsWith("split_", ignoreCase = true)) {
-                                rawName
-                            } else {
-                                "split_$index.apk"
-                            }
-                            index++
-                            val f = File(dir, fName)
-                            f.outputStream().use { zip.copyTo(it) }
-                            out += f
+                            val temp = File(dir, "temp_${tempFiles.size}.apk")
+                            temp.outputStream().use { zip.copyTo(it) }
+                            tempFiles.add(rawName to temp)
                         }
                         zip.closeEntry()
                         entry = zip.nextEntry
                     }
+                }
+                require(tempFiles.isNotEmpty()) { "No APK found in archive" }
+
+                val baseIndex = tempFiles.indexOfFirst { it.first.equals("base.apk", ignoreCase = true) }
+                    .let { if (it >= 0) it else 0 }
+
+                var splitIndex = 1
+                val out = mutableListOf<File>()
+                tempFiles.forEachIndexed { index, (rawName, temp) ->
+                    val finalName = if (index == baseIndex) {
+                        "base.apk"
+                    } else if (rawName.startsWith("split_", ignoreCase = true)) {
+                        rawName
+                    } else {
+                        "split_${splitIndex++}.apk"
+                    }
+                    val finalFile = File(dir, finalName)
+                    temp.renameTo(finalFile)
+                    out += finalFile
                 }
                 out
             }

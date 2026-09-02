@@ -1296,7 +1296,7 @@ private fun DetailMetaItem(label: String, value: String, modifier: Modifier = Mo
 }
 
 private fun String.isBundleName(): Boolean =
-    substringAfterLast('.', "").lowercase() in setOf("apks", "xapk", "apkm", "apk+")
+    substringAfterLast('.', "").lowercase() in setOf("apks", "xapk", "apkm", "apk+", "zip")
 
 private fun openUnknownSources(context: Context) {
     runCatching {

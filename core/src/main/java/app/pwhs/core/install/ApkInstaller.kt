@@ -124,27 +124,43 @@ class ApkInstaller(private val context: Context) {
 
         if (ackpineWrote > 0) return
 
-        var wrote = 0
-        ZipInputStream(openInput(bundle).buffered()).use { zip ->
-            var entry = zip.nextEntry
-            while (entry != null) {
-                val rawName = entry.name.substringAfterLast('/')
-                if (!entry.isDirectory && rawName.endsWith(".apk", ignoreCase = true)) {
-                    val entryName = if (wrote == 0 || rawName.equals("base.apk", ignoreCase = true)) {
-                        "base.apk"
-                    } else if (rawName.startsWith("split_", ignoreCase = true)) {
-                        rawName
-                    } else {
-                        "split_$wrote.apk"
+        val tempDir = File(context.cacheDir, "bundle_extract_${System.currentTimeMillis()}").apply { mkdirs() }
+        try {
+            val entries = mutableListOf<Pair<String, File>>()
+            ZipInputStream(openInput(bundle).buffered()).use { zip ->
+                var entry = zip.nextEntry
+                while (entry != null) {
+                    val rawName = entry.name.substringAfterLast('/')
+                    if (!entry.isDirectory && rawName.endsWith(".apk", ignoreCase = true)) {
+                        val tmpFile = File(tempDir, "entry_${entries.size}.apk")
+                        tmpFile.outputStream().use { zip.copyTo(it) }
+                        entries.add(rawName to tmpFile)
                     }
-                    writeEntry(session, entryName, zip, -1L, progress)
-                    wrote++
+                    zip.closeEntry()
+                    entry = zip.nextEntry
                 }
-                zip.closeEntry()
-                entry = zip.nextEntry
             }
+            require(entries.isNotEmpty()) { "No APK entries found in bundle" }
+
+            val baseIndex = entries.indexOfFirst { it.first.equals("base.apk", ignoreCase = true) }
+                .let { if (it >= 0) it else 0 }
+
+            var splitIndex = 1
+            entries.forEachIndexed { index, (rawName, file) ->
+                val sessionEntryName = if (index == baseIndex) {
+                    "base.apk"
+                } else if (rawName.startsWith("split_", ignoreCase = true)) {
+                    rawName
+                } else {
+                    "split_${splitIndex++}.apk"
+                }
+                file.inputStream().use { input ->
+                    writeEntry(session, sessionEntryName, input, file.length(), progress)
+                }
+            }
+        } finally {
+            tempDir.deleteRecursively()
         }
-        require(wrote > 0) { "No APK entries found in bundle" }
     }
 
     private fun writeEntry(

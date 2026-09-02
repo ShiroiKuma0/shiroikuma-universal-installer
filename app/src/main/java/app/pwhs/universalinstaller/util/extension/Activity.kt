@@ -10,11 +10,20 @@ import android.os.Build
  * For older versions, it falls back to the deprecated [Activity.overridePendingTransition].
  */
 fun Activity.disableSceneTransition() {
-    if (Build.VERSION.SDK_INT >= 34) {
-        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
-        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, 0, 0)
-    } else {
-        @Suppress("DEPRECATION")
-        overridePendingTransition(0, 0)
+    try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
+            overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, 0, 0)
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(0, 0)
+        }
+    } catch (_: Throwable) {
+        try {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(0, 0)
+        } catch (_: Throwable) {
+            // Ignore if device does not support transition overrides
+        }
     }
 }

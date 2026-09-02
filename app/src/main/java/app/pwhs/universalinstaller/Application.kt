@@ -1,8 +1,10 @@
 package app.pwhs.universalinstaller
 
 import android.app.Application
+import android.os.Build
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 import app.pwhs.universalinstaller.di.appModule
 import app.pwhs.universalinstaller.di.flavorModule
 import app.pwhs.universalinstaller.presentation.install.controller.BackendSelfHeal
@@ -70,6 +72,16 @@ private class TelemetryTree : Timber.Tree() {
 class App : Application(), SingletonImageLoader.Factory {
 
     init {
+        // Exempt hidden API restrictions for the entire process so reflection and hidden AIDL stubs
+        // (like IPackageInstaller$Stub, IPackageManager$Stub used by Shizuku and Ackpine) work across all Android versions.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            try {
+                HiddenApiBypass.addHiddenApiExemptions("")
+            } catch (t: Throwable) {
+                // Ignore if platform denies exemption
+            }
+        }
+
         // libsu setup MUST run before the first Shell.getShell() (ackpine's libsu plugin and
         // our RootServices both rely on it). A companion init runs at class-load, before
         // onCreate and any shell use. MOUNT_MASTER so install/uninstall changes apply in the

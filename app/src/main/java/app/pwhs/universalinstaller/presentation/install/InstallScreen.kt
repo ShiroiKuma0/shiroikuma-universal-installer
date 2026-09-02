@@ -27,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Link
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -544,6 +545,26 @@ private fun InstallUi(
         onDismiss = { showPermissions = false },
     )
 
+    var showInstallFromUrlDialog by remember { mutableStateOf(false) }
+    if (showInstallFromUrlDialog) {
+        app.pwhs.universalinstaller.presentation.install.dialog.InstallFromUrlDialog(
+            onDismiss = { showInstallFromUrlDialog = false },
+            onDownloadSuccess = { file, fileName ->
+                val uri = Uri.fromFile(file)
+                val ext = fileName.substringAfterLast('.', "apk").lowercase()
+                val apks = when {
+                    ext in listOf("apks", "xapk", "apkm", "apk+", "zip") ->
+                        ZippedApkSplits.getApksForUri(uri, context)
+                            .validate()
+                            .toSplitPackage()
+                            .filterCompatible(context)
+                    else -> SingletonApkSequence(uri, context).toSplitPackage()
+                }
+                onFilePicked(uri, apks, fileName)
+            },
+        )
+    }
+
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -561,6 +582,12 @@ private fun InstallUi(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showInstallFromUrlDialog = true }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Link,
+                            contentDescription = stringResource(R.string.install_from_url_title),
+                        )
+                    }
                     val isSyncRunning = uiState.syncState == app.pwhs.universalinstaller.presentation.sync.SyncState.RUNNING
                     IconButton(
                         onClick = onOpenSyncServer,

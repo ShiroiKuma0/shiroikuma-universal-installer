@@ -813,4 +813,5 @@
     <string name="dialog_menu_request_update_ownership_desc">Zablokuj prawo do aktualizacji w Androidzie 14+</string>
     <string name="error_cannot_open_app">Nie można otworzyć aplikacji</string>
     <string name="error_insufficient_storage">Za mało miejsca w pamięci, aby zainstalować. Zwolnij miejsce i spróbuj ponownie.</string>
+    <string name="error_no_file_picker">Nie znaleziono menedżera plików do wybrania plików</string>
 </resources>

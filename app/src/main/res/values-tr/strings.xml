@@ -837,4 +837,5 @@
     <string name="dialog_menu_request_update_ownership_desc">Android 14+\'ta güncelleme sahipliğini kilitle</string>
     <string name="error_cannot_open_app">Uygulama açılamıyor</string>
     <string name="error_insufficient_storage">Yükleme için yetersiz depolama alanı. Lütfen yer açıp tekrar deneyin.</string>
+    <string name="error_no_file_picker">Dosya seçmek için dosya yöneticisi uygulaması bulunamadı</string>
 </resources>

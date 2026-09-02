@@ -837,4 +837,5 @@
     <string name="dialog_menu_request_update_ownership_desc">Закріпити право на оновлення в Android 14+</string>
     <string name="error_cannot_open_app">Не вдалося відкрити додаток</string>
     <string name="error_insufficient_storage">Недостатньо місця для встановлення. Будь ласка, звільніть місце та спробуйте знову.</string>
+    <string name="error_no_file_picker">Не знайдено диспетчера файлів для вибору файлів</string>
 </resources>

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -154,9 +155,7 @@ private fun SendToTvScreen(onBack: () -> Unit) {
         }
     }
 
-    val apkLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
+    val onApkPicked: (Uri?) -> Unit = { uri ->
         val target = scanned
         if (uri != null && target != null) {
             val name = queryDisplayName(context, uri)
@@ -181,6 +180,33 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                         errorMessage = result.message
                     }
                 }
+            }
+        }
+    }
+
+    val apkLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+        onApkPicked
+    )
+    val fallbackApkLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent(),
+        onApkPicked
+    )
+
+    val safeLaunchApkPicker = {
+        val launched = runCatching {
+            apkLauncher.launch(arrayOf("*/*"))
+        }.isSuccess
+        if (!launched) {
+            val fallbackLaunched = runCatching {
+                fallbackApkLauncher.launch("*/*")
+            }.isSuccess
+            if (!fallbackLaunched) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_no_file_picker),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -366,18 +392,26 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                             ) {
                                 TvConnectedDeviceCard(host = host, onDisconnect = { disconnect() })
                                 TvFileDropzoneCard(
-                                    onPickApk = { apkLauncher.launch(arrayOf("*/*")) }
+                                    onPickApk = safeLaunchApkPicker
                                 )
                                 OutlinedButton(
                                     onClick = {
-                                        scanLauncher.launch(
-                                            ScanOptions()
-                                                .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                                                .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
-                                                .setBeepEnabled(false)
-                                                .setOrientationLocked(true)
-                                                .setCaptureActivity(CustomScannerActivity::class.java)
-                                        )
+                                        runCatching {
+                                            scanLauncher.launch(
+                                                ScanOptions()
+                                                    .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                                                    .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
+                                                    .setBeepEnabled(false)
+                                                    .setOrientationLocked(true)
+                                                    .setCaptureActivity(CustomScannerActivity::class.java)
+                                            )
+                                        }.onFailure {
+                                            Toast.makeText(
+                                                context,
+                                                context.getString(R.string.error_cannot_open_app),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                     },
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(14.dp)
@@ -404,7 +438,7 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                                     isSuccess = false
                                     errorMessage = null
                                     currentFileName = null
-                                    apkLauncher.launch(arrayOf("*/*"))
+                                    safeLaunchApkPicker()
                                 },
                                 onDone = { onBack() }
                             )
@@ -421,7 +455,7 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                                     error = errorMessage ?: "Upload failed",
                                     onRetry = {
                                         errorMessage = null
-                                        apkLauncher.launch(arrayOf("*/*"))
+                                        safeLaunchApkPicker()
                                     }
                                 )
                             }

@@ -242,6 +242,19 @@ fun BackupsScreen(
                         uri?.let { viewModel.setExtractorOutputPath(it.toString()) }
                     }
 
+                    val safeLaunchFolderPicker = {
+                        val launched = runCatching {
+                            folderPickerLauncher.launch(null)
+                        }.isSuccess
+                        if (!launched) {
+                            android.widget.Toast.makeText(
+                                context,
+                                context.getString(R.string.error_no_file_picker),
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
                     val currentPath = uiState.extractorOutputPath
                     val displayPath = if (currentPath.startsWith("content://")) {
                         androidx.documentfile.provider.DocumentFile.fromTreeUri(context, Uri.parse(currentPath))?.name
@@ -258,10 +271,10 @@ fun BackupsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .clickable { folderPickerLauncher.launch(null) },
+                            .clickable { safeLaunchFolderPicker() },
                         leadingIcon = { Icon(Icons.Rounded.Folder, null) },
                         trailingIcon = {
-                            IconButton(onClick = { folderPickerLauncher.launch(null) }) {
+                            IconButton(onClick = { safeLaunchFolderPicker() }) {
                                 Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
                             }
                         },
@@ -271,7 +284,7 @@ fun BackupsScreen(
                                 LaunchedEffect(interactionSource) {
                                     interactionSource.interactions.collect {
                                         if (it is androidx.compose.foundation.interaction.PressInteraction.Release) {
-                                            folderPickerLauncher.launch(null)
+                                            safeLaunchFolderPicker()
                                         }
                                     }
                                 }

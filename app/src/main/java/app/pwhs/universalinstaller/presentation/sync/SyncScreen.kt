@@ -1,9 +1,11 @@
 package app.pwhs.universalinstaller.presentation.sync
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -118,9 +120,34 @@ fun SyncScreen(
         )
     }
 
-    val filePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+    val onSyncFilesPicked: (List<Uri>) -> Unit = { uris ->
         if (uris.isNotEmpty()) {
             viewModel.copyFilesToShareFolder(uris)
+        }
+    }
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenMultipleDocuments(),
+        onSyncFilesPicked,
+    )
+    val fallbackFilePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetMultipleContents(),
+        onSyncFilesPicked,
+    )
+    val safeLaunchFilePicker = {
+        val launched = runCatching {
+            filePickerLauncher.launch(arrayOf("*/*"))
+        }.isSuccess
+        if (!launched) {
+            val fallbackLaunched = runCatching {
+                fallbackFilePickerLauncher.launch("*/*")
+            }.isSuccess
+            if (!fallbackLaunched) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_no_file_picker),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -139,7 +166,7 @@ fun SyncScreen(
             if (!hasStoragePermission) {
                 showStorageDialog = true
             } else {
-                filePickerLauncher.launch(arrayOf("*/*"))
+                safeLaunchFilePicker()
             }
         },
         onDeleteFile = { viewModel.deleteSharedFile(it) },

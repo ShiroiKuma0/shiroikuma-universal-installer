@@ -297,18 +297,11 @@ private fun InstallUi(
     // "strict" means validate extension strictly against known package types; "permissive" accepts anything.
     var strictPickerMode by remember { mutableStateOf(true) }
 
-    val filePickerLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-            if (uris.isEmpty()) return@rememberLauncherForActivityResult
-
-            // Batch flow: 2+ files go through BatchInstallSheet where user can deselect
-            // individual items and see per-row parse errors.
+    val onFilesPicked: (List<Uri>) -> Unit = { uris ->
+        if (uris.isNotEmpty()) {
             if (uris.size >= 2) {
                 uris.forEach { u ->
                     runCatching {
-                        // WRITE as well as READ — the batch flow honours "delete APK after
-                        // install" just like the single-file one, and that needs write access
-                        // persisted here at pick time (issue #100).
                         context.contentResolver.takePersistableUriPermission(
                             u,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION or
@@ -317,62 +310,104 @@ private fun InstallUi(
                     }
                 }
                 onBatchPicked(uris)
-                return@rememberLauncherForActivityResult
-            }
+            } else {
+                val uri = uris.first()
+                try {
+                    context.contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    )
+                } catch (_: Exception) { /* some providers don't support persistable permissions */ }
+                val mimeType = context.contentResolver.getType(uri)?.lowercase()
+                val displayName = context.contentResolver.getDisplayName(uri)
+                val extension = displayName.substringAfterLast('.', "").lowercase()
+                val validExtensions = listOf("apk", "apks", "xapk", "apkm", "apk+", "zip")
+                val isApkMime = mimeType == "application/vnd.android.package-archive"
 
-            val uri = uris.first()
-            try {
-                context.contentResolver.takePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                )
-            } catch (_: Exception) { /* some providers don't support persistable permissions */ }
-            val mimeType = context.contentResolver.getType(uri)?.lowercase()
-            val displayName = context.contentResolver.getDisplayName(uri)
-            val extension = displayName.substringAfterLast('.', "").lowercase()
-            val validExtensions = listOf("apk", "apks", "xapk", "apkm", "apk+", "zip")
-            val isApkMime = mimeType == "application/vnd.android.package-archive"
+                if (strictPickerMode && !isApkMime && extension !in validExtensions) {
+                    Toast.makeText(
+                        context,
+                        resource.getString(R.string.install_unsupported_file),
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
+                    Timber.d("Selected file: $uri, MIME type: $mimeType, strict: $strictPickerMode")
+                    val apks = when {
+                        (isApkMime || extension == "apk") -> SingletonApkSequence(
+                            uri,
+                            context
+                        ).toSplitPackage()
 
-            if (strictPickerMode && !isApkMime && extension !in validExtensions) {
-                Toast.makeText(
-                    context,
-                    resource.getString(R.string.install_unsupported_file),
-                    Toast.LENGTH_LONG
-                ).show()
-                return@rememberLauncherForActivityResult
-            }
+                        extension in listOf("apks", "xapk", "apkm", "apk+", "zip") -> ZippedApkSplits.getApksForUri(
+                            uri,
+                            context
+                        )
+                            .validate()
+                            .toSplitPackage()
+                            .filterCompatible(context)
 
-            Timber.d("Selected file: $uri, MIME type: $mimeType, strict: $strictPickerMode")
-            val apks = when {
-                (isApkMime || extension == "apk") -> SingletonApkSequence(
-                    uri,
-                    context
-                ).toSplitPackage()
-
-                extension in listOf("apks", "xapk", "apkm", "apk+", "zip") -> ZippedApkSplits.getApksForUri(
-                    uri,
-                    context
-                )
-                    .validate()
-                    .toSplitPackage()
-                    .filterCompatible(context)
-
-                else -> {
-                    // Browse all: unknown extension. Try treating as APK — ackpine will error
-                    // cleanly if it's not a real package.
-                    SingletonApkSequence(uri, context).toSplitPackage()
+                        else -> {
+                            SingletonApkSequence(uri, context).toSplitPackage()
+                        }
+                    }
+                    app.pwhs.core.telemetry.AnalyticsHelper.logFilePicked(extension, 1, app.pwhs.core.telemetry.TelemetryEvents.SOURCE_SYSTEM_FILE_PICKER)
+                    onFilePicked(uri, apks, displayName)
                 }
             }
-            app.pwhs.core.telemetry.AnalyticsHelper.logFilePicked(extension, 1, app.pwhs.core.telemetry.TelemetryEvents.SOURCE_SYSTEM_FILE_PICKER)
-            onFilePicked(uri, apks, displayName)
         }
+    }
 
-    // OBB picker — reuses the manifest OpenDocument contract. We don't filter MIME strictly
-    // (.obb has no standard MIME), so the VM validates extension on attach.
-    val obbPickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenMultipleDocuments()
-    ) { uris ->
+    val filePickerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments(), onFilesPicked)
+    val fallbackFilePickerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents(), onFilesPicked)
+
+    val safeLaunchFilePicker: (Boolean) -> Unit = { strict ->
+        strictPickerMode = strict
+        val launched = runCatching {
+            filePickerLauncher.launch(arrayOf("*/*"))
+        }.isSuccess
+        if (!launched) {
+            val fallbackLaunched = runCatching {
+                fallbackFilePickerLauncher.launch("*/*")
+            }.isSuccess
+            if (!fallbackLaunched) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_no_file_picker),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    val onObbsPicked: (List<Uri>) -> Unit = { uris ->
         uris.forEach { onAttachObb(it) }
+    }
+    val obbPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenMultipleDocuments(),
+        onObbsPicked
+    )
+    val fallbackObbPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetMultipleContents(),
+        onObbsPicked
+    )
+    val safeLaunchObbPicker = {
+        val launched = runCatching {
+            obbPickerLauncher.launch(arrayOf("*/*"))
+        }.isSuccess
+        if (!launched) {
+            val fallbackLaunched = runCatching {
+                fallbackObbPickerLauncher.launch("*/*")
+            }.isSuccess
+            if (!fallbackLaunched) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_no_file_picker),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     // SAF folder picker for granting access to /Android/obb/<pkg>/ when Shizuku isn't
@@ -468,7 +503,15 @@ private fun InstallUi(
         scanState = uiState.scanState,
         onDismiss = onDismissDeviceScan,
         onGrantPermission = {
-            grantPermissionLauncher.launch(ApkScanner.buildGrantIntent(context))
+            runCatching {
+                grantPermissionLauncher.launch(ApkScanner.buildGrantIntent(context))
+            }.onFailure {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_cannot_open_app),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         },
         onRescan = onStartDeviceScan,
         onPick = onPickFromScan,
@@ -490,7 +533,7 @@ private fun InstallUi(
                 onCancel = onDismissPreview,
                 onCheckVirusTotal = onCheckVirusTotal,
                 attachedObbFiles = uiState.attachedObbFiles,
-                onAttachObb = { obbPickerLauncher.launch(arrayOf("*/*")) },
+                onAttachObb = safeLaunchObbPicker,
                 onRemoveObb = onRemoveObb,
                 onToggleSplit = onToggleSplit,
                 profiles = uiState.installerProfiles,
@@ -608,7 +651,15 @@ private fun InstallUi(
                         onDismiss = onDismissObbCopy,
                         onGrantFolder = {
                             @Suppress("DEPRECATION")
-                            obbTreeLauncher.launch(obbTreeHintUri())
+                            runCatching {
+                                obbTreeLauncher.launch(obbTreeHintUri())
+                            }.onFailure {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.error_no_file_picker),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         },
                     )
                 }
@@ -623,14 +674,8 @@ private fun InstallUi(
                     onSkipParse = if (uiState.isApk) onSkipParseSingle else null,
                     downloadState = uiState.downloadState,
                     onFindAutomatic = onStartDeviceScan,
-                    onBrowsePackages = {
-                        strictPickerMode = true
-                        filePickerLauncher.launch(arrayOf("*/*"))
-                    },
-                    onBrowseAll = {
-                        strictPickerMode = false
-                        filePickerLauncher.launch(arrayOf("*/*"))
-                    },
+                    onBrowsePackages = { safeLaunchFilePicker(true) },
+                    onBrowseAll = { safeLaunchFilePicker(false) },
                     onStartDownload = onDownloadFromUrl,
                     onCancelDownload = onCancelDownload,
                     onDismissDownloadError = onDismissDownloadError,

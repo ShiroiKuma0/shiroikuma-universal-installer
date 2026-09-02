@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.presentation.install.dialog
 
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -125,10 +126,33 @@ fun DialogInstallContent(
         }
     }
 
+    val onObbPickerResult: (List<Uri>) -> Unit = { uris ->
+        uris.forEach { viewModel.attachObbFile(context, it) }
+    }
     val obbPickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenMultipleDocuments(),
-    ) { uris ->
-        uris.forEach { viewModel.attachObbFile(context, it) }
+        onObbPickerResult,
+    )
+    val fallbackObbPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetMultipleContents(),
+        onObbPickerResult,
+    )
+    val safeLaunchObbPicker = {
+        val launched = runCatching {
+            obbPickerLauncher.launch(arrayOf("*/*"))
+        }.isSuccess
+        if (!launched) {
+            val fallbackLaunched = runCatching {
+                fallbackObbPickerLauncher.launch("*/*")
+            }.isSuccess
+            if (!fallbackLaunched) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.error_no_file_picker),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+        }
     }
 
     val darkTheme = when (themeMode) {
@@ -219,7 +243,7 @@ fun DialogInstallContent(
                             onCheckVirusTotal = { onScanVirusTotal(context) },
                             onRemoveObb = { obb -> viewModel.removeAttachedObb(obb.uri) },
                             onToggleSplit = viewModel::toggleSplit,
-                            onAttachObb = { obbPickerLauncher.launch(arrayOf("*/*")) },
+                            onAttachObb = safeLaunchObbPicker,
                             onBackground = onDismissAndFinish,
                             onOpenInstalledApp = { pkg ->
                                 viewModel.getAppLaunchIntent(pkg)?.let { intent ->

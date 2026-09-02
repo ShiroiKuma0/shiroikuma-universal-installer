@@ -837,4 +837,5 @@
     <string name="dialog_menu_request_update_ownership_desc">Blochează dreptul de actualizare pe Android 14+</string>
     <string name="error_cannot_open_app">Nu se poate deschide aplicația</string>
     <string name="error_insufficient_storage">Spațiu de stocare insuficient pentru instalare. Eliberați spațiu și încercați din nou.</string>
+    <string name="error_no_file_picker">Nu s-a găsit nicio aplicație de gestionare a fișierelor pentru a selecta fișiere</string>
 </resources>

@@ -837,4 +837,5 @@
     <string name="dialog_menu_request_update_ownership_desc">Kunci kepemilikan pembaruan di Android 14+</string>
     <string name="error_cannot_open_app">Tidak dapat membuka aplikasi</string>
     <string name="error_insufficient_storage">Ruang penyimpanan tidak cukup untuk memasang. Harap kosongkan ruang dan coba lagi.</string>
+    <string name="error_no_file_picker">Tidak ada aplikasi pengelola file yang ditemukan untuk memilih file</string>
 </resources>

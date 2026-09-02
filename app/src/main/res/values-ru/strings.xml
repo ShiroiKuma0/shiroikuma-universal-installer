@@ -837,4 +837,5 @@
     <string name="dialog_menu_request_update_ownership_desc">Закрепить владение обновлениями на Android 14+</string>
     <string name="error_cannot_open_app">Не удалось открыть приложение</string>
     <string name="error_insufficient_storage">Недостаточно места на диске для установки. Пожалуйста, освободите место и повторите попытку.</string>
+    <string name="error_no_file_picker">Не найдено приложение файлового менеджера для выбора файлов</string>
 </resources>

@@ -26,8 +26,13 @@ object DialogInstallUriHelper {
                     ?.let(out::add)
 
                 val text = source.getStringExtra(Intent.EXTRA_TEXT)?.trim()
-                if (!text.isNullOrBlank() && (text.startsWith("http://", ignoreCase = true) || text.startsWith("https://", ignoreCase = true))) {
-                    runCatching { Uri.parse(text) }.getOrNull()?.let(out::add)
+                if (!text.isNullOrBlank()) {
+                    val url = text.split("\\s+".toRegex()).find {
+                        it.startsWith("http://", ignoreCase = true) || it.startsWith("https://", ignoreCase = true)
+                    }
+                    if (url != null) {
+                        runCatching { Uri.parse(url) }.getOrNull()?.let(out::add)
+                    }
                 }
             }
             Intent.ACTION_SEND_MULTIPLE ->

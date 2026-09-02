@@ -140,27 +140,7 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
 
-            <!-- Web / URL direct install intent filter for package links. -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:host="*" />
-                <data android:pathSuffix=".apk" />
-                <data android:pathSuffix=".xapk" />
-                <data android:pathSuffix=".apks" />
-                <data android:pathSuffix=".apkm" />
-                <data android:pathSuffix=".zip" />
-                <data android:pathPattern=".*\\.apk" />
-                <data android:pathPattern=".*\\.xapk" />
-                <data android:pathPattern=".*\\.apks" />
-                <data android:pathPattern=".*\\.apkm" />
-                <data android:pathPattern=".*\\.zip" />
-            </intent-filter>
 
             <!-- Share intents from browsers (link share) and file managers.
                  SEND intents match on MIME type only. -->

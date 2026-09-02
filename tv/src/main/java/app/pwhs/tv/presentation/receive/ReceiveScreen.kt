@@ -751,7 +751,7 @@ private fun ConnectionGuide(
     ) {
         Text(
             "http://$ip:$port",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             maxLines = 1,

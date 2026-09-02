@@ -200,11 +200,8 @@ class InstallViewModel(
         dialogDelegate.updateDownloadProgress(progress)
     fun dialogClose() = dialogDelegate.close()
 
-    private var activeDownloadJob: kotlinx.coroutines.Job? = null
-
     fun cancelDialogDownload() {
-        activeDownloadJob?.cancel()
-        activeDownloadJob = null
+        app.pwhs.universalinstaller.presentation.install.util.BackgroundPackageDownloader.cancel(application)
         dialogDelegate.updateDownloadProgress(null)
         dialogDelegate.close()
     }
@@ -214,37 +211,21 @@ class InstallViewModel(
         uri: Uri,
         onFileDownloaded: (java.io.File, String) -> Unit,
     ) {
-        activeDownloadJob?.cancel()
         dialogDelegate.startLoading()
-        activeDownloadJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            val unregister = app.pwhs.universalinstaller.presentation.install.util.DownloadCancellationManager.register { cancelDialogDownload() }
-            try {
-                val displayName = uri.lastPathSegment?.substringBefore('?')?.ifBlank { "download.apk" } ?: "download.apk"
-                val notifier = DownloadNotifier(context)
-                val downloader = app.pwhs.core.network.NetworkApkDownloader(context)
-                when (val result = downloader.download(uri.toString()) { progress ->
-                    dialogDelegate.updateDownloadProgress(progress)
-                    notifier.notifyProgress(displayName, progress.bytesDownloaded, progress.totalBytes)
-                }) {
-                    is app.pwhs.core.network.DownloadResult.Success -> {
-                        val fileUri = Uri.fromFile(result.file)
-                        notifier.notifyDone(result.fileName, fileUri)
-                        dialogDelegate.updateDownloadProgress(null)
-                        onFileDownloaded(result.file, result.fileName)
-                    }
-                    is app.pwhs.core.network.DownloadResult.Error -> {
-                        notifier.notifyFailed(result.message)
-                        dialogDelegate.readFailed(result.message)
-                    }
-                    app.pwhs.core.network.DownloadResult.Cancelled -> {
-                        notifier.cancel()
-                        dialogDelegate.close()
-                    }
-                }
-            } finally {
-                unregister()
-            }
-        }
+        app.pwhs.universalinstaller.presentation.install.util.BackgroundPackageDownloader.download(
+            context = context,
+            uri = uri,
+            onProgress = { progress ->
+                dialogDelegate.updateDownloadProgress(progress)
+            },
+            onSuccess = { file, fileName ->
+                dialogDelegate.updateDownloadProgress(null)
+                onFileDownloaded(file, fileName)
+            },
+            onError = { error ->
+                dialogDelegate.readFailed(error)
+            },
+        )
     }
 
     fun setMergeSplits(merge: Boolean) {

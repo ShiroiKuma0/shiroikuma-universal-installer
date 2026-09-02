@@ -78,7 +78,7 @@ class NetworkApkDownloader(private val context: Context) {
 
                 val now = System.currentTimeMillis()
                 val delta = now - lastSpeedUpdate
-                if (delta >= 500) {
+                if (delta >= 250) {
                     currentSpeed = (bytesSinceLastSpeed * 1000L) / delta
                     lastSpeedUpdate = now
                     bytesSinceLastSpeed = 0L

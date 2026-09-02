@@ -32,6 +32,7 @@ import app.pwhs.universalinstaller.presentation.install.util.InstallParseDelegat
 import app.pwhs.universalinstaller.presentation.install.util.InstallScanDelegate
 import app.pwhs.universalinstaller.presentation.install.util.InstallSessionManager
 import app.pwhs.universalinstaller.presentation.install.util.InstallUiStateBuilder
+import app.pwhs.universalinstaller.presentation.install.util.InstallWearDelegate
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
@@ -116,6 +117,8 @@ class InstallViewModel(
         },
     )
 
+    private val wearDelegate = InstallWearDelegate(application, viewModelScope)
+
     val dialogTarget: StateFlow<DialogTarget?> = dialogDelegate.dialogTarget
 
     private val _mergeSplits = MutableStateFlow(false)
@@ -150,6 +153,7 @@ class InstallViewModel(
             parseDelegate.isApk,
             batchDelegate.batchDetailUri,
             dialogDelegate.downloadProgress,
+            wearDelegate.watchSendState,
         )
     ) { flows ->
         InstallUiStateBuilder.build(flows)
@@ -208,13 +212,7 @@ class InstallViewModel(
     val storageWarningInfo: StateFlow<StorageWarningInfo?> = _storageWarningInfo.asStateFlow()
 
     fun showStorageWarning(requiredBytes: Long = 0L) {
-        val stats = StorageUtil.getStorageStats()
-        val needed = if (requiredBytes > 0L) {
-            (requiredBytes * 2).coerceAtLeast(StorageUtil.MIN_STORAGE_HEADROOM_BYTES)
-        } else {
-            StorageUtil.MIN_STORAGE_HEADROOM_BYTES
-        }
-        _storageWarningInfo.value = StorageWarningInfo(stats.freeBytes, needed)
+        _storageWarningInfo.value = StorageWarningInfo.create(requiredBytes)
     }
 
     fun dismissStorageWarning() {
@@ -225,33 +223,13 @@ class InstallViewModel(
         dialogDelegate.updateDownloadProgress(progress)
     fun dialogClose() = dialogDelegate.close()
 
-    fun cancelDialogDownload() {
-        app.pwhs.universalinstaller.presentation.install.util.BackgroundPackageDownloader.cancel(application)
-        dialogDelegate.updateDownloadProgress(null)
-        dialogDelegate.close()
-    }
+    fun cancelDialogDownload() = dialogDelegate.cancelDownload(application)
 
     fun startDialogNetworkDownload(
         context: Context,
         uri: Uri,
         onFileDownloaded: (java.io.File, String) -> Unit,
-    ) {
-        dialogDelegate.startLoading()
-        app.pwhs.universalinstaller.presentation.install.util.BackgroundPackageDownloader.download(
-            context = context,
-            uri = uri,
-            onProgress = { progress ->
-                dialogDelegate.updateDownloadProgress(progress)
-            },
-            onSuccess = { file, fileName ->
-                dialogDelegate.updateDownloadProgress(null)
-                onFileDownloaded(file, fileName)
-            },
-            onError = { error ->
-                dialogDelegate.readFailed(error)
-            },
-        )
-    }
+    ) = dialogDelegate.startNetworkDownload(context, uri, onFileDownloaded)
 
     fun setMergeSplits(merge: Boolean) {
         _mergeSplits.value = merge
@@ -503,4 +481,19 @@ class InstallViewModel(
             )
         }
     }
+
+    // ── Watch (Wear OS) ──────────────────────────────────────────────────────
+
+    fun sendToWatch(apkUri: Uri? = null, fileName: String? = null) {
+        val uri = apkUri
+            ?: parseDelegate.pendingOriginalUri
+            ?: parseDelegate.pendingApkUris?.firstOrNull()
+            ?: return
+        val name = fileName
+            ?: parseDelegate.pendingFileName
+            ?: "${parseDelegate.pendingApkInfo.value?.appName ?: "app"}.apk"
+        wearDelegate.sendToWatch(uri, name)
+    }
+
+    fun dismissWatchSend() = wearDelegate.dismissWatchSend()
 }

@@ -12,6 +12,7 @@ import app.pwhs.universalinstaller.presentation.install.DownloadState
 import app.pwhs.universalinstaller.presentation.install.InstallUiState
 import app.pwhs.universalinstaller.presentation.install.ObbCopyState
 import app.pwhs.universalinstaller.presentation.install.ScanState
+import app.pwhs.universalinstaller.presentation.install.WatchSendState
 import app.pwhs.universalinstaller.presentation.sync.SyncState
 
 object InstallUiStateBuilder {
@@ -39,6 +40,7 @@ object InstallUiStateBuilder {
             isApk = flows[17] as Boolean,
             batchDetailUri = flows[18] as Uri?,
             dialogDownloadProgress = flows[19] as app.pwhs.core.network.DownloadProgress?,
+            watchSendState = flows[20] as WatchSendState,
         )
     }
 }

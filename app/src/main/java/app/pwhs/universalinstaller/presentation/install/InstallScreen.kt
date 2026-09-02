@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.Watch
 import androidx.compose.material.icons.rounded.WifiTethering
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -238,6 +239,7 @@ fun InstallScreen(
         onMappingChanged = viewModel::setAppProfileMapping,
         onToggleAllUsers = viewModel::setAllUsers,
         onSelectUserId = viewModel::setUserId,
+        onSendToWatch = { uri, name -> viewModel.sendToWatch(uri, name) },
     )
 
     val storageWarning by viewModel.storageWarningInfo.collectAsState()
@@ -247,6 +249,12 @@ fun InstallScreen(
             onDismiss = viewModel::dismissStorageWarning,
         )
     }
+
+    // Watch send status dialog
+    WatchSendDialog(
+        state = uiState.watchSendState,
+        onDismiss = viewModel::dismissWatchSend,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -297,6 +305,7 @@ private fun InstallUi(
     onOpenBatchDetail: (Uri) -> Unit = {},
     onCloseBatchDetail: () -> Unit = {},
     onSaveBatchDetail: (Uri, List<Uri>) -> Unit = { _, _ -> },
+    onSendToWatch: (Uri?, String?) -> Unit = { _, _ -> },
 ) {
     val context = LocalContext.current
     val resource = LocalResources.current
@@ -424,6 +433,15 @@ private fun InstallUi(
     val obbTreeLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { uri -> onGrantObbFolder(uri) }
+
+    val watchApkPickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            val displayName = context.contentResolver.getDisplayName(uri)
+            onSendToWatch(uri, displayName)
+        }
+    }
 
     var selectedTab by rememberSaveable { mutableStateOf(SourceTab.Local) }
 
@@ -615,6 +633,23 @@ private fun InstallUi(
                 },
                 actions = {
                     val isSyncRunning = uiState.syncState == app.pwhs.universalinstaller.presentation.sync.SyncState.RUNNING
+
+                    // Watch send button — always visible
+                    IconButton(
+                        onClick = {
+                            if (uiState.pendingApkInfo != null) {
+                                onSendToWatch(null, null)
+                            } else {
+                                watchApkPickerLauncher.launch("application/vnd.android.package-archive")
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Watch,
+                            contentDescription = stringResource(R.string.watch_send_title),
+                        )
+                    }
+
                     IconButton(
                         onClick = onOpenSyncServer,
                         modifier = if (isSyncRunning) Modifier.background(

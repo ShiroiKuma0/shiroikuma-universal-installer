@@ -78,4 +78,28 @@ class InstallDialogDelegate {
         _dialogStage.value = DialogStage.None
         _downloadProgress.value = null
     }
+
+    fun cancelDownload(context: android.content.Context) {
+        BackgroundPackageDownloader.cancel(context)
+        _downloadProgress.value = null
+        close()
+    }
+
+    fun startNetworkDownload(
+        context: android.content.Context,
+        uri: android.net.Uri,
+        onFileDownloaded: (java.io.File, String) -> Unit,
+    ) {
+        startLoading()
+        BackgroundPackageDownloader.download(
+            context = context,
+            uri = uri,
+            onProgress = { progress -> updateDownloadProgress(progress) },
+            onSuccess = { file, fileName ->
+                updateDownloadProgress(null)
+                onFileDownloaded(file, fileName)
+            },
+            onError = { error -> readFailed(error) },
+        )
+    }
 }

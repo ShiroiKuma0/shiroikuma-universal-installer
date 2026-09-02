@@ -131,6 +131,16 @@ sealed interface ObbCopyState {
     data class NeedSafGrant(val appName: String, val packageName: String) : ObbCopyState
 }
 
+/** Tracks progress of sending an APK to the paired Wear OS watch. */
+sealed interface WatchSendState {
+    data object Idle : WatchSendState
+    data object CheckingWatch : WatchSendState
+    data class Sending(val progress: Float) : WatchSendState  // 0.0–1.0
+    data object Success : WatchSendState
+    data object NoWatch : WatchSendState
+    data class Error(val message: String) : WatchSendState
+}
+
 data class InstallUiState(
     val sessions: List<SessionData> = emptyList(),
     val sessionsProgress: List<SessionProgress> = emptyList(),
@@ -154,4 +164,5 @@ data class InstallUiState(
     val selectedUserId: Int? = null,
     val isApk: Boolean = false,
     val dialogDownloadProgress: app.pwhs.core.network.DownloadProgress? = null,
+    val watchSendState: WatchSendState = WatchSendState.Idle,
 )

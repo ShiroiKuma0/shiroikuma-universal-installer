@@ -24,7 +24,19 @@ import app.pwhs.universalinstaller.R
 data class StorageWarningInfo(
     val freeBytes: Long,
     val requiredBytes: Long,
-)
+) {
+    companion object {
+        fun create(requiredBytes: Long = 0L): StorageWarningInfo {
+            val stats = app.pwhs.core.util.StorageUtil.getStorageStats()
+            val needed = if (requiredBytes > 0L) {
+                (requiredBytes * 2).coerceAtLeast(app.pwhs.core.util.StorageUtil.MIN_STORAGE_HEADROOM_BYTES)
+            } else {
+                app.pwhs.core.util.StorageUtil.MIN_STORAGE_HEADROOM_BYTES
+            }
+            return StorageWarningInfo(stats.freeBytes, needed)
+        }
+    }
+}
 
 @Composable
 fun InsufficientStorageDialog(

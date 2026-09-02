@@ -243,4 +243,7 @@ dependencies {
     implementation(libs.zxing.core)
     // Open-source QR scanner (Apache-2.0) for "Send to TV" — avoids proprietary ML Kit.
     implementation(libs.zxing.android.embedded)
+
+    // Wear OS Data Layer client for sending APKs to paired watches
+    implementation(libs.play.services.wearable)
 }

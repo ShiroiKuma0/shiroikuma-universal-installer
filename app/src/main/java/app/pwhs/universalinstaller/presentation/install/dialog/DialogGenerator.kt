@@ -70,6 +70,7 @@ fun generateDialogParams(
                     content = DialogInnerParams("downloading") {
                         DialogDownloadingContent(
                             progress = downloadProgress,
+                            onBackground = onBackground,
                             onCancel = onCancel,
                         )
                     }

@@ -2,7 +2,10 @@ package app.pwhs.universalinstaller.presentation.install
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.text.format.Formatter
 import androidx.core.app.NotificationCompat
@@ -77,14 +80,14 @@ class DownloadNotifier(private val context: Context) {
         nm.notify(notificationId, notif)
     }
 
-    fun notifyDone(fileName: String) {
+    fun notifyDone(fileName: String, targetUri: Uri? = null) {
         val nm = nm ?: return
         // Park the throttle far in the future so no stray progress call (e.g. from a
         // delayed IO thread flush) can overwrite the Done notification we're about to post.
         lastProgressMs = Long.MAX_VALUE / 2
         // Post under a FRESH id. The ongoing progress notification is explicitly cancelled
         // afterwards — avoids MIUI's occasional refusal to downgrade an ongoing notification.
-        val notif = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setContentTitle(context.getString(R.string.download_notif_done_title))
             .setContentText(context.getString(R.string.download_notif_done_text, fileName))
@@ -92,7 +95,23 @@ class DownloadNotifier(private val context: Context) {
             .setOngoing(false)
             .setWhen(System.currentTimeMillis())
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .build()
+
+        if (targetUri != null) {
+            val intent = Intent(context, DialogInstallActivity::class.java).apply {
+                action = Intent.ACTION_VIEW
+                data = targetUri
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+            builder.setContentIntent(pendingIntent)
+        }
+
+        val notif = builder.build()
         nm.cancel(notificationId)
         nm.notify(DONE_ID, notif)
     }

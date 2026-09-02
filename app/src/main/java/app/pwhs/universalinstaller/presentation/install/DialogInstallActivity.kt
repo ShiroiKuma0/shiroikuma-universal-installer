@@ -223,13 +223,19 @@ class DialogInstallActivity : ComponentActivity() {
 
             LaunchedEffect(incomingUri) {
                 if (skipInitialParse) return@LaunchedEffect
-                runCatching {
-                    DialogInstallUriHelper.parseAndPush(context, incomingUri, viewModel) { progress ->
-                        viewModel.updateDialogDownloadProgress(progress)
+                if (incomingUri.scheme == "http" || incomingUri.scheme == "https") {
+                    viewModel.startDialogNetworkDownload(context, incomingUri) { file, fileName ->
+                        lifecycleScope.launch {
+                            DialogInstallUriHelper.parseAndPushFile(context, file, fileName, viewModel)
+                        }
                     }
-                }.onFailure { e ->
-                    Timber.e(e, "Parse failed for $incomingUri")
-                    reportParseProblem(e)
+                } else {
+                    runCatching {
+                        DialogInstallUriHelper.parseAndPush(context, incomingUri, viewModel)
+                    }.onFailure { e ->
+                        Timber.e(e, "Parse failed for $incomingUri")
+                        reportParseProblem(e)
+                    }
                 }
             }
 
@@ -302,9 +308,12 @@ class DialogInstallActivity : ComponentActivity() {
 
             val dismissAndFinish = {
                 handoffInstall()
-                viewModel.dismissPendingInstall()
-                viewModel.dialogClose()
-                viewModel.clearDialogTarget()
+                val isDownloading = uiState.dialogDownloadProgress != null
+                if (!isDownloading) {
+                    viewModel.dismissPendingInstall()
+                    viewModel.dialogClose()
+                    viewModel.clearDialogTarget()
+                }
                 finish()
             }
 
@@ -360,12 +369,20 @@ class DialogInstallActivity : ComponentActivity() {
         viewModel.dismissPendingInstall()
         viewModel.dialogStartLoading()
         val context = this
-        lifecycleScope.launch {
-            runCatching {
-                DialogInstallUriHelper.parseAndPush(context, uri, viewModel)
-            }.onFailure { e ->
-                Timber.e(e, "Parse failed for new intent $uri")
-                reportParseProblem(e)
+        if (uri.scheme == "http" || uri.scheme == "https") {
+            viewModel.startDialogNetworkDownload(context, uri) { file, fileName ->
+                lifecycleScope.launch {
+                    DialogInstallUriHelper.parseAndPushFile(context, file, fileName, viewModel)
+                }
+            }
+        } else {
+            lifecycleScope.launch {
+                runCatching {
+                    DialogInstallUriHelper.parseAndPush(context, uri, viewModel)
+                }.onFailure { e ->
+                    Timber.e(e, "Parse failed for new intent $uri")
+                    reportParseProblem(e)
+                }
             }
         }
     }

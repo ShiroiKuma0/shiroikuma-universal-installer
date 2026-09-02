@@ -200,6 +200,48 @@ class InstallViewModel(
         dialogDelegate.updateDownloadProgress(progress)
     fun dialogClose() = dialogDelegate.close()
 
+    private var activeDownloadJob: kotlinx.coroutines.Job? = null
+
+    fun cancelDialogDownload() {
+        activeDownloadJob?.cancel()
+        activeDownloadJob = null
+        dialogDelegate.updateDownloadProgress(null)
+        dialogDelegate.close()
+    }
+
+    fun startDialogNetworkDownload(
+        context: Context,
+        uri: Uri,
+        onFileDownloaded: (java.io.File, String) -> Unit,
+    ) {
+        activeDownloadJob?.cancel()
+        dialogDelegate.startLoading()
+        activeDownloadJob = viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            val displayName = uri.lastPathSegment?.substringBefore('?')?.ifBlank { "download.apk" } ?: "download.apk"
+            val notifier = DownloadNotifier(context)
+            val downloader = app.pwhs.core.network.NetworkApkDownloader(context)
+            when (val result = downloader.download(uri.toString()) { progress ->
+                dialogDelegate.updateDownloadProgress(progress)
+                notifier.notifyProgress(displayName, progress.bytesDownloaded, progress.totalBytes)
+            }) {
+                is app.pwhs.core.network.DownloadResult.Success -> {
+                    val fileUri = Uri.fromFile(result.file)
+                    notifier.notifyDone(result.fileName, fileUri)
+                    dialogDelegate.updateDownloadProgress(null)
+                    onFileDownloaded(result.file, result.fileName)
+                }
+                is app.pwhs.core.network.DownloadResult.Error -> {
+                    notifier.notifyFailed(result.message)
+                    dialogDelegate.readFailed(result.message)
+                }
+                app.pwhs.core.network.DownloadResult.Cancelled -> {
+                    notifier.cancel()
+                    dialogDelegate.close()
+                }
+            }
+        }
+    }
+
     fun setMergeSplits(merge: Boolean) {
         _mergeSplits.value = merge
         val state = batchDelegate.batchState.value

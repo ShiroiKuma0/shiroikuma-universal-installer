@@ -100,4 +100,16 @@ object DialogInstallUriHelper {
         val splitProvider = InstallApkSplitsHelper.buildSplitProvider(context, targetUri, ext)
         viewModel.parseApkInfo(context, targetUri, splitProvider, displayName)
     }
+
+    suspend fun parseAndPushFile(
+        context: Context,
+        file: java.io.File,
+        fileName: String,
+        viewModel: InstallViewModel,
+    ) {
+        val targetUri = Uri.fromFile(file)
+        val ext = fileName.substringAfterLast('.', "").lowercase()
+        val splitProvider = InstallApkSplitsHelper.buildSplitProvider(context, targetUri, ext)
+        viewModel.parseApkInfo(context, targetUri, splitProvider, fileName)
+    }
 }

@@ -157,6 +157,7 @@ fun DialogInstallingContent(
 @Composable
 fun DialogDownloadingContent(
     progress: app.pwhs.core.network.DownloadProgress,
+    onBackground: () -> Unit,
     onCancel: () -> Unit,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -229,11 +230,22 @@ fun DialogDownloadingContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        OutlinedButton(
-            onClick = onCancel,
+        Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(stringResource(R.string.dialog_download_cancel))
+            OutlinedButton(
+                onClick = onCancel,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringResource(R.string.dialog_download_cancel))
+            }
+            Button(
+                onClick = onBackground,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(stringResource(R.string.dialog_installing_background))
+            }
         }
     }
 }

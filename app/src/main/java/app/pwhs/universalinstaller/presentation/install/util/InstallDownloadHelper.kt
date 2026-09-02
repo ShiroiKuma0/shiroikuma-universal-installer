@@ -77,7 +77,7 @@ object InstallDownloadHelper {
                 }
                 val finalFile = renameToDisplayName(downloaded.file, downloaded.fileName)
                 onProgress(DownloadState.Idle)
-                downloadNotifier.notifyDone(finalFile.name)
+                downloadNotifier.notifyDone(finalFile.name, android.net.Uri.fromFile(finalFile))
                 runCatching {
                     downloadHistoryDao.insert(
                         DownloadHistoryEntity(

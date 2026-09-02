@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Android Auto सेटिंग्स</string>
     <string name="aa_open_settings_sub">डेवलपर विकल्पों में अज्ञात स्रोत सक्षम करें</string>
     <string name="dialog_menu_install_source_aa_hint">यह सुनिश्चित करने के लिए Google Play Store (%1$s) का उपयोग करें कि ऐप्स Android Auto पर काम करते हैं।</string>
+    <string name="dialog_downloading_package">पैकेज डाउनलोड हो रहा है…</string>
+    <string name="dialog_download_cancel">रद्द करें</string>
+    <string name="history_detail_title">इंस्टॉलेशन विवरण</string>
+    <string name="history_detail_status_success">सफलतापूर्वक इंस्टॉल हुआ</string>
+    <string name="history_detail_status_failed">इंस्टॉलेशन विफल</string>
+    <string name="history_detail_op_new">नया इंस्टॉलेशन</string>
+    <string name="history_detail_op_update">अपडेट</string>
+    <string name="history_detail_op_downgrade">डाउनग्रेड</string>
+    <string name="history_detail_reinstall">पुनर्स्थापित करें</string>
+    <string name="history_detail_launch">ऐप खोलें</string>
+    <string name="history_detail_app_info">ऐप जानकारी</string>
+    <string name="history_detail_copy">विवरण कॉपी करें</string>
+    <string name="history_detail_copied">क्लिपबोर्ड पर कॉपी किया गया</string>
+    <string name="history_detail_error_title">त्रुटि निदान</string>
 </resources>

@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Android Auto 设置</string>
     <string name="aa_open_settings_sub">在开发者选项中启用未知来源</string>
     <string name="dialog_menu_install_source_aa_hint">使用 Google Play 商店 (%1$s) 以确保应用在 Android Auto 上正常运行。</string>
+    <string name="dialog_downloading_package">正在下载安装包…</string>
+    <string name="dialog_download_cancel">取消</string>
+    <string name="history_detail_title">安装详情</string>
+    <string name="history_detail_status_success">安装成功</string>
+    <string name="history_detail_status_failed">安装失败</string>
+    <string name="history_detail_op_new">全新安装</string>
+    <string name="history_detail_op_update">更新</string>
+    <string name="history_detail_op_downgrade">降级</string>
+    <string name="history_detail_reinstall">重新安装</string>
+    <string name="history_detail_launch">启动应用</string>
+    <string name="history_detail_app_info">应用信息</string>
+    <string name="history_detail_copy">复制详情</string>
+    <string name="history_detail_copied">已复制到剪贴板</string>
+    <string name="history_detail_error_title">错误诊断</string>
 </resources>

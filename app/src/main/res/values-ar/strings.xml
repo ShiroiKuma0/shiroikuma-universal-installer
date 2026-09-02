@@ -781,4 +781,18 @@
     <string name="aa_open_settings">إعدادات Android Auto</string>
     <string name="aa_open_settings_sub">تفعيل المصادر غير المعروفة في خيارات المطور</string>
     <string name="dialog_menu_install_source_aa_hint">استخدم Google Play Store (%1$s) للتأكد من عمل التطبيقات على Android Auto.</string>
+    <string name="dialog_downloading_package">جارٍ تنزيل الحزمة…</string>
+    <string name="dialog_download_cancel">إلغاء</string>
+    <string name="history_detail_title">تفاصيل التثبيت</string>
+    <string name="history_detail_status_success">تم التثبيت بنجاح</string>
+    <string name="history_detail_status_failed">فشل التثبيت</string>
+    <string name="history_detail_op_new">تثبيت جديد</string>
+    <string name="history_detail_op_update">تحديث</string>
+    <string name="history_detail_op_downgrade">تخفيض الإصدار</string>
+    <string name="history_detail_reinstall">إعادة التثبيت</string>
+    <string name="history_detail_launch">تشغيل التطبيق</string>
+    <string name="history_detail_app_info">معلومات التطبيق</string>
+    <string name="history_detail_copy">نسخ التفاصيل</string>
+    <string name="history_detail_copied">تم النسخ إلى الحافظة</string>
+    <string name="history_detail_error_title">تشخيص الخطأ</string>
 </resources>

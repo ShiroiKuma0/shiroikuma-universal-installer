@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Pengaturan Android Auto</string>
     <string name="aa_open_settings_sub">Aktifkan sumber tidak dikenal di opsi pengembang</string>
     <string name="dialog_menu_install_source_aa_hint">Gunakan Google Play Store (%1$s) untuk memastikan aplikasi berfungsi di Android Auto.</string>
+    <string name="dialog_downloading_package">Mengunduh paket…</string>
+    <string name="dialog_download_cancel">Batal</string>
+    <string name="history_detail_title">Detail Instalasi</string>
+    <string name="history_detail_status_success">Berhasil Diinstal</string>
+    <string name="history_detail_status_failed">Gagal Menginstal</string>
+    <string name="history_detail_op_new">Instal Baru</string>
+    <string name="history_detail_op_update">Pembaruan</string>
+    <string name="history_detail_op_downgrade">Downgrade</string>
+    <string name="history_detail_reinstall">Instal Ulang</string>
+    <string name="history_detail_launch">Buka Aplikasi</string>
+    <string name="history_detail_app_info">Info Aplikasi</string>
+    <string name="history_detail_copy">Salin Detail</string>
+    <string name="history_detail_copied">Disalin ke papan klip</string>
+    <string name="history_detail_error_title">Diagnostik Kesalahan</string>
 </resources>

@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Paramètres Android Auto</string>
     <string name="aa_open_settings_sub">Activer les sources inconnues dans les options de développement</string>
     <string name="dialog_menu_install_source_aa_hint">Utilisez Google Play Store (%1$s) pour vous assurer que les applications fonctionnent sur Android Auto.</string>
+    <string name="dialog_downloading_package">Téléchargement du package…</string>
+    <string name="dialog_download_cancel">Annuler</string>
+    <string name="history_detail_title">Détails de l\'installation</string>
+    <string name="history_detail_status_success">Installé avec succès</string>
+    <string name="history_detail_status_failed">Échec de l\'installation</string>
+    <string name="history_detail_op_new">Nouvelle installation</string>
+    <string name="history_detail_op_update">Mise à jour</string>
+    <string name="history_detail_op_downgrade">Rétrogradation</string>
+    <string name="history_detail_reinstall">Réinstaller</string>
+    <string name="history_detail_launch">Lancer l\'application</string>
+    <string name="history_detail_app_info">Infos sur l\'application</string>
+    <string name="history_detail_copy">Copier les détails</string>
+    <string name="history_detail_copied">Copié dans le presse-papiers</string>
+    <string name="history_detail_error_title">Diagnostic de l\'erreur</string>
 </resources>

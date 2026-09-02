@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Ρυθμίσεις Android Auto</string>
     <string name="aa_open_settings_sub">Ενεργοποίηση άγνωστων πηγών στις επιλογές προγραμματιστή</string>
     <string name="dialog_menu_install_source_aa_hint">Χρησιμοποιήστε το Google Play Store (%1$s) για να εξασφαλίσετε ότι οι εφαρμογές λειτουργούν στο Android Auto.</string>
+    <string name="dialog_downloading_package">Λήψη πακέτου…</string>
+    <string name="dialog_download_cancel">Άκυρο</string>
+    <string name="history_detail_title">Λεπτομέρειες εγκατάστασης</string>
+    <string name="history_detail_status_success">Επιτυχής εγκατάσταση</string>
+    <string name="history_detail_status_failed">Η εγκατάσταση απέτυχε</string>
+    <string name="history_detail_op_new">Νέα εγκατάσταση</string>
+    <string name="history_detail_op_update">Ενημέρωση</string>
+    <string name="history_detail_op_downgrade">Υποβάθμιση</string>
+    <string name="history_detail_reinstall">Επανεγκατάσταση</string>
+    <string name="history_detail_launch">Έναρξη εφαρμογής</string>
+    <string name="history_detail_app_info">Πληροφορίες εφαρμογής</string>
+    <string name="history_detail_copy">Αντιγραφή λεπτομερειών</string>
+    <string name="history_detail_copied">Αντιγράφηκε στο πρόχειρο</string>
+    <string name="history_detail_error_title">Διάγνωση σφάλματος</string>
 </resources>

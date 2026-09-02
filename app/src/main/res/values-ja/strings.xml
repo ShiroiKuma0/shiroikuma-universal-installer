@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Android Autoの設定</string>
     <string name="aa_open_settings_sub">開発者向けオプションで不明なソースを有効化</string>
     <string name="dialog_menu_install_source_aa_hint">アプリがAndroid Autoで動作することを確認するにはGoogle Playストア (%1$s) を使用してください。</string>
+    <string name="dialog_downloading_package">パッケージをダウンロード中…</string>
+    <string name="dialog_download_cancel">キャンセル</string>
+    <string name="history_detail_title">インストールの詳細</string>
+    <string name="history_detail_status_success">インストール完了</string>
+    <string name="history_detail_status_failed">インストール失敗</string>
+    <string name="history_detail_op_new">新規インストール</string>
+    <string name="history_detail_op_update">アップデート</string>
+    <string name="history_detail_op_downgrade">ダウングレード</string>
+    <string name="history_detail_reinstall">再インストール</string>
+    <string name="history_detail_launch">アプリを起動</string>
+    <string name="history_detail_app_info">アプリ情報</string>
+    <string name="history_detail_copy">詳細をコピー</string>
+    <string name="history_detail_copied">クリップボードにコピーしました</string>
+    <string name="history_detail_error_title">エラー診断</string>
 </resources>

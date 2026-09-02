@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Setări Android Auto</string>
     <string name="aa_open_settings_sub">Activează sursele necunoscute în opțiunile pentru dezvoltatori</string>
     <string name="dialog_menu_install_source_aa_hint">Folosește Google Play Store (%1$s) pentru a te asigura că aplicațiile funcționează pe Android Auto.</string>
+    <string name="dialog_downloading_package">Se descarcă pachetul…</string>
+    <string name="dialog_download_cancel">Anulare</string>
+    <string name="history_detail_title">Detalii instalare</string>
+    <string name="history_detail_status_success">Instalat cu succes</string>
+    <string name="history_detail_status_failed">Instalare eșuată</string>
+    <string name="history_detail_op_new">Instalare nouă</string>
+    <string name="history_detail_op_update">Actualizare</string>
+    <string name="history_detail_op_downgrade">Retrogradare</string>
+    <string name="history_detail_reinstall">Reinstalează</string>
+    <string name="history_detail_launch">Lansează aplicația</string>
+    <string name="history_detail_app_info">Informații aplicație</string>
+    <string name="history_detail_copy">Copiază detaliile</string>
+    <string name="history_detail_copied">Copiat în clipboard</string>
+    <string name="history_detail_error_title">Diagnosticare eroare</string>
 </resources>

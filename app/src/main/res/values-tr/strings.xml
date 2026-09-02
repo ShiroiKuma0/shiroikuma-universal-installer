@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Android Auto ayarları</string>
     <string name="aa_open_settings_sub">Geliştirici seçeneklerinde bilinmeyen kaynakları etkinleştirin</string>
     <string name="dialog_menu_install_source_aa_hint">Uygulamaların Android Auto\'da çalıştığından emin olmak için Google Play Store\'u (%1$s) kullanın.</string>
+    <string name="dialog_downloading_package">Paket indiriliyor…</string>
+    <string name="dialog_download_cancel">İptal</string>
+    <string name="history_detail_title">Yükleme Ayrıntıları</string>
+    <string name="history_detail_status_success">Başarıyla Yüklendi</string>
+    <string name="history_detail_status_failed">Yükleme Başarısız</string>
+    <string name="history_detail_op_new">Yeni Yükleme</string>
+    <string name="history_detail_op_update">Güncelleme</string>
+    <string name="history_detail_op_downgrade">Sürüm Düşürme</string>
+    <string name="history_detail_reinstall">Yeniden Yükle</string>
+    <string name="history_detail_launch">Uygulamayı Başlat</string>
+    <string name="history_detail_app_info">Uygulama Bilgisi</string>
+    <string name="history_detail_copy">Ayrıntıları Kopyala</string>
+    <string name="history_detail_copied">Panoya kopyalandı</string>
+    <string name="history_detail_error_title">Hata Teşhisi</string>
 </resources>

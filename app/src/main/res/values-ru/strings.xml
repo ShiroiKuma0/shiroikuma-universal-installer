@@ -781,4 +781,18 @@
     <string name="aa_open_settings">Настройки Android Auto</string>
     <string name="aa_open_settings_sub">Включить неизвестные источники в параметрах разработчика</string>
     <string name="dialog_menu_install_source_aa_hint">Используйте Google Play Store (%1$s), чтобы приложения работали в Android Auto.</string>
+    <string name="dialog_downloading_package">Загрузка пакета…</string>
+    <string name="dialog_download_cancel">Отмена</string>
+    <string name="history_detail_title">Сведения об установке</string>
+    <string name="history_detail_status_success">Успешно установлено</string>
+    <string name="history_detail_status_failed">Ошибка установки</string>
+    <string name="history_detail_op_new">Новая установка</string>
+    <string name="history_detail_op_update">Обновление</string>
+    <string name="history_detail_op_downgrade">Понижение версии</string>
+    <string name="history_detail_reinstall">Переустановить</string>
+    <string name="history_detail_launch">Запустить приложение</string>
+    <string name="history_detail_app_info">О приложении</string>
+    <string name="history_detail_copy">Копировать сведения</string>
+    <string name="history_detail_copied">Скопировано в буфер обмена</string>
+    <string name="history_detail_error_title">Диагностика ошибок</string>
 </resources>

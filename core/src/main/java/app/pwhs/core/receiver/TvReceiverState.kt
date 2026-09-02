@@ -31,11 +31,11 @@ data class ConnectedClient(
 
 sealed interface ReceiverStatus {
     data object Stopped : ReceiverStatus
-    /** Server is up. [url] is what the QR encodes; [token] guards uploads. */
+    /** Server is up. [url] is what the QR encodes. */
     data class Running(
         val ip: String,
         val port: Int,
-        val token: String,
+        val token: String = "",
         val url: String,
     ) : ReceiverStatus
 }

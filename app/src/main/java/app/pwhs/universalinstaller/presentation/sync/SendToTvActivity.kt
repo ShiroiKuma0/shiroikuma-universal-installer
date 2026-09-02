@@ -1,52 +1,45 @@
 package app.pwhs.universalinstaller.presentation.sync
 
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.automirrored.rounded.Logout
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.QrCodeScanner
-import androidx.compose.material.icons.rounded.Smartphone
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.base.BaseActivity
@@ -61,8 +54,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Phone-side of the TV install flow: scan the TV's QR (open-source ZXing scanner), pick an
- * APK, and upload it to the TV over the LAN. The TV then confirms + installs it.
+ * Mobile client screen for sending APKs to Android TV.
  */
 class SendToTvActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,59 +69,168 @@ private fun SendToTvScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var scanned by remember { mutableStateOf<String?>(null) }
-    var status by remember { mutableStateOf<String?>(null) }
+    var scanned by rememberSaveable { mutableStateOf<String?>(null) }
     var uploading by remember { mutableStateOf(false) }
-    var uploadProgress by remember { mutableStateOf<Int?>(null) }
+    var uploadProgress by remember { mutableIntStateOf(0) }
     var uploadBytes by remember { mutableStateOf<Pair<Long, Long>?>(null) }
+    var currentFileName by remember { mutableStateOf<String?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isSuccess by remember { mutableStateOf(false) }
+
+    var showManualDialog by rememberSaveable { mutableStateOf(false) }
+    var isConnectingManual by remember { mutableStateOf(false) }
+    var manualError by remember { mutableStateOf<String?>(null) }
+    var savedTvIp by rememberSaveable { mutableStateOf("") }
+    val discoveredTvs by remember { TvDiscovery.discover(context) }.collectAsState(initial = emptyList())
+
+    fun connectManual(rawIp: String) {
+        val trimmed = rawIp.trim().removePrefix("http://").removePrefix("https://").trimEnd('/')
+        val resolvedIp = if (trimmed.length in 4..6 && trimmed.all { it.isLetter() }) {
+            app.pwhs.core.receiver.IpEncoder.decode(trimmed, app.pwhs.core.receiver.LanAddress.siteLocalIpv4()) ?: trimmed
+        } else trimmed
+
+        val host: String
+        val port: Int
+        if (resolvedIp.contains(":")) {
+            host = resolvedIp.substringBefore(":")
+            port = resolvedIp.substringAfter(":").substringBefore("/").toIntOrNull() ?: 8787
+        } else {
+            host = resolvedIp.substringBefore("/")
+            port = 8787
+        }
+        if (host.isBlank()) {
+            manualError = context.getString(R.string.tv_sync_error_invalid_input)
+            return
+        }
+
+        isConnectingManual = true
+        manualError = null
+
+        scope.launch {
+            val candidatePorts = if (resolvedIp.contains(":")) listOf(port) else listOf(8787, 8788, 8789, 8790, 8791, 8792)
+            var connectedTarget: String? = null
+            var connectedPort: Int = port
+
+            withContext(Dispatchers.IO) {
+                for (p in candidatePorts) {
+                    val pingUrl = "http://$host:$p/ping"
+                    val ok = runCatching {
+                        val conn = URL(pingUrl).openConnection() as HttpURLConnection
+                        conn.connectTimeout = 3000
+                        conn.readTimeout = 3000
+                        conn.setRequestProperty("User-Agent", "${Build.MANUFACTURER} ${Build.MODEL} (Universal Installer App)")
+                        val code = conn.responseCode
+                        conn.disconnect()
+                        code == 200
+                    }.getOrDefault(false)
+
+                    if (ok) {
+                        connectedTarget = "http://$host:$p/"
+                        connectedPort = p
+                        break
+                    }
+                }
+            }
+
+            isConnectingManual = false
+            if (connectedTarget != null) {
+                savedTvIp = if (resolvedIp.contains(":")) resolvedIp else "$host:$connectedPort"
+                scanned = connectedTarget
+                errorMessage = null
+                isSuccess = false
+                showManualDialog = false
+            } else {
+                manualError = context.getString(R.string.tv_sync_error_connect_failed)
+            }
+        }
+    }
 
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
-        result.contents?.let { scanned = it; status = null }
+        android.util.Log.d("SendToTv", "Scan result: contents=${result.contents}")
+        result.contents?.let {
+            scanned = it
+            errorMessage = null
+            isSuccess = false
+        }
     }
+
     val apkLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         val target = scanned
         if (uri != null && target != null) {
+            val name = queryDisplayName(context, uri)
+            currentFileName = name
             uploading = true
             uploadProgress = 0
             uploadBytes = null
-            status = context.getString(R.string.tv_sync_status_sending)
+            errorMessage = null
+            isSuccess = false
+
             scope.launch {
-                val name = queryDisplayName(context, uri)
                 val result = TvUploadClient.upload(context, target, uri, name) { copied, total, pct ->
                     uploadProgress = pct
                     uploadBytes = Pair(copied, total)
                 }
                 uploading = false
-                uploadProgress = null
-                uploadBytes = null
-                status = when (result) {
-                    is TvUploadClient.Result.Success -> context.getString(R.string.tv_sync_status_sent)
-                    is TvUploadClient.Result.Failure -> context.getString(R.string.tv_sync_status_failed, result.message)
+                when (result) {
+                    is TvUploadClient.Result.Success -> {
+                        isSuccess = true
+                    }
+                    is TvUploadClient.Result.Failure -> {
+                        errorMessage = result.message
+                    }
                 }
             }
         }
     }
 
+    fun disconnect() {
+        val currentTarget = scanned
+        if (currentTarget != null) {
+            scope.launch(Dispatchers.IO) {
+                runCatching {
+                    val parsed = Uri.parse(currentTarget)
+                    val host = parsed.host
+                    val port = parsed.port.takeIf { it > 0 } ?: 8787
+                    val conn = URL("http://$host:$port/disconnect").openConnection() as HttpURLConnection
+                    conn.connectTimeout = 2000
+                    conn.readTimeout = 2000
+                    conn.responseCode
+                    conn.disconnect()
+                }
+            }
+        }
+        scanned = null
+        uploading = false
+        errorMessage = null
+        isSuccess = false
+        currentFileName = null
+        uploadProgress = 0
+        uploadBytes = null
+    }
+
+    // Ping TV periodically to keep connection active
     LaunchedEffect(scanned) {
         val target = scanned ?: return@LaunchedEffect
-        val parsed = runCatching { Uri.parse(target) }.getOrNull()
-        val host = parsed?.host ?: return@LaunchedEffect
-        val port = parsed.port.takeIf { it > 0 } ?: return@LaunchedEffect
-        val token = parsed.getQueryParameter("token").orEmpty()
-        val pingUrl = "http://$host:$port/ping?token=$token"
-        
+        val parsed = runCatching { Uri.parse(target) }.getOrNull() ?: return@LaunchedEffect
+        val host = parsed.host
+        if (host.isNullOrBlank()) return@LaunchedEffect
+        val port = parsed.port.takeIf { it > 0 } ?: 8787
+        val pingUrl = "http://$host:$port/ping"
+
         while (isActive) {
             withContext(Dispatchers.IO) {
                 runCatching {
-                    (URL(pingUrl).openConnection() as HttpURLConnection).apply {
-                        connectTimeout = 3000
-                        readTimeout = 3000
-                        setRequestProperty("User-Agent", "${Build.MANUFACTURER} ${Build.MODEL} (Universal Installer App)")
-                        responseCode
-                        disconnect()
+                    val conn = URL(pingUrl).openConnection() as HttpURLConnection
+                    conn.connectTimeout = 3000
+                    conn.readTimeout = 3000
+                    conn.setRequestProperty("User-Agent", "${Build.MANUFACTURER} ${Build.MODEL} (Universal Installer App)")
+                    val code = conn.responseCode
+                    if (code == 200) {
+                        conn.inputStream.use { it.readBytes() }
                     }
+                    conn.disconnect()
                 }
             }
             delay(2500)
@@ -139,169 +240,217 @@ private fun SendToTvScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.tv_sync_screen_title)) },
+                title = {
+                    Text(
+                        stringResource(R.string.tv_sync_screen_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.back_cd))
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = stringResource(R.string.back_cd)
+                        )
                     }
-                }
+                },
+                actions = {
+                    if (scanned != null && !uploading) {
+                        IconButton(onClick = { disconnect() }) {
+                            Icon(
+                                Icons.AutoMirrored.Rounded.Logout,
+                                contentDescription = stringResource(R.string.tv_sync_btn_disconnect),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }
     ) { padding ->
-        Surface(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            color = MaterialTheme.colorScheme.background
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Smartphone,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.height(12.dp))
-                Text(stringResource(R.string.tv_sync_hero_title), style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(8.dp))
+            item {
+                TvSyncHeroSection(isConnected = scanned != null)
+            }
 
-                val target = scanned
-                if (target == null) {
-                    Text(
-                        stringResource(R.string.tv_sync_instructions),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.height(24.dp))
-                    Button(
-                        onClick = {
-                            scanLauncher.launch(
-                                ScanOptions()
-                                    .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
-                                    .setBeepEnabled(false)
-                                    .setOrientationLocked(true)
-                                    .setCaptureActivity(CustomScannerActivity::class.java)
+            item {
+                AnimatedContent(
+                    targetState = when {
+                        scanned == null -> TvScreenMode.Scan
+                        uploading -> TvScreenMode.Uploading
+                        isSuccess -> TvScreenMode.Success
+                        errorMessage != null -> TvScreenMode.Error
+                        else -> TvScreenMode.Connected
+                    },
+                    transitionSpec = {
+                        (fadeIn(animationSpec = tween(220, delayMillis = 50)) +
+                                slideInVertically(animationSpec = tween(250)) { it / 8 })
+                            .togetherWith(
+                                fadeOut(animationSpec = tween(150)) +
+                                        slideOutVertically(animationSpec = tween(150)) { -it / 8 }
                             )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Icon(Icons.Rounded.QrCodeScanner, null)
-                        Spacer(Modifier.height(0.dp))
-                        Text("  " + stringResource(R.string.tv_sync_btn_scan))
-                    }
-                } else {
-                    Text(
-                        stringResource(R.string.tv_sync_status_connected, Uri.parse(target).host ?: "TV"),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.height(24.dp))
-                    Button(
-                        onClick = { if (!uploading) apkLauncher.launch(arrayOf("*/*")) },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !uploading,
-                    ) { Text(if (uploading) stringResource(R.string.tv_sync_status_sending) else stringResource(R.string.tv_sync_btn_choose_apk)) }
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedButton(
-                        onClick = { scanned = null; status = null; uploadProgress = null },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !uploading,
-                    ) { Text(stringResource(R.string.tv_sync_btn_rescan)) }
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedButton(
-                        onClick = {
-                            val currentTarget = scanned
-                            if (currentTarget != null) {
-                                scope.launch(Dispatchers.IO) {
-                                    runCatching {
-                                        val parsed = Uri.parse(currentTarget)
-                                        val host = parsed.host
-                                        val port = parsed.port.takeIf { it > 0 } ?: 8787
-                                        val token = parsed.getQueryParameter("token").orEmpty()
-                                        (URL("http://$host:$port/disconnect?token=$token").openConnection() as HttpURLConnection).apply {
-                                            connectTimeout = 2000
-                                            readTimeout = 2000
-                                            responseCode
-                                            disconnect()
-                                        }
+                    },
+                    label = "TvSyncModeTransition"
+                ) { mode ->
+                    when (mode) {
+                        TvScreenMode.Scan -> {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(14.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                TvDiscoveredDevicesSection(
+                                    devices = discoveredTvs,
+                                    isSearching = true,
+                                    onSelectTv = { tv ->
+                                        scanned = "http://${tv.host}:${tv.port}/"
+                                        errorMessage = null
+                                        isSuccess = false
                                     }
+                                )
+
+                                OutlinedButton(
+                                    onClick = {
+                                        manualError = null
+                                        showManualDialog = true
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp),
+                                    shape = RoundedCornerShape(16.dp)
+                                ) {
+                                    Icon(Icons.Rounded.Pin, contentDescription = null, modifier = Modifier.size(20.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Text(
+                                        stringResource(R.string.tv_sync_btn_enter_code),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+
+                                TextButton(
+                                    onClick = {
+                                        scanLauncher.launch(
+                                            ScanOptions()
+                                                .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                                                .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
+                                                .setBeepEnabled(false)
+                                                .setOrientationLocked(true)
+                                                .setCaptureActivity(CustomScannerActivity::class.java)
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Rounded.QrCodeScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(stringResource(R.string.tv_sync_btn_scan), style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
-                            scanned = null
-                            status = null
-                            uploadProgress = null
-                            uploadBytes = null
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !uploading,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.Logout,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 6.dp)
-                        )
-                        Text(stringResource(R.string.tv_sync_btn_disconnect))
-                    }
-                }
+                        }
 
-                if (uploading && uploadProgress != null) {
-                    Spacer(Modifier.height(24.dp))
-                    LinearProgressIndicator(
-                        progress = { (uploadProgress ?: 0) / 100f },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            "${uploadProgress ?: 0}%",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        uploadBytes?.let { (copied, total) ->
-                            if (total > 0) {
-                                Text(
-                                    "${android.text.format.Formatter.formatShortFileSize(context, copied)} / ${android.text.format.Formatter.formatShortFileSize(context, total)}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                        TvScreenMode.Connected -> {
+                            val host = scanned?.let { Uri.parse(it).host } ?: "Android TV"
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                TvConnectedDeviceCard(host = host, onDisconnect = { disconnect() })
+                                TvFileDropzoneCard(
+                                    onPickApk = { apkLauncher.launch(arrayOf("*/*")) }
+                                )
+                                OutlinedButton(
+                                    onClick = {
+                                        scanLauncher.launch(
+                                            ScanOptions()
+                                                .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                                                .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
+                                                .setBeepEnabled(false)
+                                                .setOrientationLocked(true)
+                                                .setCaptureActivity(CustomScannerActivity::class.java)
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp)
+                                ) {
+                                    Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(stringResource(R.string.tv_sync_btn_rescan))
+                                }
+                            }
+                        }
+
+                        TvScreenMode.Uploading -> {
+                            TvUploadingProgressCard(
+                                fileName = currentFileName ?: "application.apk",
+                                progress = uploadProgress,
+                                bytes = uploadBytes
+                            )
+                        }
+
+                        TvScreenMode.Success -> {
+                            TvUploadSuccessCard(
+                                fileName = currentFileName ?: "application.apk",
+                                onSendAnother = {
+                                    isSuccess = false
+                                    errorMessage = null
+                                    currentFileName = null
+                                    apkLauncher.launch(arrayOf("*/*"))
+                                },
+                                onDone = { onBack() }
+                            )
+                        }
+
+                        TvScreenMode.Error -> {
+                            val host = scanned?.let { Uri.parse(it).host } ?: "Android TV"
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                TvConnectedDeviceCard(host = host, onDisconnect = { disconnect() })
+                                TvErrorCard(
+                                    error = errorMessage ?: "Upload failed",
+                                    onRetry = {
+                                        errorMessage = null
+                                        apkLauncher.launch(arrayOf("*/*"))
+                                    }
                                 )
                             }
                         }
                     }
                 }
-
-                status?.let {
-                    if (!uploading) {
-                        Spacer(Modifier.height(20.dp))
-                        Text(
-                            it,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
             }
         }
     }
+
+    if (showManualDialog) {
+        ManualConnectDialog(
+            initialIp = savedTvIp,
+            isConnecting = isConnectingManual,
+            errorMessage = manualError,
+            onDismiss = {
+                if (!isConnectingManual) {
+                    showManualDialog = false
+                    manualError = null
+                }
+            },
+            onConnect = { ip ->
+                connectManual(ip)
+            }
+        )
+    }
 }
 
-private fun queryDisplayName(context: android.content.Context, uri: Uri): String {
+private fun queryDisplayName(context: Context, uri: Uri): String {
     runCatching {
         context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
             if (it.moveToFirst()) return it.getString(0) ?: "app.apk"

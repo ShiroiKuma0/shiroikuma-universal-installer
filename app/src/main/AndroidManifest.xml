@@ -177,7 +177,7 @@
             android:theme="@style/Theme.UniversalInstaller" />
         <activity
             android:name=".presentation.sync.SendToTvActivity"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.UniversalInstaller" />
         <activity
             android:name=".presentation.sync.CustomScannerActivity"

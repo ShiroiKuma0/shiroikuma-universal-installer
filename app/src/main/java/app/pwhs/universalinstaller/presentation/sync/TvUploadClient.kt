@@ -38,31 +38,43 @@ object TvUploadClient {
             return@withContext Result.Failure("Not a valid TV code")
         }
 
-        val boundary = "----uitv${System.currentTimeMillis()}"
-        val crlf = "\r\n"
         val resolver = context.contentResolver
         val size = runCatching {
+            resolver.query(apk, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val idx = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                    if (idx != -1) cursor.getLong(idx) else null
+                } else null
+            }
+        }.getOrNull() ?: runCatching {
             resolver.openAssetFileDescriptor(apk, "r")?.use { it.length }
-        }.getOrNull() ?: -1L
+        }.getOrNull()?.takeIf { it >= 0 } ?: -1L
+
+        val boundary = "----uitv${System.currentTimeMillis()}"
+        val crlf = "\r\n"
 
         val preamble = buildString {
             append("--").append(boundary).append(crlf)
             append("Content-Disposition: form-data; name=\"apk\"; filename=\"").append(fileName).append("\"").append(crlf)
             append("Content-Type: application/octet-stream").append(crlf).append(crlf)
-        }.toByteArray()
-        val epilogue = "$crlf--$boundary--$crlf".toByteArray()
+        }.toByteArray(Charsets.UTF_8)
+        val epilogue = "$crlf--$boundary--$crlf".toByteArray(Charsets.UTF_8)
 
+        val totalLength = if (size >= 0) preamble.size.toLong() + size + epilogue.size.toLong() else -1L
+        android.util.Log.d("TvUploadClient", "Starting upload: file=$fileName, size=$size, totalLength=$totalLength, target=http://$host:$port/upload")
+
+        val uploadUrl = if (token.isNotBlank()) "http://$host:$port/upload?token=$token" else "http://$host:$port/upload"
         return@withContext try {
-            val conn = (URL("http://$host:$port/upload?token=$token").openConnection() as HttpURLConnection).apply {
+            val conn = (URL(uploadUrl).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
                 doOutput = true
                 connectTimeout = 15_000
                 readTimeout = 120_000
                 setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
-                if (size >= 0) {
-                    setFixedLengthStreamingMode(preamble.size + size + epilogue.size)
+                if (totalLength >= 0) {
+                    setFixedLengthStreamingMode(totalLength)
                 } else {
-                    setChunkedStreamingMode(0)
+                    setChunkedStreamingMode(64 * 1024)
                 }
             }
             DataOutputStream(conn.outputStream).use { out ->

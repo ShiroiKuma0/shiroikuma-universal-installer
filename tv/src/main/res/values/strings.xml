@@ -5,6 +5,12 @@
     <string name="tv_receive_from_phone">Receive from phone</string>
     <string name="tv_receive_step1">1.  Connect phone to the same Wi-Fi</string>
     <string name="tv_receive_step2">2.  Scan the QR (or open the address below)</string>
+    <string name="tv_receive_step2_pin">2.  Scan QR or enter PIN on app</string>
+    <string name="tv_receive_pin_label">PIN:</string>
+    <string name="tv_receive_code_label">Code:</string>
+    <string name="tv_receive_qr_web_hint">Web Browser / iPhone</string>
+    <string name="tv_receive_step_app">1.  Android App: Open Universal Installer on phone</string>
+    <string name="tv_receive_step_web">2.  Web (iPhone/PC): Scan QR or open URL above</string>
     <string name="tv_receive_step3">3.  Pick an APK — it installs here</string>
     <string name="tv_receive_starting">Starting receiver…</string>
     <string name="tv_receive_installing">Installing %s…</string>

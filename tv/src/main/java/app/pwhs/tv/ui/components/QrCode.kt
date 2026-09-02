@@ -21,6 +21,7 @@ import app.pwhs.tv.R
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -52,8 +53,13 @@ fun QrCode(
 
 private fun generateQrCode(data: String, fgColor: Int, bgColor: Int): Bitmap? = runCatching {
     val size = 512
+    val hints = mapOf(
+        EncodeHintType.MARGIN to 2,
+        EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
+        EncodeHintType.CHARACTER_SET to "UTF-8"
+    )
     val matrix = QRCodeWriter().encode(
-        data, BarcodeFormat.QR_CODE, size, size, mapOf(EncodeHintType.MARGIN to 1)
+        data, BarcodeFormat.QR_CODE, size, size, hints
     )
     val pixels = IntArray(matrix.width * matrix.height)
     for (y in 0 until matrix.height) for (x in 0 until matrix.width) {

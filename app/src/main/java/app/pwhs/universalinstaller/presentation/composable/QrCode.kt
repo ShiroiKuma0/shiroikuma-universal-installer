@@ -19,6 +19,7 @@ import androidx.compose.ui.layout.ContentScale
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -54,29 +55,21 @@ fun QrCode(
     }
 }
 
-private fun generateQrCode(data: String, fgColor: Int, bgColor: Int): Bitmap? {
-    try {
-        val hints = mapOf(
-            EncodeHintType.MARGIN to 1 // Small margin
-        )
-        // Base size, we'll let Compose scale it with FilterQuality.None
-        val size = 512
-        val bitMatrix = QRCodeWriter().encode(data, BarcodeFormat.QR_CODE, size, size, hints)
-        
-        val width = bitMatrix.width
-        val height = bitMatrix.height
-        val pixels = IntArray(width * height)
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                pixels[y * width + x] = if (bitMatrix.get(x, y)) fgColor else bgColor
-            }
-        }
-        
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        bitmap.setPixels(pixels, 0, width, 0, 0, width, height)
-        return bitmap
-    } catch (e: Exception) {
-        e.printStackTrace()
-        return null
+private fun generateQrCode(data: String, fgColor: Int, bgColor: Int): Bitmap? = runCatching {
+    val size = 512
+    val hints = mapOf(
+        EncodeHintType.MARGIN to 2,
+        EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
+        EncodeHintType.CHARACTER_SET to "UTF-8"
+    )
+    val matrix = QRCodeWriter().encode(
+        data, BarcodeFormat.QR_CODE, size, size, hints
+    )
+    val pixels = IntArray(matrix.width * matrix.height)
+    for (y in 0 until matrix.height) for (x in 0 until matrix.width) {
+        pixels[y * matrix.width + x] = if (matrix.get(x, y)) fgColor else bgColor
     }
-}
+    Bitmap.createBitmap(matrix.width, matrix.height, Bitmap.Config.ARGB_8888).apply {
+        setPixels(pixels, 0, matrix.width, 0, 0, matrix.width, matrix.height)
+    }
+}.getOrNull()

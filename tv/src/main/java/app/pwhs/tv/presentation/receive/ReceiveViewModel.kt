@@ -71,6 +71,10 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
     private data class InstallRequest(val uri: Uri, val isBundle: Boolean, val label: String, val sizeBytes: Long)
 
     init {
+        // Ensure TvReceiver is running
+        if (TvReceiverState.status.value is ReceiverStatus.Stopped) {
+            TvReceiver.start(context)
+        }
         // Clear any stale progress from previous session
         TvReceiverState.emitReceivingProgress(null)
 
@@ -78,7 +82,7 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
             while (isActive) {
                 delay(3000)
                 val current = TvReceiverState.connectedClient.value
-                if (current != null && System.currentTimeMillis() - current.lastSeenTimestamp > 7000L) {
+                if (current != null && System.currentTimeMillis() - current.lastSeenTimestamp > 45_000L) {
                     TvReceiverState.updateConnectedClient(null)
                 }
             }

@@ -182,10 +182,28 @@ class ApkInstaller(private val context: Context) {
                 )
                 when (status) {
                     PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                        @Suppress("DEPRECATION")
-                        val confirm = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
-                        confirm?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        runCatching { context.startActivity(confirm) }
+                        val confirm = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                            intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent::class.java)
+                        } else {
+                            @Suppress("DEPRECATION")
+                            intent.getParcelableExtra(Intent.EXTRA_INTENT)
+                        }
+                        if (confirm != null) {
+                            // Remediate Google Play Intent Redirection:
+                            // 1. Strip URI grant flags so private content providers cannot be accessed
+                            confirm.removeFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+                            // 2. Verify target is not an internal component of our own app
+                            val resolved = confirm.resolveActivity(context.packageManager)
+                            val flags = confirm.flags
+                            val isUriPermissionFree = (flags and Intent.FLAG_GRANT_READ_URI_PERMISSION == 0) &&
+                                    (flags and Intent.FLAG_GRANT_WRITE_URI_PERMISSION == 0)
+
+                            if (resolved != null && resolved.packageName != context.packageName && isUriPermissionFree) {
+                                confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                runCatching { context.startActivity(confirm) }
+                            }
+                        }
                         // not terminal — wait for the follow-up status
                     }
                     PackageInstaller.STATUS_SUCCESS -> {

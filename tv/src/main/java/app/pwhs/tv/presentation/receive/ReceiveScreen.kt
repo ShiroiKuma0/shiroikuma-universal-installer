@@ -70,6 +70,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -205,14 +206,14 @@ fun ReceiveScreen(
             TvStorageCard(stats = storageStats)
         }
 
-        Spacer(Modifier.width(48.dp))
+        Spacer(Modifier.width(28.dp))
 
         // ── Right Pane: Dynamic Content Area ─────────────────────────────────
         Box(
             modifier = Modifier
-                .weight(0.65f)
+                .weight(0.70f)
                 .fillMaxHeight()
-                .padding(vertical = 32.dp)
+                .padding(vertical = 24.dp)
         ) {
             AnimatedContent(
                 targetState = currentTab,
@@ -487,36 +488,23 @@ private fun ReceiveContent(
                         if (s.ip == "0.0.0.0") {
                             NoNetworkState()
                         } else {
-                            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                                // Stack QR-over-guide when the pane is too narrow for a side-by-side
-                                // layout, so the address never crushes into unreadable wrapping.
-                                if (maxWidth < 560.dp) {
-                                    Column(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        QrPanel(url = s.url, size = 200.dp)
-                                        Spacer(Modifier.height(24.dp))
-                                        Box(
-                                            modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
-                                            contentAlignment = Alignment.CenterStart,
-                                        ) {
-                                            ConnectionGuide(ip = s.ip, port = s.port, alignment = Alignment.Start)
-                                        }
-                                    }
-                                } else {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        QrPanel(url = s.url, size = 240.dp)
-                                        Spacer(Modifier.width(40.dp))
-                                        Box(Modifier.weight(1f)) {
-                                            ConnectionGuide(ip = s.ip, port = s.port, alignment = Alignment.Start)
-                                        }
-                                    }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(28.dp)
+                            ) {
+                                QrPanel(url = s.url, size = 150.dp)
+                                Box(Modifier.weight(1f)) {
+                                    ConnectionGuide(ip = s.ip, port = s.port, alignment = Alignment.Start)
                                 }
                             }
                         }
                     }
                     ReceiverStatus.Stopped -> {
+                        val ctx = LocalContext.current
+                        LaunchedEffect(Unit) {
+                            app.pwhs.core.receiver.TvReceiver.start(ctx)
+                        }
                         Text(
                             stringResource(R.string.tv_receive_starting),
                             style = MaterialTheme.typography.headlineSmall,
@@ -703,23 +691,23 @@ private fun ConnectedDeviceCard(
 }
 
 @Composable
-private fun GuideStep(num: Int, text: String) {
-    val cleanText = text.replaceFirst(Regex("^$num\\.\\s*"), "")
+private fun GuideStep(num: Int, text: String, modifier: Modifier = Modifier) {
+    val cleanText = text.replaceFirst(Regex("^\\d+\\.\\s*"), "")
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.Start,
     ) {
         Text(
             "$num.",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
         )
-        Spacer(Modifier.width(10.dp))
+        Spacer(Modifier.width(6.dp))
         Text(
             cleanText,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
         )
@@ -728,14 +716,23 @@ private fun GuideStep(num: Int, text: String) {
 
 @Composable
 private fun QrPanel(url: String, size: androidx.compose.ui.unit.Dp) {
-    Box(
-        modifier = Modifier
-            .size(size)
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
-        QrCode(data = url, modifier = Modifier.fillMaxSize())
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(
+            modifier = Modifier
+                .size(size)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.White)
+                .padding(12.dp)
+        ) {
+            QrCode(data = url, modifier = Modifier.fillMaxSize())
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.tv_receive_qr_web_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
@@ -746,23 +743,57 @@ private fun ConnectionGuide(
     alignment: Alignment.Horizontal = Alignment.Start,
     modifier: Modifier = Modifier,
 ) {
+    val ipCode = remember(ip) { app.pwhs.core.receiver.IpEncoder.encode(ip) }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
     ) {
         Text(
             "http://$ip:$port",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Start,
         )
-        Spacer(Modifier.height(16.dp))
-        GuideStep(1, stringResource(R.string.tv_receive_step1))
-        Spacer(Modifier.height(10.dp))
-        GuideStep(2, stringResource(R.string.tv_receive_step2))
+        Spacer(Modifier.height(8.dp))
+        if (!ipCode.isNullOrBlank()) {
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                colors = SurfaceDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.55f)
+                ),
+                modifier = Modifier.padding(vertical = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(R.string.tv_receive_code_label),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        ipCode,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 1.5.sp
+                    )
+                }
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        GuideStep(1, stringResource(R.string.tv_receive_step_app))
+        Spacer(Modifier.height(5.dp))
+        GuideStep(2, stringResource(R.string.tv_receive_step_web))
+        Spacer(Modifier.height(5.dp))
+        GuideStep(3, stringResource(R.string.tv_receive_step3))
     }
 }
 

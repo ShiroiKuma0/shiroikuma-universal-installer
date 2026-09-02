@@ -17,7 +17,6 @@ import java.io.InputStream
 class ApkReceiverServer(
     private val context: Context,
     port: Int,
-    private val token: String,
 ) : NanoHTTPD(port) {
 
     private val stageDir: File = File(context.cacheDir, "received").apply { mkdirs() }
@@ -54,30 +53,22 @@ class ApkReceiverServer(
 
     private fun uploadPage(session: IHTTPSession): Response {
         recordClient(session)
-        val htmlTemplate = try {
+        val html = try {
             context.assets.open("upload_page.html").bufferedReader().use { it.readText() }
         } catch (e: Exception) {
             "<html><body><h2>Error loading UI</h2><p>${e.message}</p></body></html>"
         }
-        val html = htmlTemplate.replace("{{TOKEN}}", token)
         return newFixedLengthResponse(Response.Status.OK, MIME_HTML, html)
     }
 
     private fun handlePing(session: IHTTPSession): Response {
-        val reqToken = session.parms["token"] ?: session.parameters["token"]?.firstOrNull()
-        if (reqToken == token) {
-            recordClient(session)
-            return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "pong")
-        }
-        return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Bad token")
+        recordClient(session)
+        return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "pong")
     }
 
     private fun handleDisconnect(session: IHTTPSession): Response {
-        val reqToken = session.parms["token"] ?: session.parameters["token"]?.firstOrNull()
-        if (reqToken == token) {
-            TvReceiverState.updateConnectedClient(null)
-            TvReceiverState.emitReceivingProgress(null)
-        }
+        TvReceiverState.updateConnectedClient(null)
+        TvReceiverState.emitReceivingProgress(null)
         return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "ok")
     }
 
@@ -115,10 +106,6 @@ class ApkReceiverServer(
     }
 
     private fun handleUpload(session: IHTTPSession): Response {
-        val reqToken = session.parms["token"] ?: session.parameters["token"]?.firstOrNull()
-        if (reqToken != token) {
-            return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Bad token")
-        }
         recordClient(session)
 
         val contentLength = session.headers["content-length"]?.toLongOrNull() ?: 0L
@@ -151,7 +138,6 @@ class ApkReceiverServer(
             )
             Thread.sleep(100)
             TvReceiverState.emitReceivingProgress(null)
-            TvReceiverState.updateConnectedClient(null)
             TvReceiverState.emitReceived(
                 ReceivedApk(path = savedFile.absolutePath, fileName = savedFile.name, sizeBytes = savedFile.length())
             )

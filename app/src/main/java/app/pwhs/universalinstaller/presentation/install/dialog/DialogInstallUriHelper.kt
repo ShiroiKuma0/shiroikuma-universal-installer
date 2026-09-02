@@ -17,13 +17,19 @@ object DialogInstallUriHelper {
         // 1. Data URI (VIEW / INSTALL_PACKAGE)
         source.data?.takeIf { isSupportedScheme(it.scheme) }?.let(out::add)
 
-        // 2. EXTRA_STREAM (SEND / SEND_MULTIPLE)
+        // 2. EXTRA_STREAM or EXTRA_TEXT (SEND / SEND_MULTIPLE)
         @Suppress("DEPRECATION")
         when (source.action) {
-            Intent.ACTION_SEND ->
+            Intent.ACTION_SEND -> {
                 (source.getParcelableExtra(Intent.EXTRA_STREAM) as? Uri)
                     ?.takeIf { isSupportedScheme(it.scheme) }
                     ?.let(out::add)
+
+                val text = source.getStringExtra(Intent.EXTRA_TEXT)?.trim()
+                if (!text.isNullOrBlank() && (text.startsWith("http://", ignoreCase = true) || text.startsWith("https://", ignoreCase = true))) {
+                    runCatching { Uri.parse(text) }.getOrNull()?.let(out::add)
+                }
+            }
             Intent.ACTION_SEND_MULTIPLE ->
                 source.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
                     ?.filterNotNull()

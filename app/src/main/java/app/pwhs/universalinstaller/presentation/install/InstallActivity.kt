@@ -90,10 +90,13 @@ class InstallActivity : BaseActivity() {
                     }
                     if (settled == null) return@collect
                     AppReview.launch(this@InstallActivity)
-                    // Recorded whether or not Play showed anything — we cannot tell, and an ask
-                    // we cannot see the result of still has to count against the gate.
+                    val installs = ReviewGate.getSuccessfulInstallCount(this@InstallActivity)
                     ReviewGate.recordPrompted(this@InstallActivity)
                     Telemetry.feature(TelemetryEvents.FEATURE_REVIEW_PROMPT)
+                    app.pwhs.core.telemetry.AnalyticsHelper.logReviewPromptTriggered(
+                        triggerReason = app.pwhs.core.telemetry.TelemetryEvents.TRIGGER_INSTALL_SUCCESS_MILESTONE,
+                        totalSuccessfulInstalls = installs
+                    )
                 }
             }
         }

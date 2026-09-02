@@ -94,9 +94,8 @@ class ManageViewModel(
 
     // ── Extraction Actions ──────────────────────────────────────────────────
 
-    fun extractApp(packageName: String, appName: String) {
+    fun extractApp(packageName: String, appName: String) =
         runExtraction(packageName, appName, ExtractMode.Backup, outputDir = null)
-    }
 
     fun shareApp(packageName: String, appName: String) {
         val shareDir = File(application.cacheDir, "share").apply { mkdirs() }
@@ -111,9 +110,7 @@ class ManageViewModel(
     }
 
     fun scanVirusTotal(context: android.content.Context, app: InstalledApp) {
-        viewModelScope.launch {
-            ManageExtractHelper.scanVirusTotal(context, app)
-        }
+        viewModelScope.launch { ManageExtractHelper.scanVirusTotal(context, app) }
     }
 
     fun addToServer(packageName: String, appName: String) {
@@ -131,8 +128,14 @@ class ManageViewModel(
         outputDir: File?,
     ) {
         if (_extractState.value is ExtractState.Running) return
-        if (_batchExtractState.value is BatchExtractState.Running) return
         if (mode == ExtractMode.Backup) Telemetry.feature(TelemetryEvents.FEATURE_APK_BACKUP)
+        val actionType = when (mode) {
+            ExtractMode.Backup -> app.pwhs.core.telemetry.TelemetryEvents.ACTION_BACKUP_APK
+            ExtractMode.Share -> app.pwhs.core.telemetry.TelemetryEvents.ACTION_SHARE_APK
+            ExtractMode.Reinstall -> app.pwhs.core.telemetry.TelemetryEvents.ACTION_EXTRACT_SPLITS
+            else -> null
+        }
+        actionType?.let { app.pwhs.core.telemetry.AnalyticsHelper.logAppManagementAction(it) }
         extractJob?.cancel()
         _extractState.value = ExtractState.Running(packageName, appName, 0L, 1L, mode)
         extractJob = viewModelScope.launch {
@@ -402,6 +405,7 @@ class ManageViewModel(
 
     fun uninstallApp(packageName: String) {
         Telemetry.feature(TelemetryEvents.FEATURE_UNINSTALL)
+        app.pwhs.core.telemetry.AnalyticsHelper.logAppManagementAction(app.pwhs.core.telemetry.TelemetryEvents.ACTION_UNINSTALL_APP)
         val app = _apps.value.firstOrNull { it.packageName == packageName }
         if (app != null && app.isSystemApp) {
             viewModelScope.launch {

@@ -363,6 +363,7 @@ private fun InstallUi(
                     SingletonApkSequence(uri, context).toSplitPackage()
                 }
             }
+            app.pwhs.core.telemetry.AnalyticsHelper.logFilePicked(extension, 1, app.pwhs.core.telemetry.TelemetryEvents.SOURCE_SYSTEM_FILE_PICKER)
             onFilePicked(uri, apks, displayName)
         }
 
@@ -412,6 +413,7 @@ private fun InstallUi(
                     .filterCompatible(context)
                 else -> SingletonApkSequence(uri, context).toSplitPackage()
             }
+            app.pwhs.core.telemetry.AnalyticsHelper.logFilePicked(extension, 1, app.pwhs.core.telemetry.TelemetryEvents.SOURCE_EXTERNAL_INTENT)
             onFilePicked(uri, apks, displayName)
         } catch (e: Exception) {
             Timber.e(e, "Failed to process intent URI: $uri")
@@ -696,6 +698,11 @@ private fun InstallUi(
                                 context,
                                 fileUri,
                                 file.extension.lowercase()
+                            )
+                            app.pwhs.core.telemetry.AnalyticsHelper.logFilePicked(
+                                file.extension,
+                                1,
+                                app.pwhs.core.telemetry.TelemetryEvents.SOURCE_LOCAL_DOWNLOADS
                             )
                             onFilePicked(fileUri, provider, file.name)
                         },

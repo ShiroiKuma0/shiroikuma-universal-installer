@@ -53,19 +53,36 @@ abstract class BaseInstallController(
      */
     protected abstract val telemetryMethod: String
 
+    private val sessionStartTimes = mutableMapOf<UUID, Long>()
+    private val sessionFileTypes = mutableMapOf<UUID, String>()
+    private val sessionFileSizes = mutableMapOf<UUID, Long>()
+
     /**
-     * @param method overridden only where one controller drives more than one backend, as
-     *   `ManualInstallController` does.
+     * @param method overridden only where one controller drives more than one backend.
      */
-    protected fun reportInstallStarted(apkCount: Int, method: String = telemetryMethod) {
-        // Set from the backend that actually ran rather than from the Settings preference: a
-        // crash report wants to know which code path was live, and the two disagree whenever
-        // the chosen backend was unavailable and we fell back.
+    protected fun reportInstallStarted(
+        apkCount: Int,
+        method: String = telemetryMethod,
+        id: UUID? = null,
+        fileType: String = "apk",
+        fileSizeBytes: Long = 0L,
+    ) {
+        if (id != null) {
+            sessionStartTimes[id] = System.currentTimeMillis()
+            sessionFileTypes[id] = fileType
+            sessionFileSizes[id] = fileSizeBytes
+        }
         Telemetry.setUserProperty(TelemetryEvents.PROPERTY_INSTALL_METHOD, method)
         Telemetry.event(
             TelemetryEvents.INSTALL_STARTED,
             TelemetryEvents.PARAM_METHOD to method,
             TelemetryEvents.PARAM_APK_COUNT to apkCount,
+        )
+        app.pwhs.core.telemetry.AnalyticsHelper.logInstallStarted(
+            fileType = fileType,
+            installMode = method,
+            isSplit = apkCount > 1,
+            fileSizeBytes = fileSizeBytes,
         )
     }
 
@@ -73,12 +90,29 @@ abstract class BaseInstallController(
         result: String,
         method: String = telemetryMethod,
         failureKey: String? = null,
+        id: UUID? = null,
     ) {
+        val durationMs = id?.let { sessionStartTimes.remove(it) }?.let { System.currentTimeMillis() - it } ?: 0L
+        val fileType = id?.let { sessionFileTypes.remove(it) } ?: "apk"
+        sessionFileSizes.remove(id)
+
         Telemetry.event(
             TelemetryEvents.INSTALL_RESULT,
             TelemetryEvents.PARAM_METHOD to method,
             TelemetryEvents.PARAM_RESULT to result,
             TelemetryEvents.PARAM_FAILURE to failureKey,
+        )
+        val status = when (result) {
+            TelemetryEvents.RESULT_SUCCESS -> app.pwhs.core.telemetry.TelemetryEvents.RESULT_SUCCESS
+            TelemetryEvents.RESULT_CANCELLED -> app.pwhs.core.telemetry.TelemetryEvents.RESULT_CANCELLED
+            else -> app.pwhs.core.telemetry.TelemetryEvents.RESULT_FAILURE
+        }
+        app.pwhs.core.telemetry.AnalyticsHelper.logInstallResult(
+            fileType = fileType,
+            status = status,
+            errorCode = failureKey,
+            installMode = method,
+            durationMs = durationMs,
         )
     }
 
@@ -132,7 +166,11 @@ abstract class BaseInstallController(
             // Installing/Success/Failed watchers off this — using the caller-passed id won't
             // match because addSessionData stores the data under session.id, not sessionData.id.
             onSessionCreated?.invoke(session.id)
-            reportInstallStarted(uris.size)
+            val fileType = originalUri?.lastPathSegment?.substringAfterLast('.', "") ?: "apk"
+            val fileSizeBytes = originalUri?.let { uri ->
+                runCatching { context?.contentResolver?.openFileDescriptor(uri, "r")?.statSize }.getOrNull() ?: 0L
+            } ?: 0L
+            reportInstallStarted(uris.size, id = session.id, fileType = fileType, fileSizeBytes = fileSizeBytes)
             awaitSession(session, scope, context)
         }
     }
@@ -246,7 +284,7 @@ abstract class BaseInstallController(
                 val sessionData = sessionDataRepository.sessions.value.find { it.id == session.id }
                 when (val result = session.await()) {
                     Session.State.Succeeded -> {
-                        reportInstallResult(TelemetryEvents.RESULT_SUCCESS)
+                        reportInstallResult(TelemetryEvents.RESULT_SUCCESS, id = session.id)
                         saveHistory(sessionData, success = true)
                         // Hook runs BEFORE source deletion so the hook can still read the original
                         // zip (e.g. to extract OBB entries). Errors are caller-reported; we don't
@@ -271,6 +309,7 @@ abstract class BaseInstallController(
                         reportInstallResult(
                             TelemetryEvents.RESULT_FAILURE,
                             failureKey = InstallErrorHelper.failureKey(result.failure),
+                            id = session.id,
                         )
                         if (context == null) return@launch
                         val errorInfo = InstallErrorHelper.getErrorInfo(context, result.failure)
@@ -286,7 +325,7 @@ abstract class BaseInstallController(
                     }
                 }
             } catch (e: CancellationException) {
-                reportInstallResult(TelemetryEvents.RESULT_CANCELLED)
+                reportInstallResult(TelemetryEvents.RESULT_CANCELLED, id = session.id)
                 sessionDataRepository.removeSessionData(session.id)
                 activeSessions.remove(session.id)
                 sessionUris.remove(session.id)
@@ -343,115 +382,11 @@ abstract class BaseInstallController(
      * that into something the user can see. Silently swallowing it is what made issue #100 look
      * like the setting did nothing at all.
      */
-    protected fun deleteSourceFile(context: Context, uri: Uri): Boolean {
-        // 1. Direct file:// scheme
-        if (uri.scheme == ContentResolver.SCHEME_FILE) {
-            val path = uri.path
-            if (path == null) {
-                Timber.e("No path on file uri: $uri")
-                return false
-            }
-            return runCatching { File(path).delete() }
-                .onFailure { Timber.e(it, "Failed to delete source file: $uri") }
-                .getOrDefault(false)
-        }
+    protected fun deleteSourceFile(context: Context, uri: Uri): Boolean =
+        app.pwhs.universalinstaller.presentation.install.util.SourceFileDeleter.deleteSourceFile(context, uri)
 
-        runCatching {
-            // Write access granted by our own OpenDocument picker. Absent for URIs handed to us
-            // by another app, which typically grant read only.
-            context.contentResolver.takePersistableUriPermission(
-                uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
-        }
-
-        // 2. DocumentsContract.deleteDocument (DocumentsProvider URIs)
-        val docDeleted = runCatching {
-            if (DocumentsContract.isDocumentUri(context, uri)) {
-                DocumentsContract.deleteDocument(context.contentResolver, uri)
-            } else {
-                false
-            }
-        }.getOrDefault(false)
-        if (docDeleted) return true
-
-        // 3. DocumentFile delete (Single or tree document)
-        val docFileDeleted = runCatching {
-            androidx.documentfile.provider.DocumentFile.fromSingleUri(context, uri)?.delete() == true
-        }.getOrDefault(false)
-        if (docFileDeleted) return true
-
-        // 4. ContentResolver.delete (MediaStore or generic ContentProvider)
-        val crDeleted = runCatching {
-            context.contentResolver.delete(uri, null, null) > 0
-        }.getOrDefault(false)
-        if (crDeleted) return true
-
-        // 5. Direct path resolution fallback (when All Files Access / MANAGE_EXTERNAL_STORAGE is granted)
-        return runCatching {
-            val resolvedPath = resolveFilePathFromUri(context, uri)
-            if (resolvedPath != null) {
-                val file = File(resolvedPath)
-                file.exists() && file.delete()
-            } else {
-                false
-            }
-        }.onFailure { Timber.e(it, "Failed to delete resolved file from uri: $uri") }
-            .getOrDefault(false)
-    }
-
-    private fun resolveFilePathFromUri(context: Context, uri: Uri): String? {
-        return runCatching {
-            // Check raw path inside URI
-            val rawPath = uri.path
-            if (rawPath != null) {
-                val storageIdx = rawPath.indexOf("/storage/")
-                if (storageIdx != -1) {
-                    val candidate = rawPath.substring(storageIdx)
-                    if (File(candidate).exists()) return candidate
-                }
-            }
-
-            // DocumentsProvider primary volume
-            if (DocumentsContract.isDocumentUri(context, uri)) {
-                val docId = DocumentsContract.getDocumentId(uri)
-                if (docId.startsWith("primary:")) {
-                    val relativePath = docId.substringAfter("primary:")
-                    val file = File(android.os.Environment.getExternalStorageDirectory(), relativePath)
-                    if (file.exists()) return file.absolutePath
-                }
-            }
-
-            // MediaStore DATA column
-            val projection = arrayOf(android.provider.MediaStore.MediaColumns.DATA)
-            context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val colIdx = cursor.getColumnIndex(android.provider.MediaStore.MediaColumns.DATA)
-                    if (colIdx != -1) {
-                        val filePath = cursor.getString(colIdx)
-                        if (!filePath.isNullOrBlank() && File(filePath).exists()) {
-                            return filePath
-                        }
-                    }
-                }
-            }
-            null
-        }.getOrNull()
-    }
-
-    /** [deleteSourceFile], plus a toast when the file survived so the user isn't left guessing. */
-    protected suspend fun deleteSourceFileAndWarn(context: Context, uri: Uri) {
-        if (deleteSourceFile(context, uri)) {
-            Timber.d("Deleted source file: $uri")
-            return
-        }
-        withContext(Dispatchers.Main) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.install_delete_source_failed),
-                Toast.LENGTH_LONG,
-            ).show()
-        }
-    }
+    protected suspend fun deleteSourceFileAndWarn(context: Context, uri: Uri) =
+        app.pwhs.universalinstaller.presentation.install.util.SourceFileDeleter.deleteSourceFileAndWarn(context, uri)
 
     private suspend fun deleteSourceFileIfNeeded(sessionId: UUID, context: Context?) {
         if (deleteFlags[sessionId] != true || context == null) return

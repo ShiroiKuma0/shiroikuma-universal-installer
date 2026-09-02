@@ -20,6 +20,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -108,10 +109,16 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(if (showOnboarding) AppRoute.Onboarding else AppRoute.Main)
             }
 
+            var onboardingStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+
             UniversalInstallerTheme(darkTheme = darkTheme) {
                 when (currentRoute) {
                     AppRoute.Onboarding -> OnboardingScreen(
-                        onFinish = { currentRoute = AppRoute.Main },
+                        onFinish = {
+                            val durationSec = (System.currentTimeMillis() - onboardingStartTime) / 1000L
+                            app.pwhs.core.telemetry.AnalyticsHelper.logOnboardingComplete(stepCount = 4, durationSec = durationSec)
+                            currentRoute = AppRoute.Main
+                        },
                         showXiaomiTip = DeviceCompat.isXiaomi,
                         showVirusTotalTip = true,
                         // Only the build that has reporting asks about it. On `opensource`

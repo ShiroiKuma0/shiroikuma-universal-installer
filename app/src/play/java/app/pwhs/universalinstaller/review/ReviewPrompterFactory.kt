@@ -35,13 +35,29 @@ private class PlayReviewPrompter(context: Context) : ReviewPrompter {
         // skipped one, and the sheet is Play's to schedule anyway.
         val info = pending ?: request() ?: return
         pending = null
+        val launchTime = System.currentTimeMillis()
         runCatching { manager.launchReview(activity, info) }
+            .onSuccess {
+                val durationSec = (System.currentTimeMillis() - launchTime) / 1000L
+                app.pwhs.core.telemetry.AnalyticsHelper.logInAppReviewDismissed(durationSec)
+            }
             // Includes the ordinary case of Play declining to show anything: it reports success
             // either way, so a failure here is a real one and worth a breadcrumb.
             .onFailure { Timber.w(it, "In-app review flow did not run") }
     }
 
     private suspend fun request(): ReviewInfo? = runCatching { manager.requestReview() }
-        .onFailure { Timber.w(it, "Could not request the in-app review flow") }
+        .onSuccess {
+            app.pwhs.core.telemetry.AnalyticsHelper.logInAppReviewRequested(
+                status = "ready"
+            )
+        }
+        .onFailure {
+            Timber.w(it, "Could not request the in-app review flow")
+            app.pwhs.core.telemetry.AnalyticsHelper.logInAppReviewRequested(
+                status = "error",
+                errorMessage = it.message
+            )
+        }
         .getOrNull()
 }

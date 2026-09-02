@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        app.pwhs.tv.telemetry.TvTelemetryInit.init(applicationContext)
         takeInExternalApks(intent)
 
         // Only play the brand splash on a genuine cold start — not on config-change/locale recreate,

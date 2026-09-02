@@ -173,6 +173,7 @@ private fun AboutUi(
                     title = stringResource(R.string.setting_rate_title),
                     subtitle = stringResource(R.string.setting_rate_subtitle),
                     onClick = {
+                        app.pwhs.core.telemetry.AnalyticsHelper.logManualRateClicked("settings_menu")
                         uriHandler.openUri("https://play.google.com/store/apps/details?id=app.pwhs.universalinstaller")
                     },
                 )

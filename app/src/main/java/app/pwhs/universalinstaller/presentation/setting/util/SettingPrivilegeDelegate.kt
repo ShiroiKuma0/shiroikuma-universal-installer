@@ -59,11 +59,13 @@ class SettingPrivilegeDelegate(
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
         Timber.d("Shizuku binder received")
+        app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_CONNECTED)
         updateShizukuState()
     }
 
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
         Timber.d("Shizuku binder dead")
+        app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_SERVICE_DEAD)
         updateShizukuState()
     }
 
@@ -72,10 +74,12 @@ class SettingPrivilegeDelegate(
             if (requestCode != SHIZUKU_PERMISSION_REQ_CODE) return@OnRequestPermissionResultListener
             updateShizukuState()
             if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_CONNECTED)
                 scope.launch {
                     dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
                 }
             } else {
+                app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_PERMISSION_DENIED)
                 emitEvent(R.string.setting_shizuku_permission_denied)
             }
         }
@@ -293,6 +297,13 @@ class SettingPrivilegeDelegate(
             TelemetryEvents.PARAM_ENABLED to enabled,
             TelemetryEvents.PARAM_RESULT to result,
         )
+        val action = if (result == TelemetryEvents.RESULT_SUCCESS) {
+            app.pwhs.core.telemetry.TelemetryEvents.DEFAULT_INSTALLER_SET_SUCCESS
+        } else {
+            app.pwhs.core.telemetry.TelemetryEvents.DEFAULT_INSTALLER_CANCELLED
+        }
+        app.pwhs.core.telemetry.AnalyticsHelper.logDefaultInstallerAction(action)
+        app.pwhs.core.telemetry.AnalyticsHelper.updateIsDefaultInstaller(enabled && result == TelemetryEvents.RESULT_SUCCESS)
     }
 
     private fun defaultInstallerComponent(): ComponentName =

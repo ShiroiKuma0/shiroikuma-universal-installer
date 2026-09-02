@@ -17,6 +17,8 @@ import app.pwhs.core.receiver.ReceivingProgress
 import app.pwhs.core.receiver.ReceiverStatus
 import app.pwhs.core.receiver.TvReceiverState
 import app.pwhs.core.receiver.TvReceiver
+import app.pwhs.core.telemetry.AnalyticsHelper
+import app.pwhs.core.telemetry.TelemetryEvents
 import app.pwhs.core.util.RootShell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -90,8 +92,21 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             TvReceiverState.received.collectLatest { received ->
                 _installResult.value = null
+                val ext = received.fileName.substringAfterLast('.', "")
+                AnalyticsHelper.logFilePicked(
+                    fileType = ext,
+                    fileCount = 1,
+                    source = TelemetryEvents.SOURCE_TV_RECEIVED
+                )
                 // Extract metadata immediately for received APK
                 val metadata = metadataReader.readMetadata(Uri.fromFile(File(received.path)), received.fileName.isBundleName())
+                val status = if (metadata != null) TelemetryEvents.PARSE_SUCCESS else TelemetryEvents.PARSE_CORRUPTED
+                AnalyticsHelper.logPackageParseResult(
+                    fileType = ext,
+                    status = status,
+                    hasObb = false,
+                    targetSdk = metadata?.targetSdk ?: 0
+                )
                 _pendingApk.value = received.copy(metadata = metadata)
             }
         }
@@ -144,6 +159,15 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
                 context.dataStore.data.first()[SharedPrefsKeys.ROOT_SILENT_INSTALL]
             }.getOrNull() ?: true
             val useRoot = silentPref && RootShell.isAvailable()
+            val startTime = System.currentTimeMillis()
+            val ext = uri.lastPathSegment?.substringAfterLast('.', "") ?: "apk"
+            val installMode = if (useRoot) TelemetryEvents.MODE_ROOT else TelemetryEvents.MODE_SESSION_INSTALLER
+            AnalyticsHelper.logInstallStarted(
+                fileType = ext,
+                installMode = installMode,
+                isSplit = isBundle,
+                fileSizeBytes = sizeBytes
+            )
             val result = withContext(Dispatchers.IO) {
                 if (useRoot) {
                     rootInstaller.install(uri, isBundle) { f -> _installProgress.value = f }
@@ -153,6 +177,16 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
                     }
                 }
             }
+            val durationMs = System.currentTimeMillis() - startTime
+            val status = if (result is ApkInstaller.Result.Success) TelemetryEvents.RESULT_SUCCESS else TelemetryEvents.RESULT_FAILURE
+            val err = (result as? ApkInstaller.Result.Failure)?.message
+            AnalyticsHelper.logInstallResult(
+                fileType = ext,
+                status = status,
+                errorCode = err,
+                installMode = installMode,
+                durationMs = durationMs
+            )
             _installingLabel.value = null
             _installProgress.value = null
             _installResult.value = when (result) {

@@ -66,11 +66,19 @@ object ReviewGate {
      */
     suspend fun recordSuccessfulInstall(context: Context) {
         if (!AppReview.isAvailable) return
-        val prefs = edit(context) { it[SUCCESSFUL_INSTALLS] = (it[SUCCESSFUL_INSTALLS] ?: 0) + 1 }
-            ?: return
+        val prefs = edit(context) {
+            val total = (it[SUCCESSFUL_INSTALLS] ?: 0) + 1
+            it[SUCCESSFUL_INSTALLS] = total
+            app.pwhs.core.telemetry.AnalyticsHelper.updateTotalInstallsTier(total)
+        } ?: return
         // tryEmit, not emit: with no collector the moment has passed, and the install path must
         // not wait on it either way.
         if (isEligible(prefs)) _opportunities.tryEmit(Unit)
+    }
+
+    suspend fun getSuccessfulInstallCount(context: Context): Int {
+        val prefs = runCatching { context.dataStore.data.first() }.getOrNull()
+        return prefs?.get(SUCCESSFUL_INSTALLS) ?: 0
     }
 
     /** Whether an ask would be allowed right now, for deciding to pre-warm the review flow. */

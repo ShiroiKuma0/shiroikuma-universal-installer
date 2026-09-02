@@ -105,6 +105,8 @@ internal fun PermissionCenterSheet(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         tick += 1
+        val status = if (granted) app.pwhs.core.telemetry.TelemetryEvents.STATUS_GRANTED else app.pwhs.core.telemetry.TelemetryEvents.STATUS_DENIED
+        app.pwhs.core.telemetry.AnalyticsHelper.logPermissionResult(app.pwhs.core.telemetry.TelemetryEvents.PERM_NOTIFICATIONS, status)
         // If denied via runtime dialog AND the system says we shouldn't show rationale anymore,
         // it means user permanently denied (or hit "Don't ask again"). Fall back to settings.
         if (!granted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -215,6 +217,13 @@ internal fun PermissionCenterSheet(
                     PermissionRow(
                         item = item,
                         onGrant = {
+                            val permType = when (item.kind) {
+                                PermKind.Install -> app.pwhs.core.telemetry.TelemetryEvents.PERM_INSTALL_PACKAGES
+                                PermKind.Storage -> app.pwhs.core.telemetry.TelemetryEvents.PERM_MANAGE_EXTERNAL_STORAGE
+                                PermKind.Notifications -> app.pwhs.core.telemetry.TelemetryEvents.PERM_NOTIFICATIONS
+                                PermKind.Usage -> "usage_stats"
+                            }
+                            app.pwhs.core.telemetry.AnalyticsHelper.logPermissionRequested(permType, app.pwhs.core.telemetry.TelemetryEvents.SOURCE_FIRST_INSTALL)
                             when (item.kind) {
                                 PermKind.Notifications -> {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -229,7 +238,11 @@ internal fun PermissionCenterSheet(
                                         // Permanently denied: rationale=false AND not granted AND we already asked
                                         // before. Skip the silent runtime dialog and go straight to settings.
                                         if (runtimeDenied && !deniedOnce && hasAskedBeforeNotifPref(context) && activity != null) {
-                                            PermissionMonitor.start(activity) { isNotificationsGranted(context) }
+                                            PermissionMonitor.start(activity) {
+                                                val granted = isNotificationsGranted(context)
+                                                if (granted) app.pwhs.core.telemetry.AnalyticsHelper.logPermissionResult(permType, app.pwhs.core.telemetry.TelemetryEvents.STATUS_GRANTED)
+                                                granted
+                                            }
                                             settingsLauncher.launch(notificationSettingsIntent(context))
                                         } else {
                                             markAskedNotifPref(context)
@@ -238,7 +251,11 @@ internal fun PermissionCenterSheet(
                                     } else {
                                         val intent = notificationSettingsIntent(context)
                                         if (activity != null) {
-                                            PermissionMonitor.start(activity) { isNotificationsGranted(context) }
+                                            PermissionMonitor.start(activity) {
+                                                val granted = isNotificationsGranted(context)
+                                                if (granted) app.pwhs.core.telemetry.AnalyticsHelper.logPermissionResult(permType, app.pwhs.core.telemetry.TelemetryEvents.STATUS_GRANTED)
+                                                granted
+                                            }
                                         }
                                         settingsLauncher.launch(intent)
                                     }
@@ -248,11 +265,14 @@ internal fun PermissionCenterSheet(
                                     if (intent != null) {
                                         if (activity != null) {
                                             PermissionMonitor.start(activity) {
-                                                when (item.kind) {
+                                                val granted = when (item.kind) {
                                                     PermKind.Install -> isInstallGranted(context)
                                                     PermKind.Storage -> isAllFilesAccessGranted(context)
                                                     PermKind.Usage -> isUsageAccessGranted(context)
+                                                    PermKind.Notifications -> false
                                                 }
+                                                if (granted) app.pwhs.core.telemetry.AnalyticsHelper.logPermissionResult(permType, app.pwhs.core.telemetry.TelemetryEvents.STATUS_GRANTED)
+                                                granted
                                             }
                                         }
                                         settingsLauncher.launch(intent)

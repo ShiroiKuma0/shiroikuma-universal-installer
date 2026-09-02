@@ -16,8 +16,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 import app.pwhs.core.install.ApkExtractor
+import app.pwhs.core.telemetry.AnalyticsHelper
+import app.pwhs.core.telemetry.TelemetryEvents
 
 enum class AppFilter { User, System, Disabled }
 enum class SortBy { Name, Size, Date }
@@ -159,6 +160,7 @@ class ManageViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun uninstallSilent(app: InstalledApp) = runAction {
+        AnalyticsHelper.logAppManagementAction(TelemetryEvents.ACTION_UNINSTALL_APP)
         PrivilegedAppOps.uninstall(app.packageName, system = app.isSystemApp)
             .toResult("Uninstalled ${app.appName}", "Uninstall failed")
     }
@@ -230,6 +232,7 @@ class ManageViewModel(application: Application) : AndroidViewModel(application) 
 
     fun extractApp(packageName: String, appName: String) {
         if (_extractState.value is ExtractState.Running) return
+        AnalyticsHelper.logAppManagementAction(TelemetryEvents.ACTION_BACKUP_APK)
         extractJob?.cancel()
         _extractState.value = ExtractState.Running(packageName, appName, 0L, 1L)
         extractJob = viewModelScope.launch {

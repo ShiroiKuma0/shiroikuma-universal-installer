@@ -78,6 +78,17 @@ class InstallParseDelegate(
                 currentProfiles = currentProfiles,
                 appProfileMapping = appProfileMapping,
             )
+            val status = if (result.info.packageName.isNotEmpty()) {
+                app.pwhs.core.telemetry.TelemetryEvents.PARSE_SUCCESS
+            } else {
+                app.pwhs.core.telemetry.TelemetryEvents.PARSE_CORRUPTED
+            }
+            app.pwhs.core.telemetry.AnalyticsHelper.logPackageParseResult(
+                fileType = fileName.substringAfterLast('.', ""),
+                status = status,
+                hasObb = result.obbEntries.isNotEmpty(),
+                targetSdk = result.info.targetSdkVersion
+            )
             pendingApkUris = result.splitUris
             obbDelegate.setPendingEntries(result.obbEntries)
             _pendingApkInfo.value = result.info

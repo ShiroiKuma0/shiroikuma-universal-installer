@@ -9,7 +9,11 @@ plugins {
 
 android {
     namespace = "app.pwhs.updater"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk {
+        version = release(libs.versions.compileSdk.get().toInt()) {
+            minorApiLevel = 0
+        }
+    }
 
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()

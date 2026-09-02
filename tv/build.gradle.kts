@@ -19,7 +19,11 @@ if (hasFirebaseConfig) {
 
 android {
     namespace = "app.pwhs.tv"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk {
+        version = release(libs.versions.compileSdk.get().toInt()) {
+            minorApiLevel = 0
+        }
+    }
 
     defaultConfig {
         applicationId = "app.pwhs.universalinstaller.tv"
@@ -74,6 +78,12 @@ android {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+
+    packaging {
+        jniLibs {
+            keepDebugSymbols.add("**/*.so")
+        }
     }
 }
 

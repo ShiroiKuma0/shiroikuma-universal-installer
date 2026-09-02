@@ -44,7 +44,11 @@ if (hasFirebaseConfig) {
 
 android {
     namespace = "app.pwhs.universalinstaller"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk {
+        version = release(libs.versions.compileSdk.get().toInt()) {
+            minorApiLevel = 0
+        }
+    }
 
     defaultConfig {
         applicationId = "app.pwhs.universalinstaller"
@@ -120,6 +124,12 @@ android {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+
+    packaging {
+        jniLibs {
+            keepDebugSymbols.add("**/*.so")
+        }
     }
 }
 

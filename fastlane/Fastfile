@@ -27,7 +27,9 @@ platform :android do
     gradle(task: ":app:bundlePlayRelease")
     upload_to_play_store(
       track: "internal",
+      package_name: "app.pwhs.universalinstaller",
       aab: "app/build/outputs/bundle/playRelease/app-play-release.aab",
+      json_key: "fastlane/play-store-key.json",
       skip_upload_metadata: false,
       skip_upload_images: false,
       skip_upload_screenshots: true,
@@ -40,6 +42,7 @@ platform :android do
     gradle(task: ":app:bundlePlayRelease")
     upload_to_play_store(
       track: "beta",
+      package_name: "app.pwhs.universalinstaller",
       aab: "app/build/outputs/bundle/playRelease/app-play-release.aab",
       json_key: "fastlane/play-store-key.json",
       skip_upload_metadata: false,
@@ -54,8 +57,57 @@ platform :android do
     gradle(task: ":app:bundlePlayRelease")
     upload_to_play_store(
       track: "production",
+      package_name: "app.pwhs.universalinstaller",
       aab: "app/build/outputs/bundle/playRelease/app-play-release.aab",
       json_key: "fastlane/play-store-key.json",
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false,
+      release_status: "draft"
+    )
+  end
+
+  desc "Deploy TV to internal testing track"
+  lane :internal_tv do
+    gradle(task: ":tv:bundleRelease")
+    upload_to_play_store(
+      track: "internal",
+      package_name: "app.pwhs.universalinstaller.tv",
+      aab: "tv/build/outputs/bundle/release/tv-release.aab",
+      json_key: "fastlane/play-store-key.json",
+      metadata_path: "./fastlane_tv/metadata/android",
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: false,
+    )
+  end
+
+  desc "Deploy TV to closed testing track"
+  lane :beta_tv do
+    gradle(task: ":tv:bundleRelease")
+    upload_to_play_store(
+      track: "beta",
+      package_name: "app.pwhs.universalinstaller.tv",
+      aab: "tv/build/outputs/bundle/release/tv-release.aab",
+      json_key: "fastlane/play-store-key.json",
+      metadata_path: "./fastlane_tv/metadata/android",
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: false,
+    )
+  end
+
+  desc "Deploy TV to production"
+  lane :production_tv do
+    gradle(task: ":tv:bundleRelease")
+    upload_to_play_store(
+      track: "production",
+      package_name: "app.pwhs.universalinstaller.tv",
+      aab: "tv/build/outputs/bundle/release/tv-release.aab",
+      json_key: "fastlane/play-store-key.json",
+      metadata_path: "./fastlane_tv/metadata/android",
       skip_upload_metadata: false,
       skip_upload_images: false,
       skip_upload_screenshots: false,
@@ -84,5 +136,25 @@ platform :android do
     File.write("../app/build.gradle.kts", new_content)
 
     UI.success("✅ Bumped to versionCode=#{new_code}, versionName=#{version_name}")
+  end
+
+  desc "Increment TV version code"
+  lane :bump_version_tv do |options|
+    version_name = options[:version] || "1.0"
+    build_gradle = File.read("../tv/build.gradle.kts")
+    current_code = build_gradle.match(/versionCode = (\d+)/)[1].to_i
+    new_code = current_code + 1
+
+    new_content = build_gradle.gsub(
+      /versionCode = \d+/,
+      "versionCode = #{new_code}"
+    )
+    new_content = new_content.gsub(
+      /versionName = ".*"/,
+      "versionName = \"#{version_name}\""
+    )
+    File.write("../tv/build.gradle.kts", new_content)
+
+    UI.success("✅ TV bumped to versionCode=#{new_code}, versionName=#{version_name}")
   end
 end

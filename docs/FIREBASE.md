@@ -31,9 +31,9 @@ The file is **not** in the repository — it carries our Firebase project's app 
 this repo is public.
 
 1. In the [Firebase console](https://console.firebase.google.com/), open the project and add (or
-   select) an Android app with package name `app.pwhs.universalinstaller`.
+   select) Android apps with package names `app.pwhs.universalinstaller` and `app.pwhs.universalinstaller.tv`.
 2. Download `google-services.json`.
-3. Put it at `app/src/play/google-services.json`. It is gitignored; do not commit it.
+3. Put it at `app/src/play/google-services.json` and `tv/google-services.json`. They are gitignored; do not commit them.
 
 For CI, the same file is stored base64-encoded in the `GOOGLE_SERVICES_JSON` repository secret and
 written back by the `Decode Firebase config` step of `.github/workflows/publish-release.yml`:

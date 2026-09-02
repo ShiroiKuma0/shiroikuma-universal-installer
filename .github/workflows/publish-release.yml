@@ -62,12 +62,13 @@ jobs:
       - name: Decode Play Store key
         run: echo "${{ secrets.PLAY_STORE_CONFIG_JSON }}" | base64 --decode > fastlane/play-store-key.json
 
-      # Enables the `play` flavor. Without this file :app has no play variants at all and every
+      # Enables the `play` flavor and TV Firebase integration. Without this file :app has no play variants at all and every
       # bundlePlayRelease below fails with "task not found" — see docs/FIREBASE.md.
       - name: Decode Firebase config
         run: |
           mkdir -p app/src/play
           echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/src/play/google-services.json
+          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > tv/google-services.json
 
       # Build & Deploy
       - name: Grant execute permission
@@ -86,12 +87,12 @@ jobs:
       - name: Deploy TV to production track
         id: play_store_tv_production
         continue-on-error: true
-        run: bundle exec fastlane production --fastlane_dir=fastlane_tv
+        run: bundle exec fastlane production_tv
 
       - name: Deploy TV to closed testing track
         id: play_store_tv_beta
         continue-on-error: true
-        run: bundle exec fastlane beta --fastlane_dir=fastlane_tv
+        run: bundle exec fastlane beta_tv
 
       # F-Droid rebuilds the opensource APK from a plain checkout and requires it to match the
       # one published here byte for byte. A checkout has no google-services.json, so leaving
@@ -101,7 +102,9 @@ jobs:
       # the binary manifest, all of res/, and classes.dex through inlined R constants.
       # Play already has its AAB from the fastlane lanes above, so the file has done its job.
       - name: Drop the Firebase config before building the open-source artifacts
-        run: rm -f app/src/play/google-services.json
+        run: |
+          rm -f app/src/play/google-services.json
+          rm -f tv/google-services.json
 
       # Play got its AAB from the fastlane lanes above, built from the `play` flavor. GitHub
       # gets the `opensource` flavor instead: same app, minus Firebase Analytics and

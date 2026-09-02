@@ -9,6 +9,14 @@ plugins {
     alias(libs.plugins.androidx.baselineprofile)
 }
 
+val firebaseConfig = file("google-services.json")
+val hasFirebaseConfig = firebaseConfig.exists()
+
+if (hasFirebaseConfig) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+}
+
 android {
     namespace = "app.pwhs.tv"
     compileSdk = 37
@@ -69,6 +77,10 @@ android {
     buildFeatures {
         compose = true
     }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 dependencies {
@@ -94,6 +106,13 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+
+    if (hasFirebaseConfig) {
+        implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.analytics)
+        implementation(libs.firebase.crashlytics)
+    }
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.test.manifest)

@@ -12,13 +12,10 @@
 #   public *;
 #}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Line numbers survive R8 so Crashlytics can point at a line rather than a method.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
 # ── Project rules (R8 enabled 2026-08-02; this module previously shipped unminified) ──
 
 # NanoHTTPD serves the phone→TV upload endpoint. Its request handlers are resolved

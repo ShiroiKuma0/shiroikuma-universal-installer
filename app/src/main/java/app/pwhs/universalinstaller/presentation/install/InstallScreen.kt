@@ -690,6 +690,15 @@ private fun InstallUi(
                     HistoryCard(
                         entry = entry,
                         modifier = Modifier.animateItem(),
+                        onReinstall = { file ->
+                            val fileUri = Uri.fromFile(file)
+                            val provider = app.pwhs.universalinstaller.presentation.install.util.InstallApkSplitsHelper.buildSplitProvider(
+                                context,
+                                fileUri,
+                                file.extension.lowercase()
+                            )
+                            onFilePicked(fileUri, provider, file.name)
+                        },
                     )
                 }
             }

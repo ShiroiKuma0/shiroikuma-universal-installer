@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [InstallHistoryEntity::class, UninstallLogEntity::class, DownloadHistoryEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -59,6 +59,15 @@ abstract class AppDatabase : RoomDatabase() {
                     "CREATE UNIQUE INDEX IF NOT EXISTS `index_install_history_sessionId` " +
                         "ON `install_history` (`sessionId`)"
                 )
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `install_history` ADD COLUMN `oldVersionName` TEXT")
+                db.execSQL("ALTER TABLE `install_history` ADD COLUMN `installerMode` TEXT")
+                db.execSQL("ALTER TABLE `install_history` ADD COLUMN `operationType` TEXT")
+                db.execSQL("ALTER TABLE `install_history` ADD COLUMN `filePath` TEXT")
             }
         }
     }

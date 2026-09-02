@@ -786,4 +786,18 @@
     <string name="aa_open_settings">Android Auto settings</string>
     <string name="aa_open_settings_sub">Enable unknown sources in developer options</string>
     <string name="dialog_menu_install_source_aa_hint">Use Google Play Store (%1$s) to ensure apps work on Android Auto.</string>
+
+    <!-- History Detail Strings -->
+    <string name="history_detail_title">Installation Details</string>
+    <string name="history_detail_status_success">Installed Successfully</string>
+    <string name="history_detail_status_failed">Installation Failed</string>
+    <string name="history_detail_op_new">New Install</string>
+    <string name="history_detail_op_update">Update</string>
+    <string name="history_detail_op_downgrade">Downgrade</string>
+    <string name="history_detail_reinstall">Re-install</string>
+    <string name="history_detail_launch">Launch App</string>
+    <string name="history_detail_app_info">App Info</string>
+    <string name="history_detail_copy">Copy Details</string>
+    <string name="history_detail_copied">Copied to clipboard</string>
+    <string name="history_detail_error_title">Error Diagnostics</string>
 </resources>

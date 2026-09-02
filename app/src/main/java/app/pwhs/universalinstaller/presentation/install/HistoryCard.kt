@@ -1,7 +1,6 @@
 package app.pwhs.universalinstaller.presentation.install
 
 import android.graphics.BitmapFactory
-import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -13,45 +12,39 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.ContentCopy
-import androidx.compose.material.icons.rounded.Error
-import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.data.local.InstallHistoryEntity
-import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -61,15 +54,13 @@ import java.util.Locale
 internal fun HistoryCard(
     entry: InstallHistoryEntity,
     modifier: Modifier = Modifier,
+    onReinstall: ((File) -> Unit)? = null,
 ) {
-    val dateFormat = remember(androidx.compose.ui.text.intl.Locale.current) {
-        SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+    val dateFormat = remember {
+        SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     }
-    var expanded by rememberSaveable(entry.id) { mutableStateOf(false) }
-    val canExpand = !entry.success && !entry.errorMessage.isNullOrBlank()
-    val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var showDetailSheet by rememberSaveable(entry.id) { mutableStateOf(false) }
 
     Card(
         modifier = modifier
@@ -77,32 +68,30 @@ internal fun HistoryCard(
             .animateContentSize()
             .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surfaceContainerLow)
-            .clickable(enabled = canExpand) {
-                expanded = !expanded
-            },
+            .clickable { showDetailSheet = true },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
-        // Flat card — no shadow. A thin outline separates each item instead of elevation,
-        // since the flat container colour blends into the screen background.
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
-        Column(modifier = Modifier) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 // Icon
-                val iconBitmap = entry.iconPath?.let { path ->
-                    try {
-                        val file = File(path)
-                        if (file.exists()) BitmapFactory.decodeFile(path)?.asImageBitmap() else null
-                    } catch (_: Exception) { null }
+                val iconBitmap = remember(entry.iconPath) {
+                    entry.iconPath?.let { path ->
+                        try {
+                            val file = File(path)
+                            if (file.exists()) BitmapFactory.decodeFile(path)?.asImageBitmap() else null
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
                 }
 
                 if (iconBitmap != null) {
@@ -110,143 +99,144 @@ internal fun HistoryCard(
                         bitmap = iconBitmap,
                         contentDescription = entry.appName,
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(44.dp)
                             .clip(MaterialTheme.shapes.medium),
                     )
                 } else {
-                    Icon(
-                        imageVector = if (entry.success) Icons.Rounded.CheckCircle else Icons.Rounded.Error,
-                        contentDescription = null,
-                        tint = if (entry.success) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(40.dp),
-                    )
+                    Surface(
+                        modifier = Modifier.size(44.dp),
+                        shape = MaterialTheme.shapes.medium,
+                        color = if (entry.success) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = if (entry.success) Icons.Rounded.CheckCircle else Icons.Rounded.Error,
+                                contentDescription = null,
+                                tint = if (entry.success) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
                 }
 
                 // Info
                 Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(
+                            text = entry.appName.ifBlank { entry.fileName },
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f, fill = false),
+                        )
+
+                        // Operation Badge
+                        if (!entry.operationType.isNullOrBlank()) {
+                            val badgeColor = when (entry.operationType) {
+                                "UPDATE" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+                                "DOWNGRADE" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
+                                else -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+                            }
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = badgeColor.first,
+                            ) {
+                                Text(
+                                    text = entry.operationType,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = badgeColor.second,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
+
+                        // Mode Badge
+                        if (!entry.installerMode.isNullOrBlank()) {
+                            Surface(
+                                shape = RoundedCornerShape(4.dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            ) {
+                                Text(
+                                    text = entry.installerMode,
+                                    fontSize = 9.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
+                    }
+
                     Text(
-                        text = entry.appName,
-                        style = MaterialTheme.typography.titleSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                    Text(
-                        text = entry.fileName,
+                        text = entry.packageName.ifBlank { entry.fileName },
                         style = MaterialTheme.typography.labelSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Text(
-                        text = dateFormat.format(Date(entry.installedAt)),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(
+                            text = dateFormat.format(Date(entry.installedAt)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        )
+                        if (entry.versionName.isNotBlank()) {
+                            Text(
+                                text = "·",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            )
+                            Text(
+                                text = entry.versionName,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                    }
                 }
 
-                // Status badge / Open button
+                // Quick Launch button / Status
                 val launchIntent = if (entry.success) context.packageManager.getLaunchIntentForPackage(entry.packageName) else null
                 if (launchIntent != null) {
                     IconButton(
                         onClick = { context.startActivity(launchIntent) },
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(36.dp),
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                             contentDescription = "Open App",
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(22.dp),
+                            modifier = Modifier.size(20.dp),
                         )
                     }
                 } else {
                     Icon(
                         imageVector = if (entry.success) Icons.Rounded.CheckCircle else Icons.Rounded.Error,
                         contentDescription = if (entry.success) stringResource(R.string.status_success) else stringResource(R.string.status_failed),
-                        tint = if (entry.success) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(20.dp),
+                        tint = if (entry.success) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
-
-            if (canExpand) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                ErrorBlock(
-                    message = entry.errorMessage.orEmpty(),
-                    expanded = expanded,
-                    onCopy = {
-                        clipboardManager.setText(AnnotatedString(entry.errorMessage.orEmpty()))
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.dialog_failed_copied),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                )
-            }
         }
     }
-}
 
-@Composable
-private fun ErrorBlock(
-    message: String,
-    expanded: Boolean,
-    onCopy: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.logs_reason),
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.error,
-            )
-            Spacer(Modifier.weight(1f))
-            IconButton(
-                onClick = onCopy,
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.ContentCopy,
-                    contentDescription = "Copy Error Log",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-            Icon(
-                imageVector = Icons.Rounded.ExpandMore,
-                contentDescription = if (expanded) stringResource(R.string.logs_collapse_cd) else stringResource(R.string.logs_expand_cd),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .size(18.dp)
-                    .rotate(if (expanded) 180f else 0f),
-            )
-        }
-        Spacer(Modifier.height(6.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f))
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-        ) {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onErrorContainer,
-                maxLines = if (expanded) Int.MAX_VALUE else 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+    if (showDetailSheet) {
+        HistoryDetailSheet(
+            entry = entry,
+            onDismiss = { showDetailSheet = false },
+            onReinstall = onReinstall,
+        )
     }
 }

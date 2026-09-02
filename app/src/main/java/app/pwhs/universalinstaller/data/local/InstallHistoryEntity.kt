@@ -14,6 +14,7 @@ data class InstallHistoryEntity(
     val packageName: String,
     val fileName: String,
     val versionName: String = "",
+    val oldVersionName: String? = null,
     val fileSizeBytes: Long = 0,
     val iconPath: String? = null,
     val success: Boolean,
@@ -21,4 +22,7 @@ data class InstallHistoryEntity(
     val installedAt: Long = System.currentTimeMillis(),
     /** One Ackpine/privileged install session may produce at most one history row. */
     val sessionId: String? = null,
+    val installerMode: String? = null,
+    val operationType: String? = null,
+    val filePath: String? = null,
 )

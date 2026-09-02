@@ -313,10 +313,16 @@ abstract class BaseInstallController(
                     appName = sessionData.appName.ifEmpty { sessionData.name },
                     packageName = sessionData.packageName,
                     fileName = sessionData.name,
+                    versionName = sessionData.versionName,
+                    oldVersionName = sessionData.oldVersionName,
+                    fileSizeBytes = sessionData.fileSizeBytes,
                     iconPath = sessionData.iconPath,
                     success = success,
                     errorMessage = errorMessage,
                     sessionId = sessionData.id.toString(),
+                    installerMode = sessionData.installerMode,
+                    operationType = sessionData.operationType,
+                    filePath = sessionData.filePath,
                 )
             )
             // The same install can be observed by its headless notification owner and by an

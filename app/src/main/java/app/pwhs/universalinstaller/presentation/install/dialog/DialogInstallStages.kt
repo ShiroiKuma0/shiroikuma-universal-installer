@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -146,6 +147,93 @@ fun DialogInstallingContent(
             ),
         ) {
             Text(stringResource(R.string.dialog_installing_background))
+        }
+    }
+}
+
+/**
+ * Downloading stage — progress bar + speed + bytes downloaded for direct URL installations.
+ */
+@Composable
+fun DialogDownloadingContent(
+    progress: app.pwhs.core.network.DownloadProgress,
+    onCancel: () -> Unit,
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.CloudDownload,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(56.dp),
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = stringResource(R.string.install_from_url_downloading),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            textAlign = TextAlign.Center,
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        val currentProgress = progress.progress
+        if (currentProgress != null) {
+            LinearProgressIndicator(
+                progress = { currentProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+            )
+        } else {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        val downloadedStr = android.text.format.Formatter.formatFileSize(context, progress.bytesDownloaded)
+        val totalStr = if (progress.totalBytes > 0) android.text.format.Formatter.formatFileSize(context, progress.totalBytes) else "—"
+        val speedStr = if (progress.speedBytesPerSec > 0) "${android.text.format.Formatter.formatFileSize(context, progress.speedBytesPerSec)}/s" else ""
+        val percentStr = currentProgress?.let { " (${(it * 100).toInt()}%)" } ?: ""
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = "$downloadedStr / $totalStr$percentStr",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (speedStr.isNotBlank()) {
+                Text(
+                    text = speedStr,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedButton(
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.install_from_url_cancel))
         }
     }
 }

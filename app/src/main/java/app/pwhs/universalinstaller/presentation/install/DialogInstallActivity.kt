@@ -224,7 +224,9 @@ class DialogInstallActivity : ComponentActivity() {
             LaunchedEffect(incomingUri) {
                 if (skipInitialParse) return@LaunchedEffect
                 runCatching {
-                    DialogInstallUriHelper.parseAndPush(context, incomingUri, viewModel)
+                    DialogInstallUriHelper.parseAndPush(context, incomingUri, viewModel) { progress ->
+                        viewModel.updateDialogDownloadProgress(progress)
+                    }
                 }.onFailure { e ->
                     Timber.e(e, "Parse failed for $incomingUri")
                     reportParseProblem(e)

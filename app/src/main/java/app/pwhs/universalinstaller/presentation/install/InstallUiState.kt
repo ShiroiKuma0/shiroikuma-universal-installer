@@ -153,4 +153,5 @@ data class InstallUiState(
     val allUsers: Boolean = false,
     val selectedUserId: Int? = null,
     val isApk: Boolean = false,
+    val dialogDownloadProgress: app.pwhs.core.network.DownloadProgress? = null,
 )

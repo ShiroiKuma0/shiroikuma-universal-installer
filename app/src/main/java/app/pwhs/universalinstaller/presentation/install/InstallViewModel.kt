@@ -141,6 +141,7 @@ class InstallViewModel(
             application.dataStore.data.map { it[PreferencesKeys.INSTALL_USER_ID] },
             parseDelegate.isApk,
             batchDelegate.batchDetailUri,
+            dialogDelegate.downloadProgress,
         )
     ) { flows ->
         InstallUiStateBuilder.build(flows)
@@ -195,6 +196,8 @@ class InstallViewModel(
     fun dialogReadFailed(reason: String) = dialogDelegate.readFailed(reason)
     fun dialogParseFailed(reason: String) = dialogDelegate.parseFailed(reason)
     fun dialogPermissionRequired() = dialogDelegate.permissionRequired()
+    fun updateDialogDownloadProgress(progress: app.pwhs.core.network.DownloadProgress?) =
+        dialogDelegate.updateDownloadProgress(progress)
     fun dialogClose() = dialogDelegate.close()
 
     fun setMergeSplits(merge: Boolean) {

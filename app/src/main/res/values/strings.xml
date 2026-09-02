@@ -230,6 +230,7 @@
     <string name="install_from_url_hint">Paste direct APK or package link (HTTP or HTTPS)</string>
     <string name="install_from_url_download">Download &amp; Install</string>
     <string name="install_from_url_downloading">Downloading package…</string>
+    <string name="install_from_url_cancel">Cancel</string>
     <string name="session_installed_success">Installed successfully</string>
     <string name="session_installing_progress">%d%% installing…</string>
     <string name="session_retry">Retry</string>

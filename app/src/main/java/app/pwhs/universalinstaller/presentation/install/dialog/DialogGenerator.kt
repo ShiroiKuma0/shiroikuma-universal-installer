@@ -64,11 +64,23 @@ fun generateDialogParams(
 ): DialogParams {
     return when (val stage = uiState.dialogStage) {
         DialogStage.Loading -> {
-            DialogParams(
-                content = DialogInnerParams("loading") {
-                    LoadingContent(onSkipParse = onSkipParse)
-                }
-            )
+            val downloadProgress = uiState.dialogDownloadProgress
+            if (downloadProgress != null) {
+                DialogParams(
+                    content = DialogInnerParams("downloading") {
+                        DialogDownloadingContent(
+                            progress = downloadProgress,
+                            onCancel = onCancel,
+                        )
+                    }
+                )
+            } else {
+                DialogParams(
+                    content = DialogInnerParams("loading") {
+                        LoadingContent(onSkipParse = onSkipParse)
+                    }
+                )
+            }
         }
 
         DialogStage.Prepare -> {

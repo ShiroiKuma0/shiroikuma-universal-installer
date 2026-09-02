@@ -38,6 +38,7 @@ object InstallUiStateBuilder {
             selectedUserId = flows[16] as Int?,
             isApk = flows[17] as Boolean,
             batchDetailUri = flows[18] as Uri?,
+            dialogDownloadProgress = flows[19] as app.pwhs.core.network.DownloadProgress?,
         )
     }
 }

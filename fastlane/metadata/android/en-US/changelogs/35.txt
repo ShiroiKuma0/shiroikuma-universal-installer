@@ -1,0 +1,6 @@
+• Advanced install options: Allow Restricted Permissions, Don't Kill App, Skip Verification, and Rollback
+• Background download manager with status bar progress notification and direct install on tap
+• Support install from URL and web link sharing
+• Enriched install history with detailed metadata sheet
+• Enhanced TV sync with real-time transfer progress and faster device discovery
+• Performance improvements and bug fixes

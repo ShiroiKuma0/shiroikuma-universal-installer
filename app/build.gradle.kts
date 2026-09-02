@@ -54,8 +54,8 @@ android {
         applicationId = "app.pwhs.universalinstaller"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 34
-        versionName = "1.11.0"
+        versionCode = 35
+        versionName = "1.12.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

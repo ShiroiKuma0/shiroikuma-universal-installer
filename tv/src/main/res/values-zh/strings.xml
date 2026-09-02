@@ -85,4 +85,6 @@
     <string name="tv_manage_no_matches">未找到匹配项 \"%s\"</string>
     <string name="tv_manage_clear_search">清除搜索</string>
     <string name="tv_language_title">语言</string>
+    <string name="tv_receive_receiving_title">正在从手机接收安装包…</string>
+    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
 </resources>

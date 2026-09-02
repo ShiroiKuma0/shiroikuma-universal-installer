@@ -16,6 +16,13 @@ data class ReceivedApk(
     val metadata: PackageMetadata? = null,
 )
 
+data class ReceivingProgress(
+    val bytesReceived: Long,
+    val totalBytes: Long,
+    val progress: Float = if (totalBytes > 0) (bytesReceived.toFloat() / totalBytes).coerceIn(0f, 1f) else 0f,
+    val percent: Int = (progress * 100).toInt().coerceIn(0, 100),
+)
+
 sealed interface ReceiverStatus {
     data object Stopped : ReceiverStatus
     /** Server is up. [url] is what the QR encodes; [token] guards uploads. */
@@ -34,8 +41,14 @@ sealed interface ReceiverStatus {
  * without binding.
  */
 object TvReceiverState {
+    @Volatile
+    var currentExpectedBytes: Long? = null
+
     private val _status = MutableStateFlow<ReceiverStatus>(ReceiverStatus.Stopped)
     val status: StateFlow<ReceiverStatus> = _status.asStateFlow()
+
+    private val _receivingProgress = MutableStateFlow<ReceivingProgress?>(null)
+    val receivingProgress: StateFlow<ReceivingProgress?> = _receivingProgress.asStateFlow()
 
     // replay = 1 so a freshly-composed screen still sees the most recent arrival.
     private val _received = MutableSharedFlow<ReceivedApk>(replay = 1, extraBufferCapacity = 8)
@@ -43,6 +56,10 @@ object TvReceiverState {
 
     fun setStatus(status: ReceiverStatus) {
         _status.value = status
+    }
+
+    fun emitReceivingProgress(progress: ReceivingProgress?) {
+        _receivingProgress.value = progress
     }
 
     fun emitReceived(apk: ReceivedApk) {

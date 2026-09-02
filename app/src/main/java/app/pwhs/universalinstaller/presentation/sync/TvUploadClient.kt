@@ -28,6 +28,7 @@ object TvUploadClient {
         scanned: String,
         apk: Uri,
         fileName: String,
+        onProgress: ((bytesUploaded: Long, totalBytes: Long, percent: Int) -> Unit)? = null,
     ): Result = withContext(Dispatchers.IO) {
         val parsed = runCatching { Uri.parse(scanned) }.getOrNull()
         val host = parsed?.host
@@ -66,8 +67,22 @@ object TvUploadClient {
             }
             DataOutputStream(conn.outputStream).use { out ->
                 out.write(preamble)
-                resolver.openInputStream(apk)?.use { input -> input.copyTo(out) }
-                    ?: return@withContext Result.Failure("Could not read the selected file")
+                resolver.openInputStream(apk)?.use { input ->
+                    val buffer = ByteArray(32 * 1024)
+                    var bytesCopied = 0L
+                    var lastProgressMs = 0L
+                    var read: Int
+                    while (input.read(buffer).also { read = it } >= 0) {
+                        out.write(buffer, 0, read)
+                        bytesCopied += read
+                        val now = System.currentTimeMillis()
+                        if (now - lastProgressMs > 100L || bytesCopied == size) {
+                            lastProgressMs = now
+                            val pct = if (size > 0) ((bytesCopied * 100) / size).toInt().coerceIn(0, 100) else 0
+                            onProgress?.invoke(bytesCopied, size, pct)
+                        }
+                    }
+                } ?: return@withContext Result.Failure("Could not read the selected file")
                 out.write(epilogue)
                 out.flush()
             }

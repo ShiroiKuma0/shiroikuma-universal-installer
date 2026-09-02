@@ -12,6 +12,7 @@ import app.pwhs.core.domain.ApkFile
 import app.pwhs.core.install.ApkInstaller
 import app.pwhs.core.install.RootInstaller
 import app.pwhs.core.receiver.ReceivedApk
+import app.pwhs.core.receiver.ReceivingProgress
 import app.pwhs.core.receiver.ReceiverStatus
 import app.pwhs.core.receiver.TvReceiverState
 import app.pwhs.core.util.RootShell
@@ -36,6 +37,9 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
 
     val status: StateFlow<ReceiverStatus> = TvReceiverState.status
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReceiverStatus.Stopped)
+
+    val receivingProgress: StateFlow<ReceivingProgress?> = TvReceiverState.receivingProgress
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _pendingApk = MutableStateFlow<ReceivedApk?>(null)
     val pendingApk: StateFlow<ReceivedApk?> = _pendingApk.asStateFlow()

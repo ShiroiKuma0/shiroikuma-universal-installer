@@ -21,6 +21,8 @@
     <string name="tv_receive_scanning">Scanning storage…</string>
     <string name="tv_receive_rescan">Rescan</string>
     <string name="tv_receive_no_network">Connect this TV to Wi-Fi to receive apps</string>
+    <string name="tv_receive_receiving_title">Receiving package from phone…</string>
+    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
 
     <!-- TV Settings Screen -->
     <string name="tv_settings_title">Settings</string>

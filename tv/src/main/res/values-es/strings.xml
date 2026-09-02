@@ -85,4 +85,6 @@
     <string name="tv_manage_no_matches">No hay coincidencias para \"%s\"</string>
     <string name="tv_manage_clear_search">Borrar búsqueda</string>
     <string name="tv_language_title">Idioma</string>
+    <string name="tv_receive_receiving_title">Recibiendo paquete desde el teléfono…</string>
+    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
 </resources>

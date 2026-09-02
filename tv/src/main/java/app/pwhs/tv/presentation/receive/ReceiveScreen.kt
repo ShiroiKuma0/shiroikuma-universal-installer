@@ -84,6 +84,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import app.pwhs.core.domain.ApkFile
 import app.pwhs.core.receiver.ReceivedApk
+import app.pwhs.core.receiver.ReceivingProgress
 import app.pwhs.core.receiver.ReceiverStatus
 import app.pwhs.core.util.StorageStats
 import app.pwhs.core.util.StorageUtil
@@ -102,6 +103,7 @@ fun ReceiveScreen(
 ) {
     val context = LocalContext.current
     val status by viewModel.status.collectAsState()
+    val receivingProgress by viewModel.receivingProgress.collectAsState()
     val pending by viewModel.pendingApk.collectAsState()
     val downloads by viewModel.downloads.collectAsState()
     val isScanning by viewModel.isScanning.collectAsState()
@@ -218,6 +220,7 @@ fun ReceiveScreen(
                     InstallTab.Receive -> ReceiveContent(
                         status = status,
                         pending = pending,
+                        receivingProgress = receivingProgress,
                         installingLabel = installingLabel,
                         installFocus = installFocus,
                         onInstall = { selectedApk = TvApkItem.Received(it) },
@@ -401,6 +404,7 @@ private fun SidebarTab(
 private fun ReceiveContent(
     status: ReceiverStatus,
     pending: ReceivedApk?,
+    receivingProgress: ReceivingProgress?,
     installingLabel: String?,
     installFocus: FocusRequester,
     onInstall: (ReceivedApk) -> Unit,
@@ -430,6 +434,14 @@ private fun ReceiveContent(
                     onDismiss = onDismissPending
                 )
             }
+        } else if (receivingProgress != null) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                ReceivingProgressCard(receivingProgress)
+            }
         } else {
             // QR Connection Hub - Improved layout for better text flow
             Column(
@@ -452,9 +464,14 @@ private fun ReceiveContent(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        QrPanel(url = s.url, size = 220.dp)
-                                        Spacer(Modifier.height(28.dp))
-                                        ConnectionGuide(ip = s.ip, port = s.port, alignment = Alignment.CenterHorizontally)
+                                        QrPanel(url = s.url, size = 200.dp)
+                                        Spacer(Modifier.height(24.dp))
+                                        Box(
+                                            modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth(),
+                                            contentAlignment = Alignment.CenterStart,
+                                        ) {
+                                            ConnectionGuide(ip = s.ip, port = s.port, alignment = Alignment.Start)
+                                        }
                                     }
                                 } else {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -481,21 +498,101 @@ private fun ReceiveContent(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ReceivingProgressCard(progress: ReceivingProgress) {
+    val context = LocalContext.current
+    val animatedProgress by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = progress.progress,
+        animationSpec = androidx.compose.animation.core.tween(durationMillis = 200),
+        label = "uploadProgress"
+    )
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        colors = SurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+        ),
+        modifier = Modifier
+            .widthIn(max = 480.dp)
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Rounded.PhoneAndroid,
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.tv_receive_receiving_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(
+                    R.string.tv_receive_receiving_subtitle,
+                    progress.percent,
+                    android.text.format.Formatter.formatShortFileSize(context, progress.bytesReceived),
+                    android.text.format.Formatter.formatShortFileSize(context, progress.totalBytes)
+                ),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(20.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(10.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(animatedProgress.coerceIn(0.02f, 1f))
+                        .fillMaxHeight()
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun GuideStep(num: Int, text: String) {
-    Row(verticalAlignment = Alignment.Top) {
+    val cleanText = text.replaceFirst(Regex("^$num\\.\\s*"), "")
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.Start,
+    ) {
         Text(
             "$num.",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(10.dp))
         Text(
-            text,
-            style = MaterialTheme.typography.titleLarge,
+            cleanText,
+            style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            lineHeight = androidx.compose.ui.unit.TextUnit.Unspecified
+            textAlign = TextAlign.Start,
         )
     }
 }
@@ -514,22 +611,28 @@ private fun QrPanel(url: String, size: androidx.compose.ui.unit.Dp) {
 }
 
 @Composable
-private fun ConnectionGuide(ip: String, port: Int, alignment: Alignment.Horizontal) {
-    Column(horizontalAlignment = alignment) {
+private fun ConnectionGuide(
+    ip: String,
+    port: Int,
+    alignment: Alignment.Horizontal = Alignment.Start,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start,
+    ) {
         Text(
             "http://$ip:$port",
-            // headlineSmall (not displaySmall) so a full address stays on one line in the
-            // ~560dp side-by-side pane instead of wrapping into several ugly lines.
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            textAlign = if (alignment == Alignment.CenterHorizontally) TextAlign.Center else TextAlign.Start,
+            textAlign = TextAlign.Start,
         )
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
         GuideStep(1, stringResource(R.string.tv_receive_step1))
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
         GuideStep(2, stringResource(R.string.tv_receive_step2))
     }
 }
@@ -811,12 +914,15 @@ private fun TvStorageCard(stats: StorageStats) {
             .padding(16.dp)
     ) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
                 Text(
                     text = stringResource(R.string.install_storage_title),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
                 )
                 Text(
                     text = stringResource(
@@ -824,8 +930,8 @@ private fun TvStorageCard(stats: StorageStats) {
                         android.text.format.Formatter.formatShortFileSize(context, stats.freeBytes),
                         android.text.format.Formatter.formatShortFileSize(context, stats.totalBytes)
                     ),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Spacer(Modifier.height(12.dp))

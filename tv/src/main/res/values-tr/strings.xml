@@ -85,4 +85,6 @@
     <string name="tv_manage_no_matches">\"%s\" için eşleşme bulunamadı</string>
     <string name="tv_manage_clear_search">Aramayı temizle</string>
     <string name="tv_language_title">Dil</string>
+    <string name="tv_receive_receiving_title">Telefondan paket alınıyor…</string>
+    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
 </resources>

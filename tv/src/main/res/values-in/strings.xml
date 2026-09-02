@@ -85,4 +85,6 @@
     <string name="tv_manage_no_matches">Tidak ada hasil untuk \"%s\"</string>
     <string name="tv_manage_clear_search">Hapus pencarian</string>
     <string name="tv_language_title">Bahasa</string>
+    <string name="tv_receive_receiving_title">Menerima paket dari ponsel…</string>
+    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
 </resources>

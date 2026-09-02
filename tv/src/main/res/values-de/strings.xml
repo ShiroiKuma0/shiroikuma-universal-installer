@@ -85,4 +85,6 @@
     <string name="tv_manage_no_matches">Keine Treffer für „%s“</string>
     <string name="tv_manage_clear_search">Suche löschen</string>
     <string name="tv_language_title">Sprache</string>
+    <string name="tv_receive_receiving_title">Paket wird vom Telefon empfangen…</string>
+    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
 </resources>

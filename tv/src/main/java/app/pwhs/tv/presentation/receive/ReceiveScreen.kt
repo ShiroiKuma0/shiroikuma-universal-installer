@@ -298,13 +298,29 @@ private fun InstallStatusOverlay(
             Column(modifier = Modifier.padding(horizontal = 28.dp, vertical = 20.dp)) {
                 when {
                     installingLabel != null -> {
-                        Text(
-                            stringResource(R.string.tv_receive_installing, installingLabel),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                stringResource(R.string.tv_receive_installing, installingLabel),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            if (progress != null) {
+                                Spacer(Modifier.width(12.dp))
+                                Text(
+                                    "${(progress * 100).toInt()}%",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                         Spacer(Modifier.height(12.dp))
                         if (progress != null) {
                             androidx.compose.material3.LinearProgressIndicator(
@@ -542,22 +558,29 @@ private fun ReceivingProgressCard(progress: ReceivingProgress) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                stringResource(
-                    R.string.tv_receive_receiving_subtitle,
-                    progress.percent,
-                    android.text.format.Formatter.formatShortFileSize(context, progress.bytesReceived),
-                    android.text.format.Formatter.formatShortFileSize(context, progress.totalBytes)
-                ),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(
+                    "${progress.percent}%",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    "${android.text.format.Formatter.formatShortFileSize(context, progress.bytesReceived)} / ${android.text.format.Formatter.formatShortFileSize(context, progress.totalBytes)}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Spacer(Modifier.height(12.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(10.dp)
+                    .height(12.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {

@@ -83,6 +83,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import app.pwhs.core.domain.ApkFile
+import app.pwhs.core.receiver.ConnectedClient
 import app.pwhs.core.receiver.ReceivedApk
 import app.pwhs.core.receiver.ReceivingProgress
 import app.pwhs.core.receiver.ReceiverStatus
@@ -103,6 +104,7 @@ fun ReceiveScreen(
 ) {
     val context = LocalContext.current
     val status by viewModel.status.collectAsState()
+    val connectedClient by viewModel.connectedClient.collectAsState()
     val receivingProgress by viewModel.receivingProgress.collectAsState()
     val pending by viewModel.pendingApk.collectAsState()
     val downloads by viewModel.downloads.collectAsState()
@@ -219,6 +221,7 @@ fun ReceiveScreen(
                 when (tab) {
                     InstallTab.Receive -> ReceiveContent(
                         status = status,
+                        connectedClient = connectedClient,
                         pending = pending,
                         receivingProgress = receivingProgress,
                         installingLabel = installingLabel,
@@ -419,6 +422,7 @@ private fun SidebarTab(
 @Composable
 private fun ReceiveContent(
     status: ReceiverStatus,
+    connectedClient: ConnectedClient?,
     pending: ReceivedApk?,
     receivingProgress: ReceivingProgress?,
     installingLabel: String?,
@@ -457,6 +461,14 @@ private fun ReceiveContent(
                 verticalArrangement = Arrangement.Center
             ) {
                 ReceivingProgressCard(receivingProgress)
+            }
+        } else if (connectedClient != null) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                ConnectedDeviceCard(connectedClient)
             }
         } else {
             // QR Connection Hub - Improved layout for better text flow
@@ -592,6 +604,74 @@ private fun ReceivingProgressCard(progress: ReceivingProgress) {
                         .background(MaterialTheme.colorScheme.primary)
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ConnectedDeviceCard(client: ConnectedClient) {
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        colors = SurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+        ),
+        modifier = Modifier
+            .widthIn(max = 520.dp)
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Rounded.PhoneAndroid,
+                    contentDescription = null,
+                    modifier = Modifier.size(36.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(androidx.compose.ui.graphics.Color(0xFF10B981))
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    stringResource(R.string.tv_receive_device_connected_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "${client.deviceName} (${client.ip})",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                stringResource(R.string.tv_receive_device_connected_subtitle),
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

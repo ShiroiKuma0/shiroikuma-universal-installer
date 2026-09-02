@@ -23,6 +23,12 @@ data class ReceivingProgress(
     val percent: Int = (progress * 100).toInt().coerceIn(0, 100),
 )
 
+data class ConnectedClient(
+    val ip: String,
+    val deviceName: String,
+    val lastSeenTimestamp: Long = System.currentTimeMillis()
+)
+
 sealed interface ReceiverStatus {
     data object Stopped : ReceiverStatus
     /** Server is up. [url] is what the QR encodes; [token] guards uploads. */
@@ -47,6 +53,9 @@ object TvReceiverState {
     private val _status = MutableStateFlow<ReceiverStatus>(ReceiverStatus.Stopped)
     val status: StateFlow<ReceiverStatus> = _status.asStateFlow()
 
+    private val _connectedClient = MutableStateFlow<ConnectedClient?>(null)
+    val connectedClient: StateFlow<ConnectedClient?> = _connectedClient.asStateFlow()
+
     private val _receivingProgress = MutableStateFlow<ReceivingProgress?>(null)
     val receivingProgress: StateFlow<ReceivingProgress?> = _receivingProgress.asStateFlow()
 
@@ -56,6 +65,10 @@ object TvReceiverState {
 
     fun setStatus(status: ReceiverStatus) {
         _status.value = status
+    }
+
+    fun updateConnectedClient(client: ConnectedClient?) {
+        _connectedClient.value = client
     }
 
     fun emitReceivingProgress(progress: ReceivingProgress?) {

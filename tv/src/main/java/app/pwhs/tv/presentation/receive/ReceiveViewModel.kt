@@ -11,12 +11,14 @@ import app.pwhs.core.data.local.dataStore
 import app.pwhs.core.domain.ApkFile
 import app.pwhs.core.install.ApkInstaller
 import app.pwhs.core.install.RootInstaller
+import app.pwhs.core.receiver.ConnectedClient
 import app.pwhs.core.receiver.ReceivedApk
 import app.pwhs.core.receiver.ReceivingProgress
 import app.pwhs.core.receiver.ReceiverStatus
 import app.pwhs.core.receiver.TvReceiverState
 import app.pwhs.core.util.RootShell
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -37,6 +40,9 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
 
     val status: StateFlow<ReceiverStatus> = TvReceiverState.status
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ReceiverStatus.Stopped)
+
+    val connectedClient: StateFlow<ConnectedClient?> = TvReceiverState.connectedClient
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val receivingProgress: StateFlow<ReceivingProgress?> = TvReceiverState.receivingProgress
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -71,6 +77,15 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
     private data class InstallRequest(val uri: Uri, val isBundle: Boolean, val label: String, val sizeBytes: Long)
 
     init {
+        viewModelScope.launch {
+            while (isActive) {
+                delay(3000)
+                val current = TvReceiverState.connectedClient.value
+                if (current != null && System.currentTimeMillis() - current.lastSeenTimestamp > 7000L) {
+                    TvReceiverState.updateConnectedClient(null)
+                }
+            }
+        }
         viewModelScope.launch {
             TvReceiverState.received.collectLatest { received ->
                 _installResult.value = null

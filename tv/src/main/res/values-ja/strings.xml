@@ -87,4 +87,6 @@
     <string name="tv_language_title">言語</string>
     <string name="tv_receive_receiving_title">スマートフォンからパッケージを受信中…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">デバイスが接続されました</string>
+    <string name="tv_receive_device_connected_subtitle">デバイス上の APK ファイルを選択またはドラッグして、この TV に送信してください</string>
 </resources>

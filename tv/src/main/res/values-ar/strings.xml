@@ -87,4 +87,6 @@
     <string name="tv_language_title">اللغة</string>
     <string name="tv_receive_receiving_title">جارٍ استلام الحزمة من الهاتف…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">تم توصيل الجهاز</string>
+    <string name="tv_receive_device_connected_subtitle">حدد أو اسحب ملف APK على جهازك لإرساله إلى هذا التلفزيون</string>
 </resources>

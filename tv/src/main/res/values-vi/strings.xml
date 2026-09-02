@@ -87,4 +87,6 @@
     <string name="tv_language_title">Ngôn ngữ</string>
     <string name="tv_receive_receiving_title">Đang nhận gói cài đặt từ điện thoại…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Đã kết nối với thiết bị</string>
+    <string name="tv_receive_device_connected_subtitle">Chọn hoặc kéo thả file APK trên điện thoại để truyền sang TV</string>
 </resources>

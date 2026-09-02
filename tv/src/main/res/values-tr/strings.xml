@@ -87,4 +87,6 @@
     <string name="tv_language_title">Dil</string>
     <string name="tv_receive_receiving_title">Telefondan paket alınıyor…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Cihaz Bağlandı</string>
+    <string name="tv_receive_device_connected_subtitle">Bu TV\'ye göndermek için cihazınızda bir APK dosyası seçin veya sürükleyin</string>
 </resources>

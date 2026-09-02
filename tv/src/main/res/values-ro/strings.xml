@@ -87,4 +87,6 @@
     <string name="tv_language_title">Limbă</string>
     <string name="tv_receive_receiving_title">Se primește pachetul de pe telefon…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Dispozitiv conectat</string>
+    <string name="tv_receive_device_connected_subtitle">Selectați sau trageți un fișier APK de pe dispozitiv pentru a-l trimite la acest televizor</string>
 </resources>

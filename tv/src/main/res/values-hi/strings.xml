@@ -87,4 +87,6 @@
     <string name="tv_language_title">भाषा</string>
     <string name="tv_receive_receiving_title">फ़ोन से पैकेज प्राप्त हो रहा है…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">डिवाइस कनेक्ट हो गया</string>
+    <string name="tv_receive_device_connected_subtitle">इस टीवी पर भेजने के लिए अपने डिवाइस पर एक एपीके फ़ाइल चुनें या खींचें</string>
 </resources>

@@ -87,5 +87,7 @@
     <string name="tv_language_title">Мова</string>
     <string name="tv_receive_receiving_title">Отримання пакета з телефона…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Пристрій підключено</string>
+    <string name="tv_receive_device_connected_subtitle">Виберіть або перетягніть файл APK на своєму пристрої, щоб надіслати його на цей телевізор</string>
 </resources>
     

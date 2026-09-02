@@ -331,6 +331,19 @@
             xhr.open('POST', '/upload?token={{TOKEN}}', true);
             xhr.send(formData);
         });
+
+        // Heartbeat connection presence
+        function sendPing() {
+            fetch('/ping?token={{TOKEN}}').catch(() => {});
+        }
+        sendPing();
+        setInterval(sendPing, 2500);
+
+        window.addEventListener('beforeunload', () => {
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/disconnect?token={{TOKEN}}');
+            }
+        });
     </script>
 </body>
 </html>

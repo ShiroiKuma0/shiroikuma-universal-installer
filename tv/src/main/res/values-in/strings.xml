@@ -87,4 +87,6 @@
     <string name="tv_language_title">Bahasa</string>
     <string name="tv_receive_receiving_title">Menerima paket dari ponsel…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Perangkat Terhubung</string>
+    <string name="tv_receive_device_connected_subtitle">Pilih atau seret file APK di perangkat Anda untuk mengirimkannya ke TV ini</string>
 </resources>

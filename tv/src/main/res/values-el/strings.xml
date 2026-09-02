@@ -87,4 +87,6 @@
     <string name="tv_language_title">Γλώσσα</string>
     <string name="tv_receive_receiving_title">Λήψη πακέτου από το τηλέφωνο…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Συνδεδεμένη συσκευή</string>
+    <string name="tv_receive_device_connected_subtitle">Επιλέξτε ή σύρετε ένα αρχείο APK στη συσκευή σας για να το στείλετε σε αυτήν την τηλεόραση</string>
 </resources>

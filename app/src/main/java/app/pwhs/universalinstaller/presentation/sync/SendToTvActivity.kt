@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.presentation.sync
 
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -30,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +49,13 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.base.BaseActivity
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
 
 /**
  * Phone-side of the TV install flow: scan the TV's QR (open-source ZXing scanner), pick an
@@ -98,6 +106,30 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                     is TvUploadClient.Result.Failure -> context.getString(R.string.tv_sync_status_failed, result.message)
                 }
             }
+        }
+    }
+
+    LaunchedEffect(scanned) {
+        val target = scanned ?: return@LaunchedEffect
+        val parsed = runCatching { Uri.parse(target) }.getOrNull()
+        val host = parsed?.host ?: return@LaunchedEffect
+        val port = parsed.port.takeIf { it > 0 } ?: return@LaunchedEffect
+        val token = parsed.getQueryParameter("token").orEmpty()
+        val pingUrl = "http://$host:$port/ping?token=$token"
+        
+        while (isActive) {
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    (URL(pingUrl).openConnection() as HttpURLConnection).apply {
+                        connectTimeout = 3000
+                        readTimeout = 3000
+                        setRequestProperty("User-Agent", "${Build.MANUFACTURER} ${Build.MODEL} (Universal Installer App)")
+                        responseCode
+                        disconnect()
+                    }
+                }
+            }
+            delay(2500)
         }
     }
 

@@ -87,4 +87,6 @@
     <string name="tv_language_title">Sprache</string>
     <string name="tv_receive_receiving_title">Paket wird vom Telefon empfangen…</string>
     <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
+    <string name="tv_receive_device_connected_title">Gerät verbunden</string>
+    <string name="tv_receive_device_connected_subtitle">Wähle oder ziehe eine APK-Datei auf deinem Gerät, um sie an diesen TV zu senden</string>
 </resources>

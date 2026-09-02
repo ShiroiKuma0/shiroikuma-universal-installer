@@ -30,7 +30,9 @@ class ApkReceiverServer(
 
     override fun serve(session: IHTTPSession): Response {
         return when {
-            session.method == Method.GET && session.uri == "/" -> uploadPage()
+            session.method == Method.GET && session.uri == "/" -> uploadPage(session)
+            session.method == Method.GET && session.uri == "/ping" -> handlePing(session)
+            session.method == Method.GET && session.uri == "/disconnect" -> handleDisconnect(session)
             session.method == Method.GET && session.uri == "/logo.png" -> serveLogo()
             session.method == Method.POST && session.uri == "/upload" -> handleUpload(session)
             else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
@@ -56,7 +58,8 @@ class ApkReceiverServer(
         }
     }
 
-    private fun uploadPage(): Response {
+    private fun uploadPage(session: IHTTPSession): Response {
+        recordClient(session)
         val htmlTemplate = try {
             context.assets.open("upload_page.html").bufferedReader().use { it.readText() }
         } catch (e: Exception) {
@@ -66,12 +69,61 @@ class ApkReceiverServer(
         return newFixedLengthResponse(Response.Status.OK, MIME_HTML, html)
     }
 
+    private fun handlePing(session: IHTTPSession): Response {
+        val reqToken = session.parms["token"] ?: session.parameters["token"]?.firstOrNull()
+        if (reqToken == token) {
+            recordClient(session)
+            return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "pong")
+        }
+        return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Bad token")
+    }
+
+    private fun handleDisconnect(session: IHTTPSession): Response {
+        val reqToken = session.parms["token"] ?: session.parameters["token"]?.firstOrNull()
+        if (reqToken == token) {
+            TvReceiverState.updateConnectedClient(null)
+        }
+        return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "ok")
+    }
+
+    private fun recordClient(session: IHTTPSession) {
+        val clientIp = session.remoteIpAddress ?: "Phone"
+        val userAgent = session.headers["user-agent"]
+        val deviceName = parseDeviceFromUserAgent(userAgent) ?: clientIp
+        TvReceiverState.updateConnectedClient(ConnectedClient(ip = clientIp, deviceName = deviceName))
+    }
+
+    private fun parseDeviceFromUserAgent(ua: String?): String? {
+        if (ua == null) return null
+        return when {
+            ua.contains("Android", ignoreCase = true) -> {
+                val match = Regex(";\\s*([^;]+)\\s*Build").find(ua)?.groupValues?.get(1)
+                match?.trim() ?: "Android Device"
+            }
+            ua.contains("iPhone", ignoreCase = true) -> "iPhone"
+            ua.contains("iPad", ignoreCase = true) -> "iPad"
+            ua.contains("Macintosh", ignoreCase = true) -> "Mac"
+            ua.contains("Windows", ignoreCase = true) -> "Windows PC"
+            ua.contains("Linux", ignoreCase = true) -> "Linux PC"
+            else -> null
+        }
+    }
+
     private fun handleUpload(session: IHTTPSession): Response {
         if (session.parms["token"] != token && session.parameters["token"]?.firstOrNull() != token) {
             return newFixedLengthResponse(Response.Status.FORBIDDEN, MIME_PLAINTEXT, "Bad token")
         }
+        recordClient(session)
         val contentLength = session.headers["content-length"]?.toLongOrNull() ?: 0L
         TvReceiverState.currentExpectedBytes = contentLength.takeIf { it > 0 }
+        TvReceiverState.emitReceivingProgress(
+            ReceivingProgress(
+                bytesReceived = 0L,
+                totalBytes = contentLength.takeIf { it > 0 } ?: 1L,
+                progress = 0f,
+                percent = 0
+            )
+        )
         // NanoHTTPD writes multipart file parts to temp files; the map gives their paths.
         val files = HashMap<String, String>()
         return try {
@@ -82,6 +134,16 @@ class ApkReceiverServer(
                 ?.takeIf { it.isNotBlank() } ?: "received-${System.nanoTime()}.apk"
             val dest = File(stageDir, sanitize(original))
             File(tempPath).copyTo(dest, overwrite = true)
+            
+            TvReceiverState.emitReceivingProgress(
+                ReceivingProgress(
+                    bytesReceived = dest.length(),
+                    totalBytes = dest.length(),
+                    progress = 1f,
+                    percent = 100
+                )
+            )
+            Thread.sleep(350)
             TvReceiverState.emitReceivingProgress(null)
             TvReceiverState.emitReceived(
                 ReceivedApk(path = dest.absolutePath, fileName = dest.name, sizeBytes = dest.length())

@@ -47,9 +47,12 @@ class DownloadNotifier(private val context: Context) {
     fun notifyProgress(fileName: String, bytesRead: Long, totalBytes: Long) {
         val nm = nm ?: return
         val now = android.os.SystemClock.elapsedRealtime()
+        if (lastProgressMs > now) {
+            lastProgressMs = 0L
+        }
         // Always let the first (0 B) and last (complete) updates through; throttle the middle.
         val isEdge = bytesRead == 0L || (totalBytes in 1..bytesRead)
-        if (!isEdge && now - lastProgressMs < 500L) return
+        if (!isEdge && now - lastProgressMs < 250L) return
         lastProgressMs = now
         val indeterminate = totalBytes <= 0L
         val percent = if (!indeterminate) {
@@ -68,6 +71,17 @@ class DownloadNotifier(private val context: Context) {
                 percent,
             )
         }
+
+        val cancelIntent = Intent(context, InstallActionReceiver::class.java).apply {
+            action = InstallActionReceiver.ACTION_CANCEL_DOWNLOAD
+        }
+        val cancelPendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationId,
+            cancelIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
         val notif = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setContentTitle(context.getString(R.string.download_notif_running_title, fileName))
@@ -76,15 +90,18 @@ class DownloadNotifier(private val context: Context) {
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                context.getString(R.string.remote_download_cancel),
+                cancelPendingIntent,
+            )
             .build()
         nm.notify(notificationId, notif)
     }
 
     fun notifyDone(fileName: String, targetUri: Uri? = null) {
         val nm = nm ?: return
-        // Park the throttle far in the future so no stray progress call (e.g. from a
-        // delayed IO thread flush) can overwrite the Done notification we're about to post.
-        lastProgressMs = Long.MAX_VALUE / 2
+        lastProgressMs = 0L
         // Post under a FRESH id. The ongoing progress notification is explicitly cancelled
         // afterwards — avoids MIUI's occasional refusal to downgrade an ongoing notification.
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
@@ -118,7 +135,7 @@ class DownloadNotifier(private val context: Context) {
 
     fun notifyFailed(reason: String) {
         val nm = nm ?: return
-        lastProgressMs = Long.MAX_VALUE / 2
+        lastProgressMs = 0L
         val notif = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_notify_error)
             .setContentTitle(context.getString(R.string.download_notif_failed_title))
@@ -134,6 +151,7 @@ class DownloadNotifier(private val context: Context) {
     }
 
     fun cancel() {
+        lastProgressMs = 0L
         nm?.cancel(notificationId)
         nm?.cancel(DONE_ID)
         nm?.cancel(FAILED_ID)

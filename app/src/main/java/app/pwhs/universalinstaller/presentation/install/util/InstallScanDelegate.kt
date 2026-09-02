@@ -52,17 +52,22 @@ class InstallScanDelegate(
         downloadJob?.cancel()
         Telemetry.feature(TelemetryEvents.FEATURE_URL_DOWNLOAD)
         downloadJob = scope.launch {
-            InstallDownloadHelper.executeDownload(
-                context = context,
-                url = trimmed,
-                packageDownloadService = packageDownloadService,
-                downloadNotifier = downloadNotifier,
-                downloadHistoryDao = downloadHistoryDao,
-                onProgress = { _downloadState.value = it },
-                onSuccess = { file, name, ext ->
-                    handleDownloadedFile(context, file, name, ext)
-                },
-            )
+            val unregister = DownloadCancellationManager.register { cancelDownload() }
+            try {
+                InstallDownloadHelper.executeDownload(
+                    context = context,
+                    url = trimmed,
+                    packageDownloadService = packageDownloadService,
+                    downloadNotifier = downloadNotifier,
+                    downloadHistoryDao = downloadHistoryDao,
+                    onProgress = { _downloadState.value = it },
+                    onSuccess = { file, name, ext ->
+                        handleDownloadedFile(context, file, name, ext)
+                    },
+                )
+            } finally {
+                unregister()
+            }
         }
     }
 

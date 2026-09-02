@@ -6,6 +6,8 @@ import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import timber.log.Timber
 
+import app.pwhs.universalinstaller.presentation.install.util.DownloadCancellationManager
+
 /**
  * Notification actions that need no window.
  *
@@ -21,10 +23,10 @@ class InstallActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         context ?: return
         intent ?: return
-        val pendingId = intent.getStringExtra(EXTRA_PENDING_ID) ?: return
 
         when (intent.action) {
             ACTION_CANCEL -> {
+                val pendingId = intent.getStringExtra(EXTRA_PENDING_ID) ?: return
                 // Dropping the entry is what actually cancels: nothing has been installed yet,
                 // and the Install action resolves to nothing once the store no longer has it.
                 val entry = PendingInstallStore.consume(pendingId)
@@ -33,12 +35,19 @@ class InstallActionReceiver : BroadcastReceiver() {
                     .cancel(InstallPromptNotifier(context).notificationId(pendingId))
             }
 
+            ACTION_CANCEL_DOWNLOAD -> {
+                Timber.d("Download cancelled via notification")
+                DownloadCancellationManager.cancelActiveDownloads()
+                DownloadNotifier(context).cancel()
+            }
+
             else -> Timber.w("InstallActionReceiver: unknown action ${intent.action}")
         }
     }
 
     companion object {
         const val ACTION_CANCEL = "app.pwhs.universalinstaller.action.CANCEL_PENDING_INSTALL"
+        const val ACTION_CANCEL_DOWNLOAD = "app.pwhs.universalinstaller.action.CANCEL_DOWNLOAD"
         const val EXTRA_PENDING_ID = "pending_id"
     }
 }

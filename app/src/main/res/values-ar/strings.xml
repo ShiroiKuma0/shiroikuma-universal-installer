@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">تعذر فتح التطبيق</string>
     <string name="error_insufficient_storage">مساحة التخزين غير كافية للتثبيت. يُرجى تفريغ بعض المساحة وإعادة المحاولة.</string>
     <string name="error_no_file_picker">لم يتم العثور على تطبيق مدير ملفات لتحديد الملفات</string>
+    <string name="insufficient_storage_dialog_title">مساحة التخزين غير كافية</string>
+    <string name="insufficient_storage_dialog_message">لا يحتوي جهازك على مساحة تخزين داخلية كافية لتثبيت هذه الحزمة. المساحة المطلوبة: %1$s، المتوفرة: %2$s. يُرجى تفريغ بعض المساحة وإعادة المحاولة.</string>
+    <string name="insufficient_storage_dialog_clean_up">تفريغ المساحة</string>
 </resources>

@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">App kann nicht geöffnet werden</string>
     <string name="error_insufficient_storage">Nicht genügend Speicherplatz für die Installation. Bitte Speicher freigeben und erneut versuchen.</string>
     <string name="error_no_file_picker">Keine Dateimanager-App zum Auswählen von Dateien gefunden</string>
+    <string name="insufficient_storage_dialog_title">Nicht genügend Speicherplatz</string>
+    <string name="insufficient_storage_dialog_message">Ihr Gerät verfügt nicht über genügend freien internen Speicherplatz, um dieses Paket zu installieren. Erforderlicher Speicherplatz: %1$s, Verfügbar: %2$s. Bitte Speicher freigeben und erneut versuchen.</string>
+    <string name="insufficient_storage_dialog_clean_up">Speicher freigeben</string>
 </resources>

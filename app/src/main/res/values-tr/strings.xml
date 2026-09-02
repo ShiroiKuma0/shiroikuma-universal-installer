@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">Uygulama açılamıyor</string>
     <string name="error_insufficient_storage">Yükleme için yetersiz depolama alanı. Lütfen yer açıp tekrar deneyin.</string>
     <string name="error_no_file_picker">Dosya seçmek için dosya yöneticisi uygulaması bulunamadı</string>
+    <string name="insufficient_storage_dialog_title">Yetersiz Depolama Alanı</string>
+    <string name="insufficient_storage_dialog_message">Cihazınızda bu paketi yüklemek için yeterli dahili depolama alanı yok. Gerekli alan: %1$s, Kullanılabilir: %2$s. Lütfen yer açıp tekrar deneyin.</string>
+    <string name="insufficient_storage_dialog_clean_up">Yer Aç</string>
 </resources>

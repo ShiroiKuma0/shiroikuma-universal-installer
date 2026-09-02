@@ -19,6 +19,7 @@ class InstallBatchDelegate(
     private val application: Application,
     private val scope: CoroutineScope,
     private val resolveController: suspend (String?) -> BaseInstallController,
+    private val onStorageInsufficient: (Long) -> Unit = {},
 ) {
     private val _batchState = MutableStateFlow<BatchInstallState>(BatchInstallState.Idle)
     val batchState: StateFlow<BatchInstallState> = _batchState.asStateFlow()
@@ -81,11 +82,7 @@ class InstallBatchDelegate(
         if (picked.isEmpty()) return
 
         if (!StorageUtil.hasSufficientStorage()) {
-            Toast.makeText(
-                application,
-                application.getString(R.string.error_insufficient_storage),
-                Toast.LENGTH_LONG,
-            ).show()
+            onStorageInsufficient(0L)
             return
         }
 
@@ -108,11 +105,7 @@ class InstallBatchDelegate(
         _batchState.value = BatchInstallState.Idle
 
         if (!StorageUtil.hasSufficientStorage()) {
-            Toast.makeText(
-                application,
-                application.getString(R.string.error_insufficient_storage),
-                Toast.LENGTH_LONG,
-            ).show()
+            onStorageInsufficient(0L)
             return
         }
 

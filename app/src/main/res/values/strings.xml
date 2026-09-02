@@ -845,4 +845,7 @@
     <string name="error_cannot_open_app">Unable to open app</string>
     <string name="error_insufficient_storage">Insufficient storage space to install. Please free up space and try again.</string>
     <string name="error_no_file_picker">No file manager app found to select files</string>
+    <string name="insufficient_storage_dialog_title">Insufficient Storage Space</string>
+    <string name="insufficient_storage_dialog_message">Your device does not have enough free internal storage to install this package. Required space: %1$s, Available: %2$s. Please free up space and try again.</string>
+    <string name="insufficient_storage_dialog_clean_up">Free Up Space</string>
 </resources>

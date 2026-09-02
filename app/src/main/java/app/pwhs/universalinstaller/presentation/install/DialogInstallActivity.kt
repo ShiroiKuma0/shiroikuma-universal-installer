@@ -36,6 +36,7 @@ import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallUriHelper
+import app.pwhs.universalinstaller.presentation.install.dialog.InsufficientStorageDialog
 import app.pwhs.universalinstaller.presentation.install.dialog.HeadlessNotificationInstall
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
@@ -271,11 +272,7 @@ class DialogInstallActivity : ComponentActivity() {
             val proceedInstall = {
                 val apkSize = uiState.pendingApkInfo?.fileSizeBytes ?: 0L
                 if (!StorageUtil.hasSufficientStorage(apkSize)) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.error_insufficient_storage),
-                        Toast.LENGTH_LONG,
-                    ).show()
+                    viewModel.showStorageWarning(apkSize)
                 } else {
                     viewModel.dialogStartInstalling()
                     viewModel.confirmInstall(trackDialogTarget = true)
@@ -367,6 +364,14 @@ class DialogInstallActivity : ComponentActivity() {
                 onDismissAndFinish = dismissAndFinish,
                 onScanVirusTotal = { viewModel.scanVirusTotal(it) },
             )
+
+            val storageWarning by viewModel.storageWarningInfo.collectAsState()
+            storageWarning?.let { warning ->
+                InsufficientStorageDialog(
+                    warningInfo = warning,
+                    onDismiss = viewModel::dismissStorageWarning,
+                )
+            }
         }
     }
 

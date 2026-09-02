@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">Δεν είναι δυνατό το άνοιγμα της εφαρμογής</string>
     <string name="error_insufficient_storage">Ανεπαρκής χώρος αποθήκευσης για εγκατάσταση. Ελευθερώστε χώρο και δοκιμάστε ξανά.</string>
     <string name="error_no_file_picker">Δεν βρέθηκε εφαρμογή διαχείρισης αρχείων για την επιλογή αρχείων</string>
+    <string name="insufficient_storage_dialog_title">Ανεπαρκής χώρος αποθήκευσης</string>
+    <string name="insufficient_storage_dialog_message">Η συσκευή σας δεν διαθέτει αρκετό ελεύθερο εσωτερικό χώρο αποθήκευσης για την εγκατάσταση αυτού του πακέτου. Απαιτούμενος χώρος: %1$s, Διαθέσιμος: %2$s. Ελευθερώστε χώρο και δοκιμάστε ξανά.</string>
+    <string name="insufficient_storage_dialog_clean_up">Ελευθέρωση χώρου</string>
 </resources>

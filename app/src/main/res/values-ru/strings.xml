@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">Не удалось открыть приложение</string>
     <string name="error_insufficient_storage">Недостаточно места на диске для установки. Пожалуйста, освободите место и повторите попытку.</string>
     <string name="error_no_file_picker">Не найдено приложение файлового менеджера для выбора файлов</string>
+    <string name="insufficient_storage_dialog_title">Недостаточно места в памяти</string>
+    <string name="insufficient_storage_dialog_message">На вашем устройстве недостаточно свободной встроенной памяти для установки этого пакета. Требуется: %1$s, Доступно: %2$s. Пожалуйста, освободите место и повторите попытку.</string>
+    <string name="insufficient_storage_dialog_clean_up">Освободить место</string>
 </resources>

@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">アプリを開けません</string>
     <string name="error_insufficient_storage">インストールに必要な空き容量が不足しています。空き容量を確保してからもう一度お試しください。</string>
     <string name="error_no_file_picker">ファイルを選択するファイルマネージャーアプリが見つかりません</string>
+    <string name="insufficient_storage_dialog_title">ストレージの空き容量が不足しています</string>
+    <string name="insufficient_storage_dialog_message">このパッケージをインストールするために必要な内部ストレージの空き容量が不足しています。必要容量: %1$s、利用可能: %2$s。空き容量を確保してからもう一度お試しください。</string>
+    <string name="insufficient_storage_dialog_clean_up">空き容量を増やす</string>
 </resources>

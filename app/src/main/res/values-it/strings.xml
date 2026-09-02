@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">Impossibile aprire l\'applicazione</string>
     <string name="error_insufficient_storage">Spazio di archiviazione insufficiente per l\'installazione. Libera spazio e riprova.</string>
     <string name="error_no_file_picker">Nessuna app di gestione file trovata per selezionare i file</string>
+    <string name="insufficient_storage_dialog_title">Spazio di archiviazione insufficiente</string>
+    <string name="insufficient_storage_dialog_message">Il tuo dispositivo non ha abbastanza spazio di archiviazione interno libero per installare questo pacchetto. Spazio richiesto: %1$s, Disponibile: %2$s. Libera spazio e riprova.</string>
+    <string name="insufficient_storage_dialog_clean_up">Libera spazio</string>
 </resources>

@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">Nu se poate deschide aplicația</string>
     <string name="error_insufficient_storage">Spațiu de stocare insuficient pentru instalare. Eliberați spațiu și încercați din nou.</string>
     <string name="error_no_file_picker">Nu s-a găsit nicio aplicație de gestionare a fișierelor pentru a selecta fișiere</string>
+    <string name="insufficient_storage_dialog_title">Spațiu de stocare insuficient</string>
+    <string name="insufficient_storage_dialog_message">Dispozitivul dvs. nu are suficient spațiu de stocare intern liber pentru a instala acest pachet. Spațiu necesar: %1$s, Disponibil: %2$s. Eliberați spațiu și încercați din nou.</string>
+    <string name="insufficient_storage_dialog_clean_up">Eliberați spațiu</string>
 </resources>

@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">Tidak dapat membuka aplikasi</string>
     <string name="error_insufficient_storage">Ruang penyimpanan tidak cukup untuk memasang. Harap kosongkan ruang dan coba lagi.</string>
     <string name="error_no_file_picker">Tidak ada aplikasi pengelola file yang ditemukan untuk memilih file</string>
+    <string name="insufficient_storage_dialog_title">Ruang Penyimpanan Tidak Cukup</string>
+    <string name="insufficient_storage_dialog_message">Perangkat Anda tidak memiliki cukup ruang penyimpanan internal gratis untuk menginstal paket ini. Ruang yang dibutuhkan: %1$s, Tersedia: %2$s. Harap kosongkan ruang dan coba lagi.</string>
+    <string name="insufficient_storage_dialog_clean_up">Kosongkan Ruang</string>
 </resources>

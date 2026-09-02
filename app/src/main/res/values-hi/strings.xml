@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">ऐप खोलने में असमर्थ</string>
     <string name="error_insufficient_storage">इंस्टॉल करने के लिए पर्याप्त संग्रहण स्थान नहीं है। कृपया स्थान खाली करें और पुनः प्रयास करें।</string>
     <string name="error_no_file_picker">फ़ाइलें चुनने के लिए कोई फ़ाइल प्रबंधक ऐप नहीं मिला</string>
+    <string name="insufficient_storage_dialog_title">पर्याप्त संग्रहण स्थान नहीं है</string>
+    <string name="insufficient_storage_dialog_message">इस पैकेज को स्थापित करने के लिए आपके डिवाइस में पर्याप्त आंतरिक संग्रहण स्थान नहीं है। आवश्यक स्थान: %1$s, उपलब्ध: %2$s। कृपया स्थान खाली करें और पुनः प्रयास करें।</string>
+    <string name="insufficient_storage_dialog_clean_up">स्थान खाली करें</string>
 </resources>

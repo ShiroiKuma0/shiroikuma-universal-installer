@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">Não foi possível abrir o app</string>
     <string name="error_insufficient_storage">Espaço de armazenamento insuficiente para instalar. Libere espaço e tente novamente.</string>
     <string name="error_no_file_picker">Nenhum aplicativo gerenciador de arquivos encontrado para selecionar arquivos</string>
+    <string name="insufficient_storage_dialog_title">Espaço de armazenamento insuficiente</string>
+    <string name="insufficient_storage_dialog_message">Seu dispositivo não tem espaço de armazenamento interno livre suficiente para instalar este pacote. Espaço necessário: %1$s, Disponível: %2$s. Libere espaço e tente novamente.</string>
+    <string name="insufficient_storage_dialog_clean_up">Liberar espaço</string>
 </resources>

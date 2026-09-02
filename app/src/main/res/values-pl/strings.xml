@@ -814,4 +814,7 @@
     <string name="error_cannot_open_app">Nie można otworzyć aplikacji</string>
     <string name="error_insufficient_storage">Za mało miejsca w pamięci, aby zainstalować. Zwolnij miejsce i spróbuj ponownie.</string>
     <string name="error_no_file_picker">Nie znaleziono menedżera plików do wybrania plików</string>
+    <string name="insufficient_storage_dialog_title">Niewystarczająca ilość miejsca</string>
+    <string name="insufficient_storage_dialog_message">Urządzenie nie ma wystarczającej ilości wolnego miejsca w pamięci wewnętrznej, aby zainstalować ten pakiet. Wymagane miejsce: %1$s, Dostępne: %2$s. Zwolnij miejsce i spróbuj ponownie.</string>
+    <string name="insufficient_storage_dialog_clean_up">Zwolnij miejsce</string>
 </resources>

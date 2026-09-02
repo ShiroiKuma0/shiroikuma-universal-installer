@@ -239,6 +239,14 @@ fun InstallScreen(
         onToggleAllUsers = viewModel::setAllUsers,
         onSelectUserId = viewModel::setUserId,
     )
+
+    val storageWarning by viewModel.storageWarningInfo.collectAsState()
+    storageWarning?.let { warning ->
+        app.pwhs.universalinstaller.presentation.install.dialog.InsufficientStorageDialog(
+            warningInfo = warning,
+            onDismiss = viewModel::dismissStorageWarning,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

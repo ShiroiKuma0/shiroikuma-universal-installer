@@ -22,6 +22,7 @@ import app.pwhs.universalinstaller.presentation.install.controller.DhizukuInstal
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
 import app.pwhs.universalinstaller.presentation.install.controller.ManualInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuInstallController
+import app.pwhs.universalinstaller.presentation.install.dialog.StorageWarningInfo
 import app.pwhs.universalinstaller.presentation.install.util.InstallActionDelegate
 import app.pwhs.universalinstaller.presentation.install.util.InstallBatchDelegate
 import app.pwhs.universalinstaller.presentation.install.util.InstallDialogDelegate
@@ -40,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -84,7 +86,12 @@ class InstallViewModel(
 
     private val dialogDelegate = InstallDialogDelegate()
     private val obbDelegate = InstallObbDelegate(application, viewModelScope)
-    private val batchDelegate = InstallBatchDelegate(application, viewModelScope) { activeController(it) }
+    private val batchDelegate = InstallBatchDelegate(
+        application = application,
+        scope = viewModelScope,
+        resolveController = { activeController(it) },
+        onStorageInsufficient = { showStorageWarning(it) },
+    )
 
     private val parseDelegate = InstallParseDelegate(
         application = application,
@@ -197,6 +204,23 @@ class InstallViewModel(
     fun dialogReadFailed(reason: String) = dialogDelegate.readFailed(reason)
     fun dialogParseFailed(reason: String) = dialogDelegate.parseFailed(reason)
     fun dialogPermissionRequired() = dialogDelegate.permissionRequired()
+    private val _storageWarningInfo = MutableStateFlow<StorageWarningInfo?>(null)
+    val storageWarningInfo: StateFlow<StorageWarningInfo?> = _storageWarningInfo.asStateFlow()
+
+    fun showStorageWarning(requiredBytes: Long = 0L) {
+        val stats = StorageUtil.getStorageStats()
+        val needed = if (requiredBytes > 0L) {
+            (requiredBytes * 2).coerceAtLeast(StorageUtil.MIN_STORAGE_HEADROOM_BYTES)
+        } else {
+            StorageUtil.MIN_STORAGE_HEADROOM_BYTES
+        }
+        _storageWarningInfo.value = StorageWarningInfo(stats.freeBytes, needed)
+    }
+
+    fun dismissStorageWarning() {
+        _storageWarningInfo.value = null
+    }
+
     fun updateDialogDownloadProgress(progress: app.pwhs.core.network.DownloadProgress?) =
         dialogDelegate.updateDownloadProgress(progress)
     fun dialogClose() = dialogDelegate.close()
@@ -314,12 +338,7 @@ class InstallViewModel(
         }
         val apkSize = apkInfo?.fileSizeBytes ?: 0L
         if (!StorageUtil.hasSufficientStorage(apkSize)) {
-            android.widget.Toast.makeText(
-                application,
-                application.getString(R.string.error_insufficient_storage),
-                android.widget.Toast.LENGTH_LONG,
-            ).show()
-            dismissPendingInstall()
+            showStorageWarning(apkSize)
             return
         }
         val fn = parseDelegate.pendingFileName ?: return

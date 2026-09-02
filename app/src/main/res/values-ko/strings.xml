@@ -838,4 +838,7 @@
     <string name="error_cannot_open_app">앱을 열 수 없습니다</string>
     <string name="error_insufficient_storage">설치할 저장 공간이 부족합니다. 공간을 확보한 후 다시 시도해 주세요.</string>
     <string name="error_no_file_picker">파일을 선택할 파일 관리자 앱을 찾을 수 없습니다</string>
+    <string name="insufficient_storage_dialog_title">저장 공간 부족</string>
+    <string name="insufficient_storage_dialog_message">이 패키지를 설치하기 위한 내부 저장 공간이 부족합니다. 필요 공간: %1$s, 사용 가능: %2$s. 공간을 확보한 후 다시 시도해 주세요.</string>
+    <string name="insufficient_storage_dialog_clean_up">공간 확보</string>
 </resources>

@@ -840,4 +840,7 @@
     <string name="error_cannot_open_app">Không thể mở ứng dụng</string>
     <string name="error_insufficient_storage">Bộ nhớ không đủ để cài đặt. Vui lòng dọn dẹp dung lượng và thử lại.</string>
     <string name="error_no_file_picker">Không tìm thấy ứng dụng quản lý tệp để chọn file</string>
+    <string name="insufficient_storage_dialog_title">Dung lượng bộ nhớ không đủ</string>
+    <string name="insufficient_storage_dialog_message">Thiết bị của bạn không có đủ dung lượng bộ nhớ trong để cài đặt gói này. Dung lượng yêu cầu: %1$s, Khả dụng: %2$s. Vui lòng dọn dẹp bộ nhớ và thử lại.</string>
+    <string name="insufficient_storage_dialog_clean_up">Dọn dẹp bộ nhớ</string>
 </resources>

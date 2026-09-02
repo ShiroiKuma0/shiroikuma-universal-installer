@@ -17,6 +17,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -488,16 +489,7 @@ private fun ReceiveContent(
                         if (s.ip == "0.0.0.0") {
                             NoNetworkState()
                         } else {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(28.dp)
-                            ) {
-                                QrPanel(url = s.url, size = 150.dp)
-                                Box(Modifier.weight(1f)) {
-                                    ConnectionGuide(ip = s.ip, port = s.port, alignment = Alignment.Start)
-                                }
-                            }
+                            CenteredHeroCard(url = s.url, ip = s.ip, port = s.port)
                         }
                     }
                     ReceiverStatus.Stopped -> {
@@ -714,86 +706,108 @@ private fun GuideStep(num: Int, text: String, modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun QrPanel(url: String, size: androidx.compose.ui.unit.Dp) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(size)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color.White)
-                .padding(12.dp)
-        ) {
-            QrCode(data = url, modifier = Modifier.fillMaxSize())
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            stringResource(R.string.tv_receive_qr_web_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-
-@Composable
-private fun ConnectionGuide(
+private fun CenteredHeroCard(
+    url: String,
     ip: String,
     port: Int,
-    alignment: Alignment.Horizontal = Alignment.Start,
     modifier: Modifier = Modifier,
 ) {
     val ipCode = remember(ip) { app.pwhs.core.receiver.IpEncoder.encode(ip) }
 
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start,
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        colors = SurfaceDefaults.colors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        ),
+        modifier = modifier
+            .widthIn(max = 440.dp)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(24.dp)
+            )
     ) {
-        Text(
-            "http://$ip:$port",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.Start,
-        )
-        Spacer(Modifier.height(8.dp))
-        if (!ipCode.isNullOrBlank()) {
-            Surface(
-                shape = RoundedCornerShape(10.dp),
-                colors = SurfaceDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.55f)
-                ),
-                modifier = Modifier.padding(vertical = 2.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(horizontal = 28.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // TV Code Pill Badge on top
+            if (!ipCode.isNullOrBlank()) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = SurfaceDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.55f)
+                    ),
+                    modifier = Modifier.padding(bottom = 14.dp)
                 ) {
-                    Text(
-                        stringResource(R.string.tv_receive_code_label),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        ipCode,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 1.5.sp
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(R.string.tv_receive_code_label),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            ipCode,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = 2.sp
+                        )
+                    }
                 }
             }
+
+            // QR Code in soft white rounded box
+            Box(
+                modifier = Modifier
+                    .size(135.dp)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Color.White)
+                    .padding(10.dp)
+            ) {
+                QrCode(data = url, modifier = Modifier.fillMaxSize())
+            }
+
+            Spacer(Modifier.height(10.dp))
+
+            // Web URL
+            Text(
+                "http://$ip:$port",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            // 2 Clean Hint Rows
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    stringResource(R.string.tv_receive_step_app),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    stringResource(R.string.tv_receive_step_web),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
-        Spacer(Modifier.height(8.dp))
-        GuideStep(1, stringResource(R.string.tv_receive_step_app))
-        Spacer(Modifier.height(5.dp))
-        GuideStep(2, stringResource(R.string.tv_receive_step_web))
-        Spacer(Modifier.height(5.dp))
-        GuideStep(3, stringResource(R.string.tv_receive_step3))
     }
 }
 

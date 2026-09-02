@@ -6,8 +6,8 @@
     <string name="tv_receive_pin_label">Mã PIN:</string>
     <string name="tv_receive_code_label">Mã TV:</string>
     <string name="tv_receive_qr_web_hint">Trình duyệt Web / iPhone</string>
-    <string name="tv_receive_step_app">1. Dùng App: Mở Universal Installer trên điện thoại</string>
-    <string name="tv_receive_step_web">2. Dùng Web: Quét QR hoặc mở URL (cho iPhone / PC)</string>
+    <string name="tv_receive_step_app">📱 App Android: Mở app để chạm kết nối ngay</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC: Quét mã QR hoặc mở link web</string>
     <string name="tv_receive_step3">3. Chọn APK - nó sẽ cài đặt tại đây</string>
     <string name="tv_receive_starting">Đang khởi động máy thu…</string>
     <string name="tv_receive_installing">Đang cài đặt %s…</string>

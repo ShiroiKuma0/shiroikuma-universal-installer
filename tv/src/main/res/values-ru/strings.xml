@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">Универсальный установщик</string>
     <string name="tv_receive_from_phone">Получить с телефона</string>
-    <string name="tv_receive_step1">1. Подключите телефон к тому же Wi-Fi.</string>
-    <string name="tv_receive_step2">2. Отсканируйте QR (или откройте адрес ниже)</string>
-    <string name="tv_receive_step3">3. Выберите APK — он устанавливается здесь.</string>
     <string name="tv_receive_starting">Запуск приемника…</string>
     <string name="tv_receive_installing">Установка %s…</string>
     <string name="tv_receive_installing_plain">Установка…</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">Очистить поиск</string>
     <string name="tv_language_title">Язык</string>
     <string name="tv_receive_receiving_title">Получение пакета с телефона…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Устройство подключено</string>
     <string name="tv_receive_device_connected_subtitle">Выберите или перетащите файл APK на устройстве, чтобы отправить его на этот телевизор</string>
+    <string name="tv_receive_code_label">Код:</string>
+    <string name="tv_receive_step_app">📱 Android-приложение: откройте приложение для мгновенного подключения</string>
+    <string name="tv_receive_step_web">🌐 iPhone / ПК: отсканируйте QR-код или откройте ссылку выше</string>
+    <string name="tv_receive_btn_disconnect">Отключить</string>
+    <string name="tv_receive_step3">Готово к установке</string>
 </resources>

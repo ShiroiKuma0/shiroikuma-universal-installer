@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">通用安装程序</string>
     <string name="tv_receive_from_phone">从电话接收</string>
-    <string name="tv_receive_step1">1.将手机连接到同一个Wi-Fi</string>
-    <string name="tv_receive_step2">2.扫描二维码（或打开下面地址）</string>
-    <string name="tv_receive_step3">3. 选择一个 APK — 它安装在此处</string>
     <string name="tv_receive_starting">启动接收器...</string>
     <string name="tv_receive_installing">正在安装 %s...</string>
     <string name="tv_receive_installing_plain">正在安装...</string>
@@ -32,7 +29,7 @@
     <string name="tv_manage_title">已安装的应用程序</string>
     <string name="tv_manage_filter_user">用户</string>
     <string name="tv_manage_filter_system">系统</string>
-    <string name="tv_manage_filter_disabled">残疾人</string>
+    <string name="tv_manage_filter_disabled">已停用</string>
     <string name="tv_manage_sort_name">姓名</string>
     <string name="tv_manage_sort_size">尺寸</string>
     <string name="tv_manage_sort_date">日期</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">清除搜索</string>
     <string name="tv_language_title">语言</string>
     <string name="tv_receive_receiving_title">正在从手机接收安装包…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">设备已连接</string>
     <string name="tv_receive_device_connected_subtitle">请在设备上选择或拖拽 APK 文件以发送到此电视</string>
+    <string name="tv_receive_code_label">电视码:</string>
+    <string name="tv_receive_step_app">📱 Android应用: 打开应用即可一键连接</string>
+    <string name="tv_receive_step_web">🌐 iPhone / 电脑: 扫码或在浏览器打开上方链接</string>
+    <string name="tv_receive_btn_disconnect">断开连接</string>
+    <string name="tv_receive_step3">准备安装</string>
 </resources>

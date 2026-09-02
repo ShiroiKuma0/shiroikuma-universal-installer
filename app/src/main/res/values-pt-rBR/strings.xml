@@ -571,15 +571,12 @@
     <string name="profile_mapping_desc">Sempre usar este perfil ao instalar este pacote.</string>
     <string name="tv_sync_screen_title" comment="tv_sync_screen_title TV Sync">Enviar para a TV</string>
     <string name="tv_sync_hero_title">Envie um app para sua TV</string>
-    <string name="tv_sync_instructions">Na TV, abra o Instalador Universal → Instalar e escaneie o código QR exibido.</string>
     <string name="tv_sync_btn_scan">Escanear QR da TV</string>
     <string name="tv_sync_prompt_scan">Escaneie o código QR na sua TV</string>
     <string name="tv_sync_status_connected">Conectado a %1$s</string>
     <string name="tv_sync_btn_choose_apk">Escolha o APK para enviar</string>
     <string name="tv_sync_btn_rescan">Escanear outra TV</string>
     <string name="tv_sync_status_sending">Enviando…</string>
-    <string name="tv_sync_status_sent">Enviado ✓ — confirme a instalação na sua TV</string>
-    <string name="tv_sync_status_failed">Falha: %1$s</string>
     <string name="sync_storage_permission_title" comment="sync_storage_permission_title Sync Screen">Permissão de armazenamento necessária</string>
     <string name="sync_storage_permission_message">O servidor de sincronização precisa de acesso total ao armazenamento para compartilhar e gerenciar arquivos APK. Por favor, conceda Acesso a todos os arquivos nas Configurações.</string>
     <string name="sync_open_settings">Abrir Configurações</string>
@@ -795,4 +792,27 @@
     <string name="history_detail_copy">Copiar detalhes</string>
     <string name="history_detail_copied">Copiado para a área de transferência</string>
     <string name="history_detail_error_title">Diagnóstico de erro</string>
+    <string name="tv_sync_hero_subtitle">Transfira e instale pacotes APK facilmente na sua TV através do Wi-Fi local.</string>
+    <string name="tv_sync_how_it_works">Como funciona</string>
+    <string name="tv_sync_step_1">Abra o Universal Installer na sua TV</string>
+    <string name="tv_sync_step_2">Certifique-se de que ambos os dispositivos estejam no mesmo Wi-Fi</string>
+    <string name="tv_sync_step_3">Toque na sua TV abaixo ou escaneie o código QR</string>
+    <string name="tv_sync_btn_enter_code">Inserir código / IP manualmente</string>
+    <string name="tv_sync_nearby_title">TVs próximas</string>
+    <string name="tv_sync_searching_tv">Procurando TVs no Wi-Fi…</string>
+    <string name="tv_sync_code_input_hint">Código de 4 letras (ex: ERHE) ou IP</string>
+    <string name="tv_sync_dialog_manual_title">Conectar à TV</string>
+    <string name="tv_sync_dialog_manual_desc">Selecione uma TV encontrada ou digite o código de 4 letras ou endereço IP.</string>
+    <string name="tv_sync_discover_label">TVs na sua rede</string>
+    <string name="tv_sync_discover_empty">Nenhuma TV encontrada — digite o endereço IP manualmente abaixo</string>
+    <string name="tv_sync_btn_connect">Conectar</string>
+    <string name="tv_sync_error_invalid_input">Digite um código de 4 letras ou endereço IP válido</string>
+    <string name="tv_sync_error_connect_failed">Não foi possível conectar à TV. Certifique-se de que o app esteja aberto na TV e no mesmo Wi-Fi.</string>
+    <string name="tv_sync_dropzone_title">Selecionar arquivo APK</string>
+    <string name="tv_sync_dropzone_subtitle">Toque aqui para escolher um arquivo APK, APKS ou XAPK</string>
+    <string name="tv_sync_btn_disconnect">Desconectar</string>
+    <string name="tv_sync_transfer_keep_open">Por favor, mantenha esta tela aberta durante a transferência</string>
+    <string name="tv_sync_sent_title">Transferência concluída!</string>
+    <string name="tv_sync_sent_desc">O app foi enviado para sua TV. Olhe para a tela da TV e clique em Instalar para concluir.</string>
+    <string name="tv_sync_btn_send_another">Enviar outro aplicativo</string>
 </resources>

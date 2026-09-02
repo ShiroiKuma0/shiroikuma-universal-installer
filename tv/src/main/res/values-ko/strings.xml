@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">범용 설치 프로그램</string>
     <string name="tv_receive_from_phone">전화로 받기</string>
-    <string name="tv_receive_step1">1. 휴대폰을 동일한 Wi-Fi에 연결하세요.</string>
-    <string name="tv_receive_step2">2. QR을 스캔하세요. (혹은 아래 주소를 열어주세요)</string>
-    <string name="tv_receive_step3">3. APK를 선택하세요. 여기에 설치됩니다.</string>
     <string name="tv_receive_starting">수신기 시작 중…</string>
     <string name="tv_receive_installing">%s 설치 중…</string>
     <string name="tv_receive_installing_plain">설치 중…</string>
@@ -32,7 +29,7 @@
     <string name="tv_manage_title">설치된 앱</string>
     <string name="tv_manage_filter_user">사용자</string>
     <string name="tv_manage_filter_system">체계</string>
-    <string name="tv_manage_filter_disabled">장애가 있는</string>
+    <string name="tv_manage_filter_disabled">사용 중지됨</string>
     <string name="tv_manage_sort_name">이름</string>
     <string name="tv_manage_sort_size">크기</string>
     <string name="tv_manage_sort_date">날짜</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">검색 지우기</string>
     <string name="tv_language_title">언어</string>
     <string name="tv_receive_receiving_title">휴대전화에서 패키지 수신 중…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">기기 연결됨</string>
     <string name="tv_receive_device_connected_subtitle">이 TV로 전송하려면 기기에서 APK 파일을 선택하거나 드래그하세요</string>
+    <string name="tv_receive_code_label">코드:</string>
+    <string name="tv_receive_step_app">📱 Android 앱: 앱을 열어 즉시 연결</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC: QR 코드를 스캔하거나 위의 링크 열기</string>
+    <string name="tv_receive_btn_disconnect">연결 해제</string>
+    <string name="tv_receive_step3">설치 준비 완료</string>
 </resources>

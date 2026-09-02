@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">Instalator universal</string>
     <string name="tv_receive_from_phone">Primiti de la telefon</string>
-    <string name="tv_receive_step1">1. Conectați telefonul la același Wi-Fi</string>
-    <string name="tv_receive_step2">2. Scanați QR-ul (sau deschideți adresa de mai jos)</string>
-    <string name="tv_receive_step3">3. Alegeți un APK - se instalează aici</string>
     <string name="tv_receive_starting">Se pornește receptorul...</string>
     <string name="tv_receive_installing">Se instalează %s...</string>
     <string name="tv_receive_installing_plain">Se instalează...</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">Șterge căutarea</string>
     <string name="tv_language_title">Limbă</string>
     <string name="tv_receive_receiving_title">Se primește pachetul de pe telefon…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Dispozitiv conectat</string>
     <string name="tv_receive_device_connected_subtitle">Selectați sau trageți un fișier APK de pe dispozitiv pentru a-l trimite la acest televizor</string>
+    <string name="tv_receive_code_label">Cod:</string>
+    <string name="tv_receive_step_app">📱 Aplicație Android: Deschideți aplicația pentru conectare instantanee</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC: Scanați codul QR sau deschideți linkul de mai sus</string>
+    <string name="tv_receive_btn_disconnect">Deconectare</string>
+    <string name="tv_receive_step3">Gata de instalare</string>
 </resources>

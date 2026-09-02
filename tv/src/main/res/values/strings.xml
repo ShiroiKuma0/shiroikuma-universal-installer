@@ -3,15 +3,10 @@
 
     <!-- TV Receive Screen -->
     <string name="tv_receive_from_phone">Receive from phone</string>
-    <string name="tv_receive_step1">1.  Connect phone to the same Wi-Fi</string>
-    <string name="tv_receive_step2">2.  Scan the QR (or open the address below)</string>
-    <string name="tv_receive_step2_pin">2.  Scan QR or enter PIN on app</string>
-    <string name="tv_receive_pin_label">PIN:</string>
     <string name="tv_receive_code_label">Code:</string>
-    <string name="tv_receive_qr_web_hint">Web Browser / iPhone</string>
     <string name="tv_receive_step_app">📱 Android App: Open app to connect instantly</string>
     <string name="tv_receive_step_web">🌐 iPhone / PC: Scan QR or open link above</string>
-    <string name="tv_receive_step3">3.  Pick an APK — it installs here</string>
+    <string name="tv_receive_step3">Ready to install</string>
     <string name="tv_receive_starting">Starting receiver…</string>
     <string name="tv_receive_installing">Installing %s…</string>
     <string name="tv_receive_installing_plain">Installing…</string>
@@ -28,11 +23,9 @@
     <string name="tv_receive_rescan">Rescan</string>
     <string name="tv_receive_no_network">Connect this TV to Wi-Fi to receive apps</string>
     <string name="tv_receive_receiving_title">Receiving package from phone…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Device Connected</string>
     <string name="tv_receive_device_connected_subtitle">Select or drop an APK file on your device to send it to this TV</string>
     <string name="tv_receive_btn_disconnect">Disconnect</string>
-    <string name="tv_receive_btn_disconnect_desc">Disconnect connected device</string>
 
     <!-- TV Settings Screen -->
     <string name="tv_settings_title">Settings</string>

@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">Evrensel Yükleyici</string>
     <string name="tv_receive_from_phone">Telefondan al</string>
-    <string name="tv_receive_step1">1. Telefonu aynı Wi-F\'ye bağlayın</string>
-    <string name="tv_receive_step2">2. Q\'yi tarayın (veya aşağıdaki adresi açın)</string>
-    <string name="tv_receive_step3">3. Bir APK seçin; buraya yüklenir</string>
     <string name="tv_receive_starting">Alıcı başlatılıyor…</string>
     <string name="tv_receive_installing">%s yükleniyor…</string>
     <string name="tv_receive_installing_plain">Yükleniyor…</string>
@@ -32,7 +29,7 @@
     <string name="tv_manage_title">Yüklü uygulamalar</string>
     <string name="tv_manage_filter_user">Kullanıcı</string>
     <string name="tv_manage_filter_system">Sistem</string>
-    <string name="tv_manage_filter_disabled">Engelli</string>
+    <string name="tv_manage_filter_disabled">Devre dışı</string>
     <string name="tv_manage_sort_name">İsim</string>
     <string name="tv_manage_sort_size">Boyut</string>
     <string name="tv_manage_sort_date">Tarih</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">Aramayı temizle</string>
     <string name="tv_language_title">Dil</string>
     <string name="tv_receive_receiving_title">Telefondan paket alınıyor…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Cihaz Bağlandı</string>
     <string name="tv_receive_device_connected_subtitle">Bu TV\'ye göndermek için cihazınızda bir APK dosyası seçin veya sürükleyin</string>
+    <string name="tv_receive_code_label">Kod:</string>
+    <string name="tv_receive_step_app">📱 Android Uygulaması: Anında bağlanmak için uygulamayı açın</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC: QR kodunu tarayın veya yukarıdaki bağlantıyı açın</string>
+    <string name="tv_receive_btn_disconnect">Bağlantıyı Kes</string>
+    <string name="tv_receive_step3">Yüklemeye hazır</string>
 </resources>

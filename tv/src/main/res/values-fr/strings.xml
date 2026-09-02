@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">Installateur universel</string>
     <string name="tv_receive_from_phone">Recevoir depuis le téléphone</string>
-    <string name="tv_receive_step1">1. Connectez le téléphone au même Wi-Fi</string>
-    <string name="tv_receive_step2">2. Scannez le QR (ou ouvrez \'adresse ci-dessous)</string>
-    <string name="tv_receive_step3">3. Choisissez un APK – il s’installe ici</string>
     <string name="tv_receive_starting">Démarrage du récepteur…</string>
     <string name="tv_receive_installing">Installation de %s…</string>
     <string name="tv_receive_installing_plain">Installation…</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">Effacer la recherche</string>
     <string name="tv_language_title">Langue</string>
     <string name="tv_receive_receiving_title">Réception du package depuis le téléphone…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Appareil connecté</string>
     <string name="tv_receive_device_connected_subtitle">Sélectionnez ou glissez un fichier APK sur votre appareil pour l\'envoyer à ce téléviseur</string>
+    <string name="tv_receive_code_label">Code :</string>
+    <string name="tv_receive_step_app">📱 App Android : Ouvrez l\'application pour vous connecter instantanément</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC : Scannez le code QR ou ouvrez le lien ci-dessus</string>
+    <string name="tv_receive_btn_disconnect">Déconnecter</string>
+    <string name="tv_receive_step3">Prêt à installer</string>
 </resources>

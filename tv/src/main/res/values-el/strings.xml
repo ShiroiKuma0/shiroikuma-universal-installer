@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">Universal Installer</string>
     <string name="tv_receive_from_phone">Λήψη από τηλέφωνο</string>
-    <string name="tv_receive_step1">1. Συνδέστε το τηλέφωνο στο ίδιο Wi-Fi</string>
-    <string name="tv_receive_step2">2. Σαρώστε το QR (ή ανοίξτε την παρακάτω διεύθυνση)</string>
-    <string name="tv_receive_step3">3. Επιλέξτε ένα APK — εγκαθίσταται εδώ</string>
     <string name="tv_receive_starting">Εκκίνηση δέκτη…</string>
     <string name="tv_receive_installing">Εγκατάσταση %s…</string>
     <string name="tv_receive_installing_plain">Εγκατάσταση…</string>
@@ -32,7 +29,7 @@
     <string name="tv_manage_title">Εγκατεστημένες εφαρμογές</string>
     <string name="tv_manage_filter_user">Μεταχειριζόμενος</string>
     <string name="tv_manage_filter_system">Σύστημα</string>
-    <string name="tv_manage_filter_disabled">Ανάπηρος</string>
+    <string name="tv_manage_filter_disabled">Απενεργοποιημένο</string>
     <string name="tv_manage_sort_name">Ονομα</string>
     <string name="tv_manage_sort_size">Μέγεθος</string>
     <string name="tv_manage_sort_date">Ημερομηνία</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">Εκκαθάριση αναζήτησης</string>
     <string name="tv_language_title">Γλώσσα</string>
     <string name="tv_receive_receiving_title">Λήψη πακέτου από το τηλέφωνο…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Συνδεδεμένη συσκευή</string>
     <string name="tv_receive_device_connected_subtitle">Επιλέξτε ή σύρετε ένα αρχείο APK στη συσκευή σας για να το στείλετε σε αυτήν την τηλεόραση</string>
+    <string name="tv_receive_code_label">Κωδικός:</string>
+    <string name="tv_receive_step_app">📱 Εφαρμογή Android: Ανοίξτε την εφαρμογή για άμεση σύνδεση</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC: Σαρώστε το QR ή ανοίξτε τον παραπάνω σύνδεσμο</string>
+    <string name="tv_receive_btn_disconnect">Αποσύνδεση</string>
+    <string name="tv_receive_step3">Έτοιμο για εγκατάσταση</string>
 </resources>

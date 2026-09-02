@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">المثبت العالمي</string>
     <string name="tv_receive_from_phone">الاستلام من الهاتف</string>
-    <string name="tv_receive_step1">1. قم بتوصيل الهاتف بنفس شبكة Wi-Fi</string>
-    <string name="tv_receive_step2">2. قم بمسح QR (أو افتح العنوان أدناه)</string>
-    <string name="tv_receive_step3">3. اختر ملف APK — سيتم تثبيته هنا</string>
     <string name="tv_receive_starting">جارٍ تشغيل جهاز الاستقبال…</string>
     <string name="tv_receive_installing">جارٍ تثبيت %s…</string>
     <string name="tv_receive_installing_plain">جارٍ التثبيت…</string>
@@ -32,7 +29,7 @@
     <string name="tv_manage_title">التطبيقات المثبتة</string>
     <string name="tv_manage_filter_user">مستخدم</string>
     <string name="tv_manage_filter_system">نظام</string>
-    <string name="tv_manage_filter_disabled">عاجز</string>
+    <string name="tv_manage_filter_disabled">معطّل</string>
     <string name="tv_manage_sort_name">اسم</string>
     <string name="tv_manage_sort_size">مقاس</string>
     <string name="tv_manage_sort_date">تاريخ</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">مسح البحث</string>
     <string name="tv_language_title">اللغة</string>
     <string name="tv_receive_receiving_title">جارٍ استلام الحزمة من الهاتف…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">تم توصيل الجهاز</string>
     <string name="tv_receive_device_connected_subtitle">حدد أو اسحب ملف APK على جهازك لإرساله إلى هذا التلفزيون</string>
+    <string name="tv_receive_code_label">الرمز:</string>
+    <string name="tv_receive_step_app">📱 تطبيق Android: افتح التطبيق للاتصال فوراً</string>
+    <string name="tv_receive_step_web">🌐 iPhone / الكمبيوتر: امسح رمز الاستجابة السريعة أو افتح الرابط أعلاه</string>
+    <string name="tv_receive_btn_disconnect">قطع الاتصال</string>
+    <string name="tv_receive_step3">جاهز للتثبيت</string>
 </resources>

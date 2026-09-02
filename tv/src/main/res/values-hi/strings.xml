@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">यूनिवर्सल इंस्टालर</string>
     <string name="tv_receive_from_phone">फ़ोन से प्राप्त करें</string>
-    <string name="tv_receive_step1">1. फोन को उसी वाई-फाई से कनेक्ट करें</string>
-    <string name="tv_receive_step2">2. QR को स्कैन करें (या नीचे दिया गया पता खोलें)</string>
-    <string name="tv_receive_step3">3. एक एपीके चुनें - यह यहां इंस्टॉल होता है</string>
     <string name="tv_receive_starting">रिसीवर प्रारंभ हो रहा है…</string>
     <string name="tv_receive_installing">%s स्थापित किया जा रहा है...</string>
     <string name="tv_receive_installing_plain">इंस्टाल किया जा रहा है...</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">खोज साफ़ करें</string>
     <string name="tv_language_title">भाषा</string>
     <string name="tv_receive_receiving_title">फ़ोन से पैकेज प्राप्त हो रहा है…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">डिवाइस कनेक्ट हो गया</string>
     <string name="tv_receive_device_connected_subtitle">इस टीवी पर भेजने के लिए अपने डिवाइस पर एक एपीके फ़ाइल चुनें या खींचें</string>
+    <string name="tv_receive_code_label">कोड:</string>
+    <string name="tv_receive_step_app">📱 एंड्रॉइड ऐप: तुरंत कनेक्ट करने के लिए ऐप खोलें</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC: क्यूआर कोड स्कैन करें या ऊपर दिया गया लिंक खोलें</string>
+    <string name="tv_receive_btn_disconnect">डिस्कनेक्ट करें</string>
+    <string name="tv_receive_step3">इंस्टॉल करने के लिए तैयार</string>
 </resources>

@@ -1,8 +1,5 @@
 <resources>    <string name="app_name">Pemasang Universal</string>
     <string name="tv_receive_from_phone">Terima dari telepon</string>
-    <string name="tv_receive_step1">1. Hubungkan ponsel ke Wi-Fi yang sama</string>
-    <string name="tv_receive_step2">2. Scan QR (atau buka alamat di bawah)</string>
-    <string name="tv_receive_step3">3. Pilih APK — APK akan dipasang di sini</string>
     <string name="tv_receive_starting">Memulai penerima…</string>
     <string name="tv_receive_installing">Memasang %s…</string>
     <string name="tv_receive_installing_plain">Memasang…</string>
@@ -32,7 +29,7 @@
     <string name="tv_manage_title">Aplikasi yang diinstal</string>
     <string name="tv_manage_filter_user">Pengguna</string>
     <string name="tv_manage_filter_system">Sistem</string>
-    <string name="tv_manage_filter_disabled">Dengan disabilitas</string>
+    <string name="tv_manage_filter_disabled">Dinonaktifkan</string>
     <string name="tv_manage_sort_name">Nama</string>
     <string name="tv_manage_sort_size">Ukuran</string>
     <string name="tv_manage_sort_date">Tanggal</string>
@@ -86,7 +83,11 @@
     <string name="tv_manage_clear_search">Hapus pencarian</string>
     <string name="tv_language_title">Bahasa</string>
     <string name="tv_receive_receiving_title">Menerima paket dari ponsel…</string>
-    <string name="tv_receive_receiving_subtitle">%1$d%% (%2$s / %3$s)</string>
     <string name="tv_receive_device_connected_title">Perangkat Terhubung</string>
     <string name="tv_receive_device_connected_subtitle">Pilih atau seret file APK di perangkat Anda untuk mengirimkannya ke TV ini</string>
+    <string name="tv_receive_code_label">Kode:</string>
+    <string name="tv_receive_step_app">📱 Aplikasi Android: Buka aplikasi untuk langsung terhubung</string>
+    <string name="tv_receive_step_web">🌐 iPhone / PC: Pindai kode QR atau buka tautan di atas</string>
+    <string name="tv_receive_btn_disconnect">Putuskan</string>
+    <string name="tv_receive_step3">Siap dipasang</string>
 </resources>

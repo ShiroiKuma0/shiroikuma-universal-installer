@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">Να επιτρέπεται μελλοντική επαναφορά</string>
     <string name="dialog_menu_request_update_ownership">Αίτημα ιδιοκτησίας ενημέρωσης</string>
     <string name="dialog_menu_request_update_ownership_desc">Κλείδωμα ιδιοκτησίας ενημερώσεων στο Android 14+</string>
+    <string name="error_cannot_open_app">Δεν είναι δυνατό το άνοιγμα της εφαρμογής</string>
+    <string name="error_insufficient_storage">Ανεπαρκής χώρος αποθήκευσης για εγκατάσταση. Ελευθερώστε χώρο και δοκιμάστε ξανά.</string>
 </resources>

@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">Izinkan pengembalian versi paket di masa mendatang</string>
     <string name="dialog_menu_request_update_ownership">Minta kepemilikan pembaruan</string>
     <string name="dialog_menu_request_update_ownership_desc">Kunci kepemilikan pembaruan di Android 14+</string>
+    <string name="error_cannot_open_app">Tidak dapat membuka aplikasi</string>
+    <string name="error_insufficient_storage">Ruang penyimpanan tidak cukup untuk memasang. Harap kosongkan ruang dan coba lagi.</string>
 </resources>

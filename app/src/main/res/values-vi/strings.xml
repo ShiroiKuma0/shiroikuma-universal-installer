@@ -837,4 +837,6 @@
     <string name="history_detail_copy">Sao chép chi tiết</string>
     <string name="history_detail_copied">Đã sao chép vào khay nhớ tạm</string>
     <string name="history_detail_error_title">Chẩn đoán lỗi</string>
+    <string name="error_cannot_open_app">Không thể mở ứng dụng</string>
+    <string name="error_insufficient_storage">Bộ nhớ không đủ để cài đặt. Vui lòng dọn dẹp dung lượng và thử lại.</string>
 </resources>

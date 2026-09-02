@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">将来のパッケージロールバックを許可</string>
     <string name="dialog_menu_request_update_ownership">更新の所有権を要求</string>
     <string name="dialog_menu_request_update_ownership_desc">Android 14以降で更新の所有権を固定</string>
+    <string name="error_cannot_open_app">アプリを開けません</string>
+    <string name="error_insufficient_storage">インストールに必要な空き容量が不足しています。空き容量を確保してからもう一度お試しください。</string>
 </resources>

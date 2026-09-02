@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.core.util.StorageUtil
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.data.local.DownloadHistoryDao
 import app.pwhs.universalinstaller.data.local.InstallHistoryDao
@@ -306,6 +307,16 @@ class InstallViewModel(
             android.widget.Toast.makeText(
                 application,
                 application.getString(R.string.install_blocked_by_blacklist, blockedPackage),
+                android.widget.Toast.LENGTH_LONG,
+            ).show()
+            dismissPendingInstall()
+            return
+        }
+        val apkSize = apkInfo?.fileSizeBytes ?: 0L
+        if (!StorageUtil.hasSufficientStorage(apkSize)) {
+            android.widget.Toast.makeText(
+                application,
+                application.getString(R.string.error_insufficient_storage),
                 android.widget.Toast.LENGTH_LONG,
             ).show()
             dismissPendingInstall()

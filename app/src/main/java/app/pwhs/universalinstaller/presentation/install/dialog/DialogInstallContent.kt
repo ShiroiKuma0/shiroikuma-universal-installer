@@ -224,7 +224,16 @@ fun DialogInstallContent(
                             onOpenInstalledApp = { pkg ->
                                 viewModel.getAppLaunchIntent(pkg)?.let { intent ->
                                     intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    context.startActivity(intent)
+                                    runCatching {
+                                        context.startActivity(intent)
+                                    }.onFailure { e ->
+                                        Timber.e(e, "Failed to launch app %s", pkg)
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.error_cannot_open_app),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                                 onDismissAndFinish()
                             },

@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">भविष्य के पैकेज रोलबैक की अनुमति दें</string>
     <string name="dialog_menu_request_update_ownership">अपडेट स्वामित्व का अनुरोध करें</string>
     <string name="dialog_menu_request_update_ownership_desc">Android 14+ पर अपडेट स्वामित्व लॉक करें</string>
+    <string name="error_cannot_open_app">ऐप खोलने में असमर्थ</string>
+    <string name="error_insufficient_storage">इंस्टॉल करने के लिए पर्याप्त संग्रहण स्थान नहीं है। कृपया स्थान खाली करें और पुनः प्रयास करें।</string>
 </resources>

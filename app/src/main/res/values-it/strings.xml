@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">Consenti futuri rollback dei pacchetti</string>
     <string name="dialog_menu_request_update_ownership">Richiedi proprietà aggiornamenti</string>
     <string name="dialog_menu_request_update_ownership_desc">Blocca proprietà aggiornamenti su Android 14+</string>
+    <string name="error_cannot_open_app">Impossibile aprire l\'applicazione</string>
+    <string name="error_insufficient_storage">Spazio di archiviazione insufficiente per l\'installazione. Libera spazio e riprova.</string>
 </resources>

@@ -3,6 +3,9 @@ package app.pwhs.universalinstaller.presentation.install.util
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
+import app.pwhs.core.util.StorageUtil
+import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.install.BatchInstallState
 import app.pwhs.universalinstaller.presentation.install.controller.BaseInstallController
 import kotlinx.coroutines.CoroutineScope
@@ -77,6 +80,15 @@ class InstallBatchDelegate(
         _batchState.value = BatchInstallState.Idle
         if (picked.isEmpty()) return
 
+        if (!StorageUtil.hasSufficientStorage()) {
+            Toast.makeText(
+                application,
+                application.getString(R.string.error_insufficient_storage),
+                Toast.LENGTH_LONG,
+            ).show()
+            return
+        }
+
         scope.launch {
             InstallExecutionCoordinator.executeBatchInstall(
                 application = application,
@@ -94,6 +106,15 @@ class InstallBatchDelegate(
         batchParseJob?.cancel()
         batchParseJob = null
         _batchState.value = BatchInstallState.Idle
+
+        if (!StorageUtil.hasSufficientStorage()) {
+            Toast.makeText(
+                application,
+                application.getString(R.string.error_insufficient_storage),
+                Toast.LENGTH_LONG,
+            ).show()
+            return
+        }
 
         scope.launch {
             InstallExecutionCoordinator.executeSkipBatch(

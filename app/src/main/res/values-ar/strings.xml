@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">السماح بالتراجع المستقبلي للحزمة</string>
     <string name="dialog_menu_request_update_ownership">طلب ملكية التحديث</string>
     <string name="dialog_menu_request_update_ownership_desc">قفل ملكية التحديث على Android 14+</string>
+    <string name="error_cannot_open_app">تعذر فتح التطبيق</string>
+    <string name="error_insufficient_storage">مساحة التخزين غير كافية للتثبيت. يُرجى تفريغ بعض المساحة وإعادة المحاولة.</string>
 </resources>

@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">Permite revenirea la o versiune anterioară</string>
     <string name="dialog_menu_request_update_ownership">Solicită dreptul de actualizare</string>
     <string name="dialog_menu_request_update_ownership_desc">Blochează dreptul de actualizare pe Android 14+</string>
+    <string name="error_cannot_open_app">Nu se poate deschide aplicația</string>
+    <string name="error_insufficient_storage">Spațiu de stocare insuficient pentru instalare. Eliberați spațiu și încercați din nou.</string>
 </resources>

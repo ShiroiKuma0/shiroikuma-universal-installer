@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">Zukünftige Rollbacks ermöglichen</string>
     <string name="dialog_menu_request_update_ownership">Update-Inhaberschaft anfordern</string>
     <string name="dialog_menu_request_update_ownership_desc">Update-Inhaberschaft ab Android 14+ sperren</string>
+    <string name="error_cannot_open_app">App kann nicht geöffnet werden</string>
+    <string name="error_insufficient_storage">Nicht genügend Speicherplatz für die Installation. Bitte Speicher freigeben und erneut versuchen.</string>
 </resources>

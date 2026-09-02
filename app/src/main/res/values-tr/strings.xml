@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">Gelecekte paket geri alımına izin ver</string>
     <string name="dialog_menu_request_update_ownership">Güncelleme sahipliği talep et</string>
     <string name="dialog_menu_request_update_ownership_desc">Android 14+\'ta güncelleme sahipliğini kilitle</string>
+    <string name="error_cannot_open_app">Uygulama açılamıyor</string>
+    <string name="error_insufficient_storage">Yükleme için yetersiz depolama alanı. Lütfen yer açıp tekrar deneyin.</string>
 </resources>

@@ -835,4 +835,6 @@
     <string name="dialog_menu_enable_rollback_desc">향후 패키지 롤백 허용</string>
     <string name="dialog_menu_request_update_ownership">업데이트 소유권 요청</string>
     <string name="dialog_menu_request_update_ownership_desc">Android 14 이상에서 업데이트 소유권 고정</string>
+    <string name="error_cannot_open_app">앱을 열 수 없습니다</string>
+    <string name="error_insufficient_storage">설치할 저장 공간이 부족합니다. 공간을 확보한 후 다시 시도해 주세요.</string>
 </resources>

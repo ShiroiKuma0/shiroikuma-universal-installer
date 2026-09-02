@@ -1,6 +1,8 @@
 package app.pwhs.universalinstaller.presentation.install
 
 import android.graphics.BitmapFactory
+import android.widget.Toast
+import timber.log.Timber
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -210,7 +212,18 @@ internal fun HistoryCard(
                 val launchIntent = if (entry.success) context.packageManager.getLaunchIntentForPackage(entry.packageName) else null
                 if (launchIntent != null) {
                     IconButton(
-                        onClick = { context.startActivity(launchIntent) },
+                        onClick = {
+                            runCatching {
+                                context.startActivity(launchIntent)
+                            }.onFailure { e ->
+                                Timber.e(e, "Failed to launch app %s", entry.packageName)
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.error_cannot_open_app),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
                         modifier = Modifier.size(36.dp),
                     ) {
                         Icon(

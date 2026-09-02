@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.text.format.Formatter
 import android.widget.Toast
+import timber.log.Timber
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -283,8 +284,17 @@ fun HistoryDetailSheet(
                 if (launchIntent != null) {
                     Button(
                         onClick = {
-                            context.startActivity(launchIntent)
-                            onDismiss()
+                            runCatching {
+                                context.startActivity(launchIntent)
+                                onDismiss()
+                            }.onFailure { e ->
+                                Timber.e(e, "Failed to launch app %s", entry.packageName)
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.error_cannot_open_app),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = MaterialTheme.shapes.medium,

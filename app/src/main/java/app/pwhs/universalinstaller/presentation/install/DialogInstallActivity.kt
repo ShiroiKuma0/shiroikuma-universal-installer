@@ -8,6 +8,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
+import app.pwhs.core.util.StorageUtil
+import app.pwhs.universalinstaller.R
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -266,8 +269,17 @@ class DialogInstallActivity : ComponentActivity() {
             }
 
             val proceedInstall = {
-                viewModel.dialogStartInstalling()
-                viewModel.confirmInstall(trackDialogTarget = true)
+                val apkSize = uiState.pendingApkInfo?.fileSizeBytes ?: 0L
+                if (!StorageUtil.hasSufficientStorage(apkSize)) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.error_insufficient_storage),
+                        Toast.LENGTH_LONG,
+                    ).show()
+                } else {
+                    viewModel.dialogStartInstalling()
+                    viewModel.confirmInstall(trackDialogTarget = true)
+                }
             }
 
             LaunchedEffect(uiState.pendingApkInfo, uiState.dialogStage) {
@@ -284,7 +296,16 @@ class DialogInstallActivity : ComponentActivity() {
                         dialogTarget?.packageName?.takeIf { it.isNotBlank() }?.let { pkg ->
                             viewModel.getAppLaunchIntent(pkg)?.let { intent ->
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(intent)
+                                runCatching {
+                                    context.startActivity(intent)
+                                }.onFailure { e ->
+                                    Timber.e(e, "Failed to auto-launch app %s", pkg)
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.error_cannot_open_app),
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                                }
                             }
                         }
                     }

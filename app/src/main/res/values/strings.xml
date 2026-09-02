@@ -842,4 +842,6 @@
     <string name="history_detail_copy">Copy Details</string>
     <string name="history_detail_copied">Copied to clipboard</string>
     <string name="history_detail_error_title">Error Diagnostics</string>
+    <string name="error_cannot_open_app">Unable to open app</string>
+    <string name="error_insufficient_storage">Insufficient storage space to install. Please free up space and try again.</string>
 </resources>

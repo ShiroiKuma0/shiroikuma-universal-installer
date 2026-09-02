@@ -79,20 +79,10 @@ jobs:
         continue-on-error: true
         run: bundle exec fastlane production
 
-      - name: Deploy to closed testing track
-        id: play_store_beta
-        continue-on-error: true
-        run: bundle exec fastlane beta
-
       - name: Deploy TV to production track
         id: play_store_tv_production
         continue-on-error: true
         run: bundle exec fastlane production_tv
-
-      - name: Deploy TV to closed testing track
-        id: play_store_tv_beta
-        continue-on-error: true
-        run: bundle exec fastlane beta_tv
 
       # F-Droid rebuilds the opensource APK from a plain checkout and requires it to match the
       # one published here byte for byte. A checkout has no google-services.json, so leaving

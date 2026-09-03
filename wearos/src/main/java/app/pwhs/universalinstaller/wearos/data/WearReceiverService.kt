@@ -1,110 +1,63 @@
 package app.pwhs.universalinstaller.wearos.data
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Intent
+import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.ChannelClient
-import com.google.android.gms.wearable.Wearable
+import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
-import app.pwhs.universalinstaller.wearos.R
-import app.pwhs.universalinstaller.wearos.presentation.MainActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import java.io.File
 
 /**
- * Listens for incoming APK channels opened by the paired phone.
+ * Receives packages the phone streams over a Wearable channel.
  *
- * The phone calls ChannelClient.openChannel(nodeId, "/apk-transfer/<filename>") and then
- * sends the raw APK bytes. This service reads them, writes to disk, and posts a notification.
+ * Path contract shared with the phone's `WearApkSender`:
+ * `/apk-transfer/<expectedBytes>/<fileName>`. The size arrives up front so the free-space check
+ * can run before a single byte is written.
  */
 class WearReceiverService : WearableListenerService() {
 
     private val repository: WearApkRepository by inject()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    override fun onDestroy() {
-        super.onDestroy()
-        scope.cancel()
+    /** The phone sends the launcher icon ahead of the payload; the payload itself is unparsable
+     *  until it is complete, so this is the only way the transfer can show what is arriving. */
+    override fun onMessageReceived(event: MessageEvent) {
+        val fileName = event.path.removePrefix(META_PATH_PREFIX)
+        if (fileName == event.path || fileName.isEmpty()) return
+        val icon = runCatching {
+            BitmapFactory.decodeByteArray(event.data, 0, event.data.size)
+        }.getOrNull() ?: return
+        WearReceiveProgress.setIcon(fileName, icon)
     }
 
     override fun onChannelOpened(channel: ChannelClient.Channel) {
-        val path = channel.path
-        if (!path.startsWith(CHANNEL_PATH_PREFIX)) return
+        val payload = channel.path.removePrefix(CHANNEL_PATH_PREFIX)
+        if (payload == channel.path) return
 
-        val fileName = path.removePrefix(CHANNEL_PATH_PREFIX)
-        Log.d(TAG, "Receiving APK channel: $fileName")
-
-        scope.launch {
-            receiveApk(channel, fileName)
-        }
-    }
-
-    private suspend fun receiveApk(channel: ChannelClient.Channel, fileName: String) =
-        withContext(Dispatchers.IO) {
-            val channelClient = Wearable.getChannelClient(this@WearReceiverService)
-            val tempFile: File = repository.createTempApkFile(fileName)
-
-            runCatching {
-                // Tasks.await() is safe on IO dispatcher (blocking)
-                val inputStream = Tasks.await(channelClient.getInputStream(channel))
-                inputStream.use { input ->
-                    tempFile.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                Tasks.await(channelClient.close(channel))
-            }.onFailure { e ->
-                Log.e(TAG, "Failed to receive APK: ${e.message}", e)
-                tempFile.delete()
-                return@withContext
-            }
-
-            Log.d(TAG, "APK written to ${tempFile.absolutePath} (${tempFile.length()} bytes)")
-            val apkInfo = repository.addApk(tempFile)
-            if (apkInfo != null) {
-                postNotification(apkInfo)
-            } else {
-                Log.e(TAG, "Could not parse APK info from ${tempFile.name}")
-                tempFile.delete()
-            }
+        val expectedBytes = payload.substringBefore('/').toLongOrNull() ?: 0L
+        val fileName = payload.substringAfter('/', "")
+        if (fileName.isEmpty()) {
+            Log.e(TAG, "Malformed channel path: ${channel.path}")
+            return
         }
 
-    private fun postNotification(apkInfo: WearApkInfo) {
-        val nm = getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "APK Received", NotificationManager.IMPORTANCE_DEFAULT)
-        )
-
-        val intent = Intent(this, MainActivity::class.java)
-        val pi = PendingIntent.getActivity(
-            this, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(getString(R.string.apk_received_title))
-            .setContentText(apkInfo.appName)
-            .setContentIntent(pi)
-            .setAutoCancel(true)
-            .build()
-
-        nm.notify(apkInfo.id.hashCode(), notification)
+        Log.d(TAG, "Receiving $fileName ($expectedBytes bytes)")
+        WearReceiveProgress.update(WearReceiveState.Receiving(fileName, 0L, expectedBytes))
+        // The read has to happen here, on the channel this callback was handed. The service only
+        // keeps the process alive around it.
+        WearReceiveService.start(applicationContext)
+        WearReceiveScope.launch {
+            try {
+                WearApkReceiver.receive(applicationContext, repository, channel, fileName, expectedBytes)
+            } finally {
+                WearReceiveService.stop(applicationContext)
+            }
+        }
     }
 
     companion object {
         private const val TAG = "WearReceiverService"
         const val CHANNEL_PATH_PREFIX = "/apk-transfer/"
-        private const val CHANNEL_ID = "wear_apk_received"
+        const val META_PATH_PREFIX = "/apk-meta/"
     }
 }

@@ -1,12 +1,8 @@
 <resources>
-    <string name="app_name">Universal Installer</string>
-    <string name="hello_world">Hello, %1$s!</string>
-    <string name="tile_label">Installer tile</string>
-    <string name="complication_label">Installer complication</string>
+    <string name="app_name" translatable="false">Universal Installer</string>
 
     <!-- Home screen -->
     <string name="home_title">APK Queue</string>
-    <string name="home_empty">No APKs yet.\nSend one from your phone.</string>
 
     <!-- Detail screen -->
     <string name="install">Install</string>
@@ -16,6 +12,54 @@
     <string name="install_failed">Install failed</string>
     <string name="loading">Loading…</string>
 
+    <string name="install_anyway">Install anyway</string>
+    <string name="unknown_sources_msg">Turn on \"Install unknown apps\" for Universal Installer in watch settings.</string>
+    <string name="unknown_sources_open_settings">Open settings</string>
+    <string name="unknown_sources_hidden">This watch hides the setting. Grant it over wireless debugging:\nadb shell appops set app.pwhs.universalinstaller REQUEST_INSTALL_PACKAGES allow</string>
+    <string name="incompatible_min_sdk">Needs Android API %1$d, this watch is API %2$d.</string>
+    <string name="incompatible_not_a_watch_app">This is a phone app, not a Wear OS app.</string>
+
     <!-- Notification -->
     <string name="apk_received_title">APK received</string>
+    <string name="receive_channel_name">Receiving a package</string>
+
+    <string name="home_empty_title">Nothing here yet</string>
+    <string name="home_empty_hint">Open Universal Installer on your phone and send a package to this watch.</string>
+    <string name="receiving">Receiving %1$s…</string>
+    <string name="receive_failed">Transfer failed</string>
+    <string name="badge_phone_app">Phone app</string>
+    <string name="badge_installed">Installed</string>
+    <string name="badge_update">Update</string>
+    <string name="badge_older">Older</string>
+    <string name="manage_title">Manage apps</string>
+    <string name="manage_show_system">Show system apps</string>
+    <string name="manage_hide_system">Hide system apps</string>
+    <string name="manage_empty">No apps installed by you yet.</string>
+    <string name="uninstall">Uninstall</string>
+
+    <!-- More / Settings -->
+    <string name="more_title">More</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_storage">Storage</string>
+    <string name="settings_storage_summary">Queue %1$s · %2$s free</string>
+    <string name="settings_clear_queue">Clear queue</string>
+    <string name="settings_clear_queue_confirm">Delete every package waiting in the queue?</string>
+    <string name="settings_keep_after_install">Keep APK after install</string>
+    <string name="settings_keep_after_install_on">Kept, so it can be installed again</string>
+    <string name="settings_keep_after_install_off">Deleted once installed</string>
+    <string name="settings_install_permission">Install permission</string>
+    <string name="settings_install_permission_summary">Allow installing unknown apps</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">Watch language</string>
+    <string name="settings_accent">Accent colour</string>
+    <string name="accent_orange">Orange</string>
+    <string name="accent_blue">Blue</string>
+    <string name="accent_green">Green</string>
+    <string name="accent_purple">Purple</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_summary">Version and package name</string>
+    <string name="about_version">Version</string>
+    <string name="about_package">Package</string>
+    <string name="about_rate">Rate this app</string>
+    <string name="cancel">Cancel</string>
 </resources>

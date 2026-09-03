@@ -72,7 +72,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.pwhs.universalinstaller.R
-import app.pwhs.universalinstaller.util.ApkFileIconData
+import app.pwhs.universalinstaller.presentation.install.components.StatusChip
+import app.pwhs.core.ui.ApkFileIconData
 import app.pwhs.core.util.PermissionMonitor
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -644,21 +645,3 @@ private fun FoundFileChips(file: FoundPackageFile) {
     }
 }
 
-@Composable
-private fun StatusChip(
-    label: String,
-    container: androidx.compose.ui.graphics.Color,
-    content: androidx.compose.ui.graphics.Color,
-) {
-    Surface(
-        shape = RoundedCornerShape(6.dp),
-        color = container,
-        contentColor = content,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-        )
-    }
-}

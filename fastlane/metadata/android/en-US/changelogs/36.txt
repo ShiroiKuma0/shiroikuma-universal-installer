@@ -1,0 +1,6 @@
+• New Wear OS app: install and manage APKs right on your watch, with its own Settings, About, language and accent colour
+• Send an APK from your phone to a paired watch and follow the transfer live
+• The Android TV app now ships in the same listing
+• A warning before installing when storage is running low
+• Fixed a crash when picking files on devices without a file manager
+• Fixed reading split app bundles, and transfers that could hang forever

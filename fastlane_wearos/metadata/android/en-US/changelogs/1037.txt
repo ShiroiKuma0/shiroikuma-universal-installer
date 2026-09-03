@@ -1,0 +1,1 @@
+• Fix restricted permission warnings on Wear OS

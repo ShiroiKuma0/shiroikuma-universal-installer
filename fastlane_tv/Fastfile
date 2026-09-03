@@ -1,10 +1,11 @@
 default_platform(:android)
 
-# :tv shares :app's applicationId, so a Play release has to carry every form factor's artifact —
-# uploading the TV AAB alone would drop the phone and watch builds from that track.
+# :tv shares :app's applicationId, so a Play release has to carry every form factor's artifact.
+# Smart deploy: if a module's versionCode hasn't changed since the last git tag, its AAB is NOT
+# rebuilt. Instead, version_codes_to_retain tells Play Store to keep the existing version.
 PHONE_AAB = "app/build/outputs/bundle/playRelease/app-play-release.aab"
-WEAR_AAB = "wearos/build/outputs/bundle/release/wearos-release.aab"
-TV_AAB = "tv/build/outputs/bundle/release/tv-release.aab"
+WEAR_AAB  = "wearos/build/outputs/bundle/release/wearos-release.aab"
+TV_AAB    = "tv/build/outputs/bundle/release/tv-release.aab"
 
 platform :android do
 
@@ -28,27 +29,35 @@ platform :android do
     gradle(task: ":tv:assembleRelease")
   end
 
-  desc "Deploy every form factor to internal testing track"
+  # ---------------------------------------------------------------------------
+  # Deploy lanes
+  # ---------------------------------------------------------------------------
+
+  desc "Deploy every form factor to internal testing track (skips modules with no version bump)"
   lane :internal do
-    deploy_all(track: "internal", skip_screenshots: true, release_status: "completed")
+    smart_deploy(track: "internal", skip_screenshots: true, release_status: "completed")
   end
 
-  desc "Deploy every form factor to closed testing track"
+  desc "Deploy every form factor to closed testing track (skips modules with no version bump)"
   lane :beta do
-    deploy_all(track: "beta", skip_screenshots: true, release_status: "completed")
+    smart_deploy(track: "beta", skip_screenshots: true, release_status: "completed")
   end
 
-  desc "Deploy every form factor to production"
+  desc "Deploy every form factor to production as draft (skips modules with no version bump)"
   lane :production do
-    deploy_all(track: "production", skip_screenshots: false, release_status: "draft")
+    smart_deploy(track: "production", skip_screenshots: false, release_status: "draft")
   end
 
-  desc "Increment TV version code"
+  # ---------------------------------------------------------------------------
+  # Version bump helper
+  # ---------------------------------------------------------------------------
+
+  desc "Increment TV versionCode and set versionName"
   lane :bump_version do |options|
     version_name = options[:version] || "1.0"
     build_gradle = File.read("../tv/build.gradle.kts")
     current_code = build_gradle.match(/versionCode = (\d+)/)[1].to_i
-    new_code = current_code + 1
+    new_code     = current_code + 1
 
     new_content = build_gradle.gsub(
       /versionCode = \d+/,
@@ -63,22 +72,75 @@ platform :android do
     UI.success("✅ TV bumped to versionCode=#{new_code}, versionName=#{version_name}")
   end
 
-  private_lane :deploy_all do |options|
-    gradle(task: ":app:bundlePlayRelease")
-    gradle(task: ":wearos:bundleRelease")
-    gradle(task: ":tv:bundleRelease")
+  # ---------------------------------------------------------------------------
+  # Private helpers
+  # ---------------------------------------------------------------------------
+
+  private_lane :read_version_code do |options|
+    file = File.read("../#{options[:module]}/build.gradle.kts")
+    file.match(/versionCode = (\d+)/)[1].to_i
+  end
+
+  private_lane :tagged_version_code do |options|
+    last_tag = sh("git describe --tags --abbrev=0").strip
+    content  = sh("git show #{last_tag}:#{options[:module]}/build.gradle.kts 2>/dev/null || echo ''").strip
+    match    = content.match(/versionCode = (\d+)/)
+    match ? match[1].to_i : 0
+  end
+
+  private_lane :smart_deploy do |options|
+    aab_paths    = []
+    retain_codes = []
+
+    # --- Phone ---
+    phone_now     = read_version_code(module: "app")
+    phone_last    = tagged_version_code(module: "app")
+    phone_changed = phone_now != phone_last
+    UI.message("📱 Phone versionCode: last=#{phone_last} now=#{phone_now} → #{phone_changed ? 'BUILDING' : 'SKIPPING (no change)'}")
+    if phone_changed
+      gradle(task: ":app:bundlePlayRelease")
+      aab_paths << PHONE_AAB
+    else
+      retain_codes << phone_now
+    end
+
+    # --- WearOS ---
+    wear_now     = read_version_code(module: "wearos")
+    wear_last    = tagged_version_code(module: "wearos")
+    wear_changed = wear_now != wear_last
+    UI.message("⌚ WearOS versionCode: last=#{wear_last} now=#{wear_now} → #{wear_changed ? 'BUILDING' : 'SKIPPING (no change)'}")
+    if wear_changed
+      gradle(task: ":wearos:bundleRelease")
+      aab_paths << WEAR_AAB
+    else
+      retain_codes << wear_now
+    end
+
+    # --- TV ---
+    tv_now     = read_version_code(module: "tv")
+    tv_last    = tagged_version_code(module: "tv")
+    tv_changed = tv_now != tv_last
+    UI.message("📺 TV versionCode: last=#{tv_last} now=#{tv_now} → #{tv_changed ? 'BUILDING' : 'SKIPPING (no change)'}")
+    if tv_changed
+      gradle(task: ":tv:bundleRelease")
+      aab_paths << TV_AAB
+    else
+      retain_codes << tv_now
+    end
+
     upload_to_play_store(
-      track: options[:track],
-      package_name: "app.pwhs.universalinstaller",
-      aab_paths: [PHONE_AAB, WEAR_AAB, TV_AAB],
-      json_key: "fastlane/play-store-key.json",
-      # One listing, so the store text comes from the phone's metadata.
-      metadata_path: "./fastlane/metadata/android",
-      skip_upload_metadata: false,
-      skip_upload_images: false,
+      track:                   options[:track],
+      package_name:            "app.pwhs.universalinstaller",
+      aab_paths:               aab_paths,
+      version_codes_to_retain: retain_codes.empty? ? nil : retain_codes,
+      json_key:                "fastlane/play-store-key.json",
+      metadata_path:           "./fastlane/metadata/android",
+      skip_upload_metadata:    false,
+      skip_upload_images:      false,
       skip_upload_screenshots: options[:skip_screenshots],
-      skip_upload_changelogs: false,
-      release_status: options[:release_status],
+      skip_upload_changelogs:  false,
+      release_status:          options[:release_status],
     )
   end
+
 end

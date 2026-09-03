@@ -1,0 +1,4 @@
+• QR scan: validate host and verify connectivity before connecting — prevents connecting to untrusted servers from malicious QR codes
+• Wear OS: fix restricted permission warnings
+• F-Droid: fix build failure when Google Play Services is not available
+• Play Store: use Google Code Scanner for faster, permission-free QR scanning

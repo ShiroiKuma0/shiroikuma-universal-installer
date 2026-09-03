@@ -6,6 +6,7 @@ import android.widget.Toast
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.presentation.install.wear.WearApkSender
 import app.pwhs.universalinstaller.util.BiometricGate
 import kotlinx.coroutines.flow.map
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -159,9 +160,11 @@ fun InstallScreen(
     val isLookingUpWatch by viewModel.isLookingUpWatch.collectAsState()
     val watchApkScanState by viewModel.watchApkScanState.collectAsState()
     // Re-checked on every resume so putting the watch on after opening the app still registers.
-    LifecycleResumeEffect(Unit) {
-        viewModel.refreshWatch()
-        onPauseOrDispose {}
+    if (WearApkSender.isAvailable) {
+        LifecycleResumeEffect(Unit) {
+            viewModel.refreshWatch()
+            onPauseOrDispose {}
+        }
     }
 
     InstallUi(
@@ -694,17 +697,19 @@ private fun InstallUi(
                 actions = {
                     val isSyncRunning = uiState.syncState == app.pwhs.universalinstaller.presentation.sync.SyncState.RUNNING
 
-                    IconButton(
-                        onClick = {
-                            showWatchSheet = true
-                            onRefreshWatch()
-                            onScanApksForWatch(false)
+                    if (WearApkSender.isAvailable) {
+                        IconButton(
+                            onClick = {
+                                showWatchSheet = true
+                                onRefreshWatch()
+                                onScanApksForWatch(false)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Watch,
+                                contentDescription = stringResource(R.string.watch_send_title),
+                            )
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Watch,
-                            contentDescription = stringResource(R.string.watch_send_title),
-                        )
                     }
 
                     IconButton(

@@ -45,6 +45,7 @@ playReview = "2.0.2"
 wearCompose = "1.6.2"
 wearToolingPreview = "1.0.0"
 playServicesWearable = "20.0.1"
+playServicesCodeScanner = "16.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -157,6 +158,7 @@ firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 # Play In-App Review — `play` flavor only, same rule as Firebase above. `review-ktx` pulls
 # `review` in transitively, so one line covers both.
 play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "playReview" }
+play-services-code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "playServicesCodeScanner" }
 
 # Wear OS
 androidx-wear-compose-foundation = { module = "androidx.wear.compose:compose-foundation", version.ref = "wearCompose" }

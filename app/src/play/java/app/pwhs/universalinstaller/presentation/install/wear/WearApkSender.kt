@@ -16,9 +16,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
@@ -27,8 +27,13 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * Streams an APK to the paired Wear OS watch over a Wearable [com.google.android.gms.wearable.ChannelClient]
  * channel.
+ *
+ * This implementation belongs to the `play` source set because it uses proprietary Google Play
+ * Services Wearable APIs. The `opensource` source set provides a no-op implementation.
  */
 object WearApkSender {
+
+    const val isAvailable = true
 
     private const val TAG = "WearApkSender"
 

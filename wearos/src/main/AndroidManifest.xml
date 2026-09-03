@@ -9,6 +9,13 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Remove restricted permissions inherited from Ackpine library -->
+    <uses-permission
+        android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ENFORCE_UPDATE_OWNERSHIP"
+        tools:node="remove" />
     <!-- targetSdk 30+ filters getPackageInfo, so without this the watch cannot tell whether a
          received package is already installed and every install-state badge stays hidden. The
          Manage screen needs the same visibility to list what is on the device at all. A <queries>

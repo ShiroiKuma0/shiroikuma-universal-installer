@@ -44,8 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.base.BaseActivity
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -146,14 +144,17 @@ private fun SendToTvScreen(onBack: () -> Unit) {
         }
     }
 
-    val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
-        android.util.Log.d("SendToTv", "Scan result: contents=${result.contents}")
-        result.contents?.let {
-            scanned = it
+    val launchQrScanner = rememberQrScanner(
+        onScanned = { contents ->
+            android.util.Log.d("SendToTv", "Scan result: contents=$contents")
+            scanned = contents
             errorMessage = null
             isSuccess = false
+        },
+        onError = { error ->
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
         }
-    }
+    )
 
     val onApkPicked: (Uri?) -> Unit = { uri ->
         val target = scanned
@@ -365,16 +366,7 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                                 }
 
                                 TextButton(
-                                    onClick = {
-                                        scanLauncher.launch(
-                                            ScanOptions()
-                                                .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                                                .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
-                                                .setBeepEnabled(false)
-                                                .setOrientationLocked(true)
-                                                .setCaptureActivity(CustomScannerActivity::class.java)
-                                        )
-                                    },
+                                    onClick = launchQrScanner,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Icon(Icons.Rounded.QrCodeScanner, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -395,24 +387,7 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                                     onPickApk = safeLaunchApkPicker
                                 )
                                 OutlinedButton(
-                                    onClick = {
-                                        runCatching {
-                                            scanLauncher.launch(
-                                                ScanOptions()
-                                                    .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-                                                    .setPrompt(context.getString(R.string.tv_sync_prompt_scan))
-                                                    .setBeepEnabled(false)
-                                                    .setOrientationLocked(true)
-                                                    .setCaptureActivity(CustomScannerActivity::class.java)
-                                            )
-                                        }.onFailure {
-                                            Toast.makeText(
-                                                context,
-                                                context.getString(R.string.error_cannot_open_app),
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    },
+                                    onClick = launchQrScanner,
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(14.dp)
                                 ) {

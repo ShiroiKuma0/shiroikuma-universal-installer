@@ -4,6 +4,37 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.12.0+001
+
+**New in this build:** rebased onto **upstream 1.12.0** (versionCode 35) plus the seven commits pushed after the tag — skipping the whole **1.11.0** line, so this build swallows *two* upstream releases at once. All **68** fork commits replay on top. No new fork features: this build is the port, and 1.11.0's "modularize everything under 500 lines" campaign landed directly on the files our theming layer lives in.
+
+### 🧩 Upstream moved the theme into `:core`, and split the settings ViewModel apart
+- **`app/…/ui/theme/Theme.kt` is now a forwarding shim** onto `app.pwhs.core.ui.theme` — upstream duplicated the whole theme into `:core` so `:tv` and the new `:wearos` module can share it. Nothing else under `app/src` imports the core theme, so **our theming engine stays where it is** and keeps replacing that shim; the fork layer did not have to move.
+- **`AppThemePreset.Yellow` did have to follow**, because the enum lives in `:core`: without a branch in core's own `getPresetColorScheme()` the module fails to compile on a non-exhaustive `when`, and `:tv` — which shares the `theme_preset` key — would have no scheme to draw the fork's default preset with. The black/yellow dark and light schemes are now defined in `:core` as well.
+- **`SettingViewModel` went from 1149 lines to 288**, split into `PreferencesKeys.kt`, `SettingModels.kt`, `sections/` and four `util/*Delegate.kt` files. Our layer was rethreaded through all of it: the twelve fork `UI_*` DataStore keys moved to `PreferencesKeys.kt`, the `ForkUiDefaults` black/yellow defaults to `SettingModels.kt`, and the **entire 白い熊 雫 Shizuku fix** — `UiMessage`, `ShizukuManagerApp`, the permission-name lookup, `openShizukuManager()`, the 2-second binder wait and the finally-reachable `NOT_INSTALLED` state — into `SettingPrivilegeDelegate`, which gained an `emitMessage` channel for the messages that carry the manager's name.
+- **The install dialog's body moved out of `DialogInstallActivity`** into a new `dialog/DialogInstallContent.kt`. `ThemedSurface(AppSurface.Dialog)`, the themable card border and the dropped "data may be wiped" downgrade gate went with it.
+- **`ApkInfoContent` was split into `components/`**, so the monospace-for-technical font was re-applied in `ApkDetailCards.kt` and the **Same version / Reinstall** treatment — green button, `Autorenew` icon, chip — re-applied in `ApkInfoFooter.kt`.
+- The install-dialog progress line, the success badge, the per-surface overrides, the top-bar icon colour and the Kōjiki export/import panel all survived the move intact.
+
+### 📥 Upstream 1.12.0 — installing from anywhere
+- **Download and install straight from a URL.** A new install-from-URL button in the top bar, **link sharing from browsers**, network APK download with **streaming install** and SMB path decoding. Downloads run in a **process-scoped background downloader** with a status-bar progress notification and a cancel action, so progress keeps going after you dismiss the dialog and tapping the notification reopens the install flow. The Download tab shows live percentage and size.
+- **Install history got a memory.** Richer metadata per entry plus a **HistoryDetailSheet** — status, operation kind (new / update / downgrade), error diagnostics, and re-install / launch / app-info / copy actions.
+- **Advanced install options (#95).** Five new flags for both Shizuku and root: allow restricted permissions, don't kill the app, disable verification, enable rollback, request update ownership — mirrored across the `SHIZUKU_*` / `ROOT_*` key pairs exactly like the existing ones.
+- **Insufficient storage is caught before the install starts** rather than failing halfway, and two `ActivityNotFoundException` crashes are fixed — launching an app that has no launcher activity, and picking a file on a device with no DocumentsUI.
+- **TV transfer overhauled**: zero-config discovery, PIN-less connect, a security fix, live upload *and* receive progress on both ends, device-presence indication, disconnect buttons and a centered hero-card pairing screen.
+- **Wear OS.** Upstream added a `:wearos` module — an APK installer for the watch — and a **send-to-watch** action on the phone.
+
+### 🔄 Upstream 1.11.0 — the app updater
+- **A whole `:updater` module**, Obtainium-shaped: track apps from **GitHub, GitLab, Codeberg, F-Droid or a direct APK URL**, compare with a real SemVer comparator, and update them through this app's own install dialog. Category tagging and filter chips, sort options, pull-to-refresh, a detail sheet, batch update, an app picker, a periodic background update check, a global **Source API Tokens** dialog, and **JSON backup export/import that is Obtainium-compatible**.
+- **VirusTotal scanning reached the install dialog itself** (#115) — a scanner prompt and status badge in both the dialog and the bottom sheet.
+- **Ackpine 0.25.4** brings `TargetUser` and system-app uninstall; **Gradle 9.3.1 / AGP 9.1.0**; **R8 full mode** with optimized resource shrinking and class repackaging.
+- Fixes: the install dialog no longer shows up in recents (#113), zipped APKs install on TV (#114), a stuck notification on rapid completion (#116), delete-source-after-install got a multi-tier fallback, and auto-open-after-install works in the bottom sheet.
+- Reproducible-build groundwork: `compileSdk` minor API level pinned and native stripping disabled (#117).
+
+### 🕵️ Still no telemetry, and no Wear OS fork
+- 1.12.0 added a **comprehensive Firebase Analytics tracking plan** — an `AnalyticsHelper` with events for onboarding, permissions, installs, Shizuku state and more. It routes through `:core`'s `Telemetry` sink, which **defaults to `NoOpTelemetrySink`**, and this fork's `opensource` factory returns exactly that. With no `google-services.json` every `play` variant stays disabled at configuration time, the Firebase plugins are never applied, and **not a line of it is linked into the APK**. The in-app review prompt is still a no-op here for the same reason.
+- The new **`:wearos` module is left completely stock** — its own `applicationId app.pwhs.universalinstaller.wearos`, its own label, its own `versionCode 1`. `:app` does not depend on it and `buildFork` does not build it, so the fork ships exactly one APK as before.
+
 ## 1.10.0+001
 
 **New in this build:** rebased onto **upstream 1.10.0** (versionCode 33) plus the five commits pushed after the tag. All **65** fork commits replay on top of it. No new fork features — this build is the port itself, and it was a substantial one.

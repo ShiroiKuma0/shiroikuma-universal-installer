@@ -42,3 +42,5 @@ app/google-services.json
 tv/google-services.json
 tv/**/google-services.json
 
+# CI staging dir for the store bundle attached to a GitHub Release
+/dist/

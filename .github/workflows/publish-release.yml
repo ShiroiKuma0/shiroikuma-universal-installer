@@ -81,6 +81,16 @@ jobs:
         continue-on-error: true
         run: bundle exec fastlane production
 
+      # Deleting google-services.json below removes the `play` variant from the build entirely,
+      # so the bundle it produced is copied out of build/ first rather than trusting that
+      # directory to survive a reconfigure. The lane above is continue-on-error, so a missing
+      # bundle must not fail the job either — the release still ships its APKs without it.
+      - name: Keep the store bundle for the release
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/bundle/playRelease/app-play-release.aab dist/ || \
+            echo "::warning::no play bundle to attach to the release"
+
       # F-Droid rebuilds the opensource APK from a plain checkout and requires it to match the
       # one published here byte for byte. A checkout has no google-services.json, so leaving
       # ours in place makes that impossible: the Crashlytics plugin applies project-wide and
@@ -93,22 +103,24 @@ jobs:
           rm -f app/src/play/google-services.json
           rm -f tv/google-services.json
 
-      # Play got its AAB from the fastlane lanes above, built from the `play` flavor. GitHub
-      # gets the `opensource` flavor instead: same app, minus Firebase Analytics and
-      # Crashlytics, which is the build we distribute as open source.
+      # The APK published here is the `opensource` flavor: same app, minus Firebase Analytics and
+      # Crashlytics. That is the build F-Droid reproduces and the one people sideload.
+      #
+      # The AAB attached to the release is the `play` one the fastlane lanes already built, so the
+      # release carries a copy of exactly what went to the store. An AAB cannot be sideloaded, so
+      # the flavor difference costs installers nothing — but it does mean the release page hosts a
+      # bundle containing Analytics and Crashlytics.
       - name: Build release APK & AAB
-        run: ./gradlew :app:assembleOpensourceRelease :app:bundleOpensourceRelease :tv:assembleRelease :tv:bundleRelease :wearos:assembleRelease :wearos:bundleRelease
+        run: ./gradlew :app:assembleOpensourceRelease :tv:assembleRelease :tv:bundleRelease :wearos:assembleRelease :wearos:bundleRelease
 
-      # The flavor dimension renamed these to app-opensource-release.*, but two downstream
-      # consumers key off the old names: F-Droid's recipe pins `binary:` to app-release.apk for
+      # The flavor dimension renamed this to app-opensource-release.apk, but two downstream
+      # consumers key off the old name: F-Droid's recipe pins `binary:` to app-release.apk for
       # its reproducible-build check, and IzzyOnDroid picks its APK out of the release by name
       # (the release also carries tv-release.apk). Rename back rather than break both.
-      - name: Restore the published artifact names
+      - name: Restore the published artifact name
         run: |
           mv app/build/outputs/apk/opensource/release/app-opensource-release.apk \
              app/build/outputs/apk/opensource/release/app-release.apk
-          mv app/build/outputs/bundle/opensourceRelease/app-opensource-release.aab \
-             app/build/outputs/bundle/opensourceRelease/app-release.aab
 
       # Artifacts
       - name: Upload release AAB & APK
@@ -116,7 +128,7 @@ jobs:
         with:
           name: release-build
           path: |
-            app/build/outputs/bundle/opensourceRelease/app-release.aab
+            dist/app-play-release.aab
             app/build/outputs/apk/opensource/release/app-release.apk
             tv/build/outputs/bundle/release/tv-release.aab
             tv/build/outputs/apk/release/tv-release.apk
@@ -133,7 +145,7 @@ jobs:
           prerelease: false
           files: |
             app/build/outputs/apk/opensource/release/app-release.apk
-            app/build/outputs/bundle/opensourceRelease/app-release.aab
+            dist/app-play-release.aab
             tv/build/outputs/apk/release/tv-release.apk
             tv/build/outputs/bundle/release/tv-release.aab
             wearos/build/outputs/apk/release/wearos-release.apk

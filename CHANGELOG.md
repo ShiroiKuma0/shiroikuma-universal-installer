@@ -4,6 +4,38 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.13.0+001
+
+**New in this build:** rebased onto **upstream 1.13.0** (versionCode 36), tagged the same day this build was made. All **75** fork commits replay on top. No new fork features — upstream 1.13.0 is essentially one very large PR (#120, *Fix/wearos apk transfer*) that rebuilds the send-to-watch flow end to end, plus a packaging change that folds the TV and watch builds into the phone's Play listing.
+
+### ⌚ Send-to-watch, rebuilt end to end (upstream #120)
+- **The transport had never actually worked.** `WearReceiverService`'s `CHANNEL_EVENT` intent filter carried no `data` element, while GMS dispatches channel events with a `wear://<node>/<path>` URI — so the service never resolved, nothing read the channel, and the phone's writes blocked forever on a full buffer, sitting at 0% until GMS gave up with "Channel closed unexpectedly". With that fixed the bytes arrived but the work still died: GMS unbinds the listener service as soon as `onChannelOpened` returns, so `onDestroy` cancelled the service scope mid-copy and the APK landed on disk unparsed, with no notification and no list entry.
+- **The phone now offers only watches that actually have the app.** `NodeClient.connectedNodes` reports every connected watch, so the phone used to stream an APK into a channel nobody listened on — and still report success. It now queries `CapabilityClient` for an `apk_receiver` capability the watch declares.
+- **A send sheet replaces the one overloaded toolbar button**, which used to do two different things depending on hidden state. The sheet shows which watch would receive the file (or why none is reachable, with a retry, instead of a greyed-out button that explains nothing), the currently open APK as a one-tap send, every scanned package with icons and install state behind a **Wear OS** filter chip, and the raw file picker demoted to an escape hatch with no mime filter. Availability is re-polled on resume, so putting the watch on after opening the app registers.
+- **A transfer now survives leaving the screen.** `WearTransferService` owns it as a `dataSync` foreground service, cancel lands within 8 KB, all five `Tasks.await` calls got timeouts, and a watchdog closes a channel whose byte count has not moved for a minute — the only thing that frees a blocked `write()`.
+- **A phone-only APK raises a confirm step** instead of transferring in full and failing at install time on the watch, split bundles keep their extension so the watch knows to unpack them, the payload size rides in the channel path so the watch can check free space and detect a truncated write, and the launcher **icon is sent ahead of the payload** over `MessageClient` so the watch can show what is arriving.
+- Leaks fixed along the way: the channel now closes in a `finally` block and the `ParcelFileDescriptor` is wrapped in `use {}` — both leaked on every failed send. Progress is emitted once per whole percent rather than once per 8 KB.
+
+### ⌚ The watch app itself
+- **Received packages stop vanishing.** They lived only in a `MutableStateFlow`, so anything that killed the watch between transfer and opening the app dropped them from the list while the file stayed on disk forever. The cache directory is now the source of truth.
+- **Installing reports the real result.** It treated `commit()` as synchronous, so a non-privileged installer's `STATUS_PENDING_USER_ACTION` was never read — the confirmation dialog never appeared, yet the UI claimed success and deleted the cached file. It now goes through core's `ApkInstaller`.
+- A partial wake lock plus a foreground service hold the receive together, free space is checked before writing and the received size verified, `.xapk` parses through `ApkMetadataReader` instead of resolving to null and being silently deleted, and `POST_NOTIFICATIONS` is finally requested rather than merely declared.
+- **The UI was rebuilt**: the app's own palette (it had been rendering in default Material purple), APK icons in the list and detail, a single badge that says the worst thing first, live receive progress with a bar that actually moves, swipe-to-delete, an empty state, storage on the home screen, and new **Manage**, **Settings** and **About** screens — with a language picker, accent presets and the same 18 locales as the phone.
+- The Android Studio template tile ("Hello, Tile!") and day-of-week complication are gone, taking their whole dependency stack with them — the debug APK drops from 93.9 MB to 84.0 MB.
+- `WatchAppCheck` reads the manifest **inside** a split bundle now; it used to hand an `.apks`/`.xapk` straight to `getPackageArchiveInfo`, get null, and brand every bundle a phone app.
+
+### 📦 Packaging: one listing, three form factors
+`:wearos` (versionCode 1036) and `:tv` (2027) both **adopt the phone's `applicationId`** and ride the phone's Play listing as additional form factors rather than separate listings, in version bands — phone 1–999, watch 1000+, TV 2000+ — so a device is handed the highest code it is eligible for. `:tv` gains a real 320×180 leanback banner in place of the square launcher icon it had been pointing at.
+
+### 🧩 What the rebase needed, and what it means here
+- **A small rebase.** Three conflicts, all additive: the version literals in `app/build.gradle.kts` (ours kept, upstream's values moved into `gradle.properties`), upstream's new `watch_*` strings next to our 白い熊 UI strings, and our `ThemedSurface(AppSurface.Main)` wrapper next to the new watch-state collection in `InstallScreen`. Unlike 1.12.0, the theming layer needed no porting at all.
+- **Send-to-watch cannot pair from this build.** The Wearable Data Layer only routes a channel between nodes running the **same package name and signing certificate** — which is exactly why upstream moved `:wearos` onto `app.pwhs.universalinstaller`. This fork's phone app is `shiroikuma.universalinstaller`, signed with 白い熊's own key, so no watch will ever answer the `apk_receiver` capability query and the button reports "No watch found". Making it work would mean building and shipping a matching fork watch APK; this build does not.
+- **The Polish locale joined the rest.** `values-pl/strings.xml` was the one locale file with no `app_name` override — Polish fell back to the default so the label was already right, but the fork invariant is that *every* `values*/strings.xml` pins it, so a future upstream that adds a Polish `app_name` cannot regress the launcher label unnoticed. All **19** locale files now carry `白い熊 Universal installer`.
+- `buildFork` still builds `:app` alone, on the `opensource` flavor — the fork ships exactly one APK, as always. Our theming layer touches `:tv`'s theme and launcher icon, but that module is not built either.
+
+### 🕵️ Still no telemetry
+Unchanged: with no `google-services.json`, every `play` variant is disabled at configuration time, the Firebase plugins are never applied, and the `opensource` telemetry factory returns a no-op sink. Not a line of Analytics or Crashlytics is linked into this APK.
+
 ## 1.12.0+001
 
 **New in this build:** rebased onto **upstream 1.12.0** (versionCode 35) plus the seven commits pushed after the tag — skipping the whole **1.11.0** line, so this build swallows *two* upstream releases at once. All **68** fork commits replay on top. No new fork features: this build is the port, and 1.11.0's "modularize everything under 500 lines" campaign landed directly on the files our theming layer lives in.

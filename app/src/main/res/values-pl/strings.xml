@@ -318,6 +318,7 @@
     <string name="setting_search_clear">Wyczyść wyszukiwanie</string>
     <string name="setting_search_no_results">Nie znaleziono ustawień</string>
     <string name="setting_search_no_results_sub">Brak wyników dla \%s\</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
     <string name="setting_section_installation">Instalacja</string>
     <string name="setting_install_mode_title">Tryb instalacji</string>
     <string name="setting_install_mode_default">Domyślny</string>

@@ -82,31 +82,48 @@ private fun SendToTvScreen(onBack: () -> Unit) {
     var savedTvIp by rememberSaveable { mutableStateOf("") }
     val discoveredTvs by remember { TvDiscovery.discover(context) }.collectAsState(initial = emptyList())
 
-    fun connectManual(rawIp: String) {
-        val trimmed = rawIp.trim().removePrefix("http://").removePrefix("https://").trimEnd('/')
-        val resolvedIp = if (trimmed.length in 4..6 && trimmed.all { it.isLetter() }) {
-            app.pwhs.core.receiver.IpEncoder.decode(trimmed, app.pwhs.core.receiver.LanAddress.siteLocalIpv4()) ?: trimmed
-        } else trimmed
+    fun connectToTv(rawInput: String, isFromQr: Boolean = false) {
+        val trimmed = rawInput.trim().removePrefix("http://").removePrefix("https://").trimEnd('/')
+        val hostPart = trimmed.substringBefore("/").substringBefore("?")
+        val resolvedIp = if (hostPart.length in 4..6 && hostPart.all { it.isLetter() }) {
+            app.pwhs.core.receiver.IpEncoder.decode(hostPart, app.pwhs.core.receiver.LanAddress.siteLocalIpv4()) ?: hostPart
+        } else hostPart
 
         val host: String
         val port: Int
         if (resolvedIp.contains(":")) {
             host = resolvedIp.substringBefore(":")
-            port = resolvedIp.substringAfter(":").substringBefore("/").toIntOrNull() ?: 8787
+            port = resolvedIp.substringAfter(":").toIntOrNull() ?: 8787
         } else {
-            host = resolvedIp.substringBefore("/")
+            host = resolvedIp
             port = 8787
         }
-        if (host.isBlank()) {
-            manualError = context.getString(R.string.tv_sync_error_invalid_input)
+
+        val isValidHost = android.util.Patterns.IP_ADDRESS.matcher(host).matches() ||
+                host == "localhost" ||
+                host.endsWith(".local")
+
+        if (host.isBlank() || !isValidHost || port !in 1..65535) {
+            val err = context.getString(R.string.tv_sync_error_invalid_input)
+            if (isFromQr) {
+                Toast.makeText(context, err, Toast.LENGTH_SHORT).show()
+            } else {
+                manualError = err
+            }
             return
         }
 
-        isConnectingManual = true
-        manualError = null
+        if (!isFromQr) {
+            isConnectingManual = true
+            manualError = null
+        }
 
         scope.launch {
-            val candidatePorts = if (resolvedIp.contains(":")) listOf(port) else listOf(8787, 8788, 8789, 8790, 8791, 8792)
+            val candidatePorts = if (resolvedIp.contains(":")) {
+                listOf(port) + listOf(8787, 8788, 8789, 8790, 8791, 8792).filter { it != port }
+            } else {
+                listOf(8787, 8788, 8789, 8790, 8791, 8792)
+            }
             var connectedTarget: String? = null
             var connectedPort: Int = port
 
@@ -115,12 +132,13 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                     val pingUrl = "http://$host:$p/ping"
                     val ok = runCatching {
                         val conn = URL(pingUrl).openConnection() as HttpURLConnection
-                        conn.connectTimeout = 3000
-                        conn.readTimeout = 3000
+                        conn.connectTimeout = 2500
+                        conn.readTimeout = 2500
                         conn.setRequestProperty("User-Agent", "${Build.MANUFACTURER} ${Build.MODEL} (Universal Installer App)")
                         val code = conn.responseCode
+                        val body = if (code == 200) conn.inputStream.bufferedReader().use { it.readText().trim() } else ""
                         conn.disconnect()
-                        code == 200
+                        code == 200 && (body == "pong" || body.isEmpty())
                     }.getOrDefault(false)
 
                     if (ok) {
@@ -131,7 +149,10 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                 }
             }
 
-            isConnectingManual = false
+            if (!isFromQr) {
+                isConnectingManual = false
+            }
+
             if (connectedTarget != null) {
                 savedTvIp = if (resolvedIp.contains(":")) resolvedIp else "$host:$connectedPort"
                 scanned = connectedTarget
@@ -139,7 +160,12 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                 isSuccess = false
                 showManualDialog = false
             } else {
-                manualError = context.getString(R.string.tv_sync_error_connect_failed)
+                val err = context.getString(R.string.tv_sync_error_connect_failed)
+                if (isFromQr) {
+                    Toast.makeText(context, err, Toast.LENGTH_SHORT).show()
+                } else {
+                    manualError = err
+                }
             }
         }
     }
@@ -147,9 +173,7 @@ private fun SendToTvScreen(onBack: () -> Unit) {
     val launchQrScanner = rememberQrScanner(
         onScanned = { contents ->
             android.util.Log.d("SendToTv", "Scan result: contents=$contents")
-            scanned = contents
-            errorMessage = null
-            isSuccess = false
+            connectToTv(contents, isFromQr = true)
         },
         onError = { error ->
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
@@ -453,7 +477,7 @@ private fun SendToTvScreen(onBack: () -> Unit) {
                 }
             },
             onConnect = { ip ->
-                connectManual(ip)
+                connectToTv(ip)
             }
         )
     }

@@ -79,14 +79,30 @@ platform :android do
 
   private_lane :read_version_code do |options|
     file = File.read("../#{options[:module]}/build.gradle.kts")
-    file.match(/versionCode = (\d+)/)[1].to_i
+    match = file.match(/versionCode = (\d+)/)
+    match ? match[1].to_i : 0
+  end
+
+  private_lane :previous_tag do
+    tag = sh("git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo ''").strip
+    if tag.empty?
+      current = sh("git describe --tags --abbrev=0 2>/dev/null || echo ''").strip
+      tags = sh("git tag -l --sort=-v:refname 'v*' 2>/dev/null || echo ''").split("\n").map(&:strip)
+      tag = tags.find { |t| t != current && !t.empty? } || ""
+    end
+    tag
   end
 
   private_lane :tagged_version_code do |options|
-    last_tag = sh("git describe --tags --abbrev=0").strip
-    content  = sh("git show #{last_tag}:#{options[:module]}/build.gradle.kts 2>/dev/null || echo ''").strip
-    match    = content.match(/versionCode = (\d+)/)
-    match ? match[1].to_i : 0
+    prev_tag = previous_tag
+    if prev_tag.empty?
+      UI.important("⚠️ Could not determine previous git tag, defaulting to 0 for #{options[:module]}")
+      0
+    else
+      content = sh("git show #{prev_tag}:#{options[:module]}/build.gradle.kts 2>/dev/null || echo ''").strip
+      match = content.match(/versionCode = (\d+)/)
+      match ? match[1].to_i : 0
+    end
   end
 
   private_lane :smart_deploy do |options|
@@ -127,6 +143,13 @@ platform :android do
       aab_paths << TV_AAB
     else
       retain_codes << tv_now
+    end
+
+    if aab_paths.empty?
+      UI.important("⚠️ No AABs had version code bumps! Fallback: building watch AAB.")
+      gradle(task: ":wearos:bundleRelease")
+      aab_paths << WEAR_AAB
+      retain_codes.delete(wear_now)
     end
 
     upload_to_play_store(

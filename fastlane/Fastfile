@@ -103,18 +103,37 @@ platform :android do
   # Read versionCode directly from a module's build.gradle.kts on disk.
   private_lane :read_version_code do |options|
     file = File.read("../#{options[:module]}/build.gradle.kts")
-    file.match(/versionCode = (\d+)/)[1].to_i
-  end
-
-  # Read versionCode as it was at the last git tag.
-  private_lane :tagged_version_code do |options|
-    last_tag = sh("git describe --tags --abbrev=0").strip
-    content  = sh("git show #{last_tag}:#{options[:module]}/build.gradle.kts 2>/dev/null || echo ''").strip
-    match    = content.match(/versionCode = (\d+)/)
+    match = file.match(/versionCode = (\d+)/)
     match ? match[1].to_i : 0
   end
 
-  # Smart deploy: build only modules whose versionCode changed since the last tag.
+  # Find the previous git tag before the current commit/tag.
+  private_lane :previous_tag do
+    # On a tagged commit (e.g. CI building v1.13.1), `git describe --tags --abbrev=0` returns v1.13.1.
+    # To get the tag BEFORE the current commit, use HEAD^.
+    tag = sh("git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo ''").strip
+    if tag.empty?
+      current = sh("git describe --tags --abbrev=0 2>/dev/null || echo ''").strip
+      tags = sh("git tag -l --sort=-v:refname 'v*' 2>/dev/null || echo ''").split("\n").map(&:strip)
+      tag = tags.find { |t| t != current && !t.empty? } || ""
+    end
+    tag
+  end
+
+  # Read versionCode as it was at the previous git tag.
+  private_lane :tagged_version_code do |options|
+    prev_tag = previous_tag
+    if prev_tag.empty?
+      UI.important("⚠️ Could not determine previous git tag, defaulting to 0 for #{options[:module]}")
+      0
+    else
+      content = sh("git show #{prev_tag}:#{options[:module]}/build.gradle.kts 2>/dev/null || echo ''").strip
+      match = content.match(/versionCode = (\d+)/)
+      match ? match[1].to_i : 0
+    end
+  end
+
+  # Smart deploy: build only modules whose versionCode changed since the previous tag.
   # Unchanged modules are represented via version_codes_to_retain so Play Store keeps
   # their existing binaries on the target track without us needing to re-upload them.
   private_lane :smart_deploy do |options|
@@ -155,6 +174,13 @@ platform :android do
       aab_paths << TV_AAB
     else
       retain_codes << tv_now
+    end
+
+    if aab_paths.empty?
+      UI.important("⚠️ No AABs had version code bumps! Fallback: building phone AAB.")
+      gradle(task: ":app:bundlePlayRelease")
+      aab_paths << PHONE_AAB
+      retain_codes.delete(phone_now)
     end
 
     upload_to_play_store(

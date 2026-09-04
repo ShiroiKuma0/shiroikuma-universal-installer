@@ -256,12 +256,7 @@ fun BackupsScreen(
                     }
 
                     val currentPath = uiState.extractorOutputPath
-                    val displayPath = if (currentPath.startsWith("content://")) {
-                        androidx.documentfile.provider.DocumentFile.fromTreeUri(context, Uri.parse(currentPath))?.name
-                            ?: currentPath
-                    } else {
-                        currentPath.ifBlank { "Default (Download/UniversalInstaller/Extracted)" }
-                    }
+                    val displayPath = formatExtractorOutputPath(context, currentPath)
 
                     OutlinedTextField(
                         value = displayPath,

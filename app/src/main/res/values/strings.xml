@@ -785,6 +785,9 @@
     <string name="setting_security_strict_sub">Scan with VirusTotal becomes the main button until a file has a verdict, and installing something unscanned asks for confirmation. Needs an API key.</string>
     <string name="setting_diagnostics_title">Diagnostics</string>
     <string name="backup_output_path">Output Path</string>
+    <string name="backup_output_path_default">Default (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Internal storage</string>
+    <string name="backup_output_path_selected_folder">Selected folder</string>
     <string name="backup_filename_template">Filename Template</string>
     <string name="backup_tags_hint">Tags: {name}, {pkg}, {version}, {code}</string>
     <string name="backup_split_format_label">Split app format</string>

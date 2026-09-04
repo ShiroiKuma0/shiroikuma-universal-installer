@@ -94,8 +94,10 @@ fun InstallerUiScreen(
     // Queried on page open (and whenever the export directory changes): the newest export.
     val lastExport by viewModel.lastExport.collectAsState()
 
-    // 保存復元 automation surface (StateExportReceiver): master switch + shared secret.
+    // 保存復元 automation surface, contract v2: master switch (default ON), the token opt-in
+    // (default OFF), and the secret itself — shown only while it is actually being asked for.
     var automationEnabled by remember { mutableStateOf(AutomationAuth.enabled(context)) }
+    var automationRequireToken by remember { mutableStateOf(AutomationAuth.requireToken(context)) }
     var automationToken by remember { mutableStateOf(AutomationAuth.token(context)) }
     val clipboard = LocalClipboardManager.current
     val tokenCopiedMessage = stringResource(R.string.eim_token_copied)
@@ -206,35 +208,70 @@ fun InstallerUiScreen(
                             },
                         )
                     }
+                    // v2: the token became opt-in. Default OFF, because the case this family
+                    // exists to serve is 応用管理 restoring apps onto a CLEAN phone, where nobody
+                    // has pasted anything yet — a gate that only works once the phone is already
+                    // set up is no gate for setting the phone up.
                     IndentRow(
                         indent = 72,
                         onClick = {
-                            clipboard.setText(AnnotatedString(automationToken))
-                            scope.launch { snackbarHostState.showSnackbar(tokenCopiedMessage) }
+                            automationRequireToken = !automationRequireToken
+                            AutomationAuth.setRequireToken(context, automationRequireToken)
                         },
                     ) {
                         Column(Modifier.weight(1f)) {
                             Text(
-                                stringResource(R.string.eim_token_title),
+                                stringResource(R.string.eim_automation_token_title),
                                 style = MaterialTheme.typography.bodyLarge,
                             )
                             Text(
-                                text = "${automationToken.take(8)}…${automationToken.takeLast(8)}",
+                                stringResource(R.string.eim_automation_token_desc),
                                 style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                             )
                         }
-                        Text(
-                            text = stringResource(R.string.eim_token_regenerate),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = KxkbWarnRed,
-                            modifier = Modifier.clickable {
-                                automationToken = AutomationAuth.regenerateToken(context)
-                                scope.launch { snackbarHostState.showSnackbar(tokenRegeneratedMessage) }
+                        Switch(
+                            checked = automationRequireToken,
+                            onCheckedChange = {
+                                automationRequireToken = it
+                                AutomationAuth.setRequireToken(context, it)
                             },
                         )
+                    }
+                    // Hidden while the token is not being asked for: a 48-character secret
+                    // sitting under an off switch invites 白い熊 to paste it somewhere it
+                    // will do nothing.
+                    if (automationRequireToken) {
+                        IndentRow(
+                            indent = 72,
+                            onClick = {
+                                clipboard.setText(AnnotatedString(automationToken))
+                                scope.launch { snackbarHostState.showSnackbar(tokenCopiedMessage) }
+                            },
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    stringResource(R.string.eim_token_title),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                                Text(
+                                    text = "${automationToken.take(8)}…${automationToken.takeLast(8)}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            Text(
+                                text = stringResource(R.string.eim_token_regenerate),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = KxkbWarnRed,
+                                modifier = Modifier.clickable {
+                                    automationToken = AutomationAuth.regenerateToken(context)
+                                    scope.launch { snackbarHostState.showSnackbar(tokenRegeneratedMessage) }
+                                },
+                            )
+                        }
                     }
                 }
             }

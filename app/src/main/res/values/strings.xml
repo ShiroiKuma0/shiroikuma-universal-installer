@@ -1084,11 +1084,17 @@
     <string name="eim_import_ok_body">Restored:\n\n%1$s\n\nRestart to apply everything.</string>
     <string name="eim_restart_now">Restart now</string>
     <string name="eim_later">Later</string>
-    <!-- 保存復元 automation contract: master switch + shared token, inside Export / Import -->
+    <!-- 保存復元 automation contract v2: master switch, token opt-in, token, inside Export / Import -->
     <string name="eim_automation_title">Automation export</string>
-    <string name="eim_automation_desc">Let sister-app tasks trigger this export via the token-gated intent.</string>
+    <string name="eim_automation_desc">Let sister apps trigger this export and back up its data.</string>
+    <string name="eim_automation_token_title">Use authorization token?</string>
+    <string name="eim_automation_token_desc">Off: any sister app may drive the automation. On: a caller must also present the token below. The data door checks the caller package and signature either way.</string>
     <string name="eim_token_title">Automation token (tap to copy)</string>
     <string name="eim_token_copied">Automation token copied</string>
     <string name="eim_token_regenerate">Regenerate</string>
     <string name="eim_token_regenerated">Automation token regenerated — update pasted copies</string>
+    <!-- Contract v2 §2a: the data door's foreground service notification. -->
+    <string name="automation_data_channel">Automation data</string>
+    <string name="automation_data_exporting">Backing up settings…</string>
+    <string name="automation_data_importing">Restoring settings…</string>
 </resources>

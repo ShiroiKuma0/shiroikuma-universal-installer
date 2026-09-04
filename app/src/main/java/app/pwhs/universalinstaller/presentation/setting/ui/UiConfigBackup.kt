@@ -52,6 +52,17 @@ enum class ConfigCategory(val id: String, @StringRes val labelRes: Int) {
 }
 
 /**
+ * Thrown out of [UiConfigBackup.export] when the automation contract's `CANCEL_EXPORT` arrives.
+ *
+ * A distinct type rather than a Boolean return, because the export unwinds through
+ * `ZipOutputStream.use` and every caller has to tell "白い熊 pressed 中止" (reply `ERROR:cancelled`,
+ * delete the part-file) apart from a real failure. Deliberately NOT a
+ * `kotlinx.coroutines.CancellationException`: that one is swallowed by the coroutine machinery as
+ * ordinary scope teardown, which is precisely the reply this must not be silent about.
+ */
+class ExportCancelledException : Exception("cancelled")
+
+/**
  * One-file backup of the whole app configuration — the Kōjiki-style category ZIP (白い熊,
  * 2026-07-25): a `manifest.json` plus one `<category id>.json` per selected category, plus the
  * imported font files under `fonts/`. The fonts ride along because the per-surface themes
@@ -229,15 +240,23 @@ object UiConfigBackup {
     // ── export ────────────────────────────────────────────────────────────────────────────
 
     /**
-     * Writes the [selection] to [output] as the category ZIP. [onProgress] (done, total, label)
-     * fires after each written part — the automation receiver forwards it as contract progress
+     * Writes the [selection] to [output] as the category ZIP. [onProgress] (done, total, label,
+     * **id**) fires after each written part — the id is the wire category id, which contract §3
+     * requires on every progress broadcast so the caller's panel can highlight the row actually
+     * being written rather than counting rows itself. It fires after each written part — the automation receiver forwards it as contract progress
      * broadcasts; UI callers omit it. Returns the number of top-level categories written.
+     *
+     * [isCancelled] is polled **between entries**, never mid-write, so a cancelled export unwinds
+     * at a boundary rather than being torn down half way through a ZIP entry; it raises
+     * [ExportCancelledException], and deleting the part-file is the caller's half of the bargain
+     * (contract §1 `CANCEL_EXPORT`). UI callers omit it and behave exactly as before.
      */
     suspend fun export(
         context: Context,
         selection: Selection,
         output: OutputStream,
-        onProgress: ((done: Int, total: Int, label: String) -> Unit)? = null,
+        onProgress: ((done: Int, total: Int, label: String, id: String) -> Unit)? = null,
+        isCancelled: (() -> Boolean)? = null,
     ): Int {
         val prefs = context.dataStore.data.first()
         val cats = ConfigCategory.entries.filter { it in selection.cats }
@@ -246,16 +265,20 @@ object UiConfigBackup {
         ZipOutputStream(output.buffered()).use { zip ->
             writeEntry(zip, MANIFEST_ENTRY, manifest(context, selection).toByteArray())
             cats.forEach { cat ->
+                if (isCancelled?.invoke() == true) throw ExportCancelledException()
                 writeEntry(zip, "${cat.id}.json", categoryJson(prefs, cat).toByteArray())
                 done++
-                onProgress?.invoke(done, total, context.getString(cat.labelRes))
+                onProgress?.invoke(done, total, context.getString(cat.labelRes), cat.id)
             }
             if (selection.fonts) {
+                // Per file, not per category: the fonts are the only bulky part of the archive and
+                // therefore the only step where a cancel would otherwise sit and wait.
                 fontsDir(context).listFiles()?.filter { it.isFile }?.forEach { file ->
+                    if (isCancelled?.invoke() == true) throw ExportCancelledException()
                     writeEntry(zip, "$FONTS_DIR/${file.name}", file.readBytes())
                 }
                 done++
-                onProgress?.invoke(done, total, context.getString(R.string.eim_cat_fonts))
+                onProgress?.invoke(done, total, context.getString(R.string.eim_cat_fonts), FONTS_ITEM_ID)
             }
         }
         return selection.categoryCount

@@ -34,6 +34,19 @@ data class TrackedApp(
             if (latestVersionName.isNullOrBlank()) return false
             if (isVersionIgnored) return false
             if (!isInstalled) return true // App is tracked but not yet installed on device
+            if (isLatestVersionNameBackedByCurrentVersionCode()) return false
             return SemVerComparator.isNewer(currentVersionName, latestVersionName)
         }
+
+    private fun isLatestVersionNameBackedByCurrentVersionCode(): Boolean {
+        if (currentVersionCode <= 0L || latestVersionName.isNullOrBlank()) return false
+
+        val latest = latestVersionName.trim()
+        val currentName = currentVersionName.trim()
+        val currentCode = currentVersionCode.toString()
+        val prefix = "$currentName."
+
+        return latest.startsWith(prefix, ignoreCase = true) &&
+            latest.substring(prefix.length) == currentCode
+    }
 }

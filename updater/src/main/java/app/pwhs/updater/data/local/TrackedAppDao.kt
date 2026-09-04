@@ -31,6 +31,4 @@ interface TrackedAppDao {
     @Query("DELETE FROM tracked_apps WHERE packageName = :packageName")
     suspend fun deleteByPackageName(packageName: String)
 
-    @Query("SELECT COUNT(*) FROM tracked_apps WHERE latestVersionName IS NOT NULL AND latestVersionName != '' AND latestVersionName != currentVersionName")
-    fun getUpdateCountFlow(): Flow<Int>
 }

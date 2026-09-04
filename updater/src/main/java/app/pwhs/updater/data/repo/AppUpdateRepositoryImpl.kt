@@ -45,7 +45,7 @@ class AppUpdateRepositoryImpl(
     }
 
     override fun getUpdateCount(): Flow<Int> {
-        return dao.getUpdateCountFlow()
+        return getAllTrackedApps().map { apps -> apps.count { it.hasUpdate } }
     }
 
     override suspend fun saveTrackedApp(app: TrackedApp) = withContext(Dispatchers.IO) {

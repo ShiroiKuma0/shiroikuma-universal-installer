@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.presentation.install.util
 
 import android.content.Context
+import android.media.MediaScannerConnection
 import android.os.Environment
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.data.local.DownloadHistoryDao
@@ -76,6 +77,7 @@ object InstallDownloadHelper {
                     return@fold
                 }
                 val finalFile = renameToDisplayName(downloaded.file, downloaded.fileName)
+                MediaScannerConnection.scanFile(context, arrayOf(finalFile.absolutePath), null, null)
                 onProgress(DownloadState.Idle)
                 downloadNotifier.notifyDone(finalFile.name, android.net.Uri.fromFile(finalFile))
                 runCatching {

@@ -65,7 +65,7 @@ class SyncViewModel(application: Application) : AndroidViewModel(application) {
 
     private val baseDir = File(
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-        "Universal Installer"
+        "UniversalInstaller",
     )
 
     private val validExtensions = listOf("apk", "apks", "xapk", "apkm", "zip")

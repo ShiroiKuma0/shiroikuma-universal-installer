@@ -17,7 +17,10 @@ class ApkHttpServer(
     private val onConnectionChange: (Int) -> Unit
 ) : NanoHTTPD(port) {
 
-    private val baseDir: File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Universal Installer")
+    private val baseDir: File = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        "UniversalInstaller",
+    )
 
     init {
         if (!baseDir.exists()) {

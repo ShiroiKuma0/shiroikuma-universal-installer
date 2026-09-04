@@ -3,6 +3,7 @@ package app.pwhs.core.install
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -154,6 +155,7 @@ object ApkExtractor {
                 else ->
                     writeSplitBundle(context, baseApk, splitDirs, targetFile, totalBytes, onProgress)
             }
+            scanFileIfNeeded(context, targetFile.uri)
             Result.Success(targetFile.uri)
         } catch (t: Throwable) {
             targetFile.delete()
@@ -245,6 +247,11 @@ object ApkExtractor {
                 }
             }
         }
+    }
+
+    private fun scanFileIfNeeded(context: Context, uri: Uri) {
+        val path = uri.path?.takeIf { uri.scheme == "file" } ?: return
+        MediaScannerConnection.scanFile(context, arrayOf(path), null, null)
     }
 
     /** Build the XAPK v2 `manifest.json` describing the base + split APKs. */

@@ -116,7 +116,7 @@ class ManageViewModel(
     fun addToServer(packageName: String, appName: String) {
         val serverDir = File(
             android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS),
-            "Universal Installer"
+            "UniversalInstaller"
         ).apply { mkdirs() }
         runExtraction(packageName, appName, ExtractMode.Server, outputDir = serverDir)
     }

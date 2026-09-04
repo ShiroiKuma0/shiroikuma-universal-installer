@@ -3,6 +3,7 @@ package app.pwhs.universalinstaller.presentation.manage.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
 import app.pwhs.core.data.local.dataStore
 import app.pwhs.core.install.ApkExtractor
@@ -137,15 +138,43 @@ object ManageExtractHelper {
         return ApkExtractor.extract(
             context = context,
             packageName = packageName,
-            outputDir = if (useConfiguredPath) {
-                resolveConfiguredOutputDir(context, customPathUri)
-            } else {
-                cacheOutputDir?.let { DocumentFile.fromFile(it) }
-            },
+            outputDir = resolveOutputDir(
+                context = context,
+                cacheOutputDir = cacheOutputDir,
+                customPathUri = customPathUri,
+                useConfiguredPath = useConfiguredPath,
+            ),
             filenameTemplate = template,
             splitFormat = splitFormat,
             onProgress = onProgress,
         )
+    }
+
+    private fun resolveOutputDir(
+        context: Context,
+        cacheOutputDir: File?,
+        customPathUri: String?,
+        useConfiguredPath: Boolean,
+    ): DocumentFile? {
+        if (!useConfiguredPath) {
+            return cacheOutputDir?.apply { mkdirs() }?.let { DocumentFile.fromFile(it) }
+        }
+
+        val configured = resolveConfiguredOutputDir(context, customPathUri)
+        if (
+            configured != null &&
+            configured.exists() &&
+            configured.isDirectory &&
+            configured.canWrite()
+        ) {
+            return configured
+        }
+
+        val fallback = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            DEFAULT_EXTRACTED_SUBFOLDER,
+        ).apply { mkdirs() }
+        return DocumentFile.fromFile(fallback)
     }
 
     fun resolveConfiguredOutputDir(context: Context, path: String?): DocumentFile? {
@@ -157,4 +186,6 @@ object ManageExtractHelper {
             if (dir.isDirectory) DocumentFile.fromFile(dir) else null
         }
     }
+
+    private const val DEFAULT_EXTRACTED_SUBFOLDER = "UniversalInstaller/Extracted"
 }

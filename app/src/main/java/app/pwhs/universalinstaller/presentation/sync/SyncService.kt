@@ -238,7 +238,7 @@ class SyncService : Service() {
     private fun refreshSharedFiles() {
         val baseDir = java.io.File(
             android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS),
-            "Universal Installer"
+            "UniversalInstaller",
         )
         val files = baseDir.listFiles()
             ?.filter { it.isFile && it.extension.lowercase() in validExtensions }

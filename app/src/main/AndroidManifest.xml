@@ -24,6 +24,11 @@
     <!-- Foreground worker for OBB copy (long-running, shown as notification). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!-- The automation data door's foreground service (contract v2 §2a). Its declared type is
+         specialUse, which on API 34+ REQUIRES this permission or startForeground throws — the
+         contract's §4 snippet omits it, but a phone newer than 白い熊's Mate XT (SDK_INT 31) would
+         crash the export without it. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- Find automatic: scan external storage for packages -->
     <uses-permission
@@ -72,6 +77,19 @@
          defines is inert, so declaring both costs nothing. Do not remove either. -->
     <uses-permission android:name="af.shizuku.plus.permission.API_V23" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+
+    <!-- Automation contract v2 §4: BOTH callers, always. Without package visibility a reply
+         broadcast's setPackage() fails silently on Android 11+ — the export runs, writes
+         correctly, and is never heard of. This element was ABSENT from the fork's manifest
+         entirely (the gauguin failure mode); here the app's QUERY_ALL_PACKAGES above was already
+         supplying the visibility, so the §1 replies did in fact arrive, but the element is
+         declared explicitly so the contract does not silently depend on an unrelated permission
+         this app happens to hold for its package-manager features. 応用管理 restores; 自由作業盤
+         drives the 保存復元 batch. A third caller is one more line here. -->
+    <queries>
+        <package android:name="shiroikuma.oyokanri" />
+        <package android:name="shiroikuma.jiyusagyoban" />
+    </queries>
 
     <application
         android:name=".App"
@@ -286,17 +304,54 @@
 
 
 
-        <!-- 保存復元 state-export automation contract: sister-app tasks trigger this app's
-             category-ZIP export headlessly. No android:permission — the caller cannot hold
-             one; the master switch + shared token in the Export/Import section are the gate. -->
+        <!-- 保存復元 state-export automation contract v2 §1: sister-app tasks trigger this app's
+             category-ZIP export headlessly. No android:permission — in v1 the token was the gate;
+             in v2 this receiver is the deliberately UNAUTHENTICATED half of the surface, because
+             it only ever writes where it was told to and reports what it did. CANCEL_EXPORT lives
+             on this same exported receiver on purpose: the stop path is otherwise unreachable from
+             the batch that started the export. -->
         <receiver
             android:name=".automation.StateExportReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.action.EXPORT_STATE" />
                 <action android:name="${applicationId}.action.LIST_CATEGORIES" />
+                <action android:name="${applicationId}.action.CANCEL_EXPORT" />
             </intent-filter>
         </receiver>
+
+        <!-- Contract v2 §2a: the data door. Exported with no android:permission for a real reason
+             — a custom permission would have to be `normal` (any app may hold it) or `signature`
+             (impossible: every app in this family has its own keystore, 42 of them). Neither buys
+             anything AutomationCallers' exact-name + uid + pinned-certificate check does not. -->
+        <provider
+            android:name=".automation.AutomationProvider"
+            android:authorities="${applicationId}.automation"
+            android:exported="true" />
+
+        <service
+            android:name=".automation.AutomationDataService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Automation data export/import" />
+        </service>
+
+        <!-- Capability discovery, read WITHOUT waking this app — 応用管理 sweeps every installed
+             package with MATCH_UNINSTALLED_PACKAGES | MATCH_DISABLED_COMPONENTS, because 白い熊
+             freezes apps aggressively and a frozen app cannot be asked anything. An app without
+             these is simply not offered for data backup or restore. `format` mirrors
+             UiConfigBackup.VERSION (= AutomationProvider.FORMAT) — bump them together. -->
+        <meta-data
+            android:name="shiroikuma.automation.contract"
+            android:value="2" />
+        <meta-data
+            android:name="shiroikuma.automation.format"
+            android:value="3" />
+        <meta-data
+            android:name="shiroikuma.automation.min_format"
+            android:value="1" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

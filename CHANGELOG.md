@@ -4,6 +4,93 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.13.0+002
+
+**New in this build:** the sister-app **automation contract v2**. The token stops being the gate, a
+second door opens that can move this app's configuration through a file descriptor, and the export
+learns to be stopped. No upstream change — this build is 1.13.0 (versionCode 36) with fork work only.
+
+### 🔓 The token becomes opt-in, and the switch ships on
+- **`automation_enabled` now defaults to ON** and a new **`automation_require_token` defaults to
+  OFF**, so the app answers automation out of the box. The reason is a clean phone: a pasted secret
+  cannot survive a wipe, and the case this contract exists to serve is restoring an app *and its
+  data* onto a device where nothing has been configured yet.
+- **A token sent to the app when none is required is ignored, never refused.** Tokens outlive the
+  setting they were pasted for, and a caller still sending one — because another app on the batch
+  wants one — has to be served rather than failed.
+- Both checks now live in **one** `AutomationAuth.refuse()` rather than being written out at each
+  entry point, which is how "automation disabled" and "bad token" drift apart across sister apps.
+  They stay distinct errors; they debug differently.
+- The Export/Import section gains a **「Use authorization token?」** row, and the 48-character token
+  row is now **hidden unless it is on** — a secret sitting under an off switch only invites being
+  pasted somewhere it does nothing.
+
+### 🚪 A data door: `ContentProvider` at `<pkg>.automation`
+- A new exported provider answers **`describe`**, **`export`**, **`import`** and **`cancel`**, all
+  synchronous, all short, none carrying the payload. Answers use the same `OK:` / `ERROR:` grammar
+  as the broadcast contract, so a caller has one vocabulary rather than two, and a refusal is
+  *returned* rather than thrown — an exception across a binder tells the caller rather more than it
+  should.
+- **The caller is identified three ways**, because a broadcast cannot say who sent it: an **exact
+  package name** (never a prefix — a name cannot be taken while the real package is installed, but
+  any sideloaded app may call itself `shiroikuma.evil`), a **uid cross-check** against
+  `getPackagesForUid`, which cannot be borrowed, and a **pinned signing certificate**, which is what
+  closes the real gap — whichever caller is absent from a device is a name anyone can take, and a
+  clean phone is exactly a device where not everything is installed yet.
+- **The payload moves through a caller-supplied `ParcelFileDescriptor`**, duplicated before it
+  leaves the provider call and closed in a `finally`. Not a path and not a `content://` URI: the
+  destination is renamed on commit, encrypted per known file and checksummed per known file, so a
+  file dropped in from outside would be renamed away, sit in plaintext inside an encrypted backup
+  and be unverified rather than verified. It also means this app no longer needs
+  `MANAGE_EXTERNAL_STORAGE` to be backed up.
+- **`import` exists only here** and never gets a broadcast action. It overwrites configuration, and
+  the broadcast receiver is exported with no permission.
+- The work runs in a **`specialUse` foreground service**, not in the binder call — which returns in
+  milliseconds while this can take longer, and a backgrounded app writing for minutes is frozen
+  mid-stream on EMUI, yielding a truncated archive underneath a success reply.
+- **`describe` reports `"format": 3`, not 1.** The format is *this app's archive version*
+  (`UiConfigBackup.VERSION`), not a contract constant, with `min_format_readable` at 1 because the
+  importer still accepts every older ZIP and the pre-ZIP single-JSON export. A caller must read the
+  value rather than assume it.
+
+### ⏹ The export can now be stopped, and never leaves half a backup
+- **`…action.CANCEL_EXPORT`** joins the exported receiver, so a long export can be stopped from
+  where it was started. It is fire-and-forget — it sends no reply of its own; the terminal
+  `ERROR:cancelled` belongs to the export it stopped — and it is a silent no-op when nothing is
+  running or the run already finished.
+- **Backups are now written atomically.** The archive goes to `<final-name>.part` and is renamed
+  only once it is closed and complete; a failure, a cancellation or a kill deletes the partial on
+  the way out. Previously a killed export left a file indistinguishable from a real backup until
+  someone tried to restore it. The part-file deliberately does not end in `.zip`, so the panel's
+  "latest export" scan can never mistake one for the newest backup.
+- A **process-local single-flight guard** replaces having none, which is also what makes a cancel
+  without a `reply_id` unambiguous. It is never persisted — an "export in progress" flag written to
+  disk wedges the app for good after one crash.
+- Progress broadcasts now carry the **`item`** extra (the category id being written), so a caller's
+  panel highlights the row actually in progress instead of inferring a position from the count.
+
+### 📜 Manifest
+- **A `<queries>` element, which was missing entirely**, naming both automation callers. Without
+  package visibility a reply broadcast's `setPackage` fails silently on Android 11+ — the export
+  runs, writes correctly and is never heard of. This app's `QUERY_ALL_PACKAGES` was already
+  supplying the visibility, so replies did arrive; the element is now declared so the contract does
+  not rest on an unrelated permission held for the package-manager features.
+- The provider, the data service, `CANCEL_EXPORT`, and three `shiroikuma.automation.*`
+  `<meta-data>` entries (`contract` 2, `format` 3, `min_format` 1) that let a caller judge this app
+  **without waking it**, which matters because a frozen package cannot be asked anything. They
+  compile as integers, not strings.
+- **`FOREGROUND_SERVICE_SPECIAL_USE`**, which `startForeground` requires on API 34+.
+
+### 🔍 What the automation surface can reach
+Stated plainly, because the token no longer gates it by default:
+- **The broadcast export is unauthenticated by default** and writes where the caller says. Its
+  archive includes the `security` and `sync` categories, which carry the **VirusTotal API key** and
+  the **Sync & Share PIN**.
+- **A provider `import` writes install policy**, since `install_behavior` carries
+  `auto_confirm_external_install` — which makes the install dialog skip its preview step — and
+  `engines` carries the root and Shizuku flags including grant-all-permissions. The provider's
+  caller check gates this; the exported install activity it affects has no such check.
+
 ## 1.13.0+001
 
 **New in this build:** rebased onto **upstream 1.13.0** (versionCode 36), tagged the same day this build was made. All **75** fork commits replay on top. No new fork features — upstream 1.13.0 is essentially one very large PR (#120, *Fix/wearos apk transfer*) that rebuilds the send-to-watch flow end to end, plus a packaging change that folds the TV and watch builds into the phone's Play listing.

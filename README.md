@@ -6,11 +6,11 @@
 
 **A package installer you can theme down to the last button, border and progress line.**
 
-A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine that is **black-and-yellow out of the box**, per-surface and per-element styling of the install dialog, custom imported fonts, a categorized **whole-app config export/import** with a one-tap export directory, **headless token-gated backup** for external automation, and Shizuku that actually talks to **白い熊 雫**.
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine that is **black-and-yellow out of the box**, per-surface and per-element styling of the install dialog, custom imported fonts, a categorized **whole-app config export/import** with a one-tap export directory, **headless backup and restore for external automation** behind a verified-caller data door, and Shizuku that actually talks to **白い熊 雫**.
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.13.0+001`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.13.0+002`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -42,9 +42,30 @@ The first section of the UI page is **Export / Import**: pick an **export direct
 
 ---
 
-## 🤖 Headless backup for 保存復元 automation
+## 🤖 Headless backup, restore, and a door that checks who is knocking
 
-Below the export rows sit an **Automation export** switch (off by default) and an **automation token** you tap to copy. With them on, a sister-app task can back this app up without touching the screen: it broadcasts `shiroikuma.universalinstaller.action.EXPORT_STATE` with the token, an optional target directory and an optional list of categories, and the app writes the same one-ZIP backup and answers with its path, byte size and category count — reporting real counts (`区分 3/9 — Engines`) while it works. `…action.LIST_CATEGORIES` enumerates what can be picked. Nothing is reachable while the switch is off or the token does not match, and the token itself never travels inside a backup.
+Below the export rows sit an **Automation export** switch (**on** by default), a
+**「Use authorization token?」** switch (**off** by default), and — only while that second switch is on
+— the **automation token** you tap to copy. A sister-app task can back this app up without touching
+the screen: it broadcasts `shiroikuma.universalinstaller.action.EXPORT_STATE` with an optional target
+directory and an optional list of categories, and the app writes the same one-ZIP backup and answers
+with its path, byte size and category count — reporting real counts (`区分 3/9 — Engines`) and which
+category is being written as it works. `…action.LIST_CATEGORIES` enumerates what can be picked, and
+`…action.CANCEL_EXPORT` stops a run in flight, deleting the partial rather than leaving half a
+backup behind. Every archive is written to a `.part` name and renamed only once it is complete, so a
+killed export can never masquerade as the latest good one.
+
+The token is opt-in because the point is a **clean phone**: a pasted secret cannot survive a wipe,
+and restoring an app together with its data happens on a device where nothing has been configured
+yet. A token sent when none is required is ignored rather than refused, so a caller configured last
+year keeps working.
+
+Restoring needs to know **who is asking**, which a broadcast cannot answer — so it lives behind a
+`ContentProvider` at `shiroikuma.universalinstaller.automation` instead. It answers `describe`,
+`export`, `import` and `cancel`; it identifies its caller by **exact package name, uid, and a pinned
+signing certificate**; and the payload moves through a **file descriptor the caller opens**, never a
+path, so the backup stays inside the caller's own encryption and checksums. `import` exists only
+here and has no broadcast action at all. The token never travels inside a backup.
 
 ---
 

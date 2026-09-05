@@ -28,6 +28,7 @@ import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.CheckBox
 import androidx.compose.material.icons.rounded.CheckBoxOutlineBlank
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.FolderOff
 import androidx.compose.material.icons.rounded.InstallMobile
@@ -47,6 +48,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -94,7 +96,17 @@ internal fun FoundApksSheet(
     if (scanState is ScanState.Idle) return
     val context = LocalContext.current
     val activity = context as? android.app.Activity
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val isProtected = scanState is ScanState.Scanning || scanState is ScanState.Ready
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { targetValue ->
+            if (targetValue == SheetValue.Hidden) {
+                !isProtected
+            } else {
+                true
+            }
+        },
+    )
 
     LifecycleResumeEffect(Unit) {
         PermissionMonitor.stop()
@@ -109,7 +121,7 @@ internal fun FoundApksSheet(
         // Intentionally no horizontal padding on the outer Column — each body applies its
         // own so the Ready state's bottom bar can span edge-to-edge.
         Column(modifier = Modifier.fillMaxWidth()) {
-            SheetHeader(scanState = scanState, onRescan = onRescan)
+            SheetHeader(scanState = scanState, onRescan = onRescan, onDismiss = onDismiss)
             Spacer(Modifier.height(16.dp))
             when (scanState) {
                 is ScanState.PermissionNeeded -> PermissionBody(
@@ -136,7 +148,7 @@ internal fun FoundApksSheet(
 }
 
 @Composable
-private fun SheetHeader(scanState: ScanState, onRescan: () -> Unit) {
+private fun SheetHeader(scanState: ScanState, onRescan: () -> Unit, onDismiss: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -164,6 +176,12 @@ private fun SheetHeader(scanState: ScanState, onRescan: () -> Unit) {
                     contentDescription = stringResource(R.string.find_auto_rescan),
                 )
             }
+        }
+        IconButton(onClick = onDismiss) {
+            Icon(
+                imageVector = Icons.Rounded.Close,
+                contentDescription = stringResource(R.string.cancel),
+            )
         }
     }
 }

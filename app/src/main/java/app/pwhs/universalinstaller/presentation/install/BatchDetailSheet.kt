@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,7 +36,12 @@ internal fun BatchDetailSheet(
     // We maintain a local set of active split URIs for this sheet.
     var currentSplits by remember(entry.splitUris) { mutableStateOf(entry.splitUris.toSet()) }
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { targetValue ->
+            targetValue != SheetValue.Hidden
+        },
+    )
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,

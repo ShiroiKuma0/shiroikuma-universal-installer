@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.CheckBox
 import androidx.compose.material.icons.rounded.CheckBoxOutlineBlank
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.InstallMobile
 import androidx.compose.material.icons.automirrored.rounded.MergeType
@@ -40,10 +41,12 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -82,14 +85,24 @@ internal fun BatchInstallSheet(
     onDetail: (Uri) -> Unit = {},
 ) {
     if (state is BatchInstallState.Idle) return
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val isProtected = state is BatchInstallState.Parsing || state is BatchInstallState.Ready
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { targetValue ->
+            if (targetValue == SheetValue.Hidden) {
+                !isProtected
+            } else {
+                true
+            }
+        },
+    )
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         when (state) {
-            is BatchInstallState.Parsing -> ParsingBody(state, onSkipParse)
+            is BatchInstallState.Parsing -> ParsingBody(state, onSkipParse, onDismiss)
             is BatchInstallState.Ready -> ReadyBody(
                 state = state,
                 mergeSplits = mergeSplits,
@@ -109,11 +122,15 @@ internal fun BatchInstallSheet(
 }
 
 @Composable
-private fun ParsingBody(state: BatchInstallState.Parsing, onSkipParse: () -> Unit) {
+private fun ParsingBody(
+    state: BatchInstallState.Parsing,
+    onSkipParse: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 48.dp),
+            .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CircularProgressIndicator()
@@ -132,9 +149,23 @@ private fun ParsingBody(state: BatchInstallState.Parsing, onSkipParse: () -> Uni
             },
             modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(Modifier.height(32.dp))
-        androidx.compose.material3.TextButton(onClick = onSkipParse) {
-            Text(stringResource(R.string.dialog_menu_skip_analysis, "Skip & Install All"))
+        Spacer(Modifier.height(24.dp))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedButton(
+                onClick = onDismiss,
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Text(stringResource(R.string.cancel))
+            }
+            Button(
+                onClick = onSkipParse,
+                shape = MaterialTheme.shapes.medium,
+            ) {
+                Text(stringResource(R.string.dialog_menu_skip_analysis, "Skip & Install All"))
+            }
         }
     }
 }
@@ -178,12 +209,25 @@ private fun ReadyBody(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
         ) {
-            Text(
-                text = stringResource(R.string.batch_install_title),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.batch_install_title),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.cancel),
+                    )
+                }
+            }
             Spacer(Modifier.height(4.dp))
             Text(
                 text = stringResource(

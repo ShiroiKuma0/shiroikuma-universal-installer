@@ -39,6 +39,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -634,7 +635,12 @@ private fun InstallUi(
 
     // APK Info Preview Bottom Sheet
     if (uiState.pendingApkInfo != null) {
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val sheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { targetValue ->
+                targetValue != SheetValue.Hidden
+            },
+        )
         ModalBottomSheet(
             onDismissRequest = onDismissPreview,
             sheetState = sheetState,

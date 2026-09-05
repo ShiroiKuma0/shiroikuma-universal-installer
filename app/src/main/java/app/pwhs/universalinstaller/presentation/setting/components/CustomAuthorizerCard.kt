@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.RotateLeft
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -21,25 +23,31 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.automirrored.rounded.RotateLeft
-import androidx.compose.material3.IconButton
+import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.util.CustomShellExecutor
-import app.pwhs.universalinstaller.R
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -53,7 +61,36 @@ fun CustomAuthorizerCard(
     var isTesting by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<Result<String>?>(null) }
 
-    val validation = remember(command) { CustomShellExecutor.validateCommand(command) }
+    // Maintain local state so typing is immediate and smooth without async DataStore jitter/cursor jumps
+    var localCommand by rememberSaveable { mutableStateOf(command) }
+
+    // Sync from external state (e.g. initial load or reset from outside)
+    LaunchedEffect(command) {
+        if (command != localCommand) {
+            localCommand = command
+        }
+    }
+
+    // Debounce updates back to DataStore
+    LaunchedEffect(localCommand) {
+        if (localCommand != command) {
+            delay(300L)
+            onCommandChange(localCommand)
+        }
+    }
+
+    // Flush any pending changes when leaving composition
+    val currentLocalCommand by rememberUpdatedState(localCommand)
+    val currentExternalCommand by rememberUpdatedState(command)
+    DisposableEffect(Unit) {
+        onDispose {
+            if (currentLocalCommand != currentExternalCommand) {
+                onCommandChange(currentLocalCommand)
+            }
+        }
+    }
+
+    val validation = remember(localCommand) { CustomShellExecutor.validateCommand(localCommand) }
     val isError = validation is CustomShellExecutor.ValidationResult.Error
     val errorMessage = when (validation) {
         is CustomShellExecutor.ValidationResult.Error -> when (validation.reason) {
@@ -84,9 +121,9 @@ fun CustomAuthorizerCard(
                 .padding(16.dp),
         ) {
             OutlinedTextField(
-                value = command,
+                value = localCommand,
                 onValueChange = {
-                    onCommandChange(it)
+                    localCommand = it
                     testResult = null
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -97,9 +134,10 @@ fun CustomAuthorizerCard(
                     Icon(Icons.Rounded.Terminal, contentDescription = null)
                 },
                 trailingIcon = {
-                    if (command != PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND) {
+                    if (localCommand != PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND) {
                         IconButton(
                             onClick = {
+                                localCommand = PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND
                                 onCommandChange(PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND)
                                 testResult = null
                             },
@@ -128,6 +166,11 @@ fun CustomAuthorizerCard(
                 },
                 singleLine = false,
                 maxLines = 3,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Ascii,
+                ),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
             )
 
@@ -141,12 +184,15 @@ fun CustomAuthorizerCard(
                 FilledTonalButton(
                     onClick = {
                         scope.launch {
+                            if (localCommand != command) {
+                                onCommandChange(localCommand)
+                            }
                             isTesting = true
-                            testResult = onTestCommand(command)
+                            testResult = onTestCommand(localCommand)
                             isTesting = false
                         }
                     },
-                    enabled = !isTesting && !isError && command.isNotBlank(),
+                    enabled = !isTesting && !isError && localCommand.isNotBlank(),
                 ) {
                     if (isTesting) {
                         CircularProgressIndicator(

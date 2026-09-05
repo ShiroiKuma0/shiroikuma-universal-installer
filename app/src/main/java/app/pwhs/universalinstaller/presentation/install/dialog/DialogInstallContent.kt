@@ -200,13 +200,6 @@ fun DialogInstallContent(
                     pendingRisks = emptyList()
                     onDismissAndFinish()
                 },
-                onPrivilegedUninstall = viewModel::uninstallConflictingApp,
-                onExistingAppUninstalled = {
-                    viewModel.onConflictingAppUninstalled()
-                    pendingRisks = pendingRisks.filterNot {
-                        it is InstallRisk.SignatureMismatch
-                    }
-                },
             )
         }
 

@@ -1,6 +1,8 @@
 package app.pwhs.universalinstaller.ui.theme
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -9,7 +11,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
@@ -37,6 +41,18 @@ enum class AppSurface { Dialog, Main }
 
 /** Border stroke for the current surface's card (the install dialog reads this); null = no border. */
 val LocalSurfaceBorder = staticCompositionLocalOf<BorderStroke?> { null }
+
+/**
+ * Put the current surface's border around a Material dialog. `AlertDialog` takes no `BorderStroke`
+ * the way [androidx.compose.material3.Surface] does, so the stroke goes on as an outer modifier:
+ * [androidx.compose.foundation.border] paints *after* what it wraps, so it lands on top of the
+ * dialog card rather than under its background. A no-op when the surface defines no border, which
+ * is also the case outside a [ThemedSurface] — so a dialog that wants the border must be emitted
+ * inside one.
+ */
+@Composable
+fun Modifier.surfaceBorder(shape: Shape = AlertDialogDefaults.shape): Modifier =
+    LocalSurfaceBorder.current?.let { this.border(it, shape) } ?: this
 
 /** Main page: tint for the top-bar action icons; null = inherit the default content colour. */
 val LocalTopIconColor = staticCompositionLocalOf<Color?> { null }

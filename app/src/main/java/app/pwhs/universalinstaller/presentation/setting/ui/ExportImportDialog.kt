@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +43,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.documentfile.provider.DocumentFile
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.InstallerBadgeDefaults
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 
 /** Outcome shown in the yellow-bordered info dialog on top of the Export/Import panel. */
 private sealed interface EimResult {
@@ -118,7 +118,7 @@ fun ExportImportDialog(
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             color = Color.Black,
-            border = BorderStroke(2.dp, InstallerBadgeDefaults.Border),
+            border = LocalSurfaceBorder.current,
         ) {
             // 白い熊: unspecified texts in the panel render in the accent (kxkb yellow).
             Column(
@@ -263,10 +263,6 @@ private fun EimResultDialog(
     onCloseAll: () -> Unit,
 ) {
     val context = LocalContext.current
-    val borderModifier = Modifier.border(
-        BorderStroke(2.dp, InstallerBadgeDefaults.Border),
-        AlertDialogDefaults.shape,
-    )
     // 白い熊 black/yellow: black container, accent title + body, pill buttons.
     @Composable
     fun eimAlert(
@@ -280,7 +276,7 @@ private fun EimResultDialog(
     ) {
         AlertDialog(
             onDismissRequest = onDismissRequest,
-            modifier = borderModifier,
+            modifier = Modifier.surfaceBorder(),
             containerColor = Color.Black,
             titleContentColor = MaterialTheme.colorScheme.primary,
             textContentColor = MaterialTheme.colorScheme.primary,

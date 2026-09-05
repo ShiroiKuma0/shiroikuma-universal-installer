@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
 import app.pwhs.universalinstaller.ui.theme.availableFontOptions
 import app.pwhs.universalinstaller.ui.theme.composeFontFamily
 
@@ -43,6 +44,7 @@ fun FontPickerDialog(
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            border = LocalSurfaceBorder.current,
             tonalElevation = 6.dp,
         ) {
             Column(Modifier.padding(vertical = 16.dp)) {

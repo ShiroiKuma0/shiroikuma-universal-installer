@@ -66,6 +66,7 @@ import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
 
 
 
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -103,6 +104,7 @@ private fun UninstallLogsUi(
     if (showClearConfirm) {
         AlertDialog(
             onDismissRequest = { showClearConfirm = false },
+            modifier = Modifier.surfaceBorder(),
             confirmButton = {
                 TextButton(onClick = {
                     showClearConfirm = false

@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 
 data class StorageWarningInfo(
     val freeBytes: Long,
@@ -49,6 +50,7 @@ fun InsufficientStorageDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Storage,

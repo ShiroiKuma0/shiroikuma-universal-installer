@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.pwhs.universalinstaller.BuildConfig
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import app.pwhs.universalinstaller.util.Diagnostics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -354,6 +355,7 @@ fun DiagnosticsScreen(modifier: Modifier = Modifier) {
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
+            modifier = Modifier.surfaceBorder(),
             icon = {
                 Icon(
                     imageVector = Icons.Rounded.DeleteForever,

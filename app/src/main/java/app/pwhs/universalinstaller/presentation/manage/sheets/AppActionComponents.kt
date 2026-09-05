@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.InstalledApp
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import app.pwhs.universalinstaller.util.AppIconData
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -333,6 +334,7 @@ fun UninstallConfirmDialog(
     val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(

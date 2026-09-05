@@ -74,6 +74,7 @@ import app.pwhs.universalinstaller.BuildConfig
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
 import app.pwhs.core.ui.ApkFileIconData
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import coil3.request.ImageRequest
@@ -362,6 +363,7 @@ fun BackupsScreen(
     if (pendingDeleteAll) {
         AlertDialog(
             onDismissRequest = { pendingDeleteAll = false },
+            modifier = Modifier.surfaceBorder(),
             title = { Text(stringResource(R.string.backup_delete_all_title)) },
             text = {
                 Text(
@@ -390,6 +392,7 @@ fun BackupsScreen(
     pendingDelete?.let { target ->
         AlertDialog(
             onDismissRequest = { pendingDelete = null },
+            modifier = Modifier.surfaceBorder(),
             title = { Text(stringResource(R.string.backup_delete_one_title)) },
             text = { Text(target.name) },
             confirmButton = {

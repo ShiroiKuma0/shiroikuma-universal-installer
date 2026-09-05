@@ -94,6 +94,13 @@ fun InstallScreen(
         }
     }.collectAsState(initial = true)
 
+    val deleteApkAfterInstall by remember(context) {
+        context.dataStore.data.map {
+            it[PreferencesKeys.DELETE_APK_AFTER_INSTALL] ?: false
+        }
+    }.collectAsState(initial = false)
+    var keepApk by rememberSaveable { mutableStateOf(false) }
+
     // Strict is the only level that treats an unscanned file as a risk and lets the Scan button
     // take the primary slot; Normal keeps VirusTotal available without pushing it.
     val strictVirusTotalCheck by remember(context) {
@@ -188,15 +195,29 @@ fun InstallScreen(
             } else emptyList()
             if (risks.isNotEmpty()) {
                 pendingRisks = risks
-                pendingAction = viewModel::confirmInstall
+                pendingAction = {
+                    val keep = keepApk
+                    keepApk = false
+                    viewModel.confirmInstall(keepApk = keep)
+                }
             } else {
-                startBiometricFlow(viewModel::confirmInstall)
+                startBiometricFlow {
+                    val keep = keepApk
+                    keepApk = false
+                    viewModel.confirmInstall(keepApk = keep)
+                }
             }
         },
-        onDismissPreview = viewModel::dismissPendingInstall,
+        onDismissPreview = {
+            keepApk = false
+            viewModel.dismissPendingInstall()
+        },
         onCancel = viewModel::cancelSession,
         onRetry = viewModel::retrySession,
         onDismissSession = viewModel::dismissSession,
+        showKeepApkOption = deleteApkAfterInstall,
+        keepApk = keepApk,
+        onKeepApkChanged = { keepApk = it },
         onUnblock = viewModel::unblockPackage,
         strictSecurity = strictVirusTotalCheck,
         onClearHistory = viewModel::clearHistory,
@@ -293,6 +314,9 @@ private fun InstallUi(
     onCancel: (java.util.UUID) -> Unit = {},
     onRetry: (java.util.UUID) -> Unit = {},
     onDismissSession: (java.util.UUID) -> Unit = {},
+    showKeepApkOption: Boolean = false,
+    keepApk: Boolean = false,
+    onKeepApkChanged: (Boolean) -> Unit = {},
     onUnblock: (String) -> Unit = {},
     strictSecurity: Boolean = false,
     onClearHistory: () -> Unit = {},
@@ -621,6 +645,9 @@ private fun InstallUi(
                 onInstall = onConfirmInstall,
                 onCancel = onDismissPreview,
                 onCheckVirusTotal = onCheckVirusTotal,
+                showKeepApkOption = showKeepApkOption,
+                keepApk = keepApk,
+                onKeepApkChanged = onKeepApkChanged,
                 attachedObbFiles = uiState.attachedObbFiles,
                 onAttachObb = safeLaunchObbPicker,
                 onRemoveObb = onRemoveObb,

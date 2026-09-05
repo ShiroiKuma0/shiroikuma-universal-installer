@@ -265,8 +265,9 @@ fun DialogSuccessContent(
     target: DialogTarget,
     canOpen: Boolean,
     autoOpenCountdownStartSeconds: Int?,
-    onOpen: () -> Unit,
-    onDone: () -> Unit,
+    showKeepApkOption: Boolean,
+    onOpen: (keepApk: Boolean) -> Unit,
+    onDone: (keepApk: Boolean) -> Unit,
 ) {
     val scale by animateFloatAsState(
         targetValue = 1f,
@@ -281,6 +282,7 @@ fun DialogSuccessContent(
     var remaining by remember(autoOpenCountdownStartSeconds, canOpen) {
         mutableStateOf(autoOpenCountdownStartSeconds.takeIf { countdownActive } ?: 0)
     }
+    var keepApk by remember(target.sessionId) { mutableStateOf(false) }
     LaunchedEffect(countdownActive, autoOpenCountdownStartSeconds) {
         val start = autoOpenCountdownStartSeconds
         if (!countdownActive || start == null) return@LaunchedEffect
@@ -289,7 +291,7 @@ fun DialogSuccessContent(
             kotlinx.coroutines.delay(1000)
             remaining -= 1
         }
-        onOpen()
+        onOpen(keepApk)
     }
 
     Column(
@@ -327,6 +329,15 @@ fun DialogSuccessContent(
             overflow = TextOverflow.Ellipsis,
         )
 
+        if (showKeepApkOption) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            DialogKeepApkOption(
+                checked = keepApk,
+                onCheckedChange = { keepApk = it },
+            )
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(
@@ -334,7 +345,7 @@ fun DialogSuccessContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             OutlinedButton(
-                onClick = onDone,
+                onClick = { onDone(keepApk) },
                 modifier = Modifier.weight(1f),
                 border = androidx.compose.foundation.BorderStroke(
                     width = 1.dp,
@@ -346,7 +357,7 @@ fun DialogSuccessContent(
 
             if (canOpen) {
                 Button(
-                    onClick = onOpen,
+                    onClick = { onOpen(keepApk) },
                     modifier = Modifier.weight(1f),
                 ) {
                     val openLabel = stringResource(R.string.dialog_success_open)

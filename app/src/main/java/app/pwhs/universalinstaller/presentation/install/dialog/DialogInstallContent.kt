@@ -101,12 +101,16 @@ fun DialogInstallContent(
     amoledMode: Boolean,
     themePreset: AppThemePreset,
     autoOpenAfterInstall: Boolean,
+    showKeepApkOption: Boolean = false,
+    keepApk: Boolean = false,
+    onKeepApkChanged: (Boolean) -> Unit = {},
     strictVirusTotalCheck: Boolean,
     canInstallPackages: () -> Boolean,
     viewModel: InstallViewModel,
     onOpenInstallPermissionSettings: () -> Unit,
     onProceedInstall: () -> Unit,
     onDismissAndFinish: () -> Unit,
+    onFinishAfterSuccess: (keepApk: Boolean, packageNameToOpen: String?) -> Unit,
     onScanVirusTotal: (Context) -> Unit,
 ) {
     val context = LocalContext.current
@@ -234,6 +238,9 @@ fun DialogInstallContent(
                             uiState = uiState,
                             dialogTarget = dialogTarget,
                             autoOpenAfterInstall = autoOpenAfterInstall,
+                            showKeepApkOption = showKeepApkOption,
+                            keepApk = keepApk,
+                            onKeepApkChanged = onKeepApkChanged,
                             onInstall = handleInstallTap,
                             onCancel = onDismissAndFinish,
                             onMenu = viewModel::dialogShowMenu,
@@ -245,7 +252,7 @@ fun DialogInstallContent(
                             onToggleSplit = viewModel::toggleSplit,
                             onAttachObb = safeLaunchObbPicker,
                             onBackground = onDismissAndFinish,
-                            onOpenInstalledApp = { pkg ->
+                            onOpenInstalledApp = { pkg, keepApk ->
                                 viewModel.getAppLaunchIntent(pkg)?.let { intent ->
                                     intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                                     runCatching {
@@ -259,9 +266,9 @@ fun DialogInstallContent(
                                         ).show()
                                     }
                                 }
-                                onDismissAndFinish()
+                                onFinishAfterSuccess(keepApk, pkg)
                             },
-                            onCloseAfterResult = onDismissAndFinish,
+                            onCloseAfterResult = { keepApk -> onFinishAfterSuccess(keepApk, null) },
                             onRetry = { viewModel.retryDialogInstall() },
                             onToggleAllUsers = viewModel::setAllUsers,
                             onSelectUserId = { viewModel.setUserId(it) },

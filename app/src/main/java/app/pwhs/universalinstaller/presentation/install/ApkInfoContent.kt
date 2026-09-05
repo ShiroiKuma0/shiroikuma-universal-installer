@@ -64,6 +64,7 @@ import app.pwhs.universalinstaller.presentation.install.components.ProfilePicker
 import app.pwhs.universalinstaller.presentation.install.components.SplitsCard
 import app.pwhs.universalinstaller.presentation.install.components.VirusTotalCard
 import app.pwhs.universalinstaller.presentation.install.components.VtStatusChip
+import app.pwhs.universalinstaller.presentation.install.dialog.DialogKeepApkOption
 import app.pwhs.universalinstaller.presentation.setting.SettingActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -94,6 +95,9 @@ internal fun ApkInfoContent(
     startCompact: Boolean = true,
     onUnblock: (String) -> Unit = {},
     strictSecurity: Boolean = false,
+    showKeepApkOption: Boolean = false,
+    keepApk: Boolean = false,
+    onKeepApkChanged: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val currentMappingProfileId = appProfileMapping[apkInfo.packageName]
@@ -398,6 +402,14 @@ internal fun ApkInfoContent(
                     }
                 }
             }
+        }
+
+        if (showKeepApkOption) {
+            DialogKeepApkOption(
+                checked = keepApk,
+                onCheckedChange = onKeepApkChanged,
+                modifier = Modifier.padding(horizontal = 24.dp),
+            )
         }
 
         ApkInfoFooter(

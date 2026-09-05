@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.InstallMobile
-import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -79,14 +79,29 @@ fun ApkInfoFooter(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (!isExpanded) {
-            FilledTonalButton(
+            OutlinedButton(
                 onClick = onExpand,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
                 shape = MaterialTheme.shapes.medium,
             ) {
-                Icon(Icons.Rounded.Menu, null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.dialog_menu_details))
+                Icon(
+                    imageVector = Icons.Rounded.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = stringResource(R.string.dialog_menu_details),
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                Spacer(Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowDown,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                )
             }
         }
         Row(

@@ -289,7 +289,7 @@ class InstallViewModel(
     fun restorePendingInstall(entry: PendingInstallStore.Entry) = parseDelegate.restorePendingInstall(entry)
     fun scanVirusTotal(context: Context) = parseDelegate.scanVirusTotal(context)
 
-    fun confirmInstall(trackDialogTarget: Boolean = false) {
+    fun confirmInstall(trackDialogTarget: Boolean = false, keepApk: Boolean = false) {
         scanDelegate.resetScanState()
         val apkInfo = parseDelegate.pendingApkInfo.value
         val uris = if (apkInfo != null && apkInfo.splitEntries.isNotEmpty()) {
@@ -332,6 +332,7 @@ class InstallViewModel(
                 scope = viewModelScope,
                 appScope = appScope,
                 trackDialogTarget = trackDialogTarget,
+                keepApk = keepApk,
                 apkInfo = apkInfo,
                 fileName = fn,
                 originalUri = originalUri,
@@ -385,10 +386,18 @@ class InstallViewModel(
         parseDelegate.stopParsing()
         val uri = parseDelegate.pendingOriginalUri ?: return
         val fileName = parseDelegate.pendingFileName ?: uri.lastPathSegment ?: "Unknown"
-        val newTarget = DialogTarget(UUID.randomUUID(), "", fileName, null)
-        dialogDelegate.setTarget(newTarget)
         dialogDelegate.startInstalling()
         viewModelScope.launch {
+            val deleteAfterInstall = InstallSessionManager.readDeleteApkPref(application)
+            val newTarget = DialogTarget(
+                sessionId = UUID.randomUUID(),
+                packageName = "",
+                appName = fileName,
+                iconPath = null,
+                apkUri = uri,
+                deleteAfterInstall = deleteAfterInstall,
+            )
+            dialogDelegate.setTarget(newTarget)
             InstallExecutionCoordinator.executeSkipSingle(
                 application = application,
                 scope = viewModelScope,

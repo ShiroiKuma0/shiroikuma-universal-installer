@@ -13,39 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="main">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-02T18:23:47.286840Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/nqmgaming/.android/avd/Pixel_7_Pro_2.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="androidTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-02T18:23:47.286840Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/nqmgaming/.android/avd/Pixel_7_Pro_2.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="unitTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-02T18:23:47.286840Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/nqmgaming/.android/avd/Pixel_7_Pro_2.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="tv">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-09-02T18:23:47.286840Z">

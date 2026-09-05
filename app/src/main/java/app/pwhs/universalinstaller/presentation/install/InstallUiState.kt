@@ -63,6 +63,7 @@ data class DialogTarget(
     val appName: String,
     val iconPath: String?,
     val apkUri: android.net.Uri? = null,
+    val deleteAfterInstall: Boolean = false,
 )
 
 sealed interface DownloadState {

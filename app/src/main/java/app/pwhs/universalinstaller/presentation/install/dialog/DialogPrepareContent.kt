@@ -62,6 +62,9 @@ fun DialogPrepareContent(
     onCancel: () -> Unit,
     onUnblock: (String) -> Unit = {},
     onCheckVirusTotal: () -> Unit = {},
+    showKeepApkOption: Boolean = false,
+    keepApk: Boolean = false,
+    onKeepApkChanged: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val isUpdate = installedVersionCode != null && installedVersionCode > 0
@@ -284,6 +287,14 @@ fun DialogPrepareContent(
                     }
                 }
             }
+        }
+
+        if (showKeepApkOption) {
+            DialogKeepApkOption(
+                checked = keepApk,
+                onCheckedChange = onKeepApkChanged,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
 
         Row(

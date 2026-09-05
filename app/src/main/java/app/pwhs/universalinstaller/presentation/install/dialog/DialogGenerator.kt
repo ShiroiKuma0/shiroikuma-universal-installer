@@ -43,6 +43,9 @@ fun generateDialogParams(
     uiState: InstallUiState,
     dialogTarget: DialogTarget?,
     autoOpenAfterInstall: Boolean,
+    showKeepApkOption: Boolean = false,
+    keepApk: Boolean = false,
+    onKeepApkChanged: (Boolean) -> Unit = {},
     onInstall: () -> Unit,
     onCancel: () -> Unit,
     onMenu: () -> Unit,
@@ -53,8 +56,8 @@ fun generateDialogParams(
     onToggleSplit: (Int) -> Unit,
     onAttachObb: () -> Unit,
     onBackground: () -> Unit,
-    onOpenInstalledApp: (String) -> Unit,
-    onCloseAfterResult: () -> Unit,
+    onOpenInstalledApp: (String, Boolean) -> Unit,
+    onCloseAfterResult: (Boolean) -> Unit,
     onRetry: () -> Unit,
     onToggleAllUsers: (Boolean) -> Unit,
     onSelectUserId: (Int?) -> Unit,
@@ -145,6 +148,9 @@ fun generateDialogParams(
                             onCancel = onCancel,
                             onUnblock = onUnblock,
                             onCheckVirusTotal = onCheckVirusTotal,
+                            showKeepApkOption = showKeepApkOption,
+                            keepApk = keepApk,
+                            onKeepApkChanged = onKeepApkChanged,
                         )
                     }
                 )
@@ -236,7 +242,8 @@ fun generateDialogParams(
                             target = dialogTarget,
                             canOpen = canOpen,
                             autoOpenCountdownStartSeconds = if (autoOpenAfterInstall) 3 else null,
-                            onOpen = { onOpenInstalledApp(dialogTarget.packageName) },
+                            showKeepApkOption = dialogTarget.deleteAfterInstall,
+                            onOpen = { keepApk -> onOpenInstalledApp(dialogTarget.packageName, keepApk) },
                             onDone = onCloseAfterResult,
                         )
                     }
@@ -253,7 +260,7 @@ fun generateDialogParams(
                         DialogFailedContent(
                             target = dialogTarget,
                             errorMessage = stage.errorMessage,
-                            onClose = onCloseAfterResult,
+                            onClose = { onCloseAfterResult(false) },
                             onRetry = onRetry,
                             onFallbackInstall = onFallbackInstall
                         )
@@ -269,7 +276,7 @@ fun generateDialogParams(
                     title = stringResource(R.string.dialog_read_failed_title),
                     explanation = stringResource(R.string.dialog_read_failed_text),
                     detail = stage.reason,
-                    onClose = onCloseAfterResult,
+                    onClose = { onCloseAfterResult(false) },
                 )
             }
         )
@@ -281,7 +288,7 @@ fun generateDialogParams(
                     title = stringResource(R.string.dialog_parse_failed_title),
                     explanation = stringResource(R.string.dialog_parse_failed_text),
                     detail = stage.reason,
-                    onClose = onCloseAfterResult,
+                    onClose = { onCloseAfterResult(false) },
                 )
             }
         )

@@ -30,6 +30,7 @@ object InstallExecutionCoordinator {
         scope: CoroutineScope,
         appScope: CoroutineScope,
         trackDialogTarget: Boolean,
+        keepApk: Boolean = false,
         apkInfo: ApkInfo?,
         fileName: String,
         originalUri: Uri?,
@@ -48,7 +49,7 @@ object InstallExecutionCoordinator {
         val profiles = ProfileManager.parseProfiles(prefs?.get(PreferencesKeys.INSTALLER_PROFILES))
         val profile = profiles.find { it.id == currentProfileId }
         val iconPath = InstallSessionManager.cacheIcon(application, apkInfo)
-        val deleteAfterInstall = InstallSessionManager.readDeleteApkPref(application)
+        val deleteAfterInstall = InstallSessionManager.readDeleteApkPref(application) && !keepApk
         val controller = resolveActiveController(currentProfileId)
         val backendName = profile?.preferredBackend ?: when (controller) {
             rootController -> "Root"
@@ -96,7 +97,6 @@ object InstallExecutionCoordinator {
         val pkgForTarget = apkInfo?.packageName.orEmpty()
         val nameForTarget = apkInfo?.appName.orEmpty().ifBlank { fileName }
         val targetedUserId = profile?.targetUserId ?: prefs?.get(PreferencesKeys.INSTALL_USER_ID)
-
         if (targetedUserId != null) {
             val targetedBackend = InstallSessionManager.resolveTargetedBackend(profile?.preferredBackend, rootController, backendFactory)
             if (targetedBackend == null) {
@@ -112,7 +112,18 @@ object InstallExecutionCoordinator {
                 originalUri = originalUri,
                 deleteAfterInstall = deleteAfterInstall,
                 onSessionCreated = if (trackDialogTarget) {
-                    { realId -> onDialogTargetCreated(DialogTarget(realId, pkgForTarget, nameForTarget, iconPath, originalUri)) }
+                    { realId ->
+                        onDialogTargetCreated(
+                            DialogTarget(
+                                sessionId = realId,
+                                packageName = pkgForTarget,
+                                appName = nameForTarget,
+                                iconPath = iconPath,
+                                apkUri = originalUri,
+                                deleteAfterInstall = deleteAfterInstall,
+                            )
+                        )
+                    }
                 } else null,
             )
         } else {
@@ -127,7 +138,18 @@ object InstallExecutionCoordinator {
                 allowDowngrade = apkInfo?.let { isDowngrade(it) } ?: false,
                 onSuccess = onSuccess,
                 onSessionCreated = if (trackDialogTarget) {
-                    { realId -> onDialogTargetCreated(DialogTarget(realId, pkgForTarget, nameForTarget, iconPath, originalUri)) }
+                    { realId ->
+                        onDialogTargetCreated(
+                            DialogTarget(
+                                sessionId = realId,
+                                packageName = pkgForTarget,
+                                appName = nameForTarget,
+                                iconPath = iconPath,
+                                apkUri = originalUri,
+                                deleteAfterInstall = deleteAfterInstall,
+                            )
+                        )
+                    }
                 } else null,
             )
         }

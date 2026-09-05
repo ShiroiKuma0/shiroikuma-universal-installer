@@ -38,6 +38,7 @@ import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallCont
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallUriHelper
 import app.pwhs.universalinstaller.presentation.install.dialog.InsufficientStorageDialog
 import app.pwhs.universalinstaller.presentation.install.dialog.HeadlessNotificationInstall
+import app.pwhs.universalinstaller.presentation.install.util.SourceFileDeleter
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.universalinstaller.util.LocaleHelper
@@ -247,6 +248,8 @@ class DialogInstallActivity : ComponentActivity() {
             val prefs by context.dataStore.data.collectAsState(initial = null)
             val autoOpenAfterInstall = prefs?.get(PreferencesKeys.AUTO_OPEN_AFTER_INSTALL) ?: false
             val autoConfirmExternalInstall = prefs?.get(PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL) ?: false
+            val deleteApkAfterInstall = prefs?.get(PreferencesKeys.DELETE_APK_AFTER_INSTALL) ?: false
+            var keepApk by remember(dialogTarget?.sessionId) { mutableStateOf(false) }
             val strictVirusTotalCheck = SecurityLevel.from(
                 stored = prefs?.get(PreferencesKeys.SECURITY_LEVEL),
                 legacyStrict = prefs?.get(PreferencesKeys.STRICT_VIRUSTOTAL_CHECK) ?: false,
@@ -275,13 +278,25 @@ class DialogInstallActivity : ComponentActivity() {
                     viewModel.showStorageWarning(apkSize)
                 } else {
                     viewModel.dialogStartInstalling()
-                    viewModel.confirmInstall(trackDialogTarget = true)
+                    viewModel.confirmInstall(trackDialogTarget = true, keepApk = keepApk)
                 }
             }
 
             LaunchedEffect(uiState.pendingApkInfo, uiState.dialogStage) {
                 if (uiState.pendingApkInfo != null && uiState.dialogStage == DialogStage.Loading) {
                     viewModel.dialogShowPrepare()
+                }
+            }
+
+            val finishAfterSuccess: (Boolean, String?) -> Unit = { keepApk, _ ->
+                val target = dialogTarget
+                lifecycleScope.launch {
+                    if (target?.deleteAfterInstall == true && !keepApk) {
+                        target.apkUri?.let { SourceFileDeleter.deleteSourceFileAndWarn(context, it) }
+                    }
+                    viewModel.dialogClose()
+                    viewModel.clearDialogTarget()
+                    finish()
                 }
             }
 
@@ -306,8 +321,7 @@ class DialogInstallActivity : ComponentActivity() {
                             }
                         }
                     }
-                    viewModel.dialogClose()
-                    finish()
+                    finishAfterSuccess(false, null)
                 }
             }
 
@@ -325,14 +339,18 @@ class DialogInstallActivity : ComponentActivity() {
             }
 
             val dismissAndFinish = {
-                handoffInstall()
-                val isDownloading = uiState.dialogDownloadProgress != null
-                if (!isDownloading) {
-                    viewModel.dismissPendingInstall()
-                    viewModel.dialogClose()
-                    viewModel.clearDialogTarget()
+                if (uiState.dialogStage == DialogStage.Success) {
+                    finishAfterSuccess(false, null)
+                } else {
+                    handoffInstall()
+                    val isDownloading = uiState.dialogDownloadProgress != null
+                    if (!isDownloading) {
+                        viewModel.dismissPendingInstall()
+                        viewModel.dialogClose()
+                        viewModel.clearDialogTarget()
+                    }
+                    finish()
                 }
-                finish()
             }
 
             BackHandler {
@@ -356,12 +374,16 @@ class DialogInstallActivity : ComponentActivity() {
                 amoledMode = amoledMode,
                 themePreset = themePreset,
                 autoOpenAfterInstall = autoOpenAfterInstall,
+                showKeepApkOption = deleteApkAfterInstall,
+                keepApk = keepApk,
+                onKeepApkChanged = { keepApk = it },
                 strictVirusTotalCheck = strictVirusTotalCheck,
                 canInstallPackages = ::canInstallPackages,
                 viewModel = viewModel,
                 onOpenInstallPermissionSettings = ::openInstallPermissionSettings,
                 onProceedInstall = proceedInstall,
                 onDismissAndFinish = dismissAndFinish,
+                onFinishAfterSuccess = finishAfterSuccess,
                 onScanVirusTotal = { viewModel.scanVirusTotal(it) },
             )
 

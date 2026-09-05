@@ -599,6 +599,8 @@
     <string name="dialog_success_title">Installed successfully</string>
     <string name="dialog_success_open">Open</string>
     <string name="dialog_success_done">Done</string>
+    <string name="dialog_success_keep_apk">Keep APK</string>
+    <string name="dialog_success_keep_apk_desc">Do not delete the source file after installation</string>
     <string name="dialog_failed_title">Installation failed</string>
     <string name="dialog_failed_retry">Retry</string>
     <string name="dialog_failed_close">Close</string>

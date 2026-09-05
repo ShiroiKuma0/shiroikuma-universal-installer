@@ -104,4 +104,14 @@
     <string name="tv_manage_status_disabled">Disabled</string>
     <string name="tv_manage_extracted_success">Extracted ✓</string>
     <string name="tv_manage_extract_error_prefix">Error: %s</string>
+    <string name="tv_shizuku_title" translatable="false">Shizuku</string>
+    <string name="tv_shizuku_on">On — prefer Shizuku for silent installation</string>
+    <string name="tv_shizuku_off">Off — select to enable Shizuku</string>
+    <string name="tv_shizuku_missing">Install Shizuku on your TV, then start its service.</string>
+    <string name="tv_shizuku_stopped">Shizuku is not running. Start its service and return here.</string>
+    <string name="tv_shizuku_unsupported">This Shizuku version is too old. Update to version 11 or newer.</string>
+    <string name="tv_shizuku_permission">Select to grant Shizuku permission.</string>
+    <string name="tv_shizuku_ready">Ready for silent APK and split-bundle installation.</string>
+    <string name="tv_shizuku_denied">Permission denied. Allow this app in Shizuku, then try again.</string>
+    <string name="tv_shizuku_error">Could not request permission. Open Shizuku and try again.</string>
 </resources>

@@ -90,4 +90,13 @@
     <string name="tv_receive_step_web">🌐 iPhone / 电脑: 扫码或在浏览器打开上方链接</string>
     <string name="tv_receive_btn_disconnect">断开连接</string>
     <string name="tv_receive_step3">准备安装</string>
+    <string name="tv_shizuku_missing">未安装 Shizuku</string>
+    <string name="tv_shizuku_stopped">Shizuku 已安装但未运行</string>
+    <string name="tv_shizuku_unsupported">Shizuku 版本过旧（低于 v11）</string>
+    <string name="tv_shizuku_permission">点击授予 Shizuku 权限</string>
+    <string name="tv_shizuku_ready">无弹窗静默安装</string>
+    <string name="tv_shizuku_denied">Shizuku 权限被拒绝</string>
+    <string name="tv_shizuku_on">已开启 — 优先通过 Shizuku 静默安装</string>
+    <string name="tv_shizuku_off">已关闭 — 选择以启用 Shizuku</string>
+    <string name="tv_shizuku_error">无法请求权限。请打开 Shizuku 后重试。</string>
 </resources>

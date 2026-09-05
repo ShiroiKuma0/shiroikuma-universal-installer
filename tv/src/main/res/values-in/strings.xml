@@ -90,4 +90,13 @@
     <string name="tv_receive_step_web">🌐 iPhone / PC: Pindai kode QR atau buka tautan di atas</string>
     <string name="tv_receive_btn_disconnect">Putuskan</string>
     <string name="tv_receive_step3">Siap dipasang</string>
+    <string name="tv_shizuku_missing">Shizuku tidak terinstal</string>
+    <string name="tv_shizuku_stopped">Shizuku terinstal tetapi tidak berjalan</string>
+    <string name="tv_shizuku_unsupported">Versi Shizuku terlalu lama (sebelum v11)</string>
+    <string name="tv_shizuku_permission">Ketuk untuk memberikan izin Shizuku</string>
+    <string name="tv_shizuku_ready">Instalasi diam-diam tanpa konfirmasi</string>
+    <string name="tv_shizuku_denied">Izin Shizuku ditolak</string>
+    <string name="tv_shizuku_on">Aktif — utamakan Shizuku untuk instalasi senyap</string>
+    <string name="tv_shizuku_off">Nonaktif — pilih untuk mengaktifkan Shizuku</string>
+    <string name="tv_shizuku_error">Tidak dapat meminta izin. Buka Shizuku dan coba lagi.</string>
 </resources>

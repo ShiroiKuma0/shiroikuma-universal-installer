@@ -99,6 +99,9 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
+    testImplementation(libs.junit)
     // Installs the packaged profile at first run on API 28-30, where the platform does not do
     // it itself. Already on the classpath transitively; declared so the dependency is explicit.
     implementation(libs.androidx.profileinstaller)

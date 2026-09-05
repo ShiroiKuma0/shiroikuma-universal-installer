@@ -14,6 +14,16 @@ object SharedPrefsKeys {
 
     /** TV: when true (default) and root is available, install silently via the root shell. */
     val ROOT_SILENT_INSTALL = booleanPreferencesKey("tv_root_silent_install")
+    val TV_SHIZUKU_REPLACE = booleanPreferencesKey("tv_shizuku_replace")
+    val TV_ROOT_REPLACE = booleanPreferencesKey("tv_root_replace")
+    val TV_SHIZUKU_DOWNGRADE = booleanPreferencesKey("tv_shizuku_downgrade")
+    val TV_ROOT_DOWNGRADE = booleanPreferencesKey("tv_root_downgrade")
+    val TV_SHIZUKU_GRANT = booleanPreferencesKey("tv_shizuku_grant")
+    val TV_ROOT_GRANT = booleanPreferencesKey("tv_root_grant")
+    val TV_SHIZUKU_TEST = booleanPreferencesKey("tv_shizuku_test")
+    val TV_ROOT_TEST = booleanPreferencesKey("tv_root_test")
+    val TV_SHIZUKU_ALL_USERS = booleanPreferencesKey("tv_shizuku_all_users")
+    val TV_ROOT_ALL_USERS = booleanPreferencesKey("tv_root_all_users")
 
     /**
      * "Normal" or "Strict". Declared here because onboarding lives in :core but the setting is

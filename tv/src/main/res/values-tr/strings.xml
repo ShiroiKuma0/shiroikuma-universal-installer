@@ -90,4 +90,13 @@
     <string name="tv_receive_step_web">🌐 iPhone / PC: QR kodunu tarayın veya yukarıdaki bağlantıyı açın</string>
     <string name="tv_receive_btn_disconnect">Bağlantıyı Kes</string>
     <string name="tv_receive_step3">Yüklemeye hazır</string>
+    <string name="tv_shizuku_missing">Shizuku yüklü değil</string>
+    <string name="tv_shizuku_stopped">Shizuku yüklü ama çalışmıyor</string>
+    <string name="tv_shizuku_unsupported">Shizuku sürümü çok eski (v11 öncesi)</string>
+    <string name="tv_shizuku_permission">Shizuku izni vermek için dokunun</string>
+    <string name="tv_shizuku_ready">Onay istemeden sessiz yükleme</string>
+    <string name="tv_shizuku_denied">Shizuku izni reddedildi</string>
+    <string name="tv_shizuku_on">Açık — sessiz kurulum için Shizuku tercih edilir</string>
+    <string name="tv_shizuku_off">Kapalı — Shizuku uygulamasını etkinleştirmek için seçin</string>
+    <string name="tv_shizuku_error">İzin istenemedi. Shizuku uygulamasını açıp yeniden deneyin.</string>
 </resources>

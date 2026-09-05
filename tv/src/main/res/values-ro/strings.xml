@@ -90,4 +90,13 @@
     <string name="tv_receive_step_web">🌐 iPhone / PC: Scanați codul QR sau deschideți linkul de mai sus</string>
     <string name="tv_receive_btn_disconnect">Deconectare</string>
     <string name="tv_receive_step3">Gata de instalare</string>
+    <string name="tv_shizuku_missing">Shizuku nu este instalat</string>
+    <string name="tv_shizuku_stopped">Shizuku este instalat dar nu rulează</string>
+    <string name="tv_shizuku_unsupported">Versiunea Shizuku este prea veche (pre-v11)</string>
+    <string name="tv_shizuku_permission">Atinge pentru a acorda permisiunea Shizuku</string>
+    <string name="tv_shizuku_ready">Instalare silențioasă fără confirmări</string>
+    <string name="tv_shizuku_denied">Permisiunea Shizuku a fost refuzată</string>
+    <string name="tv_shizuku_on">Activat — preferă Shizuku pentru instalare silențioasă</string>
+    <string name="tv_shizuku_off">Dezactivat — selectează pentru a activa Shizuku</string>
+    <string name="tv_shizuku_error">Nu s-a putut solicita permisiunea. Deschide Shizuku și încearcă din nou.</string>
 </resources>

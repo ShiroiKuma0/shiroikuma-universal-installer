@@ -29,6 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -80,9 +82,14 @@ private const val REPO_URL = "https://github.com/pass-with-high-score/universal-
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier) {
     var showLanguageScreen by remember { mutableStateOf(false) }
+    var showInstallOptions by remember { mutableStateOf(false) }
 
     if (showLanguageScreen) {
         LanguageScreen(onBack = { showLanguageScreen = false })
+        return
+    }
+    if (showInstallOptions) {
+        InstallOptionsScreen(onBack = { showInstallOptions = false })
         return
     }
     val context = LocalContext.current
@@ -215,7 +222,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             val silentEnabled by context.dataStore.data
                 .map { it[SharedPrefsKeys.ROOT_SILENT_INSTALL] ?: true }
                 .collectAsState(initial = true)
-            SettingsCard(onClick = {
+            SettingsCard(enabled = rootAvailable == true, onClick = {
                 scope.launch {
                     context.dataStore.edit { it[SharedPrefsKeys.ROOT_SILENT_INSTALL] = !silentEnabled }
                 }
@@ -236,6 +243,13 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
                     color = if (rootAvailable == false) MaterialTheme.colorScheme.error
                     else MaterialTheme.colorScheme.primary
                 )
+            }
+        }
+
+        item { ShizukuSetting() }
+        item {
+            SettingsCard(onClick = { showInstallOptions = true }) {
+                TitleValue("Install options", "Configure Shizuku and Root flags")
             }
         }
 
@@ -338,10 +352,15 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun AccentSwatch(color: Color, selected: Boolean, onClick: () -> Unit) {
     val shape = CircleShape
+    var focused by remember { mutableStateOf(false) }
     Surface(
         onClick = onClick,
-        modifier = Modifier.size(64.dp).clip(shape),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.12f),
+        modifier = Modifier
+            .size(64.dp)
+            .onFocusChanged { focused = it.isFocused }
+            .border(if (focused) 3.dp else 0.dp, Color.White, shape)
+            .clip(shape),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
         shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(containerColor = color, focusedContainerColor = color),
     ) {
@@ -375,9 +394,9 @@ private fun ThemeOptionCard(
         shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-            focusedContainerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+            focusedContainerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary.copy(alpha = 0.82f),
             contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-            focusedContentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+            focusedContentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onPrimary
         )
     ) {
         Column(
@@ -394,29 +413,25 @@ private fun ThemeOptionCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun SettingsCard(onClick: () -> Unit, content: @Composable () -> Unit) {
+internal fun SettingsCard(enabled: Boolean = true, onClick: () -> Unit, content: @Composable () -> Unit) {
     val shape = RoundedCornerShape(20.dp)
-    Surface(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.03f),
-        shape = ClickableSurfaceDefaults.shape(shape),
-        colors = ClickableSurfaceDefaults.colors(
+    val colors = ClickableSurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
             contentColor = MaterialTheme.colorScheme.onSurface,
             focusedContentColor = MaterialTheme.colorScheme.onSurface
         )
-    ) {
-        Column(Modifier.padding(24.dp)) { content() }
+    val body: @Composable () -> Unit = { Column(Modifier.padding(24.dp)) { content() } }
+    if (enabled) {
+        Surface(onClick = onClick, modifier = Modifier.fillMaxWidth().clip(shape), scale = ClickableSurfaceDefaults.scale(focusedScale = 1.03f), shape = ClickableSurfaceDefaults.shape(shape), colors = colors) { body() }
+    } else {
+        Surface(modifier = Modifier.fillMaxWidth().clip(shape)) { body() }
     }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun TitleValue(title: String, value: String) {
+internal fun TitleValue(title: String, value: String) {
     Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
     Spacer(Modifier.height(4.dp))
     Text(
@@ -448,4 +463,3 @@ private fun SectionHeader(text: String, icon: androidx.compose.ui.graphics.vecto
         )
     }
 }
-

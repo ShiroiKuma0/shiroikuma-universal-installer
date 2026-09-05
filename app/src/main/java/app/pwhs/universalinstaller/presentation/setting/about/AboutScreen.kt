@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.ClipEntry
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -393,6 +394,7 @@ private fun DeviceInfoDialog(onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         title = { Text(stringResource(R.string.about_device_info_title)) },
         text = {
             Box(Modifier.heightIn(max = 400.dp)) {

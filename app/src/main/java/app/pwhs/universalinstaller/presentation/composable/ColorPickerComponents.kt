@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import kotlin.math.roundToInt
 
 /** Curated accent seeds shown as swatches on the 白い熊 Installer UI page. */
@@ -95,6 +96,7 @@ fun ColorPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         title = { Text(stringResource(R.string.ui_color_picker_title)) },
         text = {
             Column {

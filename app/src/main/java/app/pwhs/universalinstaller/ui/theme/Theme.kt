@@ -1,6 +1,7 @@
 package app.pwhs.universalinstaller.ui.theme
 
 import android.os.Build
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -333,6 +334,11 @@ fun UniversalInstallerTheme(
     CompositionLocalProvider(
         LocalExtendedColors provides extendedColors,
         LocalMonoTechnical provides monoTechnical,
+        // Fork: every dialog in the app is outlined in the accent (yellow under the default
+        // preset), so a black card never sits invisibly on a black scrim. The two configurable
+        // surfaces — install pop-up and main page — replace this with their own stroke, or with
+        // null when their border width is set to 0. See [ThemedSurface] and [Modifier.surfaceBorder].
+        LocalSurfaceBorder provides BorderStroke(ForkUiDefaults.BorderWidth.dp, colorScheme.primary),
         LocalDensity provides customDensity
     ) {
         MaterialTheme(

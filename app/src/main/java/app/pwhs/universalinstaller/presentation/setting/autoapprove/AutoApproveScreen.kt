@@ -67,6 +67,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.manager.AutoApproveApps
 import app.pwhs.universalinstaller.presentation.composable.EmptyStateView
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import app.pwhs.universalinstaller.util.AppIconData
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -367,6 +368,7 @@ private fun AddCustomAppDialog(
     var text by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         title = { Text(stringResource(R.string.setting_auto_approve_custom_dialog_title)) },
         text = {
             OutlinedTextField(

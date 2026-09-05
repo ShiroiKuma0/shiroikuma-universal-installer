@@ -81,6 +81,7 @@ import app.pwhs.universalinstaller.presentation.install.components.PermissionBod
 import app.pwhs.universalinstaller.presentation.install.components.ScanningBody
 import app.pwhs.universalinstaller.presentation.install.components.SheetHeader
 import app.pwhs.universalinstaller.presentation.install.components.filterFoundFiles
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import app.pwhs.core.ui.ApkFileIconData
 import app.pwhs.core.util.PermissionMonitor
 import coil3.compose.SubcomposeAsyncImage
@@ -407,6 +408,7 @@ private fun ResultsBody(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
+            modifier = Modifier.surfaceBorder(),
             title = {
                 Text(stringResource(R.string.find_auto_delete_title, selectedFiles.size))
             },

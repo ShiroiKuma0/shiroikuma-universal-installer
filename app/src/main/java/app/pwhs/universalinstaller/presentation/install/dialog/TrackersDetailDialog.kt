@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.TrackerInfo
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -84,7 +85,9 @@ fun TrackersDetailDialog(
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             tonalElevation = 6.dp,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .surfaceBorder(RoundedCornerShape(28.dp)),
         ) {
             Column(
                 modifier = Modifier

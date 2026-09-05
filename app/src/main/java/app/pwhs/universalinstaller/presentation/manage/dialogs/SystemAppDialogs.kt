@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
 import app.pwhs.universalinstaller.util.AppIconData
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -109,6 +110,7 @@ internal fun SystemAppMethodDialog(
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             tonalElevation = 6.dp,
+            border = LocalSurfaceBorder.current,
         ) {
             Column(
                 modifier = Modifier
@@ -400,6 +402,7 @@ internal fun SystemAppPrivilegedRequiredDialog(
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             tonalElevation = 6.dp,
+            border = LocalSurfaceBorder.current,
         ) {
             Column(
                 modifier = Modifier

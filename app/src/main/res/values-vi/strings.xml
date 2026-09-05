@@ -613,6 +613,11 @@
   <string name="setting_install_mode_custom">Tùy chỉnh</string>
   <string name="setting_install_mode_default_sub">Trình cài đặt của Android — sẽ hỏi bạn xác nhận từng ứng dụng</string>
   <string name="setting_install_mode_custom_sub">Cài đặt qua lệnh shell hoặc authorizer tùy chỉnh</string>
+  <string name="setting_custom_authorizer_title">Trình cấp quyền tùy chỉnh</string>
+  <string name="setting_custom_authorizer_subtitle">Cấu hình lệnh shell hoặc binary để cấp quyền cài đặt</string>
+  <string name="setting_custom_authorizer_configure">Cấu hình</string>
+  <string name="setting_custom_authorizer_presets">Mẫu có sẵn</string>
+  <string name="setting_custom_authorizer_save">Lưu &amp; Áp dụng</string>
   <string name="setting_custom_authorizer_cmd_label">Lệnh Authorizer</string>
   <string name="setting_custom_authorizer_cmd_hint">VD: su -c {command} hoặc su 1000</string>
   <string name="setting_custom_authorizer_cmd_desc">Hỗ trợ biến {command} hoặc chạy qua terminal stdin (VD: su, su 1000, rish -c {command}).</string>

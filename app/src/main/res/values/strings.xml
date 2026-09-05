@@ -387,6 +387,11 @@
     <string name="setting_install_mode_custom">Custom</string>
     <string name="setting_install_mode_default_sub">Android\'s own installer — it asks you to confirm each app</string>
     <string name="setting_install_mode_custom_sub">Install via custom shell or authorizer command</string>
+    <string name="setting_custom_authorizer_title">Custom Authorizer</string>
+    <string name="setting_custom_authorizer_subtitle">Configure custom shell or binary to authorize installations</string>
+    <string name="setting_custom_authorizer_configure">Configure</string>
+    <string name="setting_custom_authorizer_presets">Quick Presets</string>
+    <string name="setting_custom_authorizer_save">Save &amp; Apply</string>
     <string name="setting_custom_authorizer_cmd_label">Authorizer command</string>
     <string name="setting_custom_authorizer_cmd_hint">e.g. su -c {command} or su 1000</string>
     <string name="setting_custom_authorizer_cmd_desc">Supports {command} placeholder or stdin terminal mode (e.g. su, su 1000, rish -c {command}).</string>

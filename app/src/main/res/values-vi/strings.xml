@@ -849,4 +849,9 @@
     <string name="watch_sheet_pick_file">Chọn tệp khác…</string>
     <string name="watch_sheet_send">Gửi</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Giữ APK</string>
+    <string name="dialog_success_keep_apk_desc">Không xoá tệp nguồn sau khi cài đặt</string>
+    <string name="backup_output_path_default">Mặc định (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Bộ nhớ trong</string>
+    <string name="backup_output_path_selected_folder">Thư mục đã chọn</string>
 </resources>

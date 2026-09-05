@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Pilih file lain…</string>
     <string name="watch_sheet_send">Kirim</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Simpan APK</string>
+    <string name="dialog_success_keep_apk_desc">Jangan hapus file sumber setelah instalasi</string>
+    <string name="backup_output_path_default">Default (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Penyimpanan internal</string>
+    <string name="backup_output_path_selected_folder">Folder yang dipilih</string>
 </resources>

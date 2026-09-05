@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Επιλογή άλλου αρχείου…</string>
     <string name="watch_sheet_send">Αποστολή</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Διατήρηση APK</string>
+    <string name="dialog_success_keep_apk_desc">Να μην διαγραφεί το αρχείο προέλευσης μετά την εγκατάσταση</string>
+    <string name="backup_output_path_default">Προεπιλογή (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Εσωτερικός χώρος αποθήκευσης</string>
+    <string name="backup_output_path_selected_folder">Επιλεγμένος φάκελος</string>
 </resources>

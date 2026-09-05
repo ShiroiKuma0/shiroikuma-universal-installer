@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Alege alt fișier…</string>
     <string name="watch_sheet_send">Trimite</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Păstrează APK-ul</string>
+    <string name="dialog_success_keep_apk_desc">Nu șterge fișierul sursă după instalare</string>
+    <string name="backup_output_path_default">Implicit (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Stocare internă</string>
+    <string name="backup_output_path_selected_folder">Dosar selectat</string>
 </resources>

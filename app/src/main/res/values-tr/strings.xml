@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Başka dosya seç…</string>
     <string name="watch_sheet_send">Gönder</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">APK\'yı sakla</string>
+    <string name="dialog_success_keep_apk_desc">Kurulumdan sonra kaynak dosyayı silme</string>
+    <string name="backup_output_path_default">Varsayılan (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Dahili depolama</string>
+    <string name="backup_output_path_selected_folder">Seçilen klasör</string>
 </resources>

@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Scegli un altro file…</string>
     <string name="watch_sheet_send">Invia</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Conserva APK</string>
+    <string name="dialog_success_keep_apk_desc">Non eliminare il file sorgente dopo l\'installazione</string>
+    <string name="backup_output_path_default">Predefinito (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Memoria interna</string>
+    <string name="backup_output_path_selected_folder">Cartella selezionata</string>
 </resources>

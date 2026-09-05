@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Вибрати інший файл…</string>
     <string name="watch_sheet_send">Надіслати</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Зберігати APK</string>
+    <string name="dialog_success_keep_apk_desc">Не видаляти вихідний файл після встановлення</string>
+    <string name="backup_output_path_default">За замовчуванням (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Внутрішня пам’ять</string>
+    <string name="backup_output_path_selected_folder">Вибрана папка</string>
 </resources>

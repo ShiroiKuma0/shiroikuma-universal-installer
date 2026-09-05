@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Escolher outro arquivo…</string>
     <string name="watch_sheet_send">Enviar</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Manter APK</string>
+    <string name="dialog_success_keep_apk_desc">Não excluir o arquivo de origem após a instalação</string>
+    <string name="backup_output_path_default">Padrão (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Armazenamento interno</string>
+    <string name="backup_output_path_selected_folder">Pasta selecionada</string>
 </resources>

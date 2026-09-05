@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">Choisir un autre fichier…</string>
     <string name="watch_sheet_send">Envoyer</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">Conserver l\'APK</string>
+    <string name="dialog_success_keep_apk_desc">Ne pas supprimer le fichier source après l\'installation</string>
+    <string name="backup_output_path_default">Par défaut (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">Stockage interne</string>
+    <string name="backup_output_path_selected_folder">Dossier sélectionné</string>
 </resources>

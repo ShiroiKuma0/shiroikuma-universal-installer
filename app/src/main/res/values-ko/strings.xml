@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">다른 파일 선택…</string>
     <string name="watch_sheet_send">보내기</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">APK 유지</string>
+    <string name="dialog_success_keep_apk_desc">설치 후 원본 파일을 삭제하지 않음</string>
+    <string name="backup_output_path_default">기본 (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">내부 저장소</string>
+    <string name="backup_output_path_selected_folder">선택한 폴더</string>
 </resources>

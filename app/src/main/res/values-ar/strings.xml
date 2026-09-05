@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">اختيار ملف آخر…</string>
     <string name="watch_sheet_send">إرسال</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">الاحتفاظ بملف APK</string>
+    <string name="dialog_success_keep_apk_desc">عدم حذف الملف المصدر بعد التثبيت</string>
+    <string name="backup_output_path_default">افتراضي (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">وحدة التخزين الداخلية</string>
+    <string name="backup_output_path_selected_folder">المجلد المحدد</string>
 </resources>

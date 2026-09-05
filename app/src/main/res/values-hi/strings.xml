@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">दूसरी फ़ाइल चुनें…</string>
     <string name="watch_sheet_send">भेजें</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">APK रखें</string>
+    <string name="dialog_success_keep_apk_desc">इंस्टॉल के बाद स्रोत फ़ाइल को न हटाएं</string>
+    <string name="backup_output_path_default">डिफ़ॉल्ट (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">आंतरिक संग्रहण</string>
+    <string name="backup_output_path_selected_folder">चुना गया फ़ोल्डर</string>
 </resources>

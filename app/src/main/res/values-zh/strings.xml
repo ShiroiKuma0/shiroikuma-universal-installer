@@ -847,4 +847,9 @@
     <string name="watch_sheet_pick_file">选择其他文件…</string>
     <string name="watch_sheet_send">发送</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+    <string name="dialog_success_keep_apk">保留 APK</string>
+    <string name="dialog_success_keep_apk_desc">安装后不删除源文件</string>
+    <string name="backup_output_path_default">默认 (Download/UniversalInstaller/Extracted)</string>
+    <string name="backup_output_path_internal_storage">内部存储</string>
+    <string name="backup_output_path_selected_folder">所选文件夹</string>
 </resources>

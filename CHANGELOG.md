@@ -4,6 +4,41 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.14.0+005
+
+**New in this build:** the signature-mismatch warning stops offering to install past a wall it
+cannot get past — and stops offering to delete your installed app to make room. Same upstream
+**1.14.0** (versionCode 38) as `+001`; fork UI work only.
+
+### 🔑 A wall, stated as a wall
+
+- **"Install anyway" is gone when the keys differ.** Android can never honour it:
+  `PackageManagerService` compares the signing certificates itself and fails the session with
+  `UPDATE_INCOMPATIBLE` whichever backend asked — Shizuku installs as the shell user, root as uid 0,
+  and neither is a party to that check. The button bought a biometric prompt, an install session and
+  a failure whose guidance message exists only because the button led there; it could not once have
+  succeeded.
+- **"Uninstall existing app" is gone with it.** The chip fired `ACTION_DELETE` one tap below the
+  sentence explaining that the app's data would be lost — the only irreversible action in the
+  dialog, offered as the way forward, in a fork whose users install differently-signed builds of the
+  same package all day. Whoever decides that data is expendable can uninstall it themselves,
+  deliberately, somewhere that is not a step in an install flow.
+- **What is left is the fact and the way out.** The card states that the installed app is signed
+  with a different key and that the existing app has to be uninstalled first, its data lost; the
+  single button is **Cancel**, and it takes the primary slot rather than sitting next to one that
+  promises an install. The "only proceed if you trust the source of this file" footer is hidden
+  while the mismatch stands — there is nothing left to proceed with.
+- **VirusTotal verdicts are untouched.** A malicious or suspicious rating on its own still shows the
+  red **Install anyway**, the outlined **Cancel**, the footer and the **View report** link. Those
+  are risks to weigh against a decision, and the install can genuinely go through.
+- **No strings changed**, so all ~17 locales keep the wording they already carry — the card reuses
+  the sentence upstream already ships, which reads as the instruction it now is.
+- **Upstream's own remedy plumbing was already dead.** Its "uninstall through the active backend"
+  commit threads a callback from the install view-model through both screens into the dialog, which
+  never calls it — the chip always went through the system uninstaller regardless of Shizuku or
+  root. That view-model half is left in place rather than gutting two large upstream files for
+  weight this fork did not add.
+
 ## 1.14.0+004
 
 **New in this build:** every dialog in the app is outlined in the fork accent. Same upstream

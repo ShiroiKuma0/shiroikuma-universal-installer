@@ -90,4 +90,13 @@
     <string name="tv_receive_step_web">🌐 iPhone / PC: क्यूआर कोड स्कैन करें या ऊपर दिया गया लिंक खोलें</string>
     <string name="tv_receive_btn_disconnect">डिस्कनेक्ट करें</string>
     <string name="tv_receive_step3">इंस्टॉल करने के लिए तैयार</string>
+    <string name="tv_shizuku_missing">Shizuku इंस्टॉल नहीं है</string>
+    <string name="tv_shizuku_stopped">Shizuku इंस्टॉल है लेकिन चल नहीं रहा है</string>
+    <string name="tv_shizuku_unsupported">Shizuku वर्ज़न बहुत पुराना है (pre-v11)</string>
+    <string name="tv_shizuku_permission">Shizuku अनुमति देने के लिए टैप करें</string>
+    <string name="tv_shizuku_ready">बिना प्रांप्ट के साइलेंट इंस्टॉल</string>
+    <string name="tv_shizuku_denied">Shizuku अनुमति अस्वीकार कर दी गई थी</string>
+    <string name="tv_shizuku_on">चालू — बिना पुष्टि के इंस्टॉल करने के लिए Shizuku को प्राथमिकता दें</string>
+    <string name="tv_shizuku_off">बंद — Shizuku चालू करने के लिए चुनें</string>
+    <string name="tv_shizuku_error">अनुमति का अनुरोध नहीं हो सका। Shizuku खोलें और फिर कोशिश करें।</string>
 </resources>

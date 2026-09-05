@@ -91,4 +91,13 @@
     <string name="tv_manage_no_matches">Không tìm thấy kết quả cho \"%s\"</string>
     <string name="tv_manage_clear_search">Xóa tìm kiếm</string>
     <string name="tv_language_title">Ngôn ngữ</string>
+    <string name="tv_shizuku_on">Bật — ưu tiên Shizuku để cài đặt im lặng</string>
+    <string name="tv_shizuku_off">Tắt — chọn để bật Shizuku</string>
+    <string name="tv_shizuku_missing">Cài Shizuku trên TV rồi khởi động dịch vụ.</string>
+    <string name="tv_shizuku_stopped">Shizuku chưa chạy. Khởi động dịch vụ rồi quay lại đây.</string>
+    <string name="tv_shizuku_unsupported">Phiên bản Shizuku quá cũ. Hãy cập nhật lên phiên bản 11 trở lên.</string>
+    <string name="tv_shizuku_permission">Chọn để cấp quyền Shizuku.</string>
+    <string name="tv_shizuku_ready">Sẵn sàng cài APK và gói APK phân tách im lặng.</string>
+    <string name="tv_shizuku_denied">Quyền bị từ chối. Cho phép ứng dụng này trong Shizuku rồi thử lại.</string>
+    <string name="tv_shizuku_error">Không thể yêu cầu quyền. Mở Shizuku rồi thử lại.</string>
 </resources>

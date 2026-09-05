@@ -11,6 +11,9 @@ import app.pwhs.core.data.local.dataStore
 import app.pwhs.core.domain.ApkFile
 import app.pwhs.core.install.ApkInstaller
 import app.pwhs.core.install.RootInstaller
+import app.pwhs.tv.install.TvInstallBackend
+import app.pwhs.tv.install.TvShizuku
+import app.pwhs.tv.install.ShizukuInstaller
 import app.pwhs.core.receiver.ConnectedClient
 import app.pwhs.core.receiver.ReceivedApk
 import app.pwhs.core.receiver.ReceivingProgress
@@ -38,6 +41,7 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
     private val metadataReader = ApkMetadataReader(context)
     private val installer = ApkInstaller(context)
     private val rootInstaller = RootInstaller(context)
+    private val shizukuInstaller = ShizukuInstaller(context)
 
     val status: StateFlow<ReceiverStatus> = TvReceiverState.status
     val connectedClient: StateFlow<ConnectedClient?> = TvReceiverState.connectedClient
@@ -153,15 +157,22 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
             _installResult.value = null
             _installingLabel.value = label
             _installProgress.value = if (sizeBytes > 0) 0f else null
-            // Prefer the silent root path on rooted boxes (skips the D-pad-hostile system dialog);
-            // fall back to the PackageInstaller session when root is off or unavailable.
-            val silentPref = runCatching {
-                context.dataStore.data.first()[SharedPrefsKeys.ROOT_SILENT_INSTALL]
-            }.getOrNull() ?: true
-            val useRoot = silentPref && RootShell.isAvailable()
+            val prefs = context.dataStore.data.first()
+            val backend = TvInstallBackend.select(
+                shizukuEnabled = prefs[TvShizuku.enabledKey] ?: false,
+                rootEnabled = prefs[SharedPrefsKeys.ROOT_SILENT_INSTALL] ?: true,
+                shizukuReady = { TvShizuku.status(context) == TvShizuku.Status.Ready },
+                rootReady = { RootShell.isAvailable() },
+            )
+            val useShizuku = backend == TvInstallBackend.Shizuku
+            val useRoot = backend == TvInstallBackend.Root
             val startTime = System.currentTimeMillis()
             val ext = uri.lastPathSegment?.substringAfterLast('.', "") ?: "apk"
-            val installMode = if (useRoot) TelemetryEvents.MODE_ROOT else TelemetryEvents.MODE_SESSION_INSTALLER
+            val installMode = when {
+                useShizuku -> TelemetryEvents.MODE_SHIZUKU
+                useRoot -> TelemetryEvents.MODE_ROOT
+                else -> TelemetryEvents.MODE_SESSION_INSTALLER
+            }
             AnalyticsHelper.logInstallStarted(
                 fileType = ext,
                 installMode = installMode,
@@ -169,7 +180,9 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
                 fileSizeBytes = sizeBytes
             )
             val result = withContext(Dispatchers.IO) {
-                if (useRoot) {
+                if (useShizuku) {
+                    shizukuInstaller.install(uri, isBundle) { _installProgress.value = it }
+                } else if (useRoot) {
                     rootInstaller.install(uri, isBundle) { f -> _installProgress.value = f }
                 } else {
                     installer.install(uri, isBundle, totalBytes = sizeBytes) { written, total ->
@@ -192,7 +205,7 @@ class ReceiveViewModel(application: Application) : AndroidViewModel(application)
             _installResult.value = when (result) {
                 is ApkInstaller.Result.Success -> {
                     _pendingApk.value = null // received APK is installed — clear the hero so the QR returns
-                    InstallOutcome.Success(label, silent = useRoot)
+                    InstallOutcome.Success(label, silent = useRoot || useShizuku)
                 }
                 is ApkInstaller.Result.Failure -> InstallOutcome.Failure(label, result.message)
             }

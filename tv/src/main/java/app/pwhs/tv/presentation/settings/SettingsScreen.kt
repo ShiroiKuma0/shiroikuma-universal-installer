@@ -239,6 +239,8 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             }
         }
 
+        item { ShizukuSetting() }
+
         // ── Device Info ──────────────────────────────────────────────────────
         item { SectionHeader(stringResource(R.string.tv_settings_section_device), Icons.Default.Devices) }
         item {
@@ -394,7 +396,7 @@ private fun ThemeOptionCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun SettingsCard(onClick: () -> Unit, content: @Composable () -> Unit) {
+internal fun SettingsCard(onClick: () -> Unit, content: @Composable () -> Unit) {
     val shape = RoundedCornerShape(20.dp)
     Surface(
         onClick = onClick,
@@ -416,7 +418,7 @@ private fun SettingsCard(onClick: () -> Unit, content: @Composable () -> Unit) {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun TitleValue(title: String, value: String) {
+internal fun TitleValue(title: String, value: String) {
     Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
     Spacer(Modifier.height(4.dp))
     Text(

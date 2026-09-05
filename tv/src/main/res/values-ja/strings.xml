@@ -90,4 +90,13 @@
     <string name="tv_receive_step_web">🌐 iPhone / PC: QRコードをスキャンまたは上記リンクを開く</string>
     <string name="tv_receive_btn_disconnect">切断</string>
     <string name="tv_receive_step3">インストールの準備完了</string>
+    <string name="tv_shizuku_missing">Shizuku がインストールされていません</string>
+    <string name="tv_shizuku_stopped">Shizuku はインストールされていますが実行されていません</string>
+    <string name="tv_shizuku_unsupported">Shizuku のバージョンが古すぎます（v11 未満）</string>
+    <string name="tv_shizuku_permission">タップして Shizuku に権限を付与</string>
+    <string name="tv_shizuku_ready">プロンプトなしのサイレントインストール</string>
+    <string name="tv_shizuku_denied">Shizuku の権限が拒否されました</string>
+    <string name="tv_shizuku_on">オン — サイレントインストールに Shizuku を優先</string>
+    <string name="tv_shizuku_off">オフ — 選択して Shizuku を有効にする</string>
+    <string name="tv_shizuku_error">権限を要求できませんでした。Shizuku を開いて再試行してください。</string>
 </resources>

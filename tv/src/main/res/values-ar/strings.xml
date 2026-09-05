@@ -90,4 +90,13 @@
     <string name="tv_receive_step_web">🌐 iPhone / الكمبيوتر: امسح رمز الاستجابة السريعة أو افتح الرابط أعلاه</string>
     <string name="tv_receive_btn_disconnect">قطع الاتصال</string>
     <string name="tv_receive_step3">جاهز للتثبيت</string>
+    <string name="tv_shizuku_missing">Shizuku غير مثبت</string>
+    <string name="tv_shizuku_stopped">Shizuku مثبت ولكنه لا يعمل</string>
+    <string name="tv_shizuku_unsupported">إصدار Shizuku قديم جدًا (قبل v11)</string>
+    <string name="tv_shizuku_permission">اضغط لمنح إذن Shizuku</string>
+    <string name="tv_shizuku_ready">تثبيت صامت بدون مطالبات</string>
+    <string name="tv_shizuku_denied">تم رفض إذن Shizuku</string>
+    <string name="tv_shizuku_on">مفعّل — تفضيل Shizuku للتثبيت الصامت</string>
+    <string name="tv_shizuku_off">معطّل — اختر لتفعيل Shizuku</string>
+    <string name="tv_shizuku_error">تعذر طلب الإذن. افتح Shizuku وحاول مرة أخرى.</string>
 </resources>

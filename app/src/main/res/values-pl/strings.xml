@@ -645,7 +645,6 @@
     <string name="install_ui_screen_title">Ekran instalacji</string>
     <string name="install_ui_entry_subtitle">Jak jesteś pytany i gdzie pojawia się karta instalacji</string>
     <string name="install_ui_card_group">Karta instalacji</string>
-    <string name="install_ui_main_screen_group">Ekran główny</string>
     <string name="install_ui_auto_confirm_sub">Rozpocznij instalację od razu po pojawieniu się karty, bez czekania na dotknięcie przycisku Zainstaluj</string>
     <string name="setting_external_open_title">Gdy inna aplikacja otwiera plik APK</string>
     <string name="setting_external_open_dialog">Pytaj na ekranie</string>
@@ -670,8 +669,6 @@
     <string name="setting_group_installing">Instalowanie</string>
     <string name="setting_group_after_install">Po instalacji</string>
     <string name="setting_use_dhizuku_title">Użyj zamiast tego Dhizuku</string>
-    <string name="setting_use_dhizuku_subtitle">Instaluje po cichu przez Dhizuku, bez ADB ani roota. Ma pierwszeństwo przed trybem powyżej.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">Instalacjami zajmuje się Dhizuku — wyłącz je poniżej, aby użyć jednego z tych trybów</string>
     <string name="setting_dhizuku_unsupported">Dhizuku wymaga Androida 8.0 lub nowszego</string>
     <string name="setting_dhizuku_not_installed">Dhizuku nie jest zainstalowane na tym urządzeniu</string>
     <string name="setting_dhizuku_not_running">Dhizuku jest zainstalowane, ale nieaktywne — otwórz je i upewnij się, że jest ustawione jako właściciel urządzenia</string>
@@ -831,7 +828,6 @@
     <string name="setting_auto_approve_title">Automatyczne zatwierdzanie dla wybranych aplikacji</string>
     <string name="setting_auto_approve_subtitle">Żądania instalacji z wybranych aplikacji są realizowane automatycznie przez Shizuku lub Root bez pytania o potwierdzenie</string>
     <string name="setting_auto_approve_apps_title">Zatwierdzone aplikacje</string>
-    <string name="setting_auto_approve_apps_subtitle">Wybierz aplikacje, które mogą instalować pliki APK w tle</string>
     <string name="setting_auto_approve_count">%1$d zatwierdzonych</string>
     <string name="setting_auto_approve_none">Żadna nie została wybrana</string>
     <string name="setting_auto_approve_empty">Nie znaleziono aplikacji</string>
@@ -868,7 +864,6 @@
     <string name="installer_mode_custom">Własny</string>
     <string name="installer_engine_custom_desc">Instaluj przez niestandardowe polecenie autoryzatora</string>
     <string name="dialog_menu_trackers">Trackery i analityka</string>
-    <string name="dialog_menu_trackers_desc">Sprawdź wbudowane pakiety SDK do śledzenia i analityki</string>
     <string name="dialog_menu_no_trackers_found">Nie wykryto żadnych znanych trackerów</string>
     <string name="dialog_chip_trackers">%1$d trackerów</string>
     <string name="dialog_chip_trackers_scanning">Skanowanie trackerów…</string>
@@ -876,4 +871,30 @@
     <string name="installer_mode_microg_desc">Zainstaluj przez microG Companion (FakeStore)</string>
     <string name="microg_not_installed">microG Companion (com.android.vending) nie jest zainstalowany</string>
     <string name="setting_microg_not_available">microG Companion nie jest dostępny na tym urządzeniu</string>
+    <string name="setting_section_backup">Kopia zapasowa i przywracanie</string>
+    <string name="setting_backup_export_title">Utwórz kopię zapasową</string>
+    <string name="setting_backup_export_subtitle">Eksportuj ustawienia, tokeny, śledzone aplikacje i dzienniki</string>
+    <string name="setting_backup_restore_title">Przywróć kopię zapasową</string>
+    <string name="setting_backup_restore_subtitle">Przywróć dane z pliku kopii zapasowej lub eksportu Obtainium</string>
+    <string name="backup_export_sheet_title">Eksportuj kopię zapasową</string>
+    <string name="backup_export_sheet_subtitle">Wybierz elementy, które chcesz dołączyć do pliku kopii zapasowej.</string>
+    <string name="backup_include_settings">Ustawienia aplikacji i profile</string>
+    <string name="backup_include_settings_sub">Motywy, opcje instalacji, profile, czarna lista</string>
+    <string name="backup_include_tokens">Tokeny API źródeł</string>
+    <string name="backup_include_tokens_sub">Tokeny PAT GitHub, GitLab, Codeberg</string>
+    <string name="backup_include_tracked_apps">Śledzone aplikacje</string>
+    <string name="backup_include_tracked_apps_sub">Wszystkie aplikacje śledzone pod kątem aktualizacji</string>
+    <string name="backup_include_uninstall_logs">Dzienniki odinstalowań</string>
+    <string name="backup_include_uninstall_logs_sub">Historia odinstalowanych pakietów</string>
+    <string name="backup_encrypt_title">Szyfruj hasłem</string>
+    <string name="backup_encrypt_sub">Chroń poufne tokeny i ustawienia za pomocą AES-256-GCM</string>
+    <string name="backup_password_label">Hasło</string>
+    <string name="backup_confirm_password_label">Potwierdź hasło</string>
+    <string name="backup_export_action">Eksportuj kopię zapasową</string>
+    <string name="backup_restore_sheet_title">Przywróć kopię zapasową</string>
+    <string name="backup_restore_enter_password">Ta kopia zapasowa jest zaszyfrowana. Wprowadź hasło, aby odblokować:</string>
+    <string name="backup_restore_unlock">Odblokuj</string>
+    <string name="backup_restore_summary_title">Znaleziono zawartość kopii zapasowej</string>
+    <string name="backup_restore_items_to_restore">Wybierz elementy do przywrócenia:</string>
+    <string name="backup_restore_action">Przywróć teraz</string>
 </resources>

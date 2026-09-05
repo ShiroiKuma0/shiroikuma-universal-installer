@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">Ecranul de instalare</string>
     <string name="install_ui_entry_subtitle">Cum ești întrebat și unde apare cardul de instalare</string>
     <string name="install_ui_card_group">Cardul de instalare</string>
-    <string name="install_ui_main_screen_group">Ecranul principal</string>
     <string name="install_ui_auto_confirm_sub">Începe instalarea imediat ce apare cardul, fără să aștepte să atingi Instalează</string>
     <string name="setting_external_open_title">Când altă aplicație deschide un APK</string>
     <string name="setting_external_open_dialog">Întreabă pe ecran</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">Instalare</string>
     <string name="setting_group_after_install">După instalare</string>
     <string name="setting_use_dhizuku_title">Folosește Dhizuku în schimb</string>
-    <string name="setting_use_dhizuku_subtitle">Instalează silențios prin Dhizuku, fără ADB sau Root. Are prioritate față de modul de mai sus.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">Dhizuku se ocupă de instalări — dezactivează-l mai jos pentru a folosi unul dintre aceste moduri</string>
     <string name="setting_dhizuku_unsupported">Dhizuku are nevoie de Android 8.0 sau mai nou</string>
     <string name="setting_dhizuku_not_installed">Dhizuku nu este instalat pe acest dispozitiv</string>
     <string name="setting_dhizuku_not_running">Dhizuku este instalat, dar nu este activ — deschide-l și asigură-te că este setat ca proprietar al dispozitivului</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">Aprobare automată din aplicațiile selectate</string>
     <string name="setting_auto_approve_subtitle">Solicitările de instalare din aplicațiile alese continuă automat prin Shizuku sau Root fără confirmare</string>
     <string name="setting_auto_approve_apps_title">Aplicații aprobate</string>
-    <string name="setting_auto_approve_apps_subtitle">Selectați aplicațiile permise să instaleze APK-uri în fundal</string>
     <string name="setting_auto_approve_count">%1$d aprobate</string>
     <string name="setting_auto_approve_none">Niciuna selectată</string>
     <string name="setting_auto_approve_empty">Nu s-au găsit aplicații</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">Personalizat</string>
     <string name="installer_engine_custom_desc">Instalați prin comandă de autorizare personalizată</string>
     <string name="dialog_menu_trackers">Urmăritori și analize</string>
-    <string name="dialog_menu_trackers_desc">Inspectați pachetele SDK integrate de urmărire și analiză</string>
     <string name="dialog_menu_no_trackers_found">Nu s-au detectat urmăritori cunoscuți</string>
     <string name="dialog_chip_trackers">%1$d urmăritori</string>
     <string name="dialog_chip_trackers_scanning">Se scanează urmăritorii…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">Instalare prin microG Companion (FakeStore)</string>
     <string name="microg_not_installed">microG Companion (com.android.vending) nu este instalat</string>
     <string name="setting_microg_not_available">microG Companion nu este disponibil pe acest dispozitiv</string>
+    <string name="setting_section_backup">Backup și restaurare</string>
+    <string name="setting_backup_export_title">Creați o copie de rezervă</string>
+    <string name="setting_backup_export_subtitle">Exportați setările, jetoanele, aplicațiile urmărite și jurnalele</string>
+    <string name="setting_backup_restore_title">Restaurare backup</string>
+    <string name="setting_backup_restore_subtitle">Restaurați datele dintr-un fișier de rezervă sau un export Obtainium</string>
+    <string name="backup_export_sheet_title">Exportați backup-ul</string>
+    <string name="backup_export_sheet_subtitle">Selectați elementele pe care doriți să le includeți în fișierul de rezervă.</string>
+    <string name="backup_include_settings">Setări aplicație și profiluri</string>
+    <string name="backup_include_settings_sub">Teme, opțiuni de instalare, profiluri, listă neagră</string>
+    <string name="backup_include_tokens">Jetoane API sursă</string>
+    <string name="backup_include_tokens_sub">Jetoane PAT pentru GitHub, GitLab, Codeberg</string>
+    <string name="backup_include_tracked_apps">Aplicații urmărite</string>
+    <string name="backup_include_tracked_apps_sub">Toate aplicațiile urmărite în prezent pentru actualizări</string>
+    <string name="backup_include_uninstall_logs">Jurnale de dezinstalare</string>
+    <string name="backup_include_uninstall_logs_sub">Istoricul pachetelor dezinstalate</string>
+    <string name="backup_encrypt_title">Criptați cu parolă</string>
+    <string name="backup_encrypt_sub">Protejați jetoanele și setările sensibile cu AES-256-GCM</string>
+    <string name="backup_password_label">Parolă</string>
+    <string name="backup_confirm_password_label">Confirmați parola</string>
+    <string name="backup_export_action">Exportați copia de rezervă</string>
+    <string name="backup_restore_sheet_title">Restaurare backup</string>
+    <string name="backup_restore_enter_password">Această copie de rezervă este criptată. Introduceți parola pentru a debloca:</string>
+    <string name="backup_restore_unlock">Deblocare</string>
+    <string name="backup_restore_summary_title">Conținut de rezervă găsit</string>
+    <string name="backup_restore_items_to_restore">Selectați elementele de restaurat:</string>
+    <string name="backup_restore_action">Restaurați acum</string>
 </resources>

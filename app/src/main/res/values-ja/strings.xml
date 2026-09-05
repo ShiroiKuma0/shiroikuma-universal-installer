@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">インストール画面</string>
     <string name="install_ui_entry_subtitle">確認の方法と、インストールカードが表示される位置</string>
     <string name="install_ui_card_group">インストールカード</string>
-    <string name="install_ui_main_screen_group">メイン画面</string>
     <string name="install_ui_auto_confirm_sub">カードが表示されたらすぐにインストールを開始し、インストールのタップを待ちません</string>
     <string name="setting_external_open_title">他のアプリが APK を開いたとき</string>
     <string name="setting_external_open_dialog">画面で確認する</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">インストール</string>
     <string name="setting_group_after_install">インストール後</string>
     <string name="setting_use_dhizuku_title">代わりに Dhizuku を使う</string>
-    <string name="setting_use_dhizuku_subtitle">ADB も Root も使わず、Dhizuku 経由でサイレントインストールします。上のモードより優先されます。</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">インストールは Dhizuku が担当しています — 下でオフにすると、これらのいずれかを使えます</string>
     <string name="setting_dhizuku_unsupported">Dhizuku には Android 8.0 以降が必要です</string>
     <string name="setting_dhizuku_not_installed">この端末に Dhizuku はインストールされていません</string>
     <string name="setting_dhizuku_not_running">Dhizuku はインストール済みですが動作していません — アプリを開き、デバイスオーナーに設定されているか確認してください</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">選択したアプリからの自動承認</string>
     <string name="setting_auto_approve_subtitle">選択したアプリからのインストール要求は、確認画面なしで Shizuku または Root 経由で自動的に実行されます</string>
     <string name="setting_auto_approve_apps_title">承認されたアプリ</string>
-    <string name="setting_auto_approve_apps_subtitle">APK のサイレントインストールを許可するアプリを選択します</string>
     <string name="setting_auto_approve_count">%1$d 個承認済み</string>
     <string name="setting_auto_approve_none">未選択</string>
     <string name="setting_auto_approve_empty">アプリが見つかりません</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">カスタム</string>
     <string name="installer_engine_custom_desc">カスタム認証コマンド経由でインストール</string>
     <string name="dialog_menu_trackers">トラッカーと分析</string>
-    <string name="dialog_menu_trackers_desc">組み込みのトラッキングおよび分析SDKを調査</string>
     <string name="dialog_menu_no_trackers_found">既知のトラッカーは検出されませんでした</string>
     <string name="dialog_chip_trackers">%1$d個のトラッカー</string>
     <string name="dialog_chip_trackers_scanning">トラッカーをスキャン中…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">microG Companion (FakeStore) 経由でインストール</string>
     <string name="microg_not_installed">microG Companion (com.android.vending) がインストールされていません</string>
     <string name="setting_microg_not_available">このデバイスでは microG Companion を利用できません</string>
+    <string name="setting_section_backup">バックアップと復元</string>
+    <string name="setting_backup_export_title">バックアップを作成</string>
+    <string name="setting_backup_export_subtitle">設定、トークン、追跡中のアプリ、ログをエクスポート</string>
+    <string name="setting_backup_restore_title">バックアップを復元</string>
+    <string name="setting_backup_restore_subtitle">バックアップファイルまたは Obtainium エクスポートからデータを復元</string>
+    <string name="backup_export_sheet_title">バックアップをエクスポート</string>
+    <string name="backup_export_sheet_subtitle">バックアップファイルに含める項目を選択してください。</string>
+    <string name="backup_include_settings">アプリ設定とプロファイル</string>
+    <string name="backup_include_settings_sub">テーマ、インストール設定、プロファイル、ブラックリスト</string>
+    <string name="backup_include_tokens">ソース API トークン</string>
+    <string name="backup_include_tokens_sub">GitHub、GitLab、Codeberg の PAT トークン</string>
+    <string name="backup_include_tracked_apps">追跡中のアプリ</string>
+    <string name="backup_include_tracked_apps_sub">アップデートを確認中のすべてのアプリ</string>
+    <string name="backup_include_uninstall_logs">アンインストールログ</string>
+    <string name="backup_include_uninstall_logs_sub">アンインストールされたパッケージの履歴</string>
+    <string name="backup_encrypt_title">パスワードで暗号化</string>
+    <string name="backup_encrypt_sub">機密トークンと設定を AES-256-GCM で保護</string>
+    <string name="backup_password_label">パスワード</string>
+    <string name="backup_confirm_password_label">パスワードの確認</string>
+    <string name="backup_export_action">バックアップをエクスポート</string>
+    <string name="backup_restore_sheet_title">バックアップを復元</string>
+    <string name="backup_restore_enter_password">このバックアップは暗号化されています。ロックを解除するパスワードを入力してください:</string>
+    <string name="backup_restore_unlock">ロック解除</string>
+    <string name="backup_restore_summary_title">見つかったバックアップ内容</string>
+    <string name="backup_restore_items_to_restore">復元する項目を選択してください:</string>
+    <string name="backup_restore_action">今すぐ復元</string>
 </resources>

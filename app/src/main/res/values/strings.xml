@@ -100,7 +100,6 @@
     <string name="install_ui_screen_title">Install screen</string>
     <string name="install_ui_entry_subtitle">How you are asked, and where the install card appears</string>
     <string name="install_ui_card_group">The install card</string>
-    <string name="install_ui_main_screen_group">Main screen</string>
     <string name="install_ui_auto_confirm_sub">Start installing as soon as the card appears, without waiting for you to tap Install</string>
     <string name="setting_external_open_title">When another app opens an APK</string>
     <string name="setting_external_open_dialog">Ask on screen</string>
@@ -374,8 +373,6 @@
     <string name="setting_install_mode_shizuku">Shizuku</string>
     <string name="setting_install_mode_dhizuku" translatable="false">Dhizuku</string>
     <string name="setting_use_dhizuku_title">Use Dhizuku instead</string>
-    <string name="setting_use_dhizuku_subtitle">Install silently through Dhizuku, without ADB or root. Overrides the mode above.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">Dhizuku is handling installs — turn it off below to use one of these instead</string>
     <string name="setting_dhizuku_unsupported">Dhizuku needs Android 8.0 or newer</string>
     <string name="setting_dhizuku_not_installed">Dhizuku is not installed on this device</string>
     <string name="setting_dhizuku_not_running">Dhizuku is installed but not active — open it and make sure it is set as device owner</string>
@@ -571,7 +568,6 @@
     <string name="setting_auto_approve_title">Auto-approve from selected apps</string>
     <string name="setting_auto_approve_subtitle">Install requests from chosen apps proceed automatically via Shizuku or Root without confirmation prompts</string>
     <string name="setting_auto_approve_apps_title">Approved applications</string>
-    <string name="setting_auto_approve_apps_subtitle">Select applications allowed to install APKs silently</string>
     <string name="setting_auto_approve_count">%1$d approved</string>
     <string name="setting_auto_approve_none">None selected</string>
     <string name="setting_auto_approve_empty">No applications found</string>
@@ -632,7 +628,6 @@
     <string name="dialog_menu_virustotal">VirusTotal Scan</string>
     <string name="dialog_menu_virustotal_desc">Scan for malware before install</string>
     <string name="dialog_menu_trackers">Trackers &amp; Analytics</string>
-    <string name="dialog_menu_trackers_desc">Inspect embedded tracking and analytics SDKs</string>
     <string name="dialog_menu_no_trackers_found">No known trackers detected</string>
     <string name="dialog_chip_trackers">%1$d Trackers</string>
     <string name="dialog_chip_trackers_scanning">Scanning trackers…</string>
@@ -750,7 +745,6 @@
     <string name="install_profile_none">None (Use global settings)</string>
     <string name="profile_mapping_header">Auto-apply for this app</string>
     <string name="profile_mapping_desc">Always use this profile when installing this package.</string>
-    <!-- TV Sync Feature -->
     <string name="tv_sync_screen_title">Send to TV</string>
     <string name="tv_sync_hero_title">Send Apps to Android TV</string>
     <string name="tv_sync_hero_subtitle">Easily transfer and install APK packages onto your TV over local Wi-Fi.</string>
@@ -782,7 +776,6 @@
     <string name="tv_sync_sent_title">Transfer Complete!</string>
     <string name="tv_sync_sent_desc">The app was sent to your TV. Please look at your TV screen and click Install to finish.</string>
     <string name="tv_sync_btn_send_another">Send Another App</string>
-
     <string name="sync_storage_permission_title">Storage Permission Required</string>
     <string name="sync_storage_permission_message">Sync Server needs full storage access to share and manage APK files. Please grant \&quot;All files access\&quot; in Settings.</string>
     <string name="sync_open_settings">Open Settings</string>
@@ -862,8 +855,6 @@
     <string name="apk_info_vt_invalid_key">VirusTotal rejected this API key. Open Settings → Advanced → VirusTotal API Key and check it was pasted in full.</string>
     <string name="apk_info_vt_rate_limited">VirusTotal rate limit reached — the free tier allows 4 requests per minute. Try again shortly.</string>
     <string name="apk_info_vt_rate_limited_retry">VirusTotal rate limit reached — the free tier allows 4 requests per minute. Try again in %1$s seconds.</string>
-
-    <!-- Android Auto Compatibility & Source Info -->
     <string name="aa_compatibility_title">Android Auto Compatibility</string>
     <string name="aa_compatibility_ok">Compatible with Android Auto</string>
     <string name="aa_compatibility_ok_desc">Installed by Google Play Store. This app meets Android Auto visibility requirements.</string>
@@ -872,8 +863,6 @@
     <string name="aa_open_settings">Android Auto settings</string>
     <string name="aa_open_settings_sub">Enable unknown sources in developer options</string>
     <string name="dialog_menu_install_source_aa_hint">Use Google Play Store (%1$s) to ensure apps work on Android Auto.</string>
-
-    <!-- History Detail Strings -->
     <string name="history_detail_status_success">Installed Successfully</string>
     <string name="history_detail_status_failed">Installation Failed</string>
     <string name="history_detail_op_new">New Install</string>
@@ -890,8 +879,6 @@
     <string name="insufficient_storage_dialog_title">Insufficient Storage Space</string>
     <string name="insufficient_storage_dialog_message">Your device does not have enough free internal storage to install this package. Required space: %1$s, Available: %2$s. Please free up space and try again.</string>
     <string name="insufficient_storage_dialog_clean_up">Free Up Space</string>
-
-    <!-- Wear OS Send Strings -->
     <string name="watch_send_unsupported_title">Can\'t send this package</string>
     <string name="watch_send_unsupported_splits">This is a set of separate split APKs. Send a single APK, or the original .apks/.xapk bundle instead.</string>
     <string name="watch_send_channel_name">Sending to watch</string>
@@ -915,8 +902,6 @@
     <string name="watch_sheet_pick_file">Choose another file…</string>
     <string name="watch_sheet_send">Send</string>
     <string name="watch_chip_wear_os">Wear OS</string>
-
-    <!-- Full Backup and Restore -->
     <string name="setting_section_backup">Backup &amp; Restore</string>
     <string name="setting_backup_export_title">Create Backup</string>
     <string name="setting_backup_export_subtitle">Export settings, tokens, tracked apps, and logs</string>
@@ -943,6 +928,4 @@
     <string name="backup_restore_summary_title">Backup Content Found</string>
     <string name="backup_restore_items_to_restore">Select items to restore:</string>
     <string name="backup_restore_action">Restore Now</string>
-    <string name="backup_restored_success">Backup restored successfully!</string>
 </resources>
-

@@ -63,4 +63,7 @@
     <string name="updates_menu_import">استيراد التطبيقات (JSON)</string>
     <string name="updates_menu_export">تصدير التطبيقات (JSON)</string>
     <string name="updates_import_success">تم استيراد %1$d تطبيق</string>
+    <string name="onboarding_restore_title">استعادة بياناتك</string>
+    <string name="onboarding_restore_desc">هل تنتقل من جهاز آخر أو من Obtainium؟ يمكنك استعادة إعداداتك والتطبيقات المتتبعة ورموز API المميزة الآن.</string>
+    <string name="onboarding_restore_action">استعادة من النسخة الاحتياطية</string>
 </resources>

@@ -63,4 +63,7 @@
     <string name="updates_menu_import">Импорт приложений (JSON)</string>
     <string name="updates_menu_export">Экспорт приложений (JSON)</string>
     <string name="updates_import_success">Импортировано %1$d прил.</string>
+    <string name="onboarding_restore_title">Восстановление данных</string>
+    <string name="onboarding_restore_desc">Переходите с другого устройства или Obtainium? Вы можете восстановить настройки, отслеживаемые приложения и токены API прямо сейчас.</string>
+    <string name="onboarding_restore_action">Восстановить из резервной копии</string>
 </resources>

@@ -63,4 +63,7 @@
     <string name="updates_menu_import">Apps importieren (JSON)</string>
     <string name="updates_menu_export">Apps exportieren (JSON)</string>
     <string name="updates_import_success">%1$d App(s) importiert</string>
+    <string name="onboarding_restore_title">Daten wiederherstellen</string>
+    <string name="onboarding_restore_desc">Wechseln Sie von einem anderen Gerät oder von Obtainium? Sie können Ihre Einstellungen, verfolgten Apps und API-Token jetzt wiederherstellen.</string>
+    <string name="onboarding_restore_action">Aus Sicherung wiederherstellen</string>
 </resources>

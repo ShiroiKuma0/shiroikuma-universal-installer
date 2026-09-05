@@ -147,7 +147,6 @@
   <string name="setting_auto_approve_title">Tự động phê duyệt từ ứng dụng đã chọn</string>
   <string name="setting_auto_approve_subtitle">Tự động cài đặt yêu cầu từ các ứng dụng được chọn qua Shizuku hoặc Root mà không cần hỏi</string>
   <string name="setting_auto_approve_apps_title">Ứng dụng được phê duyệt</string>
-  <string name="setting_auto_approve_apps_subtitle">Chọn các ứng dụng được phép cài đặt APK tự động</string>
   <string name="setting_auto_approve_count">%1$d ứng dụng đã chọn</string>
   <string name="setting_auto_approve_none">Chưa chọn ứng dụng nào</string>
   <string name="setting_auto_approve_empty">Không tìm thấy ứng dụng</string>
@@ -449,7 +448,6 @@
   <string name="dialog_menu_virustotal">Quét VirusTotal</string>
   <string name="dialog_menu_virustotal_desc">Quét phần mềm độc hại trước khi cài</string>
   <string name="dialog_menu_trackers">Bộ theo dõi &amp; Phân tích</string>
-  <string name="dialog_menu_trackers_desc">Kiểm tra các SDK theo dõi và phân tích tích hợp</string>
   <string name="dialog_menu_no_trackers_found">Không phát hiện bộ theo dõi nào</string>
   <string name="dialog_chip_trackers">%1$d Tracker</string>
   <string name="dialog_chip_trackers_scanning">Đang quét tracker…</string>
@@ -612,8 +610,6 @@
   <string name="setting_install_mode_default">Mặc định</string>
   <string name="setting_install_mode_shizuku">Shizuku</string>
   <string name="setting_use_dhizuku_title">Dùng Dhizuku thay thế</string>
-  <string name="setting_use_dhizuku_subtitle">Cài im lặng qua Dhizuku, không cần ADB hay root. Sẽ ghi đè chế độ ở trên.</string>
-  <string name="setting_install_mode_overridden_by_dhizuku">Dhizuku đang đảm nhiệm việc cài — tắt công tắc bên dưới để quay lại các chế độ trên</string>
   <string name="setting_dhizuku_unsupported">Dhizuku cần Android 8.0 trở lên</string>
   <string name="setting_dhizuku_not_installed">Thiết bị chưa cài Dhizuku</string>
   <string name="setting_dhizuku_not_running">Đã cài Dhizuku nhưng chưa hoạt động — hãy mở nó và đảm bảo đã đặt làm device owner</string>
@@ -830,7 +826,6 @@
     <string name="install_ui_screen_title">Màn hình cài đặt</string>
     <string name="install_ui_entry_subtitle">Cách bạn được hỏi, và nơi thẻ cài đặt xuất hiện</string>
     <string name="install_ui_card_group">Thẻ cài đặt</string>
-    <string name="install_ui_main_screen_group">Màn hình chính</string>
     <string name="install_ui_auto_confirm_sub">Bắt đầu cài ngay khi thẻ xuất hiện, không chờ bạn nhấn Cài đặt</string>
     <string name="setting_external_open_title">Khi ứng dụng khác mở một tệp APK</string>
     <string name="setting_external_open_dialog">Hỏi trên màn hình</string>
@@ -905,4 +900,30 @@
     <string name="backup_output_path_default">Mặc định (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Bộ nhớ trong</string>
     <string name="backup_output_path_selected_folder">Thư mục đã chọn</string>
+    <string name="setting_section_backup">Sao lưu &amp; Khôi phục</string>
+    <string name="setting_backup_export_title">Tạo bản sao lưu</string>
+    <string name="setting_backup_export_subtitle">Xuất cài đặt, token, ứng dụng theo dõi và nhật ký</string>
+    <string name="setting_backup_restore_title">Khôi phục bản sao lưu</string>
+    <string name="setting_backup_restore_subtitle">Khôi phục dữ liệu từ tệp sao lưu hoặc tệp xuất của Obtainium</string>
+    <string name="backup_export_sheet_title">Xuất bản sao lưu</string>
+    <string name="backup_export_sheet_subtitle">Chọn các mục bạn muốn đưa vào tệp sao lưu.</string>
+    <string name="backup_include_settings">Cài đặt ứng dụng &amp; Hồ sơ</string>
+    <string name="backup_include_settings_sub">Giao diện, tùy chọn cài đặt, hồ sơ, danh sách chặn</string>
+    <string name="backup_include_tokens">Token API nguồn tải</string>
+    <string name="backup_include_tokens_sub">Token truy cập cá nhân (PAT) cho GitHub, GitLab, Codeberg</string>
+    <string name="backup_include_tracked_apps">Ứng dụng đang theo dõi</string>
+    <string name="backup_include_tracked_apps_sub">Tất cả các ứng dụng đang được theo dõi cập nhật</string>
+    <string name="backup_include_uninstall_logs">Nhật ký gỡ cài đặt</string>
+    <string name="backup_include_uninstall_logs_sub">Lịch sử các gói đã gỡ cài đặt</string>
+    <string name="backup_encrypt_title">Mã hóa bằng mật khẩu</string>
+    <string name="backup_encrypt_sub">Bảo vệ token và cài đặt nhạy cảm bằng mã hóa AES-256-GCM</string>
+    <string name="backup_password_label">Mật khẩu</string>
+    <string name="backup_confirm_password_label">Xác nhận mật khẩu</string>
+    <string name="backup_export_action">Xuất bản sao lưu</string>
+    <string name="backup_restore_sheet_title">Khôi phục bản sao lưu</string>
+    <string name="backup_restore_enter_password">Bản sao lưu này đã được mã hóa. Nhập mật khẩu để mở khóa:</string>
+    <string name="backup_restore_unlock">Mở khóa</string>
+    <string name="backup_restore_summary_title">Dữ liệu tìm thấy trong bản sao lưu</string>
+    <string name="backup_restore_items_to_restore">Chọn các mục cần khôi phục:</string>
+    <string name="backup_restore_action">Khôi phục ngay</string>
 </resources>

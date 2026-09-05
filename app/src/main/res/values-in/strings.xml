@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">Layar pemasangan</string>
     <string name="install_ui_entry_subtitle">Cara kamu ditanya, dan di mana kartu pemasangan muncul</string>
     <string name="install_ui_card_group">Kartu pemasangan</string>
-    <string name="install_ui_main_screen_group">Layar utama</string>
     <string name="install_ui_auto_confirm_sub">Mulai memasang begitu kartu muncul, tanpa menunggu kamu mengetuk Instal</string>
     <string name="setting_external_open_title">Saat aplikasi lain membuka APK</string>
     <string name="setting_external_open_dialog">Tanya di layar</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">Pemasangan</string>
     <string name="setting_group_after_install">Setelah pemasangan</string>
     <string name="setting_use_dhizuku_title">Gunakan Dhizuku sebagai gantinya</string>
-    <string name="setting_use_dhizuku_subtitle">Memasang secara senyap melalui Dhizuku, tanpa ADB atau Root. Menggantikan mode di atas.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">Pemasangan ditangani Dhizuku — matikan di bawah untuk memakai salah satu mode ini</string>
     <string name="setting_dhizuku_unsupported">Dhizuku memerlukan Android 8.0 atau lebih baru</string>
     <string name="setting_dhizuku_not_installed">Dhizuku tidak terpasang di perangkat ini</string>
     <string name="setting_dhizuku_not_running">Dhizuku terpasang tetapi tidak aktif — buka aplikasinya dan pastikan sudah disetel sebagai pemilik perangkat</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">Setujui otomatis dari aplikasi yang dipilih</string>
     <string name="setting_auto_approve_subtitle">Permintaan penginstalan dari aplikasi yang dipilih akan diproses otomatis melalui Shizuku atau Root tanpa dialog konfirmasi</string>
     <string name="setting_auto_approve_apps_title">Aplikasi yang disetujui</string>
-    <string name="setting_auto_approve_apps_subtitle">Pilih aplikasi yang diizinkan untuk menginstal APK secara senyap</string>
     <string name="setting_auto_approve_count">%1$d disetujui</string>
     <string name="setting_auto_approve_none">Belum ada yang dipilih</string>
     <string name="setting_auto_approve_empty">Aplikasi tidak ditemukan</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">Kustom</string>
     <string name="installer_engine_custom_desc">Instal melalui perintah pengesah kustom</string>
     <string name="dialog_menu_trackers">Pelacak &amp; Analitik</string>
-    <string name="dialog_menu_trackers_desc">Periksa SDK pelacakan dan analitik yang disematkan</string>
     <string name="dialog_menu_no_trackers_found">Tidak ada pelacak yang terdeteksi</string>
     <string name="dialog_chip_trackers">%1$d Pelacak</string>
     <string name="dialog_chip_trackers_scanning">Memindai pelacak…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">Pasang melalui microG Companion (FakeStore)</string>
     <string name="microg_not_installed">microG Companion (com.android.vending) belum terpasang</string>
     <string name="setting_microg_not_available">microG Companion tidak tersedia di perangkat ini</string>
+    <string name="setting_section_backup">Cadangkan &amp; Pulihkan</string>
+    <string name="setting_backup_export_title">Buat Cadangan</string>
+    <string name="setting_backup_export_subtitle">Ekspor setelan, token, aplikasi yang dilacak, dan log</string>
+    <string name="setting_backup_restore_title">Pulihkan Cadangan</string>
+    <string name="setting_backup_restore_subtitle">Pulihkan data dari file cadangan atau ekspor Obtainium</string>
+    <string name="backup_export_sheet_title">Ekspor Cadangan</string>
+    <string name="backup_export_sheet_subtitle">Pilih item yang ingin Anda sertakan dalam file cadangan.</string>
+    <string name="backup_include_settings">Setelan &amp; Profil Aplikasi</string>
+    <string name="backup_include_settings_sub">Tema, opsi penginstalan, profil, daftar hitam</string>
+    <string name="backup_include_tokens">Token API Sumber</string>
+    <string name="backup_include_tokens_sub">Token PAT GitHub, GitLab, Codeberg</string>
+    <string name="backup_include_tracked_apps">Aplikasi yang Dilacak</string>
+    <string name="backup_include_tracked_apps_sub">Semua aplikasi yang saat ini dilacak pembaruannya</string>
+    <string name="backup_include_uninstall_logs">Log Pencopotan Pemasangan</string>
+    <string name="backup_include_uninstall_logs_sub">Riwayat paket yang dicopot pemasangannya</string>
+    <string name="backup_encrypt_title">Enkripsi dengan kata sandi</string>
+    <string name="backup_encrypt_sub">Lindungi token dan setelan sensitif dengan AES-256-GCM</string>
+    <string name="backup_password_label">Kata Sandi</string>
+    <string name="backup_confirm_password_label">Konfirmasi Kata Sandi</string>
+    <string name="backup_export_action">Ekspor Cadangan</string>
+    <string name="backup_restore_sheet_title">Pulihkan Cadangan</string>
+    <string name="backup_restore_enter_password">Cadangan ini dienkripsi. Masukkan kata sandi untuk membuka kunci:</string>
+    <string name="backup_restore_unlock">Buka Kunci</string>
+    <string name="backup_restore_summary_title">Konten Cadangan Ditemukan</string>
+    <string name="backup_restore_items_to_restore">Pilih item yang akan dipulihkan:</string>
+    <string name="backup_restore_action">Pulihkan Sekarang</string>
 </resources>

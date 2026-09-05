@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">Экран установки</string>
     <string name="install_ui_entry_subtitle">Как у вас спрашивают и где появляется карточка установки</string>
     <string name="install_ui_card_group">Карточка установки</string>
-    <string name="install_ui_main_screen_group">Главный экран</string>
     <string name="install_ui_auto_confirm_sub">Начинать установку сразу после появления карточки, не дожидаясь нажатия кнопки «Установить»</string>
     <string name="setting_external_open_title">Когда другое приложение открывает APK</string>
     <string name="setting_external_open_dialog">Спрашивать на экране</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">Установка</string>
     <string name="setting_group_after_install">После установки</string>
     <string name="setting_use_dhizuku_title">Использовать Dhizuku вместо этого</string>
-    <string name="setting_use_dhizuku_subtitle">Тихая установка через Dhizuku, без ADB и root. Переопределяет режим выше.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">Установками занимается Dhizuku — отключите его ниже, чтобы использовать один из этих режимов</string>
     <string name="setting_dhizuku_unsupported">Для Dhizuku нужен Android 8.0 или новее</string>
     <string name="setting_dhizuku_not_installed">Dhizuku не установлен на этом устройстве</string>
     <string name="setting_dhizuku_not_running">Dhizuku установлен, но не активен — откройте его и убедитесь, что он назначен владельцем устройства</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">Автоподтверждение от выбранных приложений</string>
     <string name="setting_auto_approve_subtitle">Запросы на установку от выбранных приложений выполняются автоматически через Shizuku или Root без запроса подтверждения</string>
     <string name="setting_auto_approve_apps_title">Одобренные приложения</string>
-    <string name="setting_auto_approve_apps_subtitle">Выберите приложения, которым разрешено устанавливать APK в фоновом режиме</string>
     <string name="setting_auto_approve_count">%1$d одобрено</string>
     <string name="setting_auto_approve_none">Не выбрано</string>
     <string name="setting_auto_approve_empty">Приложения не найдены</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">Пользовательский</string>
     <string name="installer_engine_custom_desc">Установка через пользовательскую команду авторизатора</string>
     <string name="dialog_menu_trackers">Трекеры и аналитика</string>
-    <string name="dialog_menu_trackers_desc">Проверить встроенные SDK отслеживания и аналитики</string>
     <string name="dialog_menu_no_trackers_found">Известных трекеров не обнаружено</string>
     <string name="dialog_chip_trackers">%1$d трекеров</string>
     <string name="dialog_chip_trackers_scanning">Сканирование трекеров…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">Установка через microG Companion (FakeStore)</string>
     <string name="microg_not_installed">microG Companion (com.android.vending) не установлен</string>
     <string name="setting_microg_not_available">microG Companion недоступен на этом устройстве</string>
+    <string name="setting_section_backup">Резервное копирование и восстановление</string>
+    <string name="setting_backup_export_title">Создать резервную копию</string>
+    <string name="setting_backup_export_subtitle">Экспорт настроек, токенов, отслеживаемых приложений и журналов</string>
+    <string name="setting_backup_restore_title">Восстановить резервную копию</string>
+    <string name="setting_backup_restore_subtitle">Восстановление данных из файла резервной копии или экспорта Obtainium</string>
+    <string name="backup_export_sheet_title">Экспорт резервной копии</string>
+    <string name="backup_export_sheet_subtitle">Выберите элементы, которые хотите включить в файл резервной копии.</string>
+    <string name="backup_include_settings">Настройки приложения и профили</string>
+    <string name="backup_include_settings_sub">Темы, параметры установки, профили, черный список</string>
+    <string name="backup_include_tokens">Токены API источников</string>
+    <string name="backup_include_tokens_sub">PAT-токены GitHub, GitLab, Codeberg</string>
+    <string name="backup_include_tracked_apps">Отслеживаемые приложения</string>
+    <string name="backup_include_tracked_apps_sub">Все приложения, отслеживаемые для обновлений</string>
+    <string name="backup_include_uninstall_logs">Журналы удаления</string>
+    <string name="backup_include_uninstall_logs_sub">История удаленных пакетов</string>
+    <string name="backup_encrypt_title">Зашифровать паролем</string>
+    <string name="backup_encrypt_sub">Защита конфиденциальных токенов и настроек с помощью AES-256-GCM</string>
+    <string name="backup_password_label">Пароль</string>
+    <string name="backup_confirm_password_label">Подтверждение пароля</string>
+    <string name="backup_export_action">Экспорт резервной копии</string>
+    <string name="backup_restore_sheet_title">Восстановить резервную копию</string>
+    <string name="backup_restore_enter_password">Эта резервная копия зашифрована. Введите пароль для разблокировки:</string>
+    <string name="backup_restore_unlock">Разблокировать</string>
+    <string name="backup_restore_summary_title">Найдено содержимое резервной копии</string>
+    <string name="backup_restore_items_to_restore">Выберите элементы для восстановления:</string>
+    <string name="backup_restore_action">Восстановить сейчас</string>
 </resources>

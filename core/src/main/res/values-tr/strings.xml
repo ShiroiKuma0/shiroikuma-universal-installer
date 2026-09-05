@@ -63,4 +63,7 @@
     <string name="updates_menu_import">Uygulamaları İçe Aktar (JSON)</string>
     <string name="updates_menu_export">Uygulamaları Dışa Aktar (JSON)</string>
     <string name="updates_import_success">%1$d uygulama içe aktarıldı</string>
+    <string name="onboarding_restore_title">Verilerinizi geri yükleyin</string>
+    <string name="onboarding_restore_desc">Başka bir cihazdan veya Obtainium\'dan mı geçiyorsunuz? Ayarlarınızı, takip edilen uygulamaları ve API belirteçlerini hemen şimdi geri yükleyebilirsiniz.</string>
+    <string name="onboarding_restore_action">Yedekten geri yükle</string>
 </resources>

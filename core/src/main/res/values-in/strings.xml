@@ -63,4 +63,7 @@
     <string name="updates_menu_import">Impor Aplikasi (JSON)</string>
     <string name="updates_menu_export">Ekspor Aplikasi (JSON)</string>
     <string name="updates_import_success">Berhasil mengimpor %1$d aplikasi</string>
+    <string name="onboarding_restore_title">Pulihkan data Anda</string>
+    <string name="onboarding_restore_desc">Beralih dari perangkat lain atau Obtainium? Anda dapat memulihkan setelan, aplikasi yang dilacak, dan token API sekarang juga.</string>
+    <string name="onboarding_restore_action">Pulihkan dari Cadangan</string>
 </resources>

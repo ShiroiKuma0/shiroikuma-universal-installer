@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">Yükleme ekranı</string>
     <string name="install_ui_entry_subtitle">Size nasıl sorulduğu ve yükleme kartının nerede göründüğü</string>
     <string name="install_ui_card_group">Yükleme kartı</string>
-    <string name="install_ui_main_screen_group">Ana ekran</string>
     <string name="install_ui_auto_confirm_sub">Kart görünür görünmez yüklemeye başla, Yükle düğmesine dokunmanı bekleme</string>
     <string name="setting_external_open_title">Başka bir uygulama bir APK açtığında</string>
     <string name="setting_external_open_dialog">Ekranda sor</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">Yükleme</string>
     <string name="setting_group_after_install">Yükledikten sonra</string>
     <string name="setting_use_dhizuku_title">Bunun yerine Dhizuku kullan</string>
-    <string name="setting_use_dhizuku_subtitle">ADB veya Root olmadan, Dhizuku üzerinden sessizce yükler. Yukarıdaki modu geçersiz kılar.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">Yüklemeleri Dhizuku yürütüyor — bunlardan birini kullanmak için aşağıdan kapatın</string>
     <string name="setting_dhizuku_unsupported">Dhizuku için Android 8.0 veya üzeri gerekir</string>
     <string name="setting_dhizuku_not_installed">Dhizuku bu cihazda yüklü değil</string>
     <string name="setting_dhizuku_not_running">Dhizuku yüklü ama etkin değil — açın ve cihaz sahibi olarak ayarlandığından emin olun</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">Seçilen uygulamalardan otomatik onaylama</string>
     <string name="setting_auto_approve_subtitle">Seçilen uygulamalardan gelen yükleme istekleri, onay istemi olmadan Shizuku veya Root aracılığıyla otomatik olarak gerçekleşir</string>
     <string name="setting_auto_approve_apps_title">Onaylanan uygulamalar</string>
-    <string name="setting_auto_approve_apps_subtitle">APK\'ları sessizce yüklemesine izin verilen uygulamaları seçin</string>
     <string name="setting_auto_approve_count">%1$d onaylandı</string>
     <string name="setting_auto_approve_none">Hiçbiri seçilmedi</string>
     <string name="setting_auto_approve_empty">Uygulama bulunamadı</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">Özel</string>
     <string name="installer_engine_custom_desc">Özel yetkilendirici komutuyla yükleyin</string>
     <string name="dialog_menu_trackers">İzleyiciler ve Analizler</string>
-    <string name="dialog_menu_trackers_desc">Gömülü izleme ve analiz SDK\'larını inceleyin</string>
     <string name="dialog_menu_no_trackers_found">Bilinen izleyici tespit edilmedi</string>
     <string name="dialog_chip_trackers">%1$d İzleyici</string>
     <string name="dialog_chip_trackers_scanning">İzleyiciler taranıyor…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">microG Companion (FakeStore) ile yükle</string>
     <string name="microg_not_installed">microG Companion (com.android.vending) yüklü değil</string>
     <string name="setting_microg_not_available">microG Companion bu cihazda kullanılamıyor</string>
+    <string name="setting_section_backup">Yedekleme ve Geri Yükleme</string>
+    <string name="setting_backup_export_title">Yedek Oluştur</string>
+    <string name="setting_backup_export_subtitle">Ayarları, belirteçleri, takip edilen uygulamaları ve günlükleri dışa aktarın</string>
+    <string name="setting_backup_restore_title">Yedeği Geri Yükle</string>
+    <string name="setting_backup_restore_subtitle">Bir yedekleme dosyasından veya Obtainium dışa aktarımından verileri geri yükleyin</string>
+    <string name="backup_export_sheet_title">Yedeği Dışa Aktar</string>
+    <string name="backup_export_sheet_subtitle">Yedekleme dosyasına dahil etmek istediğiniz öğeleri seçin.</string>
+    <string name="backup_include_settings">Uygulama Ayarları ve Profiller</string>
+    <string name="backup_include_settings_sub">Temalar, yükleme seçenekleri, profiller, kara liste</string>
+    <string name="backup_include_tokens">Kaynak API Belirteçleri</string>
+    <string name="backup_include_tokens_sub">GitHub, GitLab, Codeberg PAT belirteçleri</string>
+    <string name="backup_include_tracked_apps">Takip Edilen Uygulamalar</string>
+    <string name="backup_include_tracked_apps_sub">Şu anda güncellemeler için takip edilen tüm uygulamalar</string>
+    <string name="backup_include_uninstall_logs">Kaldırma Günlükleri</string>
+    <string name="backup_include_uninstall_logs_sub">Kaldırılan paketlerin geçmişi</string>
+    <string name="backup_encrypt_title">Parola ile şifrele</string>
+    <string name="backup_encrypt_sub">Hassas belirteçleri ve ayarları AES-256-GCM ile koruyun</string>
+    <string name="backup_password_label">Parola</string>
+    <string name="backup_confirm_password_label">Parolayı Onayla</string>
+    <string name="backup_export_action">Yedeği Dışa Aktar</string>
+    <string name="backup_restore_sheet_title">Yedeği Geri Yükle</string>
+    <string name="backup_restore_enter_password">Bu yedekleme şifrelenmiştir. Kilidi açmak için parolayı girin:</string>
+    <string name="backup_restore_unlock">Kilidi Aç</string>
+    <string name="backup_restore_summary_title">Yedekleme İçeriği Bulundu</string>
+    <string name="backup_restore_items_to_restore">Geri yüklenecek öğeleri seçin:</string>
+    <string name="backup_restore_action">Şimdi Geri Yükle</string>
 </resources>

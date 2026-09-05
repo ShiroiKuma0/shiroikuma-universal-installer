@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">설치 화면</string>
     <string name="install_ui_entry_subtitle">어떻게 묻는지, 그리고 설치 카드가 어디에 나타나는지</string>
     <string name="install_ui_card_group">설치 카드</string>
-    <string name="install_ui_main_screen_group">메인 화면</string>
     <string name="install_ui_auto_confirm_sub">설치를 탭할 때까지 기다리지 않고, 카드가 나타나자마자 설치를 시작합니다</string>
     <string name="setting_external_open_title">다른 앱이 APK를 열 때</string>
     <string name="setting_external_open_dialog">화면에서 묻기</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">설치</string>
     <string name="setting_group_after_install">설치 후</string>
     <string name="setting_use_dhizuku_title">대신 Dhizuku 사용</string>
-    <string name="setting_use_dhizuku_subtitle">ADB나 Root 없이 Dhizuku를 통해 조용히 설치합니다. 위의 모드보다 우선합니다.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">설치는 Dhizuku가 처리하고 있습니다 — 아래에서 끄면 이 중 하나를 사용할 수 있습니다</string>
     <string name="setting_dhizuku_unsupported">Dhizuku에는 Android 8.0 이상이 필요합니다</string>
     <string name="setting_dhizuku_not_installed">이 기기에 Dhizuku가 설치되어 있지 않습니다</string>
     <string name="setting_dhizuku_not_running">Dhizuku가 설치되어 있지만 활성화되지 않았습니다 — 앱을 열어 기기 소유자로 설정되어 있는지 확인하세요</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">선택한 앱에서 자동 승인</string>
     <string name="setting_auto_approve_subtitle">선택한 앱의 설치 요청은 확인 메시지 없이 Shizuku 또는 Root를 통해 자동으로 진행됩니다</string>
     <string name="setting_auto_approve_apps_title">승인된 애플리케이션</string>
-    <string name="setting_auto_approve_apps_subtitle">APK를 백그라운드에서 자동 설치할 수 있는 애플리케이션 선택</string>
     <string name="setting_auto_approve_count">%1$d개 승인됨</string>
     <string name="setting_auto_approve_none">선택 안 됨</string>
     <string name="setting_auto_approve_empty">애플리케이션을 찾을 수 없음</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">사용자 지정</string>
     <string name="installer_engine_custom_desc">사용자 지정 인증 명령을 통해 설치</string>
     <string name="dialog_menu_trackers">추적기 및 분석</string>
-    <string name="dialog_menu_trackers_desc">임베디드 추적 및 분석 SDK 검사</string>
     <string name="dialog_menu_no_trackers_found">알려진 추적기가 감지되지 않았습니다</string>
     <string name="dialog_chip_trackers">추적기 %1$d개</string>
     <string name="dialog_chip_trackers_scanning">추적기 검사 중…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">microG Companion (FakeStore)을 통해 설치</string>
     <string name="microg_not_installed">microG Companion (com.android.vending)이 설치되지 않았습니다</string>
     <string name="setting_microg_not_available">이 기기에서는 microG Companion을 사용할 수 없습니다</string>
+    <string name="setting_section_backup">백업 및 복원</string>
+    <string name="setting_backup_export_title">백업 생성</string>
+    <string name="setting_backup_export_subtitle">설정, 토큰, 추적 중인 앱 및 로그 내보내기</string>
+    <string name="setting_backup_restore_title">백업 복원</string>
+    <string name="setting_backup_restore_subtitle">백업 파일 또는 Obtainium 내보내기에서 데이터 복원</string>
+    <string name="backup_export_sheet_title">백업 내보내기</string>
+    <string name="backup_export_sheet_subtitle">백업 파일에 포함할 항목을 선택하세요.</string>
+    <string name="backup_include_settings">앱 설정 및 프로필</string>
+    <string name="backup_include_settings_sub">테마, 설치 옵션, 프로필, 차단 목록</string>
+    <string name="backup_include_tokens">소스 API 토큰</string>
+    <string name="backup_include_tokens_sub">GitHub, GitLab, Codeberg PAT 토큰</string>
+    <string name="backup_include_tracked_apps">추적 중인 애플리케이션</string>
+    <string name="backup_include_tracked_apps_sub">현재 업데이트를 추적 중인 모든 앱</string>
+    <string name="backup_include_uninstall_logs">설치 제거 로그</string>
+    <string name="backup_include_uninstall_logs_sub">설치 제거된 패키지 기록</string>
+    <string name="backup_encrypt_title">비밀번호로 암호화</string>
+    <string name="backup_encrypt_sub">AES-256-GCM으로 중요한 토큰 및 설정 보호</string>
+    <string name="backup_password_label">비밀번호</string>
+    <string name="backup_confirm_password_label">비밀번호 확인</string>
+    <string name="backup_export_action">백업 내보내기</string>
+    <string name="backup_restore_sheet_title">백업 복원</string>
+    <string name="backup_restore_enter_password">이 백업은 암호화되어 있습니다. 잠금을 해제하려면 비밀번호를 입력하세요:</string>
+    <string name="backup_restore_unlock">잠금 해제</string>
+    <string name="backup_restore_summary_title">발견된 백업 내용</string>
+    <string name="backup_restore_items_to_restore">복원할 항목 선택:</string>
+    <string name="backup_restore_action">지금 복원</string>
 </resources>

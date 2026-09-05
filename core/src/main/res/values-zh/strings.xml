@@ -63,4 +63,7 @@
     <string name="updates_menu_import">导入应用 (JSON)</string>
     <string name="updates_menu_export">导出应用 (JSON)</string>
     <string name="updates_import_success">已导入 %1$d 个应用</string>
+    <string name="onboarding_restore_title">恢复您的数据</string>
+    <string name="onboarding_restore_desc">从其他设备或 Obtainium 换机过来？您可以立即恢复您的设置、跟踪的应用以及 API 令牌。</string>
+    <string name="onboarding_restore_action">从备份恢复</string>
 </resources>

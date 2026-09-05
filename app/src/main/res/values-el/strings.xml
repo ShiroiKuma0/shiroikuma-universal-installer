@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">Οθόνη εγκατάστασης</string>
     <string name="install_ui_entry_subtitle">Πώς σας γίνεται η ερώτηση και πού εμφανίζεται η κάρτα εγκατάστασης</string>
     <string name="install_ui_card_group">Η κάρτα εγκατάστασης</string>
-    <string name="install_ui_main_screen_group">Κύρια οθόνη</string>
     <string name="install_ui_auto_confirm_sub">Έναρξη εγκατάστασης μόλις εμφανιστεί η κάρτα, χωρίς να περιμένει να πατήσετε Εγκατάσταση</string>
     <string name="setting_external_open_title">Όταν μια άλλη εφαρμογή ανοίγει ένα APK</string>
     <string name="setting_external_open_dialog">Ερώτηση στην οθόνη</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">Εγκατάσταση</string>
     <string name="setting_group_after_install">Μετά την εγκατάσταση</string>
     <string name="setting_use_dhizuku_title">Χρήση του Dhizuku αντ\' αυτού</string>
-    <string name="setting_use_dhizuku_subtitle">Σιωπηλή εγκατάσταση μέσω Dhizuku, χωρίς ADB ή Root. Υπερισχύει της λειτουργίας παραπάνω.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">Τις εγκαταστάσεις τις αναλαμβάνει το Dhizuku — απενεργοποιήστε το παρακάτω για να χρησιμοποιήσετε κάποια από αυτές</string>
     <string name="setting_dhizuku_unsupported">Το Dhizuku απαιτεί Android 8.0 ή νεότερο</string>
     <string name="setting_dhizuku_not_installed">Το Dhizuku δεν είναι εγκατεστημένο σε αυτήν τη συσκευή</string>
     <string name="setting_dhizuku_not_running">Το Dhizuku είναι εγκατεστημένο αλλά ανενεργό — ανοίξτε το και βεβαιωθείτε ότι έχει οριστεί ως κάτοχος της συσκευής</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">Αυτόματη έγκριση από επιλεγμένες εφαρμογές</string>
     <string name="setting_auto_approve_subtitle">Τα αιτήματα εγκατάστασης από επιλεγμένες εφαρμογές προχωρούν αυτόματα μέσω Shizuku ή Root χωρίς επιβεβαίωση</string>
     <string name="setting_auto_approve_apps_title">Εγκεκριμένες εφαρμογές</string>
-    <string name="setting_auto_approve_apps_subtitle">Επιλέξτε εφαρμογές που επιτρέπεται να εγκαθιστούν APK αθόρυβα</string>
     <string name="setting_auto_approve_count">%1$d εγκεκριμένα</string>
     <string name="setting_auto_approve_none">Κανένα επιλεγμένο</string>
     <string name="setting_auto_approve_empty">Δεν βρέθηκαν εφαρμογές</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">Προσαρμοσμένο</string>
     <string name="installer_engine_custom_desc">Εγκατάσταση μέσω προσαρμοσμένης εντολής εξουσιοδότησης</string>
     <string name="dialog_menu_trackers">Ιχνηλάτες &amp; Αναλυτικά στοιχεία</string>
-    <string name="dialog_menu_trackers_desc">Έλεγχος ενσωματωμένων SDK παρακολούθησης και ανάλυσης</string>
     <string name="dialog_menu_no_trackers_found">Δεν εντοπίστηκαν γνωστοί ιχνηλάτες</string>
     <string name="dialog_chip_trackers">%1$d ιχνηλάτες</string>
     <string name="dialog_chip_trackers_scanning">Σάρωση για ιχνηλάτες…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">Εγκατάσταση μέσω microG Companion (FakeStore)</string>
     <string name="microg_not_installed">Το microG Companion (com.android.vending) δεν είναι εγκατεστημένο</string>
     <string name="setting_microg_not_available">Το microG Companion δεν είναι διαθέσιμο σε αυτήν τη συσκευή</string>
+    <string name="setting_section_backup">Αντίγραφα ασφαλείας &amp; Επαναφορά</string>
+    <string name="setting_backup_export_title">Δημιουργία αντιγράφου ασφαλείας</string>
+    <string name="setting_backup_export_subtitle">Εξαγωγή ρυθμίσεων, διακριτικών, παρακολουθούμενων εφαρμογών και καταγραφών</string>
+    <string name="setting_backup_restore_title">Επαναφορά αντιγράφου ασφαλείας</string>
+    <string name="setting_backup_restore_subtitle">Επαναφορά δεδομένων από αρχείο αντιγράφου ασφαλείας ή εξαγωγή Obtainium</string>
+    <string name="backup_export_sheet_title">Εξαγωγή αντιγράφου ασφαλείας</string>
+    <string name="backup_export_sheet_subtitle">Επιλέξτε τα στοιχεία που θέλετε να συμπεριλάβετε στο αρχείο αντιγράφου ασφαλείας.</string>
+    <string name="backup_include_settings">Ρυθμίσεις εφαρμογής &amp; Προφίλ</string>
+    <string name="backup_include_settings_sub">Θέματα, επιλογές εγκατάστασης, προφίλ, μαύρη λίστα</string>
+    <string name="backup_include_tokens">Διακριτικά API πηγής</string>
+    <string name="backup_include_tokens_sub">Διακριτικά PAT των GitHub, GitLab, Codeberg</string>
+    <string name="backup_include_tracked_apps">Παρακολουθούμενες εφαρμογές</string>
+    <string name="backup_include_tracked_apps_sub">Όλες οι εφαρμογές που παρακολουθούνται για ενημερώσεις</string>
+    <string name="backup_include_uninstall_logs">Καταγραφές απεγκατάστασης</string>
+    <string name="backup_include_uninstall_logs_sub">Ιστορικό απεγκατεστημένων πακέτων</string>
+    <string name="backup_encrypt_title">Κρυπτογράφηση με κωδικό πρόσβασης</string>
+    <string name="backup_encrypt_sub">Προστασία ευαίσθητων διακριτικών και ρυθμίσεων με AES-256-GCM</string>
+    <string name="backup_password_label">Κωδικός πρόσβασης</string>
+    <string name="backup_confirm_password_label">Επιβεβαίωση κωδικού πρόσβασης</string>
+    <string name="backup_export_action">Εξαγωγή αντιγράφου ασφαλείας</string>
+    <string name="backup_restore_sheet_title">Επαναφορά αντιγράφου ασφαλείας</string>
+    <string name="backup_restore_enter_password">Αυτό το αντίγραφο ασφαλείας είναι κρυπτογραφημένο. Εισαγάγετε κωδικό πρόσβασης:</string>
+    <string name="backup_restore_unlock">Ξεκλείδωμα</string>
+    <string name="backup_restore_summary_title">Βρέθηκε περιεχόμενο αντιγράφου ασφαλείας</string>
+    <string name="backup_restore_items_to_restore">Επιλέξτε στοιχεία προς επαναφορά:</string>
+    <string name="backup_restore_action">Επαναφορά τώρα</string>
 </resources>

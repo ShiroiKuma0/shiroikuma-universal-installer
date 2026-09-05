@@ -550,8 +550,6 @@
     <string name="setting_install_mode_default">默认</string>
     <string name="setting_install_mode_shizuku">Shizuku</string>
     <string name="setting_use_dhizuku_title">改用 Dhizuku</string>
-    <string name="setting_use_dhizuku_subtitle">通过 Dhizuku 静默安装，无需 ADB 或 Root。会覆盖上面的安装方式。</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">当前由 Dhizuku 负责安装 — 关闭下方开关即可改用上面的方式</string>
     <string name="setting_dhizuku_unsupported">Dhizuku 需要 Android 8.0 或更高版本</string>
     <string name="setting_dhizuku_not_installed">此设备未安装 Dhizuku</string>
     <string name="setting_dhizuku_not_running">已安装 Dhizuku 但未激活 — 请打开它并确认已设为设备所有者</string>
@@ -736,7 +734,6 @@
     <string name="install_ui_screen_title">安装界面</string>
     <string name="install_ui_entry_subtitle">询问你的方式，以及安装卡片出现的位置</string>
     <string name="install_ui_card_group">安装卡片</string>
-    <string name="install_ui_main_screen_group">主界面</string>
     <string name="install_ui_auto_confirm_sub">卡片一出现就开始安装，不等你点按“安装”</string>
     <string name="setting_external_open_title">当其他应用打开 APK 时</string>
     <string name="setting_external_open_dialog">在屏幕上询问</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">自动批准选定应用</string>
     <string name="setting_auto_approve_subtitle">来自选定应用的安装请求将通过 Shizuku 或 Root 自动执行，无需弹窗确认</string>
     <string name="setting_auto_approve_apps_title">已批准的应用</string>
-    <string name="setting_auto_approve_apps_subtitle">选择允许静默安装 APK 的应用</string>
     <string name="setting_auto_approve_count">已批准 %1$d 个</string>
     <string name="setting_auto_approve_none">未选择</string>
     <string name="setting_auto_approve_empty">未找到应用</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">自定义</string>
     <string name="installer_engine_custom_desc">通过自定义授权命令安装</string>
     <string name="dialog_menu_trackers">追踪器与分析</string>
-    <string name="dialog_menu_trackers_desc">检查内置的追踪和分析 SDK</string>
     <string name="dialog_menu_no_trackers_found">未检测到已知的追踪器</string>
     <string name="dialog_chip_trackers">%1$d 个追踪器</string>
     <string name="dialog_chip_trackers_scanning">正在扫描追踪器…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">通过 microG Companion (FakeStore) 安装</string>
     <string name="microg_not_installed">未安装 microG Companion (com.android.vending)</string>
     <string name="setting_microg_not_available">此设备不支持 microG Companion</string>
+    <string name="setting_section_backup">备份与恢复</string>
+    <string name="setting_backup_export_title">创建备份</string>
+    <string name="setting_backup_export_subtitle">导出设置、令牌、跟踪的应用及日志</string>
+    <string name="setting_backup_restore_title">恢复备份</string>
+    <string name="setting_backup_restore_subtitle">从备份文件或 Obtainium 导出文件中恢复数据</string>
+    <string name="backup_export_sheet_title">导出备份</string>
+    <string name="backup_export_sheet_subtitle">选择要包含在备份文件中的项目。</string>
+    <string name="backup_include_settings">应用设置与配置文件</string>
+    <string name="backup_include_settings_sub">主题、安装选项、配置文件、黑名单</string>
+    <string name="backup_include_tokens">源 API 令牌</string>
+    <string name="backup_include_tokens_sub">GitHub、GitLab、Codeberg PAT 令牌</string>
+    <string name="backup_include_tracked_apps">跟踪的应用</string>
+    <string name="backup_include_tracked_apps_sub">当前跟踪更新的所有应用程序</string>
+    <string name="backup_include_uninstall_logs">卸载日志</string>
+    <string name="backup_include_uninstall_logs_sub">已卸载软件包的历史记录</string>
+    <string name="backup_encrypt_title">使用密码加密</string>
+    <string name="backup_encrypt_sub">使用 AES-256-GCM 保护敏感令牌和设置</string>
+    <string name="backup_password_label">密码</string>
+    <string name="backup_confirm_password_label">确认密码</string>
+    <string name="backup_export_action">导出备份</string>
+    <string name="backup_restore_sheet_title">恢复备份</string>
+    <string name="backup_restore_enter_password">此备份已加密。请输入密码以解锁：</string>
+    <string name="backup_restore_unlock">解锁</string>
+    <string name="backup_restore_summary_title">已发现备份内容</string>
+    <string name="backup_restore_items_to_restore">选择要恢复的项目：</string>
+    <string name="backup_restore_action">立即恢复</string>
 </resources>

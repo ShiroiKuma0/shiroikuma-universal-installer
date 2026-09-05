@@ -63,4 +63,7 @@
     <string name="updates_menu_import">앱 가져오기 (JSON)</string>
     <string name="updates_menu_export">앱 내보내기 (JSON)</string>
     <string name="updates_import_success">%1$d개의 앱을 가져왔습니다</string>
+    <string name="onboarding_restore_title">데이터 복원</string>
+    <string name="onboarding_restore_desc">다른 기기나 Obtainium에서 전환하시나요? 지금 설정, 추적 중인 앱, API 토큰을 복원할 수 있습니다.</string>
+    <string name="onboarding_restore_action">백업에서 복원</string>
 </resources>

@@ -669,7 +669,6 @@
     <string name="install_ui_screen_title">شاشة التثبيت</string>
     <string name="install_ui_entry_subtitle">طريقة سؤالك، ومكان ظهور بطاقة التثبيت</string>
     <string name="install_ui_card_group">بطاقة التثبيت</string>
-    <string name="install_ui_main_screen_group">الشاشة الرئيسية</string>
     <string name="install_ui_auto_confirm_sub">ابدأ التثبيت بمجرد ظهور البطاقة، دون انتظار ضغطك على تثبيت</string>
     <string name="setting_external_open_title">عندما يفتح تطبيق آخر ملف APK</string>
     <string name="setting_external_open_dialog">السؤال على الشاشة</string>
@@ -694,8 +693,6 @@
     <string name="setting_group_installing">التثبيت</string>
     <string name="setting_group_after_install">بعد التثبيت</string>
     <string name="setting_use_dhizuku_title">استخدام Dhizuku بدلًا من ذلك</string>
-    <string name="setting_use_dhizuku_subtitle">يثبّت بصمت عبر Dhizuku، بدون ADB أو Root. يتجاوز الوضع المحدد أعلاه.</string>
-    <string name="setting_install_mode_overridden_by_dhizuku">يتولى Dhizuku عمليات التثبيت — أوقفه بالأسفل لاستخدام أحد هذه الأوضاع بدلًا منه</string>
     <string name="setting_dhizuku_unsupported">يتطلب Dhizuku نظام Android 8.0 أو أحدث</string>
     <string name="setting_dhizuku_not_installed">Dhizuku غير مثبَّت على هذا الجهاز</string>
     <string name="setting_dhizuku_not_running">Dhizuku مثبَّت لكنه غير نشط — افتحه وتأكد من ضبطه كمالك للجهاز</string>
@@ -855,7 +852,6 @@
     <string name="setting_auto_approve_title">الموافقة التلقائية للتطبيقات المحددة</string>
     <string name="setting_auto_approve_subtitle">طلبات التثبيت من التطبيقات المحددة تتم تلقائيًا عبر Shizuku أو Root دون المطالبة بالتأكيد</string>
     <string name="setting_auto_approve_apps_title">التطبيقات المعتمدة</string>
-    <string name="setting_auto_approve_apps_subtitle">حدد التطبيقات المسموح لها بتثبيت ملفات APK بصمت</string>
     <string name="setting_auto_approve_count">%1$d معتمد</string>
     <string name="setting_auto_approve_none">لم يتم تحديد أي منها</string>
     <string name="setting_auto_approve_empty">لم يتم العثور على تطبيقات</string>
@@ -892,7 +888,6 @@
     <string name="installer_mode_custom">مخصص</string>
     <string name="installer_engine_custom_desc">التثبيت عبر أمر تفويض مخصص</string>
     <string name="dialog_menu_trackers">أدوات التتبع والتحليلات</string>
-    <string name="dialog_menu_trackers_desc">فحص حزم تطوير برامج التتبع والتحليلات المضمنة</string>
     <string name="dialog_menu_no_trackers_found">لم يتم اكتشاف أي أدوات تتبع معروفة</string>
     <string name="dialog_chip_trackers">%1$d أداة تتبع</string>
     <string name="dialog_chip_trackers_scanning">جارٍ فحص أدوات التتبع…</string>
@@ -900,4 +895,30 @@
     <string name="installer_mode_microg_desc">التثبيت عبر microG Companion (FakeStore)</string>
     <string name="microg_not_installed">حزمة microG Companion (com.android.vending) غير مثبتة</string>
     <string name="setting_microg_not_available">microG Companion غير متوفر على هذا الجهاز</string>
+    <string name="setting_section_backup">النسخ الاحتياطي والاستعادة</string>
+    <string name="setting_backup_export_title">إنشاء نسخة احتياطية</string>
+    <string name="setting_backup_export_subtitle">تصدير الإعدادات، والرموز المميزة، والتطبيقات المتتبعة، والسجلات</string>
+    <string name="setting_backup_restore_title">استعادة النسخة الاحتياطية</string>
+    <string name="setting_backup_restore_subtitle">استعادة البيانات من ملف نسخ احتياطي أو تصدير Obtainium</string>
+    <string name="backup_export_sheet_title">تصدير النسخة الاحتياطية</string>
+    <string name="backup_export_sheet_subtitle">حدد العناصر التي تريد تضمينها في ملف النسخ الاحتياطي.</string>
+    <string name="backup_include_settings">إعدادات التطبيق وملفات التعريف</string>
+    <string name="backup_include_settings_sub">السمات، خيارات التثبيت، ملفات التعريف، القائمة السوداء</string>
+    <string name="backup_include_tokens">رموز API للمصدر</string>
+    <string name="backup_include_tokens_sub">رموز PAT الخاصة بـ GitHub وGitLab وCodeberg</string>
+    <string name="backup_include_tracked_apps">التطبيقات المتتبعة</string>
+    <string name="backup_include_tracked_apps_sub">جميع التطبيقات التي يتم تتبعها حاليًا للحصول على تحديثات</string>
+    <string name="backup_include_uninstall_logs">سجلات إلغاء التثبيت</string>
+    <string name="backup_include_uninstall_logs_sub">سجل الحزم التي تم إلغاء تثبيتها</string>
+    <string name="backup_encrypt_title">تشفير بكلمة مرور</string>
+    <string name="backup_encrypt_sub">حماية الرموز والإعدادات الحساسة باستخدام AES-256-GCM</string>
+    <string name="backup_password_label">كلمة المرور</string>
+    <string name="backup_confirm_password_label">تأكيد كلمة المرور</string>
+    <string name="backup_export_action">تصدير النسخة الاحتياطية</string>
+    <string name="backup_restore_sheet_title">استعادة النسخة الاحتياطية</string>
+    <string name="backup_restore_enter_password">هذه النسخة الاحتياطية مشفرة. أدخل كلمة المرور لإلغاء القفل:</string>
+    <string name="backup_restore_unlock">إلغاء القفل</string>
+    <string name="backup_restore_summary_title">تم العثور على محتوى النسخة الاحتياطية</string>
+    <string name="backup_restore_items_to_restore">حدد العناصر المراد استعادتها:</string>
+    <string name="backup_restore_action">استعادة الآن</string>
 </resources>

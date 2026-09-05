@@ -63,4 +63,7 @@
     <string name="updates_menu_import">ऐप्स आयात करें (JSON)</string>
     <string name="updates_menu_export">ऐप्स निर्यात करें (JSON)</string>
     <string name="updates_import_success">%1$d ऐप आयात किए गए</string>
+    <string name="onboarding_restore_title">अपना डेटा पुनर्स्थापित करें</string>
+    <string name="onboarding_restore_desc">किसी अन्य डिवाइस या Obtainium से स्विच कर रहे हैं? आप अभी अपनी सेटिंग्स, ट्रैक किए गए ऐप और API टोकन पुनर्स्थापित कर सकते हैं।</string>
+    <string name="onboarding_restore_action">बैकअप से पुनर्स्थापित करें</string>
 </resources>

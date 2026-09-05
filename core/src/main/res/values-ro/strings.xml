@@ -63,4 +63,7 @@
     <string name="updates_menu_import">Importă aplicații (JSON)</string>
     <string name="updates_menu_export">Exportă aplicații (JSON)</string>
     <string name="updates_import_success">S-au importat %1$d aplicație(i)</string>
+    <string name="onboarding_restore_title">Restaurați-vă datele</string>
+    <string name="onboarding_restore_desc">Treceți de la un alt dispozitiv sau Obtainium? Vă puteți restaura setările, aplicațiile urmărite și jetoanele API chiar acum.</string>
+    <string name="onboarding_restore_action">Restaurare din backup</string>
 </resources>

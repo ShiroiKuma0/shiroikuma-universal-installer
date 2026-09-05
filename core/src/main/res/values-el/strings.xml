@@ -63,4 +63,7 @@
     <string name="updates_menu_import">Εισαγωγή εφαρμογών (JSON)</string>
     <string name="updates_menu_export">Εξαγωγή εφαρμογών (JSON)</string>
     <string name="updates_import_success">Εισήχθησαν %1$d εφαρμογές</string>
+    <string name="onboarding_restore_title">Επαναφορά των δεδομένων σας</string>
+    <string name="onboarding_restore_desc">Κάνετε μετάβαση από άλλη συσκευή ή από το Obtainium; Μπορείτε να επαναφέρετε τις ρυθμίσεις, τις παρακολουθούμενες εφαρμογές και τα διακριτικά API σας τώρα.</string>
+    <string name="onboarding_restore_action">Επαναφορά από αντίγραφο ασφαλείας</string>
 </resources>

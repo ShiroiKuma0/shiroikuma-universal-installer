@@ -56,7 +56,7 @@ val forkVersionName =
 val forkVersionCode = project.property("VERSION_CODE").toString().toInt() * 10000 + forkBuildNumber
 
 base {
-    archivesName = "shiroikuma-universal-installer_${forkVersionName}"
+    archivesName = "shiroikuma-universal-installer_${forkVersionName}_arm64-v8a"
 }
 
 android {
@@ -78,6 +78,16 @@ android {
         versionName = forkVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Fork: arm64 ONLY (白い熊, 2026-09-05). The one target is an arm64 phone, and the family
+        // names its artefacts `_arm64-v8a` — a suffix worth carrying only if it is true. Without
+        // this the APK ships all four ABIs and the name would merely decorate it, which is what
+        // shiroikuma-denwa does today. The native payload here is two AndroidX libraries
+        // (libandroidx.graphics.path, libdatastore_shared_counter), both with pure-Java fallbacks,
+        // so the only consequence is that this APK will not install on a 32-bit or x86 device.
+        ndk {
+            abiFilters += "arm64-v8a"
+        }
     }
 
     // Load signing config from key.properties (CI/CD)
@@ -200,7 +210,7 @@ tasks.register("buildFork") {
     description = "Build the release APK, copy it to ~/tmp, and bump BUILD_NUMBER for next time."
     dependsOn("assembleOpensourceRelease")
     doLast {
-        val apkName = "shiroikuma-universal-installer_${forkVersionName}.apk"
+        val apkName = "shiroikuma-universal-installer_${forkVersionName}_arm64-v8a.apk"
         val outputDir = layout.buildDirectory.dir("outputs/apk/opensource/release").get().asFile
         val targetDir = File(System.getProperty("user.home"), "tmp")
         targetDir.mkdirs()

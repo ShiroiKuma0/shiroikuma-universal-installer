@@ -891,4 +891,13 @@
     <string name="setting_custom_authorizer_reset_default">기본값으로 초기화</string>
     <string name="installer_mode_custom">사용자 지정</string>
     <string name="installer_engine_custom_desc">사용자 지정 인증 명령을 통해 설치</string>
+    <string name="dialog_menu_trackers">추적기 및 분석</string>
+    <string name="dialog_menu_trackers_desc">임베디드 추적 및 분석 SDK 검사</string>
+    <string name="dialog_menu_no_trackers_found">알려진 추적기가 감지되지 않았습니다</string>
+    <string name="dialog_chip_trackers">추적기 %1$d개</string>
+    <string name="dialog_chip_trackers_scanning">추적기 검사 중…</string>
+    <string name="installer_mode_microg">microG</string>
+    <string name="installer_mode_microg_desc">microG Companion (FakeStore)을 통해 설치</string>
+    <string name="microg_not_installed">microG Companion (com.android.vending)이 설치되지 않았습니다</string>
+    <string name="setting_microg_not_available">이 기기에서는 microG Companion을 사용할 수 없습니다</string>
 </resources>

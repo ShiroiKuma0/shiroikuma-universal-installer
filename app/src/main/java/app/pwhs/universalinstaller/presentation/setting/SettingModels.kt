@@ -84,7 +84,8 @@ enum class InstallMode {
     SHIZUKU,
     DHIZUKU,
     ROOT,
-    CUSTOM;
+    CUSTOM,
+    MICROG;
 
     companion object {
         fun from(
@@ -92,11 +93,13 @@ enum class InstallMode {
             useRoot: Boolean,
             useDhizuku: Boolean = false,
             useCustomAuthorizer: Boolean = false,
+            useMicroG: Boolean = false,
         ): InstallMode = when {
             useCustomAuthorizer -> CUSTOM
             useDhizuku -> DHIZUKU
             useRoot -> ROOT
             useShizuku -> SHIZUKU
+            useMicroG -> MICROG
             else -> DEFAULT
         }
     }
@@ -178,6 +181,7 @@ data class SettingUiState(
     val selectedLanguage: String = "",
     val useCustomAuthorizer: Boolean = false,
     val customAuthorizerCommand: String = "",
+    val useMicroG: Boolean = false,
     /**
      * True when the device has at least one biometric or device-credential enrolled.
      * Used to inform the user that the toggles will be no-ops until they

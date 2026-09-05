@@ -10,15 +10,18 @@ import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.domain.model.SplitType
 import app.pwhs.universalinstaller.domain.model.VtResult
 import app.pwhs.universalinstaller.domain.model.VtStatus
+import app.pwhs.universalinstaller.domain.scanner.DexTrackerScanner
 import app.pwhs.universalinstaller.presentation.install.PendingInstallStore
 import app.pwhs.universalinstaller.telemetry.Telemetry
 import app.pwhs.universalinstaller.telemetry.TelemetryEvents
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.solrudev.ackpine.splits.SplitPackage
 
 class InstallParseDelegate(
@@ -49,6 +52,7 @@ class InstallParseDelegate(
 
     private var scanJob: Job? = null
     private var parseJob: Job? = null
+    private var trackerScanJob: Job? = null
 
     fun parseApkInfo(
         context: Context,
@@ -97,6 +101,7 @@ class InstallParseDelegate(
                 onProfileMatched(result.matchingProfileId)
             }
             launchHashLookupOnly(context, uri)
+            launchTrackerScan(context, uri, result.splitUris)
         }
     }
 
@@ -112,6 +117,7 @@ class InstallParseDelegate(
     }
 
     fun dismissPendingInstall() {
+        trackerScanJob?.cancel()
         _pendingApkInfo.value = null
         pendingApkUris = null
         pendingFileName = null
@@ -152,6 +158,7 @@ class InstallParseDelegate(
     fun stopParsing() {
         _isLoading.value = false
         parseJob?.cancel()
+        trackerScanJob?.cancel()
     }
 
     fun scanVirusTotal(context: Context) {
@@ -184,6 +191,24 @@ class InstallParseDelegate(
                 sha256 = result.first,
                 vtResult = result.second,
             )
+        }
+    }
+
+    private fun launchTrackerScan(context: Context, uri: Uri, splitUris: List<Uri>?) {
+        trackerScanJob?.cancel()
+        trackerScanJob = scope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                updatePendingApkInfo { it.copy(isScanningTrackers = true) }
+            }
+            val targetUri = splitUris?.firstOrNull { it.path?.contains("base", ignoreCase = true) == true }
+                ?: splitUris?.firstOrNull()
+                ?: uri
+            val detected = DexTrackerScanner.scanApk(context, targetUri)
+            withContext(Dispatchers.Main) {
+                updatePendingApkInfo {
+                    it.copy(isScanningTrackers = false, trackers = detected)
+                }
+            }
         }
     }
 }

@@ -49,6 +49,10 @@ class SettingPrivilegeDelegate(
         .map { it[PreferencesKeys.USE_DHIZUKU] ?: false }
         .stateIn(scope, SharingStarted.Eagerly, false)
 
+    val useMicroG: StateFlow<Boolean> = dataStore.data
+        .map { it[PreferencesKeys.USE_MICROG] ?: false }
+        .stateIn(scope, SharingStarted.Eagerly, false)
+
     val useCustomAuthorizer: StateFlow<Boolean> = dataStore.data
         .map { it[PreferencesKeys.USE_CUSTOM_AUTHORIZER] ?: false }
         .stateIn(scope, SharingStarted.Eagerly, false)
@@ -88,6 +92,7 @@ class SettingPrivilegeDelegate(
                         prefs[PreferencesKeys.USE_ROOT] = false
                         prefs[PreferencesKeys.USE_DHIZUKU] = false
                         prefs[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                        prefs[PreferencesKeys.USE_MICROG] = false
                         prefs[PreferencesKeys.USE_SHIZUKU] = true
                     }
                 }
@@ -134,6 +139,7 @@ class SettingPrivilegeDelegate(
                     p[PreferencesKeys.USE_ROOT] = false
                     p[PreferencesKeys.USE_DHIZUKU] = false
                     p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                    p[PreferencesKeys.USE_MICROG] = false
                 }
             }
             InstallMode.SHIZUKU -> {
@@ -142,6 +148,7 @@ class SettingPrivilegeDelegate(
                         p[PreferencesKeys.USE_ROOT] = false
                         p[PreferencesKeys.USE_DHIZUKU] = false
                         p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                        p[PreferencesKeys.USE_MICROG] = false
                     }
                 }
                 setUseShizuku(true)
@@ -152,6 +159,7 @@ class SettingPrivilegeDelegate(
                         p[PreferencesKeys.USE_SHIZUKU] = false
                         p[PreferencesKeys.USE_ROOT] = false
                         p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                        p[PreferencesKeys.USE_MICROG] = false
                     }
                 }
                 setUseDhizuku(true)
@@ -164,6 +172,7 @@ class SettingPrivilegeDelegate(
                         p[PreferencesKeys.USE_SHIZUKU] = false
                         p[PreferencesKeys.USE_DHIZUKU] = false
                         p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                        p[PreferencesKeys.USE_MICROG] = false
                         p[PreferencesKeys.USE_ROOT] = true
                     }
                 }
@@ -173,7 +182,21 @@ class SettingPrivilegeDelegate(
                     p[PreferencesKeys.USE_SHIZUKU] = false
                     p[PreferencesKeys.USE_ROOT] = false
                     p[PreferencesKeys.USE_DHIZUKU] = false
+                    p[PreferencesKeys.USE_MICROG] = false
                     p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = true
+                }
+            }
+            InstallMode.MICROG -> scope.launch {
+                if (app.pwhs.universalinstaller.util.MicroGCompat.isAvailable(application)) {
+                    dataStore.edit { p ->
+                        p[PreferencesKeys.USE_SHIZUKU] = false
+                        p[PreferencesKeys.USE_ROOT] = false
+                        p[PreferencesKeys.USE_DHIZUKU] = false
+                        p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                        p[PreferencesKeys.USE_MICROG] = true
+                    }
+                } else {
+                    emitEvent(R.string.setting_microg_not_available)
                 }
             }
         }
@@ -192,6 +215,8 @@ class SettingPrivilegeDelegate(
                 dataStore.edit { prefs ->
                     prefs[PreferencesKeys.USE_ROOT] = false
                     prefs[PreferencesKeys.USE_DHIZUKU] = false
+                    prefs[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                    prefs[PreferencesKeys.USE_MICROG] = false
                     prefs[PreferencesKeys.USE_SHIZUKU] = true
                 }
             }
@@ -217,7 +242,13 @@ class SettingPrivilegeDelegate(
                 val state = backendFactory.requestRoot()
                 _rootState.value = state
                 if (state == RootState.READY) {
-                    dataStore.edit { prefs -> prefs[PreferencesKeys.USE_ROOT] = true }
+                    dataStore.edit { prefs ->
+                        prefs[PreferencesKeys.USE_SHIZUKU] = false
+                        prefs[PreferencesKeys.USE_DHIZUKU] = false
+                        prefs[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+                        prefs[PreferencesKeys.USE_MICROG] = false
+                        prefs[PreferencesKeys.USE_ROOT] = true
+                    }
                 }
             } else {
                 dataStore.edit { prefs -> prefs[PreferencesKeys.USE_ROOT] = false }
@@ -258,6 +289,7 @@ class SettingPrivilegeDelegate(
             p[PreferencesKeys.USE_SHIZUKU] = false
             p[PreferencesKeys.USE_ROOT] = false
             p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
+            p[PreferencesKeys.USE_MICROG] = false
             p[PreferencesKeys.USE_DHIZUKU] = true
         }
     }

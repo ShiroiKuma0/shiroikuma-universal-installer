@@ -54,8 +54,14 @@ internal fun LazyListScope.InstallSection(
             // Group headers only while unfiltered: a header whose items were all
             // searched away is a label over nothing. Same rule the divider below uses.
             if (q.isBlank()) OptionGroupHeader(stringResource(R.string.setting_group_installing))
-            SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku dhizuku root default custom") {
-                val currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot, useDhizuku, uiState.useCustomAuthorizer)
+            SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku dhizuku root default custom microg") {
+                val currentMode = InstallMode.from(
+                    useShizuku = uiState.useShizuku,
+                    useRoot = uiState.useRoot,
+                    useDhizuku = useDhizuku,
+                    useCustomAuthorizer = uiState.useCustomAuthorizer,
+                    useMicroG = uiState.useMicroG,
+                )
                 InstallModeSelector(
                     currentMode = currentMode,
                     shizukuState = uiState.shizukuState,
@@ -63,6 +69,7 @@ internal fun LazyListScope.InstallSection(
                     rootState = uiState.rootState,
                     dhizukuSupported = DhizukuCompat.isSupported,
                     dhizukuState = dhizukuState,
+                    microGSupported = app.pwhs.universalinstaller.util.MicroGCompat.isAvailable(context),
                     onModeChange = onInstallModeChanged,
                 )
                 if (currentMode == InstallMode.CUSTOM) {

@@ -220,6 +220,11 @@
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />
         <activity
+            android:name=".presentation.install.controller.MicroGInstallActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
             android:name=".presentation.setting.autoapprove.AutoApproveActivity"
             android:exported="false"
             android:theme="@style/Theme.UniversalInstaller" />

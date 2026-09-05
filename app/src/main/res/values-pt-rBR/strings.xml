@@ -891,4 +891,13 @@
     <string name="setting_custom_authorizer_reset_default">Restaurar padrão</string>
     <string name="installer_mode_custom">Personalizado</string>
     <string name="installer_engine_custom_desc">Instalar via comando autorizador personalizado</string>
+    <string name="dialog_menu_trackers">Rastreadores e Análises</string>
+    <string name="dialog_menu_trackers_desc">Inspecionar SDKs integrados de rastreamento e análise</string>
+    <string name="dialog_menu_no_trackers_found">Nenhum rastreador conhecido detectado</string>
+    <string name="dialog_chip_trackers">%1$d rastreadores</string>
+    <string name="dialog_chip_trackers_scanning">Verificando rastreadores…</string>
+    <string name="installer_mode_microg">microG</string>
+    <string name="installer_mode_microg_desc">Instalar via microG Companion (FakeStore)</string>
+    <string name="microg_not_installed">O microG Companion (com.android.vending) não está instalado</string>
+    <string name="setting_microg_not_available">O microG Companion não está disponível neste dispositivo</string>
 </resources>

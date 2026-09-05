@@ -448,6 +448,18 @@
   <string name="dialog_menu_permissions_desc">Xem xét các quyền được yêu cầu</string>
   <string name="dialog_menu_virustotal">Quét VirusTotal</string>
   <string name="dialog_menu_virustotal_desc">Quét phần mềm độc hại trước khi cài</string>
+  <string name="dialog_menu_trackers">Bộ theo dõi &amp; Phân tích</string>
+  <string name="dialog_menu_trackers_desc">Kiểm tra các SDK theo dõi và phân tích tích hợp</string>
+  <string name="dialog_menu_no_trackers_found">Không phát hiện bộ theo dõi nào</string>
+  <string name="dialog_chip_trackers">%1$d Tracker</string>
+  <string name="dialog_chip_trackers_scanning">Đang quét tracker…</string>
+  <plurals name="dialog_menu_trackers_found">
+    <item quantity="other">Phát hiện %1$d bộ theo dõi</item>
+  </plurals>
+  <string name="installer_mode_microg">microG</string>
+  <string name="installer_mode_microg_desc">Cài đặt qua ứng dụng microG Companion (FakeStore)</string>
+  <string name="microg_not_installed">Chưa cài đặt microG Companion (com.android.vending)</string>
+  <string name="setting_microg_not_available">microG Companion không khả dụng trên thiết bị này</string>
   <string name="dialog_menu_obb">Tệp OBB</string>
   <string name="dialog_menu_obb_desc">Quản lý các tệp dữ liệu OBB đính kèm</string>
   <string name="dialog_menu_splits">APK chia nhỏ</string>

@@ -43,6 +43,7 @@ object InstallSessionManager {
         rootController: BaseInstallController?,
         dhizukuController: BaseInstallController?,
         customController: BaseInstallController? = null,
+        microGController: BaseInstallController? = null,
         backendFactory: InstallerBackendFactory,
     ): BaseInstallController {
         val prefs = try { context.dataStore.data.first() } catch (_: Exception) { null }
@@ -53,6 +54,9 @@ object InstallSessionManager {
         if (preferredBackend != null) {
             when (preferredBackend) {
                 "Custom" -> customController?.let { return it }
+                "MicroG", "microG" -> microGController?.let {
+                    if (app.pwhs.universalinstaller.util.MicroGCompat.isAvailable(context)) return it
+                }
                 "Root" -> if (rootController != null) {
                     val state = backendFactory.probeRootState()
                     val finalState = if (state == RootState.READY) state
@@ -66,6 +70,14 @@ object InstallSessionManager {
                 }
                 "Default" -> return defaultController
             }
+        }
+
+        val useMicroG = prefs?.get(PreferencesKeys.USE_MICROG) ?: false
+        if (useMicroG && microGController != null) {
+            if (app.pwhs.universalinstaller.util.MicroGCompat.isAvailable(context)) {
+                return microGController
+            }
+            Timber.w("microG selected but companion not available — falling back to default installer")
         }
 
         val useCustomAuthorizer = prefs?.get(PreferencesKeys.USE_CUSTOM_AUTHORIZER) ?: false
@@ -149,6 +161,7 @@ object InstallSessionManager {
         rootController: BaseInstallController?,
         dhizukuController: BaseInstallController?,
         customController: BaseInstallController? = null,
+        microGController: BaseInstallController? = null,
         backendFactory: InstallerBackendFactory,
         packageUninstaller: PackageUninstaller,
     ): Boolean {
@@ -162,6 +175,7 @@ object InstallSessionManager {
                 rootController = rootController,
                 dhizukuController = dhizukuController,
                 customController = customController,
+                microGController = microGController,
                 backendFactory = backendFactory,
             )
         }.getOrNull()

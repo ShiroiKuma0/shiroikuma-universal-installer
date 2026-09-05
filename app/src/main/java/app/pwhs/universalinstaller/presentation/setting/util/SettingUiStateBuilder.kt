@@ -52,6 +52,7 @@ object SettingUiStateBuilder {
         val isDefault = flows[14] as Boolean
         val useCustomAuthorizer = flows.getOrNull(15) as? Boolean ?: false
         val customAuthorizerCommand = flows.getOrNull(16) as? String ?: ""
+        val useMicroG = flows.getOrNull(17) as? Boolean ?: false
 
         val versionName = try {
             application.packageManager
@@ -97,6 +98,7 @@ object SettingUiStateBuilder {
             isDefaultInstaller = isDefault,
             useCustomAuthorizer = useCustomAuthorizer,
             customAuthorizerCommand = customAuthorizerCommand,
+            useMicroG = useMicroG,
         )
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Terminal
@@ -61,6 +62,7 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     val modeFlow = remember(context) {
         context.dataStore.data.map { prefs ->
             when {
+                prefs[PreferencesKeys.USE_MICROG] == true -> Mode.MicroG
                 prefs[PreferencesKeys.USE_CUSTOM_AUTHORIZER] == true -> Mode.Custom
                 prefs[PreferencesKeys.USE_ROOT] == true -> Mode.Root
                 prefs[PreferencesKeys.USE_SHIZUKU] == true -> Mode.Shizuku
@@ -81,6 +83,7 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     }
 
     val label = when (mode) {
+        Mode.MicroG -> stringResource(R.string.installer_mode_microg)
         Mode.Custom -> stringResource(R.string.installer_mode_custom)
         Mode.Root -> stringResource(R.string.installer_mode_root)
         Mode.Shizuku -> stringResource(R.string.installer_mode_shizuku)
@@ -88,13 +91,14 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
         Mode.Default -> stringResource(R.string.installer_mode_package_installer)
     }
     val icon = when (mode) {
+        Mode.MicroG -> Icons.Rounded.CloudDownload
         Mode.Custom -> Icons.Rounded.Terminal
         Mode.Root -> Icons.Rounded.Key
         Mode.Shizuku -> Icons.Rounded.AdminPanelSettings
         Mode.Dhizuku -> Icons.Rounded.Shield
         Mode.Default -> Icons.Rounded.Android
     }
-    val privileged = mode == Mode.Root || mode == Mode.Shizuku || mode == Mode.Dhizuku || mode == Mode.Custom
+    val privileged = mode == Mode.Root || mode == Mode.Shizuku || mode == Mode.Dhizuku || mode == Mode.Custom || mode == Mode.MicroG
     val container = if (privileged)
         MaterialTheme.colorScheme.primaryContainer
     else
@@ -133,6 +137,7 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
             useRoot = mode == Mode.Root,
             useDhizuku = mode == Mode.Dhizuku,
             useCustomAuthorizer = mode == Mode.Custom,
+            useMicroG = mode == Mode.MicroG,
         )
         // Root stays tappable whenever this build ships su support — tapping it when not yet
         // ready fires the root request (su prompt). It's only greyed (dimmed) to signal it
@@ -237,6 +242,18 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
                             showPicker = false
                         },
                     )
+                    val microGAvailable = remember(context) { app.pwhs.universalinstaller.util.MicroGCompat.isAvailable(context) }
+                    EngineOption(
+                        title = stringResource(R.string.installer_mode_microg),
+                        subtitle = if (microGAvailable) stringResource(R.string.installer_mode_microg_desc)
+                            else stringResource(R.string.microg_not_installed),
+                        selected = current == InstallMode.MICROG,
+                        enabled = microGAvailable,
+                        onClick = {
+                            settingViewModel.setInstallMode(InstallMode.MICROG)
+                            showPicker = false
+                        },
+                    )
                 }
             },
             confirmButton = {
@@ -279,4 +296,4 @@ private fun EngineOption(
     }
 }
 
-private enum class Mode { Default, Shizuku, Dhizuku, Root, Custom }
+private enum class Mode { Default, Shizuku, Dhizuku, Root, Custom, MicroG }

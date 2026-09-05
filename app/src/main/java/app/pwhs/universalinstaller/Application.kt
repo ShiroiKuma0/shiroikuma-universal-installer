@@ -125,6 +125,7 @@ class App : Application(), SingletonImageLoader.Factory {
             // anyone who has had the app for less than a few days.
             ReviewGate.rememberFirstLaunch(this@App)
             BackendSelfHeal.runOnce(this@App, backendFactory)
+            app.pwhs.universalinstaller.domain.scanner.DexTrackerScanner.getOrLoadRules(this@App)
         }
     }
 

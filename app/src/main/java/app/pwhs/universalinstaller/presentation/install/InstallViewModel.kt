@@ -23,6 +23,7 @@ import app.pwhs.universalinstaller.presentation.install.controller.DefaultInstal
 import app.pwhs.universalinstaller.presentation.install.controller.DhizukuInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
 import app.pwhs.universalinstaller.presentation.install.controller.ManualInstallController
+import app.pwhs.universalinstaller.presentation.install.controller.MicroGInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuInstallController
 import app.pwhs.universalinstaller.presentation.install.dialog.StorageWarningInfo
 import app.pwhs.universalinstaller.presentation.install.util.InstallActionDelegate
@@ -87,6 +88,9 @@ class InstallViewModel(
         application, packageInstaller, sessionDataRepository, historyDao,
     )
     private val customController = CustomInstallController(
+        application, packageInstaller, sessionDataRepository, historyDao,
+    )
+    private val microGController = MicroGInstallController(
         application, packageInstaller, sessionDataRepository, historyDao,
     )
 
@@ -175,6 +179,7 @@ class InstallViewModel(
             rootController = rootController,
             dhizukuController = dhizukuController,
             customController = customController,
+            microGController = microGController,
             backendFactory = backendFactory,
         )
 
@@ -477,6 +482,7 @@ class InstallViewModel(
             rootController = rootController,
             dhizukuController = dhizukuController,
             customController = customController,
+            microGController = microGController,
             backendFactory = backendFactory,
             packageUninstaller = packageUninstaller,
         )

@@ -8,7 +8,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -20,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Block
@@ -27,11 +32,13 @@ import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material.icons.rounded.AdminPanelSettings
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -39,8 +46,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -67,6 +80,7 @@ fun DialogPrepareContent(
     onKeepApkChanged: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
+    var showTrackersDialog by remember { mutableStateOf(false) }
     val isUpdate = installedVersionCode != null && installedVersionCode > 0
     val isDowngrade = isUpdate && apkInfo.versionCode < installedVersionCode
 
@@ -151,96 +165,89 @@ fun DialogPrepareContent(
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 12.dp)
+                    .padding(top = 10.dp)
                     .animateContentSize(animationSpec = DialogMotion.ContentSpring),
-                horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 if (apkInfo.isAndroidAutoSupported) {
-                    AssistChip(
-                        onClick = onMenu,
-                        label = { Text(stringResource(R.string.aa_compatibility_ok)) },
+                    DialogPill(
+                        label = stringResource(R.string.aa_compatibility_ok),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Rounded.DirectionsCar,
                                 contentDescription = null,
-                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.primary,
                             )
                         },
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        onClick = onMenu,
                     )
                 }
                 if (apkInfo.isRootRequested) {
-                    AssistChip(
-                        onClick = onMenu,
-                        label = { Text(stringResource(R.string.apk_info_root_requested)) },
+                    DialogPill(
+                        label = stringResource(R.string.apk_info_root_requested),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Rounded.AdminPanelSettings,
                                 contentDescription = null,
-                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.error,
                             )
                         },
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f),
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        onClick = onMenu,
                     )
                 }
                 if (apkInfo.isShizukuRequested) {
-                    AssistChip(
-                        onClick = onMenu,
-                        label = { Text(stringResource(R.string.apk_info_shizuku_requested)) },
+                    DialogPill(
+                        label = stringResource(R.string.apk_info_shizuku_requested),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Rounded.Terminal,
                                 contentDescription = null,
-                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.secondary,
                             )
                         },
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        onClick = onMenu,
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(8.dp))
                 if (isDowngrade) {
-                    AssistChip(
-                        onClick = {},
-                        label = { Text(stringResource(R.string.dialog_chip_downgrade)) },
+                    DialogPill(
+                        label = stringResource(R.string.dialog_chip_downgrade),
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Rounded.Warning,
                                 contentDescription = null,
-                                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.error,
                             )
                         },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            labelColor = MaterialTheme.colorScheme.onErrorContainer,
-                        ),
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f),
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
                 if (apkInfo.splitCount > 1) {
-                    AssistChip(
-                        onClick = {},
-                        label = {
-                            Text(stringResource(R.string.dialog_chip_split_apk))
-                        },
+                    DialogPill(
+                        label = stringResource(R.string.dialog_chip_split_apk),
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
                 if (apkInfo.obbFileNames.isNotEmpty()) {
-                    AssistChip(
-                        onClick = {},
-                        label = {
-                            Text(stringResource(R.string.dialog_chip_has_obb))
-                        },
+                    DialogPill(
+                        label = stringResource(R.string.dialog_chip_has_obb),
                     )
                 }
             }
         }
 
-        // ── Install engine (tap to switch) & VirusTotal status / scan prompt ──
-        Spacer(modifier = Modifier.height(16.dp))
+        // ── Install engine (tap to switch) & VirusTotal status / scan prompt & Trackers ──
+        Spacer(modifier = Modifier.height(12.dp))
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
@@ -251,6 +258,35 @@ fun DialogPrepareContent(
                 apkInfo = apkInfo,
                 onScan = onCheckVirusTotal,
             )
+            if (apkInfo.isScanningTrackers) {
+                DialogPill(
+                    label = stringResource(R.string.dialog_chip_trackers_scanning),
+                    leadingIcon = {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            strokeWidth = 1.5.dp,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f),
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                )
+            } else if (apkInfo.trackers.isNotEmpty()) {
+                DialogPill(
+                    label = stringResource(R.string.dialog_chip_trackers, apkInfo.trackers.size),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Rounded.Shield,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                        )
+                    },
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f),
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    onClick = { showTrackersDialog = true },
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -361,5 +397,51 @@ fun DialogPrepareContent(
         ) {
             Text(stringResource(R.string.dialog_cancel_btn))
         }
+
+        if (showTrackersDialog && apkInfo.trackers.isNotEmpty()) {
+            TrackersDetailDialog(
+                trackers = apkInfo.trackers,
+                onDismiss = { showTrackersDialog = false },
+            )
+        }
     }
 }
+
+@Composable
+private fun DialogPill(
+    label: String,
+    modifier: Modifier = Modifier,
+    leadingIcon: (@Composable () -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    borderColor: Color? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(50))
+            .then(
+                if (borderColor != null) {
+                    Modifier.border(BorderStroke(0.5.dp, borderColor), RoundedCornerShape(50))
+                } else Modifier
+            )
+            .then(
+                if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+            )
+            .background(containerColor)
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        if (leadingIcon != null) {
+            leadingIcon()
+            Spacer(Modifier.width(6.dp))
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = contentColor,
+        )
+    }
+}
+

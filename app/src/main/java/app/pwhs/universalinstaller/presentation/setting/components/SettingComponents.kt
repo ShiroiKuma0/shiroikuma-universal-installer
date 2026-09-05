@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Replay
@@ -274,15 +275,17 @@ internal fun InstallModeSelector(
     rootState: RootState,
     dhizukuSupported: Boolean = true,
     dhizukuState: DhizukuState = DhizukuState.NOT_INSTALLED,
+    microGSupported: Boolean = true,
     onModeChange: (InstallMode) -> Unit,
 ) {
-    val options: List<InstallMode> = remember(rootSupported, dhizukuSupported) {
+    val options: List<InstallMode> = remember(rootSupported, dhizukuSupported, microGSupported, currentMode) {
         buildList {
             add(InstallMode.DEFAULT)
             add(InstallMode.SHIZUKU)
             if (dhizukuSupported) add(InstallMode.DHIZUKU)
             if (rootSupported) add(InstallMode.ROOT)
             add(InstallMode.CUSTOM)
+            if (microGSupported || currentMode == InstallMode.MICROG) add(InstallMode.MICROG)
         }
     }
     Column(
@@ -332,6 +335,7 @@ internal fun InstallModeSelector(
                                 InstallMode.DHIZUKU -> stringResource(R.string.setting_install_mode_dhizuku)
                                 InstallMode.ROOT -> stringResource(R.string.setting_install_mode_root)
                                 InstallMode.CUSTOM -> stringResource(R.string.setting_install_mode_custom)
+                                InstallMode.MICROG -> stringResource(R.string.installer_mode_microg)
                             },
                         )
                     },
@@ -343,6 +347,7 @@ internal fun InstallModeSelector(
                                 InstallMode.DHIZUKU -> Icons.Rounded.AdminPanelSettings
                                 InstallMode.ROOT -> Icons.Rounded.Shield
                                 InstallMode.CUSTOM -> Icons.Rounded.Terminal
+                                InstallMode.MICROG -> Icons.Rounded.CloudDownload
                             },
                             contentDescription = null,
                             modifier = Modifier.size(FilterChipDefaults.IconSize),
@@ -383,6 +388,7 @@ internal fun InstallModeSelector(
                 else -> "Not Rooted"
             }
             InstallMode.CUSTOM -> stringResource(R.string.setting_install_mode_custom_sub)
+            InstallMode.MICROG -> stringResource(R.string.installer_mode_microg_desc)
         }
         val canRequestPermission = currentMode == InstallMode.DHIZUKU && dhizukuState == DhizukuState.NOT_AUTHORIZED
         Text(

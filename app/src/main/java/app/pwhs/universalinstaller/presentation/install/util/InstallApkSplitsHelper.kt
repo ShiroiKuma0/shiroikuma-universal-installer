@@ -343,6 +343,7 @@ object InstallApkSplitsHelper {
             isBlocked = isBlocked,
             isAndroidAutoSupported = isAndroidAutoSupported,
             isWearOsSupported = isWearOsSupported,
+            trackers = emptyList(),
         )
     }
 

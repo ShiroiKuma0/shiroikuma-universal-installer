@@ -46,6 +46,10 @@ data class ApkInfo(
     val isAndroidAutoSupported: Boolean = false,
     /** Whether the APK declares `uses-feature android.hardware.type.watch`. */
     val isWearOsSupported: Boolean = false,
+    /** Trackers detected in the APK bytecode matching Exodus Privacy database. */
+    val trackers: List<TrackerInfo> = emptyList(),
+    /** Whether tracker detection is currently running in the background. */
+    val isScanningTrackers: Boolean = false,
 ) {
     val isRootRequested: Boolean
         get() = permissions.contains("android.permission.ACCESS_SUPERUSER")

@@ -1,19 +1,32 @@
 package app.pwhs.universalinstaller.presentation.install.dialog.tabs
 
 import android.content.Context
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Security
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
@@ -137,6 +150,86 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
                     entries = entries,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 )
+            }
+        }
+    }
+
+    // 3. Trackers & Analytics (Exodus Privacy)
+    item(key = "trackers") {
+        var expanded by remember { mutableStateOf(apkInfo.trackers.isNotEmpty()) }
+        val trackerCount = apkInfo.trackers.size
+        val extendedColors = LocalExtendedColors.current
+        val description = when {
+            apkInfo.isScanningTrackers -> stringResource(R.string.dialog_chip_trackers_scanning)
+            trackerCount > 0 -> pluralStringResource(
+                R.plurals.dialog_menu_trackers_found,
+                trackerCount,
+                trackerCount,
+            )
+            else -> stringResource(R.string.dialog_menu_no_trackers_found)
+        }
+        val descColor = if (trackerCount > 0) extendedColors.warning else MaterialTheme.colorScheme.tertiary
+        val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
+
+        MenuCard(
+            title = stringResource(R.string.dialog_menu_trackers),
+            description = description,
+            descriptionColor = descColor,
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.Shield,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = descColor,
+                )
+            },
+            expanded = expanded && trackerCount > 0,
+            onClick = { if (trackerCount > 0) expanded = !expanded },
+            badge = if (trackerCount > 0) "$trackerCount" else null,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                apkInfo.trackers.forEach { tracker ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable(enabled = !tracker.website.isNullOrBlank()) {
+                                tracker.website?.let { uriHandler.openUri(it) }
+                            }
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = tracker.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            if (tracker.categories.isNotEmpty()) {
+                                Text(
+                                    text = tracker.categories.joinToString(", "),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        if (!tracker.website.isNullOrBlank()) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
+                }
             }
         }
     }

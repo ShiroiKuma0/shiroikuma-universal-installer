@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -136,11 +137,19 @@ fun InfoChip(
     leadingIcon: @Composable (() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    onClick: (() -> Unit)? = null,
 ) {
     Surface(
         shape = MaterialTheme.shapes.small,
         color = containerColor,
         contentColor = contentColor,
+        modifier = if (onClick != null) {
+            Modifier
+                .clip(MaterialTheme.shapes.small)
+                .clickable(onClick = onClick)
+        } else {
+            Modifier
+        },
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),

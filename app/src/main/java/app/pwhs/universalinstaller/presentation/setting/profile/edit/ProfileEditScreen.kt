@@ -24,6 +24,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.DriveFileRenameOutline
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Layers
@@ -291,8 +292,13 @@ private fun ProfileEditUi(
                     val rootSelectable = rootState == app.pwhs.universalinstaller.presentation.install.controller.RootState.READY ||
                         rootState == app.pwhs.universalinstaller.presentation.install.controller.RootState.DENIED ||
                         rootState == app.pwhs.universalinstaller.presentation.install.controller.RootState.UNKNOWN
-                    val options = if (rootSupported) listOf("Default", "Shizuku", "Root", "Custom")
-                        else listOf("Default", "Shizuku", "Custom")
+                    val options = buildList {
+                        add("Default")
+                        add("Shizuku")
+                        if (rootSupported) add("Root")
+                        add("Custom")
+                        add("MicroG")
+                    }
                     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                         FlowRow(
                             modifier = Modifier.fillMaxWidth(),
@@ -312,6 +318,7 @@ private fun ProfileEditUi(
                                                 "Default" -> stringResource(R.string.setting_install_mode_default)
                                                 "Shizuku" -> stringResource(R.string.setting_install_mode_shizuku)
                                                 "Root" -> stringResource(R.string.setting_install_mode_root)
+                                                "MicroG" -> stringResource(R.string.installer_mode_microg)
                                                 else -> stringResource(R.string.setting_install_mode_custom)
                                             },
                                         )
@@ -322,6 +329,7 @@ private fun ProfileEditUi(
                                                 "Default" -> Icons.Rounded.Android
                                                 "Shizuku" -> Icons.Rounded.Key
                                                 "Root" -> Icons.Rounded.Shield
+                                                "MicroG" -> Icons.Rounded.CloudDownload
                                                 else -> Icons.Rounded.Terminal
                                             },
                                             contentDescription = null,

@@ -22,8 +22,11 @@ import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.DirectionsCar
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -57,6 +60,7 @@ import app.pwhs.universalinstaller.presentation.install.components.AbisCard
 import app.pwhs.universalinstaller.presentation.install.components.ApkInfoFooter
 import app.pwhs.universalinstaller.presentation.install.components.DetailsCard
 import app.pwhs.universalinstaller.presentation.install.components.InfoChip
+import app.pwhs.universalinstaller.presentation.install.dialog.TrackersDetailDialog
 import app.pwhs.universalinstaller.presentation.install.components.InstallTargetCard
 import app.pwhs.universalinstaller.presentation.install.components.ObbAttachCard
 import app.pwhs.universalinstaller.presentation.install.components.PermissionsCard
@@ -102,6 +106,7 @@ internal fun ApkInfoContent(
     val context = LocalContext.current
     val currentMappingProfileId = appProfileMapping[apkInfo.packageName]
     var isExpanded by rememberSaveable { mutableStateOf(!startCompact) }
+    var showTrackersDialog by rememberSaveable { mutableStateOf(false) }
 
     val iconBitmap by produceState<ImageBitmap?>(
         initialValue = null,
@@ -275,6 +280,35 @@ internal fun ApkInfoContent(
                 apkInfo.vtResult?.let { vt ->
                     VtStatusChip(vt = vt)
                 }
+                if (apkInfo.isScanningTrackers) {
+                    InfoChip(
+                        label = stringResource(R.string.dialog_chip_trackers_scanning),
+                        leadingIcon = {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(12.dp),
+                                strokeWidth = 1.5.dp,
+                                color = MaterialTheme.colorScheme.tertiary,
+                            )
+                        },
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f),
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    )
+                } else if (apkInfo.trackers.isNotEmpty()) {
+                    InfoChip(
+                        label = stringResource(R.string.dialog_chip_trackers, apkInfo.trackers.size),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.Shield,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.tertiary,
+                            )
+                        },
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f),
+                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        onClick = { showTrackersDialog = true },
+                    )
+                }
                 if (isExpanded) {
                     if (apkInfo.versionName.isNotBlank()) {
                         InfoChip(
@@ -284,12 +318,26 @@ internal fun ApkInfoContent(
                     if (apkInfo.fileSizeBytes > 0) {
                         InfoChip(
                             label = Formatter.formatShortFileSize(context, apkInfo.fileSizeBytes),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Storage,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            },
                         )
                     }
                 } else {
                     if (apkInfo.fileSizeBytes > 0) {
                         InfoChip(
                             label = Formatter.formatShortFileSize(context, apkInfo.fileSizeBytes),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Storage,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            },
                         )
                     }
                 }
@@ -428,5 +476,12 @@ internal fun ApkInfoContent(
                 onCheckVirusTotal()
             },
         )
+
+        if (showTrackersDialog && apkInfo.trackers.isNotEmpty()) {
+            TrackersDetailDialog(
+                trackers = apkInfo.trackers,
+                onDismiss = { showTrackersDialog = false },
+            )
+        }
     }
 }

@@ -220,6 +220,7 @@ class SettingViewModel(
         privilegeDelegate.isDefaultInstaller,
         privilegeDelegate.useCustomAuthorizer,
         privilegeDelegate.customAuthorizerCommand,
+        privilegeDelegate.useMicroG,
     ) { flows ->
         SettingUiStateBuilder.build(application, backendFactory, flows)
     }.stateIn(

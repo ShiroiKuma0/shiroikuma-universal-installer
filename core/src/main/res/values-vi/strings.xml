@@ -1,6 +1,10 @@
-<resources>    <string name="onboarding_skip">Nhảy</string>
+<resources>
+    <string name="onboarding_skip">Bỏ qua</string>
     <string name="onboarding_next">Kế tiếp</string>
     <string name="onboarding_get_started">Bắt đầu</string>
+    <string name="onboarding_restore_title">Khôi phục dữ liệu</string>
+    <string name="onboarding_restore_desc">Chuyển từ thiết bị khác hoặc Obtainium? Bạn có thể khôi phục cài đặt, các ứng dụng đang theo dõi và token API ngay bây giờ.</string>
+    <string name="onboarding_restore_action">Khôi phục từ bản sao lưu</string>
     <string name="onboarding_permission_granted">Đã cấp quyền</string>
     <string name="onboarding_grant_permission">Cấp quyền</string>
     <string name="onboarding_page1_title">Cài đặt bất kỳ gói nào</string>

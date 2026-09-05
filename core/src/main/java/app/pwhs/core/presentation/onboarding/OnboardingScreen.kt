@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,6 +88,16 @@ fun OnboardingScreen(
     val context = LocalContext.current
     val activity = context as? android.app.Activity
     val uriHandler = LocalUriHandler.current
+
+    val storedPrefs by context.dataStore.data.collectAsState(initial = null)
+    val storedVirusTotalKey = storedPrefs?.get(SharedPrefsKeys.VIRUSTOTAL_API_KEY).orEmpty()
+    var virusTotalKeyEdited by remember { mutableStateOf(false) }
+
+    // If key is already configured/restored and user hasn't actively edited it here, skip the setup page
+    val isVirusTotalConfigured = remember(storedVirusTotalKey, virusTotalKeyEdited) {
+        storedVirusTotalKey.isNotBlank() && !virusTotalKeyEdited
+    }
+
     // Hide the shortcut when Developer options aren't reachable — the text alone still tells the
     // user what to look for.
     val developerOptions = remember(showXiaomiTip) {
@@ -99,6 +110,7 @@ fun OnboardingScreen(
                 icon = Icons.Rounded.InstallMobile,
                 title = stringResource(R.string.onboarding_page1_title),
                 description = stringResource(R.string.onboarding_page1_desc),
+                badgeType = OnboardingBadgeType.INSTALL,
             )
         )
         add(
@@ -106,6 +118,7 @@ fun OnboardingScreen(
                 icon = Icons.Rounded.Widgets,
                 title = stringResource(R.string.onboarding_page2_title),
                 description = stringResource(R.string.onboarding_page2_desc),
+                badgeType = OnboardingBadgeType.MANAGE,
             )
         )
         if (onRestoreBackup != null) {
@@ -114,18 +127,20 @@ fun OnboardingScreen(
                     icon = Icons.Rounded.Restore,
                     title = stringResource(R.string.onboarding_restore_title),
                     description = stringResource(R.string.onboarding_restore_desc),
+                    badgeType = OnboardingBadgeType.RESTORE,
                     actionLabel = stringResource(R.string.onboarding_restore_action),
                     actionIcon = Icons.Rounded.Restore,
                     onAction = onRestoreBackup,
                 )
             )
         }
-        if (showVirusTotalTip) {
+        if (showVirusTotalTip && !isVirusTotalConfigured) {
             add(
                 OnboardingPage(
                     icon = Icons.Rounded.GppGood,
                     title = stringResource(R.string.onboarding_virustotal_title),
                     description = stringResource(R.string.onboarding_virustotal_desc),
+                    badgeType = OnboardingBadgeType.VIRUSTOTAL,
                     securityPicker = true,
                     virusTotalKeyField = true,
                     // Rendered as a text link inside the key block rather than the shared button,
@@ -142,6 +157,7 @@ fun OnboardingScreen(
                     icon = Icons.Rounded.Tune,
                     title = stringResource(R.string.onboarding_xiaomi_title),
                     description = stringResource(R.string.onboarding_xiaomi_desc),
+                    badgeType = OnboardingBadgeType.XIAOMI,
                     actionLabel = developerOptions?.let {
                         stringResource(R.string.onboarding_xiaomi_open_developer_options)
                     },
@@ -156,6 +172,7 @@ fun OnboardingScreen(
                     icon = Icons.Rounded.Insights,
                     title = stringResource(R.string.onboarding_analytics_title),
                     description = stringResource(R.string.onboarding_analytics_desc),
+                    badgeType = OnboardingBadgeType.ANALYTICS,
                     analyticsToggle = true,
                 )
             )
@@ -166,30 +183,30 @@ fun OnboardingScreen(
                 icon = Icons.Rounded.Security,
                 title = stringResource(R.string.onboarding_page3_title),
                 description = stringResource(R.string.onboarding_page3_desc),
+                badgeType = OnboardingBadgeType.PERMISSION,
             )
         )
     }
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { pages.size })
-    // Normal by default — the level only becomes Strict if the user picks it here.
+    // Normal by default — the level only becomes Strict if the user picks it here or from backup.
     var strictSecurity by remember { mutableStateOf(false) }
 
-    // Opted in unless the user says otherwise, which is also how an absent preference reads
-    // everywhere else. Seeded from the store so replaying the tour shows the current answer.
     var analyticsEnabled by remember { mutableStateOf(true) }
-    LaunchedEffect(showAnalyticsConsent) {
-        if (!showAnalyticsConsent) return@LaunchedEffect
-        analyticsEnabled = context.dataStore.data.first()[SharedPrefsKeys.ANALYTICS_ENABLED] ?: true
-    }
-
-    // The key the user pastes on the VirusTotal page. Seeded from whatever Settings already holds,
-    // so replaying the tour doesn't look like the key was lost.
     var virusTotalKey by remember { mutableStateOf("") }
-    var virusTotalKeyEdited by remember { mutableStateOf(false) }
-    LaunchedEffect(showVirusTotalTip) {
-        if (!showVirusTotalTip) return@LaunchedEffect
-        val stored = context.dataStore.data.first()[SharedPrefsKeys.VIRUSTOTAL_API_KEY].orEmpty()
-        if (!virusTotalKeyEdited) virusTotalKey = stored
+
+    LaunchedEffect(storedPrefs) {
+        val prefs = storedPrefs ?: return@LaunchedEffect
+        prefs[SharedPrefsKeys.SECURITY_LEVEL]?.let { level ->
+            strictSecurity = level == "Strict"
+        }
+        prefs[SharedPrefsKeys.ANALYTICS_ENABLED]?.let { analytics ->
+            analyticsEnabled = analytics
+        }
+        val vtKey = prefs[SharedPrefsKeys.VIRUSTOTAL_API_KEY].orEmpty()
+        if (!virusTotalKeyEdited && vtKey.isNotEmpty()) {
+            virusTotalKey = vtKey
+        }
     }
 
     // Track install permission state — refreshes on resume
@@ -242,7 +259,9 @@ fun OnboardingScreen(
                     .fillMaxWidth()
                     .weight(1f),
             ) { page ->
+                val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
                 PageContent(
+                    pageOffset = pageOffset,
                     strictSecurity = strictSecurity,
                     onStrictSecurityChange = { strict ->
                         strictSecurity = strict

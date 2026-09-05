@@ -56,6 +56,7 @@ internal data class OnboardingPage(
     val icon: ImageVector,
     val title: String,
     val description: String,
+    val badgeType: OnboardingBadgeType = OnboardingBadgeType.GENERIC,
     /** Renders a two-option security picker under the description. */
     val securityPicker: Boolean = false,
     /** Renders the VirusTotal API key field under the action button. */
@@ -80,6 +81,7 @@ internal fun PageContent(
     onVirusTotalKeyChange: (String) -> Unit = {},
     analyticsEnabled: Boolean = true,
     onAnalyticsEnabledChange: (Boolean) -> Unit = {},
+    pageOffset: Float = 0f,
 ) {
     // Centered while it fits, scrollable once the keyboard takes half the screen away.
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
@@ -92,20 +94,12 @@ internal fun PageContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(100.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = page.icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(48.dp),
-                    )
-                }
-            }
+            AnimatedOnboardingBadge(
+                page = page,
+                pageOffset = pageOffset,
+                isPermissionPage = isPermissionPage,
+                hasPermission = hasPermission,
+            )
 
             Spacer(Modifier.height(32.dp))
 

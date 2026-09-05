@@ -10,7 +10,7 @@ A fork of [pass-with-high-score/universal-installer](https://github.com/pass-wit
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.14.0+001`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.14.0+004`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -25,6 +25,8 @@ The **白い熊 Installer UI** settings page turns the installer into something 
 ## 🪟 Per-surface overrides
 
 The **install pop-up dialog** and the **main page** each carry their own look. Override accent, title text, secondary text, card, background, danger, success and highlight colors — plus border and font — independently per surface. Anything left untouched inherits the global theme, applied through a nested Material 3 theme so every element restyles live.
+
+That border is not just the install card. **Every dialog in the app** is outlined in the accent — trackers, risk consent, uninstall and clear-data confirmations, the directory and font pickers, the sync QR code — so a black card never disappears into a black scrim, which is exactly what stock Material does to a pop-up over a pop-up. The two themed surfaces still override the stroke with their own color and width, and a width of `0` takes it away.
 
 ---
 

@@ -4,6 +4,70 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.14.0+001
+
+**New in this build:** the fork moves from upstream **1.13.0** to **1.14.0**, skipping straight past
+1.13.1. This is the largest upstream jump the fork has taken — 39 commits bringing an encrypted
+whole-app backup, two new install backends, and an embedded-tracker scanner — and the fork layer was
+replayed on top of it in full. No new fork features; everything below is either upstream's or the
+work of keeping ours intact across it.
+
+### ⬆️ What upstream brought (1.13.1 + 1.14.0, versionCode 38)
+- **Full backup and encrypted restore.** Settings, profiles, source API tokens, tracked apps and
+  uninstall logs export to one file, optionally sealed with a password (AES-256-GCM); restore reads
+  it back, and Obtainium exports too. This is upstream's own backup, and it is not the fork's
+  automation contract — the two are independent and both ship.
+- **Custom Authorizer**, a new install backend that runs a user-supplied shell command, with
+  validation and an execution guard, configured from a redesigned bottom sheet with quick presets.
+- **microG installer mode**, and **Dhizuku folded into the single `InstallMode`** rather than living
+  as a parallel flag, with Profile Owner limitations handled.
+- **Embedded tracker scanning.** A DEX scanner matched against a bundled exodus tracker database
+  runs asynchronously and reports into a Security tab on the install dialog.
+- **Auto-approve install requests from chosen apps**, so a trusted caller no longer prompts.
+- **Keep the APK after installing**, as a per-install toggle on the install sheet — and the sheets
+  no longer dismiss on an accidental swipe, gaining explicit cancel buttons.
+- **A rebuilt onboarding** with 3D parallax icon animations and a VirusTotal slide that skips itself
+  when it has nothing to ask.
+- **Android TV gains Shizuku**, privileged install options, and a set of focus-visibility fixes.
+- **QR scanning validates the host** and verifies connectivity before connecting, so a malicious QR
+  code can no longer point the app at an untrusted server.
+- Readable extractor output paths, exported APKs visible in Downloads, and a Karing update-detection
+  fix.
+
+### 🧩 Keeping the fork layer on top of it
+- **All 82 fork commits replayed**, nine conflicts resolved by porting our change to upstream's new
+  structure rather than forcing the old diff back in:
+- **Chips are themed in one place now.** Upstream folded the install dialog's three `AssistChip`s
+  into a single `DialogPill` component; the fork's per-text-category **`chip`** style moved inside
+  it. Every pill — including upstream's new ones — now picks up the fork styling from one line
+  instead of three copies that could drift.
+- **The keep-APK choice flows through our themed buttons.** Upstream's `onDone` / `onOpen` callbacks
+  now carry it; the fork's `DialogActionButton`s were rewired to pass it on, so the success stage
+  keeps both its styling and the new behaviour.
+- **The engine badge stays black-and-yellow** and now labels upstream's two new backends —
+  **Custom** and **microG** — in the same pill, rather than reverting to upstream's
+  privileged-versus-plain container colours.
+- **Shizuku: our fix and upstream's, together.** The fork waits for Shizuku to *push* its binder
+  before judging the state (an instant verdict reports "not running" on a healthy cold start) and
+  names **白い熊 雫** when telling you what to open. Upstream added mutual exclusion between the
+  backends. Both now apply: enabling Shizuku waits for the binder, and clears root, Dhizuku, the
+  custom authorizer and microG in the same write.
+- **The watch button** moved inside upstream's new `WearApkSender.isAvailable` gate, taking the
+  fork's top-bar icon tint with it.
+- **Locales: upstream rewrote `values-fr` and `values-hi` wholesale** (~1,800 lines each) and re-added
+  its own `app_name` to both. The fork's three edits were re-applied to the new files, and the
+  **白い熊 Universal installer** label is asserted across all **19** `values*/strings.xml` again —
+  this is the fourth upstream release in a row that has had to be undone.
+- The same-version **Reinstall** state, the stacked long-version-name layout, the dropped false
+  **"data may be wiped"** downgrade warning and the whole theming engine all survive unchanged.
+
+### 📦 Unchanged
+- **arm64-v8a only**, `shiroikuma-universal-installer_<version>_arm64-v8a.apk`, as since `1.13.0+003`.
+- **No telemetry.** Upstream's `play` flavor still needs a `google-services.json` this fork does not
+  ship, so every `play` variant is disabled at configuration time and `buildFork` stays pinned to
+  the `opensource` flavor.
+- versionCode `380001` (`VERSION_CODE 38 × 10000 + 1`), so this line sits above every 1.13.0 build.
+
 ## 1.13.0+003
 
 **New in this build:** the APK is now **arm64-v8a only**, and its filename says so. No app-code

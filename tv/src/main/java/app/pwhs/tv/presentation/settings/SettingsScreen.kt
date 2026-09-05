@@ -80,9 +80,14 @@ private const val REPO_URL = "https://github.com/pass-with-high-score/universal-
 @Composable
 fun SettingsScreen(modifier: Modifier = Modifier) {
     var showLanguageScreen by remember { mutableStateOf(false) }
+    var showInstallOptions by remember { mutableStateOf(false) }
 
     if (showLanguageScreen) {
         LanguageScreen(onBack = { showLanguageScreen = false })
+        return
+    }
+    if (showInstallOptions) {
+        InstallOptionsScreen(onBack = { showInstallOptions = false })
         return
     }
     val context = LocalContext.current
@@ -240,6 +245,11 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
         }
 
         item { ShizukuSetting() }
+        item {
+            SettingsCard(onClick = { showInstallOptions = true }) {
+                TitleValue("Install options", "Configure Shizuku and Root flags")
+            }
+        }
 
         // ── Device Info ──────────────────────────────────────────────────────
         item { SectionHeader(stringResource(R.string.tv_settings_section_device), Icons.Default.Devices) }
@@ -450,4 +460,3 @@ private fun SectionHeader(text: String, icon: androidx.compose.ui.graphics.vecto
         )
     }
 }
-

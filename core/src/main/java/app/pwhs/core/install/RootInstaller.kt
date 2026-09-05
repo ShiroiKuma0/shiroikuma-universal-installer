@@ -3,8 +3,11 @@ package app.pwhs.core.install
 import android.content.Context
 import android.net.Uri
 import app.pwhs.core.util.RootShell
+import app.pwhs.core.data.local.SharedPrefsKeys
+import app.pwhs.core.data.local.dataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import ru.solrudev.ackpine.splits.Apk
 import ru.solrudev.ackpine.splits.ApkSplits.validate
 import ru.solrudev.ackpine.splits.CloseableSequence
@@ -44,10 +47,16 @@ class RootInstaller(private val context: Context) {
     ): ApkInstaller.Result = withContext(Dispatchers.IO) {
         val stagingDir = File(context.cacheDir, "root_install_${UUID.randomUUID()}").apply { mkdirs() }
         try {
+            val prefs = context.dataStore.data.first()
+            val replace = prefs[SharedPrefsKeys.TV_ROOT_REPLACE] ?: true
+            val downgrade = prefs[SharedPrefsKeys.TV_ROOT_DOWNGRADE] ?: false
+            val grant = prefs[SharedPrefsKeys.TV_ROOT_GRANT] ?: false
+            val test = prefs[SharedPrefsKeys.TV_ROOT_TEST] ?: false
+            val allUsers = prefs[SharedPrefsKeys.TV_ROOT_ALL_USERS] ?: false
             val splits = stage(uri, isBundle, stagingDir, onProgress)
             require(splits.isNotEmpty()) { "No APK found to install" }
 
-            val sessionId = createSession()
+            val sessionId = createSession(replace, downgrade, grant, test, allUsers)
             splits.forEachIndexed { idx, file ->
                 writeSplit(sessionId, idx, file)
                 onProgress(0.8f + 0.15f * ((idx + 1f) / splits.size))
@@ -142,8 +151,15 @@ class RootInstaller(private val context: Context) {
     private fun openInput(uri: Uri) =
         context.contentResolver.openInputStream(uri) ?: throw IllegalStateException("Cannot open $uri")
 
-    private suspend fun createSession(): String {
-        val r = RootShell.exec("pm install-create -r")
+    private suspend fun createSession(replace: Boolean, downgrade: Boolean, grant: Boolean, test: Boolean, allUsers: Boolean): String {
+        val flags = buildString {
+            if (replace) append(" -r")
+            if (downgrade) append(" -d")
+            if (grant) append(" -g")
+            if (test) append(" -t")
+            if (allUsers) append(" --user 0")
+        }
+        val r = RootShell.exec("pm install-create$flags")
         if (!r.isSuccess) throw RuntimeException("pm install-create failed: ${r.output.trim()}")
         return SESSION_ID.find(r.output)?.groupValues?.get(1)
             ?: throw RuntimeException("Could not parse session id from: ${r.output.trim()}")

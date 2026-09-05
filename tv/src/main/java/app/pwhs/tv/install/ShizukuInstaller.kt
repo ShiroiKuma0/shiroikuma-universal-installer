@@ -3,9 +3,12 @@ package app.pwhs.tv.install
 import android.content.Context
 import android.net.Uri
 import app.pwhs.core.install.ApkInstaller
+import app.pwhs.core.data.local.SharedPrefsKeys
+import app.pwhs.core.data.local.dataStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import ru.solrudev.ackpine.DelicateAckpineApi
 import ru.solrudev.ackpine.installer.PackageInstaller
 import ru.solrudev.ackpine.installer.createSession
@@ -26,11 +29,18 @@ class ShizukuInstaller(private val context: Context) {
     suspend fun install(uri: Uri, isBundle: Boolean, onProgress: (Float) -> Unit): ApkInstaller.Result =
         coroutineScope {
             try {
+                val prefs = context.dataStore.data.first()
                 val uris = if (isBundle) compatibleSplits(uri) else listOf(uri)
                 require(uris.isNotEmpty()) { "No APK found in bundle" }
                 val session = PackageInstaller.getInstance(context).createSession(uris) {
                     confirmation = Confirmation.IMMEDIATE
-                    shizuku { replaceExisting = true }
+                    shizuku {
+                        replaceExisting = prefs[SharedPrefsKeys.TV_SHIZUKU_REPLACE] ?: true
+                        requestDowngrade = prefs[SharedPrefsKeys.TV_SHIZUKU_DOWNGRADE] ?: false
+                        grantAllRequestedPermissions = prefs[SharedPrefsKeys.TV_SHIZUKU_GRANT] ?: false
+                        allowTest = prefs[SharedPrefsKeys.TV_SHIZUKU_TEST] ?: false
+                        allUsers = prefs[SharedPrefsKeys.TV_SHIZUKU_ALL_USERS] ?: false
+                    }
                 }
                 val progressJob = launch {
                     session.progress.collect {

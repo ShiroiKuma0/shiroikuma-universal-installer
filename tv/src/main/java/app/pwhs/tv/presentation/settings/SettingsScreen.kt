@@ -408,22 +408,17 @@ private fun ThemeOptionCard(
 @Composable
 internal fun SettingsCard(enabled: Boolean = true, onClick: () -> Unit, content: @Composable () -> Unit) {
     val shape = RoundedCornerShape(20.dp)
-    Surface(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.03f),
-        shape = ClickableSurfaceDefaults.shape(shape),
-        colors = ClickableSurfaceDefaults.colors(
+    val colors = ClickableSurfaceDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
             contentColor = MaterialTheme.colorScheme.onSurface,
             focusedContentColor = MaterialTheme.colorScheme.onSurface
         )
-    ) {
-        Column(Modifier.padding(24.dp)) { content() }
+    val body: @Composable () -> Unit = { Column(Modifier.padding(24.dp)) { content() } }
+    if (enabled) {
+        Surface(onClick = onClick, modifier = Modifier.fillMaxWidth().clip(shape), scale = ClickableSurfaceDefaults.scale(focusedScale = 1.03f), shape = ClickableSurfaceDefaults.shape(shape), colors = colors) { body() }
+    } else {
+        Surface(modifier = Modifier.fillMaxWidth().clip(shape)) { body() }
     }
 }
 

@@ -10,7 +10,7 @@ A fork of [pass-with-high-score/universal-installer](https://github.com/pass-wit
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.13.0+002`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.13.0+003`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -117,4 +117,4 @@ cd shiroikuma-universal-installer
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew assembleOpensourceRelease
 ```
 
-The fork build task `:app:buildFork` assembles the signed release, copies it to `~/tmp/` as `shiroikuma-universal-installer_<version>.apk`, and bumps the build number. Signing reads a gitignored `key.properties`; without it the build is unsigned.
+The fork build task `:app:buildFork` assembles the signed release, copies it to `~/tmp/` as `shiroikuma-universal-installer_<version>_arm64-v8a.apk`, and bumps the build number. The build is restricted to **arm64-v8a**, so the suffix describes the file rather than decorating it. Signing reads a gitignored `key.properties`; without it the build is unsigned.

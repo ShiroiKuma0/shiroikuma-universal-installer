@@ -4,6 +4,26 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.13.0+003
+
+**New in this build:** the APK is now **arm64-v8a only**, and its filename says so. No app-code
+change — same 1.13.0 (versionCode 36) with the automation contract v2 of `+002`.
+
+### 📦 One ABI, and a filename that means it
+- `ndk.abiFilters` restricts the build to **arm64-v8a**. Every fork build from here is arm64 only,
+  rather than the name merely claiming it.
+- The artefact is now `shiroikuma-universal-installer_<version>_arm64-v8a.apk`, matching the family
+  convention that sister forks already use, so all of 白い熊's APKs sort and read alike in one
+  directory. Both `archivesName` and the `buildFork` copy carry the suffix, so the intermediate
+  output and the delivered file can never drift apart.
+- **The suffix describes the file, it does not decorate it.** Until this build the APK shipped all
+  four ABIs — `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` — so adding the suffix alone would have
+  mislabelled it. The native payload is two AndroidX libraries (`libandroidx.graphics.path`,
+  `libdatastore_shared_counter`), both with pure-Java fallbacks; dropping the other three ABIs takes
+  **97,888 bytes** off the APK and changes nothing on an arm64 device.
+- **Consequence:** this APK will not install on a 32-bit (`armeabi-v7a`) or x86 device. Builds up to
+  and including `1.13.0+002` remain universal, and keep their un-suffixed names.
+
 ## 1.13.0+002
 
 **New in this build:** the sister-app **automation contract v2**. The token stops being the gate, a

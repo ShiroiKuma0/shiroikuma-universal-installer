@@ -20,7 +20,8 @@ side-by-side with the official app. The fork follows the same model as 白い熊
 | Fork version | `versionName = "<VERSION_NAME>+<BUILD_NUMBER zero-padded to 3, e.g. 1.9.11+013>"`, `versionCode = VERSION_CODE*10000+BUILD_NUMBER` (`gradle.properties`) |
 | Signing keystore | `~/.android-keystores/shiroikuma-universalinstaller.jks` (alias `universalinstaller`), via gitignored `key.properties` |
 | Build JDK | OpenJDK 21 at `/usr/lib/jvm/java-21-openjdk-amd64` (default `java` here is 11) |
-| APK output | `~/tmp/shiroikuma-universal-installer_<versionName>.apk`; on phone → `/sdcard/tmp/` |
+| APK output | `~/tmp/shiroikuma-universal-installer_<versionName>_arm64-v8a.apk`; on phone → `/sdcard/tmp/` |
+| ABI | **arm64-v8a only** (`ndk.abiFilters`, 白い熊 2026-09-05) — the `_arm64-v8a` suffix describes the file, never decorates it. Builds before `1.13.0+003` were universal APKs without the suffix; never rename them. |
 
 `VERSION_NAME` / `VERSION_CODE` track upstream; `BUILD_NUMBER` is our increment — it **resets to 1** on each
 new upstream version and **bumps by 1 on every build** (`buildFork` does the bump). It is stored unpadded in

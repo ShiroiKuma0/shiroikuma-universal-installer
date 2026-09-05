@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Key
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,13 +39,15 @@ import app.pwhs.universalinstaller.presentation.setting.InstallMode
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
 import app.pwhs.universalinstaller.presentation.setting.ShizukuState
+import app.pwhs.universalinstaller.util.DhizukuCompat
+import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.core.data.local.dataStore
 import kotlinx.coroutines.flow.map
 import org.koin.androidx.compose.koinViewModel
 
 /**
  * Pill showing the active install backend. Tapping it opens a picker so the user can switch
- * engine (PackageInstaller / Shizuku / Root) right from the Install and Manage screens —
+ * engine (PackageInstaller / Shizuku / Dhizuku / Root) right from the Install and Manage screens —
  * the switch reuses [SettingViewModel.setInstallMode], which runs the same Shizuku-permission
  * / root-request ladder as the Settings screen.
  */
@@ -59,6 +62,7 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
             when {
                 prefs[PreferencesKeys.USE_ROOT] == true -> Mode.Root
                 prefs[PreferencesKeys.USE_SHIZUKU] == true -> Mode.Shizuku
+                prefs[PreferencesKeys.USE_DHIZUKU] == true -> Mode.Dhizuku
                 else -> Mode.Default
             }
         }
@@ -77,14 +81,16 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     val label = when (mode) {
         Mode.Root -> stringResource(R.string.installer_mode_root)
         Mode.Shizuku -> stringResource(R.string.installer_mode_shizuku)
+        Mode.Dhizuku -> stringResource(R.string.installer_mode_dhizuku)
         Mode.Default -> stringResource(R.string.installer_mode_package_installer)
     }
     val icon = when (mode) {
         Mode.Root -> Icons.Rounded.Key
         Mode.Shizuku -> Icons.Rounded.AdminPanelSettings
+        Mode.Dhizuku -> Icons.Rounded.Shield
         Mode.Default -> Icons.Rounded.Android
     }
-    val privileged = mode == Mode.Root || mode == Mode.Shizuku
+    val privileged = mode == Mode.Root || mode == Mode.Shizuku || mode == Mode.Dhizuku
     val container = if (privileged)
         MaterialTheme.colorScheme.primaryContainer
     else
@@ -117,9 +123,11 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     }
 
     if (showPicker) {
+        val dhizukuState by settingViewModel.dhizukuState.collectAsState()
         val current = InstallMode.from(
             useShizuku = mode == Mode.Shizuku,
             useRoot = mode == Mode.Root,
+            useDhizuku = mode == Mode.Dhizuku,
         )
         // Root stays tappable whenever this build ships su support — tapping it when not yet
         // ready fires the root request (su prompt). It's only greyed (dimmed) to signal it
@@ -138,6 +146,15 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
         )
         val shizukuSelectable = settingState.shizukuState != ShizukuState.UNSUPPORTED &&
             settingState.shizukuState != ShizukuState.NOT_INSTALLED
+
+        val dhizukuSupported = DhizukuCompat.isSupported
+        val dhizukuReady = dhizukuState == DhizukuState.READY || current == InstallMode.DHIZUKU
+        val dhizukuSelectable = dhizukuSupported &&
+            dhizukuState != DhizukuState.UNSUPPORTED &&
+            dhizukuState != DhizukuState.NOT_INSTALLED &&
+            dhizukuState != DhizukuState.PROFILE_OWNER_UNSUPPORTED
+        val dhizukuDimmed = current != InstallMode.DHIZUKU && !dhizukuReady
+
         AlertDialog(
             onDismissRequest = { showPicker = false },
             title = { Text(stringResource(R.string.installer_engine_dialog_title)) },
@@ -167,6 +184,26 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
                             showPicker = false
                         },
                     )
+                    if (dhizukuSupported && dhizukuState != DhizukuState.NOT_INSTALLED) {
+                        EngineOption(
+                            title = stringResource(R.string.installer_mode_dhizuku),
+                            subtitle = when (dhizukuState) {
+                                DhizukuState.UNSUPPORTED -> stringResource(R.string.setting_dhizuku_unsupported)
+                                DhizukuState.NOT_INSTALLED -> stringResource(R.string.setting_dhizuku_not_installed)
+                                DhizukuState.NOT_RUNNING -> stringResource(R.string.setting_dhizuku_not_running)
+                                DhizukuState.PROFILE_OWNER_UNSUPPORTED -> stringResource(R.string.setting_dhizuku_profile_owner_unsupported)
+                                DhizukuState.NOT_AUTHORIZED -> stringResource(R.string.setting_dhizuku_no_permission)
+                                else -> stringResource(R.string.installer_engine_dhizuku_desc)
+                            },
+                            selected = current == InstallMode.DHIZUKU,
+                            enabled = dhizukuSelectable,
+                            dimmed = dhizukuDimmed,
+                            onClick = {
+                                settingViewModel.setInstallMode(InstallMode.DHIZUKU)
+                                showPicker = false
+                            },
+                        )
+                    }
                     EngineOption(
                         title = stringResource(R.string.installer_mode_root),
                         subtitle = when {
@@ -227,4 +264,4 @@ private fun EngineOption(
     }
 }
 
-private enum class Mode { Default, Shizuku, Root }
+private enum class Mode { Default, Shizuku, Dhizuku, Root }

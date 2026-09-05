@@ -605,6 +605,8 @@
   <string name="setting_dhizuku_unsupported">Dhizuku cần Android 8.0 trở lên</string>
   <string name="setting_dhizuku_not_installed">Thiết bị chưa cài Dhizuku</string>
   <string name="setting_dhizuku_not_running">Đã cài Dhizuku nhưng chưa hoạt động — hãy mở nó và đảm bảo đã đặt làm device owner</string>
+  <string name="setting_dhizuku_no_permission">Nhấn để cấp quyền Dhizuku</string>
+  <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku đang hoạt động với quyền Profile Owner. Cài đặt im lặng yêu cầu quyền Device Owner.</string>
   <string name="setting_dhizuku_denied">Dhizuku đã từ chối yêu cầu cấp quyền</string>
   <string name="setting_dhizuku_ready">Sẵn sàng — cài im lặng. Lưu ý Dhizuku chỉ hỗ trợ \&quot;Cho phép hạ cấp\&quot;; các tuỳ chọn cài đặt khác chỉ áp dụng cho Shizuku và Root.</string>
   <string name="setting_install_mode_root">Root</string>
@@ -761,6 +763,7 @@
   <string name="installer_engine_dialog_title">Phương thức cài đặt</string>
   <string name="installer_engine_default_desc">Trình cài đặt gói Android tiêu chuẩn</string>
   <string name="installer_engine_shizuku_desc">Cài đặt im lặng qua dịch vụ Shizuku</string>
+  <string name="installer_engine_dhizuku_desc">Cài đặt im lặng qua Device Owner</string>
   <string name="installer_engine_root_desc">Cài đặt bằng root (su)</string>
   <string name="installer_engine_root_unsupported">Không khả dụng trên bản dựng này</string>
   <string name="backup_split_format_label">Định dạng ứng dụng tách</string>

@@ -372,12 +372,15 @@
     <string name="setting_install_mode_title">Install mode</string>
     <string name="setting_install_mode_default">Default</string>
     <string name="setting_install_mode_shizuku">Shizuku</string>
+    <string name="setting_install_mode_dhizuku" translatable="false">Dhizuku</string>
     <string name="setting_use_dhizuku_title">Use Dhizuku instead</string>
     <string name="setting_use_dhizuku_subtitle">Install silently through Dhizuku, without ADB or root. Overrides the mode above.</string>
     <string name="setting_install_mode_overridden_by_dhizuku">Dhizuku is handling installs — turn it off below to use one of these instead</string>
     <string name="setting_dhizuku_unsupported">Dhizuku needs Android 8.0 or newer</string>
     <string name="setting_dhizuku_not_installed">Dhizuku is not installed on this device</string>
     <string name="setting_dhizuku_not_running">Dhizuku is installed but not active — open it and make sure it is set as device owner</string>
+    <string name="setting_dhizuku_no_permission">Tap to grant Dhizuku permission</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku is set as Profile Owner. Silent install requires Device Owner.</string>
     <string name="setting_dhizuku_denied">Dhizuku denied the permission request</string>
     <string name="setting_dhizuku_ready">Ready — installs run silently. Note Dhizuku only supports \&quot;Allow downgrade\&quot;; the other install options apply to Shizuku and Root only.</string>
     <string name="setting_install_mode_root">Root</string>
@@ -511,12 +514,14 @@
     <string name="diagnostics_clear">Clear</string>
     <string name="diagnostics_cancel">Cancel</string>
     <string name="installer_mode_shizuku" translatable="false">Shizuku</string>
+    <string name="installer_mode_dhizuku" translatable="false">Dhizuku</string>
     <string name="installer_mode_root" translatable="false">Root</string>
     <string name="installer_mode_package_installer">Package Installer</string>
     <string name="installer_mode_using">Using %s</string>
     <string name="installer_engine_dialog_title">Install engine</string>
     <string name="installer_engine_default_desc">Standard Android package installer</string>
     <string name="installer_engine_shizuku_desc">Install silently via the Shizuku service</string>
+    <string name="installer_engine_dhizuku_desc">Install silently via Device Owner</string>
     <string name="installer_engine_root_desc">Install with root (su)</string>
     <string name="installer_engine_root_request">Tap to grant root access</string>
     <string name="installer_engine_root_unsupported">Not available on this build</string>

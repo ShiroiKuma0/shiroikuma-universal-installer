@@ -266,13 +266,17 @@ internal fun InstallModeSelector(
     shizukuState: ShizukuState,
     rootSupported: Boolean,
     rootState: RootState,
-    /** True while the Dhizuku switch is on, in which case this picker is not what runs installs. */
-    overriddenByDhizuku: Boolean,
+    dhizukuSupported: Boolean = true,
+    dhizukuState: DhizukuState = DhizukuState.NOT_INSTALLED,
     onModeChange: (InstallMode) -> Unit,
 ) {
-    val options: List<InstallMode> = remember(rootSupported) {
-        if (rootSupported) listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU, InstallMode.ROOT)
-        else listOf(InstallMode.DEFAULT, InstallMode.SHIZUKU)
+    val options: List<InstallMode> = remember(rootSupported, dhizukuSupported) {
+        buildList {
+            add(InstallMode.DEFAULT)
+            add(InstallMode.SHIZUKU)
+            if (dhizukuSupported) add(InstallMode.DHIZUKU)
+            if (rootSupported) add(InstallMode.ROOT)
+        }
     }
     Column(
         modifier = Modifier
@@ -295,12 +299,19 @@ internal fun InstallModeSelector(
         // attempt), so a granted device shows UNKNOWN and was wrongly greyed.
         val rootDimmed = currentMode != InstallMode.ROOT &&
             (rootState == RootState.NOT_ROOTED || rootState == RootState.UNAVAILABLE)
+        val dhizukuDimmed = currentMode != InstallMode.DHIZUKU &&
+            (dhizukuState == DhizukuState.NOT_INSTALLED || dhizukuState == DhizukuState.UNSUPPORTED || dhizukuState == DhizukuState.PROFILE_OWNER_UNSUPPORTED)
+
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             options.forEachIndexed { index, mode ->
-                val dim = overriddenByDhizuku || (mode == InstallMode.ROOT && rootDimmed)
+                val dim = (mode == InstallMode.ROOT && rootDimmed) || (mode == InstallMode.DHIZUKU && dhizukuDimmed)
                 SegmentedButton(
                     selected = mode == currentMode,
-                    onClick = { if (mode != currentMode) onModeChange(mode) },
+                    onClick = {
+                        if (mode != currentMode || (mode == InstallMode.DHIZUKU && dhizukuState == DhizukuState.NOT_AUTHORIZED)) {
+                            onModeChange(mode)
+                        }
+                    },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                     enabled = true,
                     label = {
@@ -308,6 +319,7 @@ internal fun InstallModeSelector(
                             text = when (mode) {
                                 InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default)
                                 InstallMode.SHIZUKU -> stringResource(R.string.setting_install_mode_shizuku)
+                                InstallMode.DHIZUKU -> stringResource(R.string.setting_install_mode_dhizuku)
                                 InstallMode.ROOT -> stringResource(R.string.setting_install_mode_root)
                             },
                             color = if (dim)
@@ -319,9 +331,7 @@ internal fun InstallModeSelector(
                 )
             }
         }
-        val statusText = if (overriddenByDhizuku) {
-            stringResource(R.string.setting_install_mode_overridden_by_dhizuku)
-        } else when (currentMode) {
+        val statusText = when (currentMode) {
             InstallMode.DEFAULT -> stringResource(R.string.setting_install_mode_default_sub)
             InstallMode.SHIZUKU -> when (shizukuState) {
                 ShizukuState.NOT_INSTALLED -> stringResource(R.string.setting_shizuku_not_installed)
@@ -329,6 +339,14 @@ internal fun InstallModeSelector(
                 ShizukuState.UNSUPPORTED -> stringResource(R.string.setting_shizuku_unsupported)
                 ShizukuState.NO_PERMISSION -> stringResource(R.string.setting_shizuku_no_permission)
                 ShizukuState.READY -> stringResource(R.string.setting_shizuku_ready)
+            }
+            InstallMode.DHIZUKU -> when (dhizukuState) {
+                DhizukuState.UNSUPPORTED -> stringResource(R.string.setting_dhizuku_unsupported)
+                DhizukuState.NOT_INSTALLED -> stringResource(R.string.setting_dhizuku_not_installed)
+                DhizukuState.NOT_RUNNING -> stringResource(R.string.setting_dhizuku_not_running)
+                DhizukuState.PROFILE_OWNER_UNSUPPORTED -> stringResource(R.string.setting_dhizuku_profile_owner_unsupported)
+                DhizukuState.NOT_AUTHORIZED -> stringResource(R.string.setting_dhizuku_no_permission)
+                DhizukuState.READY -> stringResource(R.string.setting_dhizuku_ready)
             }
             InstallMode.ROOT -> when (rootState) {
                 RootState.UNAVAILABLE -> "Unavailable"
@@ -338,11 +356,14 @@ internal fun InstallModeSelector(
                 else -> "Not Rooted"
             }
         }
+        val canRequestPermission = currentMode == InstallMode.DHIZUKU && dhizukuState == DhizukuState.NOT_AUTHORIZED
         Text(
             text = statusText,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp),
+            color = if (canRequestPermission) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .then(if (canRequestPermission) Modifier.clickable { onModeChange(InstallMode.DHIZUKU) } else Modifier),
         )
     }
 }

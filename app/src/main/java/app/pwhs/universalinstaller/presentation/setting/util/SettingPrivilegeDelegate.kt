@@ -76,7 +76,11 @@ class SettingPrivilegeDelegate(
             if (grantResult == PackageManager.PERMISSION_GRANTED) {
                 app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_CONNECTED)
                 scope.launch {
-                    dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
+                    dataStore.edit { prefs ->
+                        prefs[PreferencesKeys.USE_ROOT] = false
+                        prefs[PreferencesKeys.USE_DHIZUKU] = false
+                        prefs[PreferencesKeys.USE_SHIZUKU] = true
+                    }
                 }
             } else {
                 app.pwhs.core.telemetry.AnalyticsHelper.logShizukuStatusChanged(app.pwhs.core.telemetry.TelemetryEvents.SHIZUKU_PERMISSION_DENIED)
@@ -131,6 +135,15 @@ class SettingPrivilegeDelegate(
                 }
                 setUseShizuku(true)
             }
+            InstallMode.DHIZUKU -> {
+                scope.launch {
+                    dataStore.edit { p ->
+                        p[PreferencesKeys.USE_SHIZUKU] = false
+                        p[PreferencesKeys.USE_ROOT] = false
+                    }
+                }
+                setUseDhizuku(true)
+            }
             InstallMode.ROOT -> scope.launch {
                 val state = backendFactory.requestRoot()
                 _rootState.value = state
@@ -155,7 +168,11 @@ class SettingPrivilegeDelegate(
         updateShizukuState()
         when (_shizukuState.value) {
             ShizukuState.READY -> scope.launch {
-                dataStore.edit { prefs -> prefs[PreferencesKeys.USE_SHIZUKU] = true }
+                dataStore.edit { prefs ->
+                    prefs[PreferencesKeys.USE_ROOT] = false
+                    prefs[PreferencesKeys.USE_DHIZUKU] = false
+                    prefs[PreferencesKeys.USE_SHIZUKU] = true
+                }
             }
             ShizukuState.NO_PERMISSION -> requestShizukuPermission()
             ShizukuState.NOT_RUNNING -> emitEvent(R.string.setting_shizuku_start_service_hint)
@@ -206,6 +223,7 @@ class SettingPrivilegeDelegate(
             DhizukuState.UNSUPPORTED -> emitEvent(R.string.setting_dhizuku_unsupported)
             DhizukuState.NOT_INSTALLED -> emitEvent(R.string.setting_dhizuku_not_installed)
             DhizukuState.NOT_RUNNING -> emitEvent(R.string.setting_dhizuku_not_running)
+            DhizukuState.PROFILE_OWNER_UNSUPPORTED -> emitEvent(R.string.setting_dhizuku_profile_owner_unsupported)
             DhizukuState.NOT_AUTHORIZED -> DhizukuCompat.requestPermission(application) { granted ->
                 _dhizukuState.value = if (granted) DhizukuState.READY else DhizukuState.NOT_AUTHORIZED
                 if (granted) commitDhizukuMode() else emitEvent(R.string.setting_dhizuku_denied)

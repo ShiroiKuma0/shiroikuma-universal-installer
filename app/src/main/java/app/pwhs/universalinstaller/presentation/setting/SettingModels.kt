@@ -82,10 +82,12 @@ enum class SecurityLevel {
 enum class InstallMode {
     DEFAULT,
     SHIZUKU,
+    DHIZUKU,
     ROOT;
 
     companion object {
-        fun from(useShizuku: Boolean, useRoot: Boolean): InstallMode = when {
+        fun from(useShizuku: Boolean, useRoot: Boolean, useDhizuku: Boolean = false): InstallMode = when {
+            useDhizuku -> DHIZUKU
             useRoot -> ROOT
             useShizuku -> SHIZUKU
             else -> DEFAULT

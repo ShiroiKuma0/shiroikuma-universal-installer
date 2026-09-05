@@ -1,5 +1,6 @@
 package app.pwhs.universalinstaller.util
 
+import android.app.admin.DevicePolicyManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -17,6 +18,9 @@ enum class DhizukuState {
 
     /** Installed, but not running as device owner or the service is not up. */
     NOT_RUNNING,
+
+    /** Running as Profile Owner rather than Device Owner; silent installs require Device Owner. */
+    PROFILE_OWNER_UNSUPPORTED,
 
     /** Running, but this app has not been granted permission yet. */
     NOT_AUTHORIZED,
@@ -41,6 +45,21 @@ object DhizukuCompat {
     val isSupported: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
     /**
+     * Checks if Dhizuku is active as Profile Owner rather than Device Owner.
+     * Android does not permit silent package installation for Profile Owner apps.
+     */
+    fun isProfileOwner(context: Context): Boolean {
+        val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as? DevicePolicyManager
+            ?: return false
+        return try {
+            dpm.isProfileOwnerApp(PACKAGE_NAME) && !dpm.isDeviceOwnerApp(PACKAGE_NAME)
+        } catch (t: Throwable) {
+            Timber.w(t, "Could not check DevicePolicyManager owner status for Dhizuku")
+            false
+        }
+    }
+
+    /**
      * State without touching Dhizuku's service.
      *
      * [Dhizuku.init] binds to Dhizuku, and Dhizuku answers a bind from an unauthorized app by
@@ -52,6 +71,7 @@ object DhizukuCompat {
     fun stateUnbound(context: Context): DhizukuState = when {
         !isSupported -> DhizukuState.UNSUPPORTED
         !isInstalled(context) -> DhizukuState.NOT_INSTALLED
+        isProfileOwner(context) -> DhizukuState.PROFILE_OWNER_UNSUPPORTED
         else -> DhizukuState.NOT_AUTHORIZED
     }
 
@@ -63,6 +83,7 @@ object DhizukuCompat {
     fun state(context: Context): DhizukuState {
         if (!isSupported) return DhizukuState.UNSUPPORTED
         if (!isInstalled(context)) return DhizukuState.NOT_INSTALLED
+        if (isProfileOwner(context)) return DhizukuState.PROFILE_OWNER_UNSUPPORTED
         val bound = try {
             Dhizuku.init(context)
         } catch (t: Throwable) {
@@ -88,7 +109,7 @@ object DhizukuCompat {
      */
     fun requestPermission(context: Context, onResult: (Boolean) -> Unit) {
         val current = state(context)
-        if (current == DhizukuState.UNSUPPORTED || current == DhizukuState.NOT_INSTALLED) {
+        if (current == DhizukuState.UNSUPPORTED || current == DhizukuState.NOT_INSTALLED || current == DhizukuState.PROFILE_OWNER_UNSUPPORTED) {
             onResult(false)
             return
         }

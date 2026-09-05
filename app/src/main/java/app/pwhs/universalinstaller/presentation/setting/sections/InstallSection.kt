@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.SettingsSection
+import app.pwhs.universalinstaller.util.DhizukuCompat
 import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.presentation.setting.InstallMode
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
@@ -50,32 +51,16 @@ internal fun LazyListScope.InstallSection(
             // Group headers only while unfiltered: a header whose items were all
             // searched away is a label over nothing. Same rule the divider below uses.
             if (q.isBlank()) OptionGroupHeader(stringResource(R.string.setting_group_installing))
-            SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku root default") {
+            SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku dhizuku root default") {
                 InstallModeSelector(
-                    currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot),
+                    currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot, useDhizuku),
                     shizukuState = uiState.shizukuState,
                     rootSupported = uiState.rootSupported,
                     rootState = uiState.rootState,
-                    overriddenByDhizuku = useDhizuku,
+                    dhizukuSupported = DhizukuCompat.isSupported,
+                    dhizukuState = dhizukuState,
                     onModeChange = onInstallModeChanged,
                 )
-                // Only offered when Dhizuku is actually on the device. A switch for
-                // an app the user does not have is noise, and it cannot be turned on
-                // below API 26 either.
-                if (dhizukuState != DhizukuState.UNSUPPORTED &&
-                    dhizukuState != DhizukuState.NOT_INSTALLED
-                ) {
-                    SwitchPreference(
-                        title = stringResource(R.string.setting_use_dhizuku_title),
-                        subtitle = if (useDhizuku) {
-                            stringResource(R.string.setting_dhizuku_ready)
-                        } else {
-                            stringResource(R.string.setting_use_dhizuku_subtitle)
-                        },
-                        checked = useDhizuku,
-                        onCheckedChange = onUseDhizukuChanged,
-                    )
-                }
                 if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
                     ListItem(
                         headlineContent = { Text(stringResource(R.string.setting_retry_root)) },

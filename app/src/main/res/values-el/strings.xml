@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">Προσθήκη εφαρμογής</string>
     <string name="setting_auto_approve_custom_dialog_hint">π.χ. org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">Προσθήκη</string>
+    <string name="setting_dhizuku_no_permission">Πατήστε για παραχώρηση άδειας Dhizuku</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Το Dhizuku έχει οριστεί ως Κάτοχος προφίλ. Η σιωπηλή εγκατάσταση απαιτεί Κάτοχο συσκευής.</string>
+    <string name="installer_engine_dhizuku_desc">Σιωπηλή εγκατάσταση μέσω Κατόχου συσκευής</string>
 </resources>

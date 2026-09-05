@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">アプリの追加</string>
     <string name="setting_auto_approve_custom_dialog_hint">例: org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">追加</string>
+    <string name="setting_dhizuku_no_permission">タップして Dhizuku に権限を付与</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku はプロファイルオーナーとして設定されています。サイレントインストールにはデバイスオーナーが必要です。</string>
+    <string name="installer_engine_dhizuku_desc">デバイスオーナーによるサイレントインストール</string>
 </resources>

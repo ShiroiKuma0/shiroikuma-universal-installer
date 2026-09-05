@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">添加应用</string>
     <string name="setting_auto_approve_custom_dialog_hint">例如 org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">添加</string>
+    <string name="setting_dhizuku_no_permission">点击授予 Dhizuku 权限</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku 当前被设置为 Profile Owner。静默安装需要 Device Owner 权限。</string>
+    <string name="installer_engine_dhizuku_desc">通过设备所有者 (Device Owner) 静默安装</string>
 </resources>

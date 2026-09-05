@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">애플리케이션 추가</string>
     <string name="setting_auto_approve_custom_dialog_hint">예: org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">추가</string>
+    <string name="setting_dhizuku_no_permission">탭하여 Dhizuku 권한 부여</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku가 프로필 소유자로 설정되어 있습니다. 자동 설치에는 기기 소유자 권한이 필요합니다.</string>
+    <string name="installer_engine_dhizuku_desc">기기 소유자를 통해 자동 설치</string>
 </resources>

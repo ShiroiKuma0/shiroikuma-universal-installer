@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">Uygulama ekle</string>
     <string name="setting_auto_approve_custom_dialog_hint">örn. org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">Ekle</string>
+    <string name="setting_dhizuku_no_permission">Dhizuku izni vermek için dokunun</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku Profil Sahibi olarak ayarlanmış. Sessiz kurulum Cihaz Sahibi gerektirir.</string>
+    <string name="installer_engine_dhizuku_desc">Cihaz Sahibi ile sessiz kurulum</string>
 </resources>

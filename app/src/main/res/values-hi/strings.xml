@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">एप्लिकेशन जोड़ें</string>
     <string name="setting_auto_approve_custom_dialog_hint">उदा. org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">जोड़ें</string>
+    <string name="setting_dhizuku_no_permission">Dhizuku अनुमति देने के लिए टैप करें</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku को प्रोफ़ाइल स्वामी के रूप में सेट किया गया है। साइलेंट इंस्टॉल के लिए डिवाइस स्वामी आवश्यक है।</string>
+    <string name="installer_engine_dhizuku_desc">डिवाइस स्वामी द्वारा साइलेंट इंस्टॉल</string>
 </resources>

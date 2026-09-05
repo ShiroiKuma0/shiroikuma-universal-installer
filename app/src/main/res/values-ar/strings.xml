@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">إضافة تطبيق</string>
     <string name="setting_auto_approve_custom_dialog_hint">مثل org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">إضافة</string>
+    <string name="setting_dhizuku_no_permission">اضغط لمنح إذن Dhizuku</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">تم تعيين Dhizuku كمالك ملف شخصي. يتطلب التثبيت الصامت مالك الجهاز.</string>
+    <string name="installer_engine_dhizuku_desc">تثبيت صامت عبر مالك الجهاز</string>
 </resources>

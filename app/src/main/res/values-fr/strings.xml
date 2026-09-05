@@ -868,4 +868,7 @@
     <string name="setting_auto_approve_custom_dialog_title">Ajouter une application</string>
     <string name="setting_auto_approve_custom_dialog_hint">ex. org.fdroid.fdroid</string>
     <string name="setting_auto_approve_custom_dialog_add">Ajouter</string>
+    <string name="setting_dhizuku_no_permission">Appuyez pour accorder la permission Dhizuku</string>
+    <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku est défini comme propriétaire de profil. L\'installation silencieuse nécessite le propriétaire de l\'appareil.</string>
+    <string name="installer_engine_dhizuku_desc">Installation silencieuse via le propriétaire de l\'appareil</string>
 </resources>

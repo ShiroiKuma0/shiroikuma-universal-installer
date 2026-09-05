@@ -85,10 +85,12 @@ object TrackedAppsBackupHelper {
             val element = json.parseToJsonElement(trimmed)
             val appArray = when {
                 element is JsonObject && element.containsKey("apps") -> element["apps"]?.jsonArray
+                element is JsonObject && element.containsKey("trackedApps") -> element["trackedApps"]?.jsonArray
                 element is JsonObject && element.containsKey("app_sources") -> element["app_sources"]?.jsonArray
                 element is kotlinx.serialization.json.JsonArray -> element
                 else -> null
             }
+
 
             appArray?.forEach { item ->
                 val obj = item.jsonObject

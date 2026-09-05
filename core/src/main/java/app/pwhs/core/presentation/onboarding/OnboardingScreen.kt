@@ -35,7 +35,9 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.GppGood
 import androidx.compose.material.icons.rounded.Insights
+import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.InstallMobile
+import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.Widgets
@@ -122,6 +124,8 @@ fun OnboardingScreen(
     showXiaomiTip: Boolean = false,
     showVirusTotalTip: Boolean = false,
     showAnalyticsConsent: Boolean = false,
+    onRestoreBackup: (() -> Unit)? = null,
+    onBackup: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val activity = context as? android.app.Activity
@@ -246,11 +250,37 @@ fun OnboardingScreen(
                 .padding(24.dp)
                 .imePadding(),
         ) {
-            // Skip button
-            Box(
+            // Top header actions
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (onRestoreBackup != null) {
+                        TextButton(onClick = onRestoreBackup) {
+                            Icon(
+                                imageVector = Icons.Rounded.Restore,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(stringResource(R.string.onboarding_restore_backup))
+                        }
+                    }
+                    if (onBackup != null) {
+                        TextButton(onClick = onBackup) {
+                            Icon(
+                                imageVector = Icons.Rounded.CloudSync,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(stringResource(R.string.onboarding_backup))
+                        }
+                    }
+                }
+
                 if (pagerState.currentPage < pages.lastIndex) {
                     TextButton(onClick = {
                         scope.launch {

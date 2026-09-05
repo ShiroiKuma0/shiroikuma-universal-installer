@@ -18,6 +18,7 @@ import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
 import app.pwhs.universalinstaller.presentation.sync.SyncViewModel
 import app.pwhs.universalinstaller.presentation.manage.ManageViewModel
 import app.pwhs.universalinstaller.presentation.manage.logs.UninstallLogsViewModel
+import app.pwhs.universalinstaller.presentation.setting.backup.BackupViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -97,6 +98,8 @@ val appModule = module {
         app.pwhs.universalinstaller.domain.provider.PrivilegedProviderImpl(get(), get())
     }
 
+    single { app.pwhs.universalinstaller.domain.backup.BackupRestoreManager(get(), get(), get()) }
+
     viewModel {
         InstallViewModel(
             get(), get(), get(), get(), get(), get(), get(), get(), get(), get(),
@@ -110,4 +113,7 @@ val appModule = module {
     viewModelOf(::UninstallLogsViewModel)
     viewModelOf(::DownloadHistoryViewModel)
     viewModelOf(::SyncViewModel)
+    viewModelOf(::BackupViewModel)
 }
+
+

@@ -78,6 +78,9 @@ import app.pwhs.universalinstaller.presentation.setting.sections.InterfaceSectio
 import app.pwhs.universalinstaller.presentation.setting.sections.PrivacySection
 import app.pwhs.universalinstaller.presentation.setting.sections.SecuritySection
 import app.pwhs.universalinstaller.presentation.setting.sections.SyncSection
+import app.pwhs.universalinstaller.presentation.setting.sections.BackupSection
+import app.pwhs.universalinstaller.presentation.setting.backup.BackupSheetsHost
+import app.pwhs.universalinstaller.presentation.setting.backup.BackupViewModel
 import app.pwhs.universalinstaller.presentation.setting.components.*
 @Composable
 fun SettingScreen(
@@ -208,6 +211,8 @@ private fun SettingUi(
     onAnalyticsEnabledChanged: (Boolean) -> Unit = {},
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
+    val backupViewModel: BackupViewModel = koinViewModel()
+    var openRestorePicker by remember { mutableStateOf<(() -> Unit)?>(null) }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val navBarPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
@@ -311,6 +316,7 @@ private fun SettingUi(
                 stringResource(R.string.setting_blacklist_title), "blacklist", "block",
             )
             val syncLabels = listOf("sync", "port", "pin")
+            val backupLabels = listOf(stringResource(R.string.setting_section_backup), "backup", "restore", "export", "import")
             val advancedLabels = listOf("advanced", "virustotal", "api key")
             val privacyLabels = listOf(
                 stringResource(R.string.setting_analytics_title),
@@ -329,6 +335,7 @@ private fun SettingUi(
                     matchesQuery(q, interfaceLabels) ||
                     matchesQuery(q, securityLabels) ||
                     matchesQuery(q, syncLabels) ||
+                    matchesQuery(q, backupLabels) ||
                     matchesQuery(q, advancedLabels) ||
                     (Telemetry.isCollecting && matchesQuery(q, privacyLabels)) ||
                     matchesQuery(q, aboutLabels)
@@ -442,6 +449,14 @@ private fun SettingUi(
                     onSecurityLevelChanged = onSecurityLevelChanged,
                 )
 
+                // ── Backup & Restore Section ─────────────────
+                BackupSection(
+                    q = q,
+                    backupLabels = backupLabels,
+                    onExportClick = { backupViewModel.showExportSheet(true) },
+                    onRestoreClick = { openRestorePicker?.invoke() },
+                )
+
                 // ── About Section ────────────────────────────
                 AboutSection(
                     q = q,
@@ -466,6 +481,11 @@ private fun SettingUi(
             } // end of Crossfade
         } // end of Column
     } // end of Scaffold
+
+    BackupSheetsHost(
+        viewModel = backupViewModel,
+        onPickerReady = { openRestorePicker = it },
+    )
 } // end of SettingUi
 
 /** True when [query] is blank (everything passes) or any [haystacks] entry contains it. */

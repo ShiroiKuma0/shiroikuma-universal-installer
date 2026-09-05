@@ -113,18 +113,30 @@ class MainActivity : ComponentActivity() {
 
             UniversalInstallerTheme(darkTheme = darkTheme) {
                 when (currentRoute) {
-                    AppRoute.Onboarding -> OnboardingScreen(
-                        onFinish = {
-                            val durationSec = (System.currentTimeMillis() - onboardingStartTime) / 1000L
-                            app.pwhs.core.telemetry.AnalyticsHelper.logOnboardingComplete(stepCount = 4, durationSec = durationSec)
-                            currentRoute = AppRoute.Main
-                        },
-                        showXiaomiTip = DeviceCompat.isXiaomi,
-                        showVirusTotalTip = true,
-                        // Only the build that has reporting asks about it. On `opensource`
-                        // there is no sink, so the page would be a question about nothing.
-                        showAnalyticsConsent = Telemetry.isCollecting,
-                    )
+                    AppRoute.Onboarding -> {
+                        val backupViewModel: app.pwhs.universalinstaller.presentation.setting.backup.BackupViewModel = org.koin.androidx.compose.koinViewModel()
+                        var openRestorePicker by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+                        OnboardingScreen(
+                            onFinish = {
+                                val durationSec = (System.currentTimeMillis() - onboardingStartTime) / 1000L
+                                app.pwhs.core.telemetry.AnalyticsHelper.logOnboardingComplete(stepCount = 4, durationSec = durationSec)
+                                currentRoute = AppRoute.Main
+                            },
+                            showXiaomiTip = DeviceCompat.isXiaomi,
+                            showVirusTotalTip = true,
+                            // Only the build that has reporting asks about it. On `opensource`
+                            // there is no sink, so the page would be a question about nothing.
+                            showAnalyticsConsent = Telemetry.isCollecting,
+                            onRestoreBackup = { openRestorePicker?.invoke() },
+                            onBackup = { backupViewModel.showExportSheet(true) },
+                        )
+
+                        app.pwhs.universalinstaller.presentation.setting.backup.BackupSheetsHost(
+                            viewModel = backupViewModel,
+                            onPickerReady = { openRestorePicker = it },
+                        )
+                    }
                     AppRoute.Main -> {
                         LaunchedEffect(Unit) {
                             val uri = intent?.data

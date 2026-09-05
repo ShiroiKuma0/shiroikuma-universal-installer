@@ -915,4 +915,34 @@
     <string name="watch_sheet_pick_file">Choose another file…</string>
     <string name="watch_sheet_send">Send</string>
     <string name="watch_chip_wear_os">Wear OS</string>
+
+    <!-- Full Backup and Restore -->
+    <string name="setting_section_backup">Backup &amp; Restore</string>
+    <string name="setting_backup_export_title">Create Backup</string>
+    <string name="setting_backup_export_subtitle">Export settings, tokens, tracked apps, and logs</string>
+    <string name="setting_backup_restore_title">Restore Backup</string>
+    <string name="setting_backup_restore_subtitle">Restore data from a backup file or Obtainium export</string>
+    <string name="backup_export_sheet_title">Export Backup</string>
+    <string name="backup_export_sheet_subtitle">Select the items you want to include in the backup file.</string>
+    <string name="backup_include_settings">App Settings &amp; Profiles</string>
+    <string name="backup_include_settings_sub">Themes, install options, profiles, blacklist</string>
+    <string name="backup_include_tokens">Source API Tokens</string>
+    <string name="backup_include_tokens_sub">GitHub, GitLab, Codeberg PAT tokens</string>
+    <string name="backup_include_tracked_apps">Tracked Applications</string>
+    <string name="backup_include_tracked_apps_sub">All apps currently tracked for updates</string>
+    <string name="backup_include_uninstall_logs">Uninstall Logs</string>
+    <string name="backup_include_uninstall_logs_sub">History of uninstalled packages</string>
+    <string name="backup_encrypt_title">Encrypt with password</string>
+    <string name="backup_encrypt_sub">Protect sensitive tokens and settings with AES-256-GCM</string>
+    <string name="backup_password_label">Password</string>
+    <string name="backup_confirm_password_label">Confirm Password</string>
+    <string name="backup_export_action">Export Backup</string>
+    <string name="backup_restore_sheet_title">Restore Backup</string>
+    <string name="backup_restore_enter_password">This backup is encrypted. Enter password to unlock:</string>
+    <string name="backup_restore_unlock">Unlock</string>
+    <string name="backup_restore_summary_title">Backup Content Found</string>
+    <string name="backup_restore_items_to_restore">Select items to restore:</string>
+    <string name="backup_restore_action">Restore Now</string>
+    <string name="backup_restored_success">Backup restored successfully!</string>
 </resources>
+

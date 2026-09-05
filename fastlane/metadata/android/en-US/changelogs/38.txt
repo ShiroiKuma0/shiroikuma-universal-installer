@@ -1,0 +1,6 @@
+• Full backup and encrypted restore: protect settings, tokens, and tracked apps
+• Custom Authorizer: run custom shell commands for package installations
+• MicroG & Dhizuku integration: enhanced installer modes and auto-approval
+• Smarter install sheets: prevent accidental dismissal and keep APK option
+• App security: async embedded tracker and analytics inspection
+• Redesigned onboarding with interactive animations

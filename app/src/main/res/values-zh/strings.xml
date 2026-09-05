@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">点击授予 Dhizuku 权限</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku 当前被设置为 Profile Owner。静默安装需要 Device Owner 权限。</string>
     <string name="installer_engine_dhizuku_desc">通过设备所有者 (Device Owner) 静默安装</string>
+    <string name="setting_install_mode_custom">自定义</string>
+    <string name="setting_install_mode_custom_sub">通过自定义 Shell 或授权命令安装</string>
+    <string name="setting_custom_authorizer_title">自定义授权工具</string>
+    <string name="setting_custom_authorizer_subtitle">配置用于授权安装的自定义 Shell 或二进制程序</string>
+    <string name="setting_custom_authorizer_configure">配置</string>
+    <string name="setting_custom_authorizer_presets">快速预设</string>
+    <string name="setting_custom_authorizer_save">保存并应用</string>
+    <string name="setting_custom_authorizer_cmd_label">授权命令</string>
+    <string name="setting_custom_authorizer_cmd_hint">例如：su -c {command} 或 su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">支持 {command} 占位符或 stdin 终端模式（例如：su、su 1000、rish -c {command}）。</string>
+    <string name="setting_custom_authorizer_test">测试</string>
+    <string name="setting_custom_authorizer_test_success">已连接：%1$s</string>
+    <string name="setting_custom_authorizer_test_failed">失败：%1$s</string>
+    <string name="setting_custom_authorizer_err_blank">命令不能为空</string>
+    <string name="setting_custom_authorizer_err_dangerous">检测到危险命令 (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">“%1$s” 不是授权工具（请使用 su、ksu、rish、sh 等）</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">%1$s 标记缺少 {command} 占位符</string>
+    <string name="setting_custom_authorizer_reset_default">恢复默认</string>
+    <string name="installer_mode_custom">自定义</string>
+    <string name="installer_engine_custom_desc">通过自定义授权命令安装</string>
 </resources>

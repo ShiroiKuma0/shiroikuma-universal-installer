@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Tippen, um Dhizuku-Berechtigung zu erteilen</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku ist als Profilinhaber festgelegt. Die stille Installation erfordert den Geräteinhaber.</string>
     <string name="installer_engine_dhizuku_desc">Lautlos über den Geräteinhaber installieren</string>
+    <string name="setting_install_mode_custom">Benutzerdefiniert</string>
+    <string name="setting_install_mode_custom_sub">Über benutzerdefinierte Shell oder Autorisierungsbefehl installieren</string>
+    <string name="setting_custom_authorizer_title">Benutzerdefinierter Autorisierer</string>
+    <string name="setting_custom_authorizer_subtitle">Benutzerdefinierte Shell oder Binärdatei zum Autorisieren von Installationen konfigurieren</string>
+    <string name="setting_custom_authorizer_configure">Konfigurieren</string>
+    <string name="setting_custom_authorizer_presets">Schnellvorlagen</string>
+    <string name="setting_custom_authorizer_save">Speichern &amp; Anwenden</string>
+    <string name="setting_custom_authorizer_cmd_label">Autorisierungsbefehl</string>
+    <string name="setting_custom_authorizer_cmd_hint">z.B. su -c {command} oder su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Unterstützt {command}-Platzhalter oder stdin-Terminalmodus (z.B. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Testen</string>
+    <string name="setting_custom_authorizer_test_success">Verbunden: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Fehlgeschlagen: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Befehl darf nicht leer sein</string>
+    <string name="setting_custom_authorizer_err_dangerous">Gefährlicher Befehl erkannt (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' ist kein Autorisierer (verwenden Sie su, ksu, rish, sh usw.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Fehlender {command}-Platzhalter für Flag %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Auf Standard zurücksetzen</string>
+    <string name="installer_mode_custom">Benutzerdefiniert</string>
+    <string name="installer_engine_custom_desc">Über benutzerdefinierten Autorisierungsbefehl installieren</string>
 </resources>

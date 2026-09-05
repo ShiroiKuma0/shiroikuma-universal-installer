@@ -847,4 +847,24 @@
     <string name="setting_dhizuku_no_permission">Stuknij, aby przyznać uprawnienia Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku jest ustawiony jako właściciel profilu. Cicha instalacja wymaga uprawnień właściciela urządzenia.</string>
     <string name="installer_engine_dhizuku_desc">Instaluj w tle przez właściciela urządzenia</string>
+    <string name="setting_install_mode_custom">Własny</string>
+    <string name="setting_install_mode_custom_sub">Instaluj przez niestandardową powłokę lub polecenie autoryzatora</string>
+    <string name="setting_custom_authorizer_title">Niestandardowy autoryzator</string>
+    <string name="setting_custom_authorizer_subtitle">Skonfiguruj powłokę lub plik binarny do autoryzacji instalacji</string>
+    <string name="setting_custom_authorizer_configure">Konfiguruj</string>
+    <string name="setting_custom_authorizer_presets">Szybkie szablony</string>
+    <string name="setting_custom_authorizer_save">Zapisz i zastosuj</string>
+    <string name="setting_custom_authorizer_cmd_label">Polecenie autoryzatora</string>
+    <string name="setting_custom_authorizer_cmd_hint">np. su -c {command} lub su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Obsługuje symbol zastępczy {command} lub tryb terminala stdin (np. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Testuj</string>
+    <string name="setting_custom_authorizer_test_success">Połączono: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Niepowodzenie: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Polecenie nie może być puste</string>
+    <string name="setting_custom_authorizer_err_dangerous">Wykryto niebezpieczne polecenie (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' nie jest autoryzatorem (użyj su, ksu, rish, sh itp.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Brakujący symbol zastępczy {command} dla flagi %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Przywróć domyślne</string>
+    <string name="installer_mode_custom">Własny</string>
+    <string name="installer_engine_custom_desc">Instaluj przez niestandardowe polecenie autoryzatora</string>
 </resources>

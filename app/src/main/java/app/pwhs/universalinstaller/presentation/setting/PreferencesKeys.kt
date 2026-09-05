@@ -51,6 +51,9 @@ object PreferencesKeys {
     val SHIZUKU_REQUEST_DOWNGRADE = booleanPreferencesKey("shizuku_request_downgrade")
     val USE_DHIZUKU = booleanPreferencesKey("use_dhizuku")
     val DHIZUKU_REQUEST_DOWNGRADE = booleanPreferencesKey("dhizuku_request_downgrade")
+    val USE_CUSTOM_AUTHORIZER = booleanPreferencesKey("use_custom_authorizer")
+    val CUSTOM_AUTHORIZER_COMMAND = stringPreferencesKey("custom_authorizer_command")
+    const val DEFAULT_CUSTOM_AUTHORIZER_COMMAND = "su -c {command}"
     val SHIZUKU_GRANT_ALL_PERMISSIONS = booleanPreferencesKey("shizuku_grant_all_permissions")
     val SHIZUKU_ALL_USERS = booleanPreferencesKey("shizuku_all_users")
     val SHIZUKU_SET_INSTALL_SOURCE = booleanPreferencesKey("shizuku_set_install_source")

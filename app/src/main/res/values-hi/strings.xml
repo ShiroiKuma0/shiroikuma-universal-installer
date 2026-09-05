@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Dhizuku अनुमति देने के लिए टैप करें</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku को प्रोफ़ाइल स्वामी के रूप में सेट किया गया है। साइलेंट इंस्टॉल के लिए डिवाइस स्वामी आवश्यक है।</string>
     <string name="installer_engine_dhizuku_desc">डिवाइस स्वामी द्वारा साइलेंट इंस्टॉल</string>
+    <string name="setting_install_mode_custom">कस्टम</string>
+    <string name="setting_install_mode_custom_sub">कस्टम शेल या ऑथराइज़र कमांड के माध्यम से इंस्टॉल करें</string>
+    <string name="setting_custom_authorizer_title">कस्टम ऑथराइज़र</string>
+    <string name="setting_custom_authorizer_subtitle">इंस्टॉलेशन अधिकृत करने के लिए कस्टम शेल या बाइनरी कॉन्फ़िगर करें</string>
+    <string name="setting_custom_authorizer_configure">कॉन्फ़िगर करें</string>
+    <string name="setting_custom_authorizer_presets">त्वरित प्रीसेट</string>
+    <string name="setting_custom_authorizer_save">सहेजें और लागू करें</string>
+    <string name="setting_custom_authorizer_cmd_label">ऑथराइज़र कमांड</string>
+    <string name="setting_custom_authorizer_cmd_hint">उदा. su -c {command} या su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">{command} प्लेसहोल्डर या stdin टर्मिनल मोड का समर्थन करता है (उदा. su, su 1000, rish -c {command})।</string>
+    <string name="setting_custom_authorizer_test">परीक्षण करें</string>
+    <string name="setting_custom_authorizer_test_success">कनेक्टेड: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">विफल: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">कमांड खाली नहीं हो सकता</string>
+    <string name="setting_custom_authorizer_err_dangerous">खतरनाक कमांड का पता चला (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' एक ऑथराइज़र नहीं है (su, ksu, rish, sh, आदि का उपयोग करें)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">%1$s फ्लैग के लिए {command} प्लेसहोल्डर गायब है</string>
+    <string name="setting_custom_authorizer_reset_default">डिफ़ॉल्ट पर रीसेट करें</string>
+    <string name="installer_mode_custom">कस्टम</string>
+    <string name="installer_engine_custom_desc">कस्टम ऑथराइज़र कमांड के माध्यम से इंस्टॉल करें</string>
 </resources>

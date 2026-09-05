@@ -123,6 +123,8 @@ fun SettingScreen(
         onUseDhizukuChanged = viewModel::setUseDhizuku,
         onPrivilegedOptionChanged = viewModel::setPrivilegedOption,
         onInstallerPackageChanged = viewModel::setInstallerPackageName,
+        onCustomAuthorizerCommandChange = viewModel::setCustomAuthorizerCommand,
+        onTestCustomAuthorizerCommand = viewModel::testCustomAuthorizerCommand,
         blacklist = blacklist,
         onReplayTutorial = {
             // Reuse MainActivity's onboarding route rather than clearing ONBOARDING_COMPLETED:
@@ -187,6 +189,8 @@ private fun SettingUi(
     onShizukuInstallerChanged: (String) -> Unit = {},
     onDeleteApkChanged: (Boolean) -> Unit = {},
     onAutoOpenAfterInstallChanged: (Boolean) -> Unit = {},
+    onCustomAuthorizerCommandChange: (String) -> Unit = {},
+    onTestCustomAuthorizerCommand: suspend (String) -> Result<String> = { Result.success("") },
     onLanguageClick: () -> Unit = {},
     onRootRetry: () -> Unit = {},
     onRootOptionChanged: (Preferences.Key<Boolean>, Boolean) -> Unit = { _, _ -> },
@@ -361,7 +365,9 @@ private fun SettingUi(
                     onRootRetry = onRootRetry,
                     onDeleteApkChanged = onDeleteApkChanged,
                     onAutoOpenAfterInstallChanged = onAutoOpenAfterInstallChanged,
-                    onDefaultInstallerChanged = onDefaultInstallerChanged
+                    onDefaultInstallerChanged = onDefaultInstallerChanged,
+                    onCustomAuthorizerCommandChange = onCustomAuthorizerCommandChange,
+                    onTestCustomAuthorizerCommand = onTestCustomAuthorizerCommand,
                 )
 
                 // ── Install options ──────────────────────────

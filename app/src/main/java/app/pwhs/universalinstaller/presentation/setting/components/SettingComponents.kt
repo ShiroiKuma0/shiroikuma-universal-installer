@@ -57,6 +57,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material.icons.rounded.Android
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -72,6 +77,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -276,6 +282,7 @@ internal fun InstallModeSelector(
             add(InstallMode.SHIZUKU)
             if (dhizukuSupported) add(InstallMode.DHIZUKU)
             if (rootSupported) add(InstallMode.ROOT)
+            add(InstallMode.CUSTOM)
         }
     }
     Column(
@@ -302,18 +309,21 @@ internal fun InstallModeSelector(
         val dhizukuDimmed = currentMode != InstallMode.DHIZUKU &&
             (dhizukuState == DhizukuState.NOT_INSTALLED || dhizukuState == DhizukuState.UNSUPPORTED || dhizukuState == DhizukuState.PROFILE_OWNER_UNSUPPORTED)
 
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            options.forEachIndexed { index, mode ->
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            options.forEach { mode ->
                 val dim = (mode == InstallMode.ROOT && rootDimmed) || (mode == InstallMode.DHIZUKU && dhizukuDimmed)
-                SegmentedButton(
-                    selected = mode == currentMode,
+                val selected = mode == currentMode
+                FilterChip(
+                    selected = selected,
                     onClick = {
                         if (mode != currentMode || (mode == InstallMode.DHIZUKU && dhizukuState == DhizukuState.NOT_AUTHORIZED)) {
                             onModeChange(mode)
                         }
                     },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                    enabled = true,
                     label = {
                         Text(
                             text = when (mode) {
@@ -321,13 +331,30 @@ internal fun InstallModeSelector(
                                 InstallMode.SHIZUKU -> stringResource(R.string.setting_install_mode_shizuku)
                                 InstallMode.DHIZUKU -> stringResource(R.string.setting_install_mode_dhizuku)
                                 InstallMode.ROOT -> stringResource(R.string.setting_install_mode_root)
+                                InstallMode.CUSTOM -> stringResource(R.string.setting_install_mode_custom)
                             },
-                            color = if (dim)
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            else
-                                androidx.compose.ui.graphics.Color.Unspecified,
                         )
                     },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = when (mode) {
+                                InstallMode.DEFAULT -> Icons.Rounded.Android
+                                InstallMode.SHIZUKU -> Icons.Rounded.Key
+                                InstallMode.DHIZUKU -> Icons.Rounded.AdminPanelSettings
+                                InstallMode.ROOT -> Icons.Rounded.Shield
+                                InstallMode.CUSTOM -> Icons.Rounded.Terminal
+                            },
+                            contentDescription = null,
+                            modifier = Modifier.size(FilterChipDefaults.IconSize),
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+                    modifier = if (dim) Modifier.alpha(0.38f) else Modifier,
                 )
             }
         }
@@ -355,6 +382,7 @@ internal fun InstallModeSelector(
                 RootState.READY -> "Ready"
                 else -> "Not Rooted"
             }
+            InstallMode.CUSTOM -> stringResource(R.string.setting_install_mode_custom_sub)
         }
         val canRequestPermission = currentMode == InstallMode.DHIZUKU && dhizukuState == DhizukuState.NOT_AUTHORIZED
         Text(

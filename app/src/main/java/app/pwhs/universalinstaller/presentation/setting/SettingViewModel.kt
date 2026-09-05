@@ -15,6 +15,7 @@ import app.pwhs.universalinstaller.presentation.setting.util.SettingPreferencesD
 import app.pwhs.universalinstaller.presentation.setting.util.SettingPrivilegeDelegate
 import app.pwhs.universalinstaller.presentation.setting.util.SettingProfilesDelegate
 import app.pwhs.universalinstaller.presentation.setting.util.SettingUiStateBuilder
+import app.pwhs.universalinstaller.util.CustomShellExecutor
 import app.pwhs.universalinstaller.util.DhizukuState
 import app.pwhs.universalinstaller.util.LocaleHelper
 import kotlinx.coroutines.channels.Channel
@@ -217,6 +218,8 @@ class SettingViewModel(
         },
         _selectedLanguage,
         privilegeDelegate.isDefaultInstaller,
+        privilegeDelegate.useCustomAuthorizer,
+        privilegeDelegate.customAuthorizerCommand,
     ) { flows ->
         SettingUiStateBuilder.build(application, backendFactory, flows)
     }.stateIn(
@@ -248,6 +251,11 @@ class SettingViewModel(
     fun setPrivilegedOption(option: PrivilegedOption, enabled: Boolean) = privilegeDelegate.setPrivilegedOption(option, enabled)
     fun setInstallerPackageName(packageName: String) = privilegeDelegate.setInstallerPackageName(packageName)
     fun toggleDefaultInstaller(enabled: Boolean) = privilegeDelegate.toggleDefaultInstaller(enabled)
+    val useCustomAuthorizer: StateFlow<Boolean> = privilegeDelegate.useCustomAuthorizer
+    val customAuthorizerCommand: StateFlow<String> = privilegeDelegate.customAuthorizerCommand
+    fun setCustomAuthorizerCommand(command: String) = privilegeDelegate.setCustomAuthorizerCommand(command)
+    suspend fun testCustomAuthorizerCommand(command: String): Result<String> =
+        CustomShellExecutor.testCommand(command)
 
     // ── Preferences Delegates ───────────────────────────────────────────────
 

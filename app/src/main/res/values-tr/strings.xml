@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Dhizuku izni vermek için dokunun</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku Profil Sahibi olarak ayarlanmış. Sessiz kurulum Cihaz Sahibi gerektirir.</string>
     <string name="installer_engine_dhizuku_desc">Cihaz Sahibi ile sessiz kurulum</string>
+    <string name="setting_install_mode_custom">Özel</string>
+    <string name="setting_install_mode_custom_sub">Özel kabuk veya yetkilendirici komutuyla yükleyin</string>
+    <string name="setting_custom_authorizer_title">Özel Yetkilendirici</string>
+    <string name="setting_custom_authorizer_subtitle">Yüklemeleri yetkilendirmek için özel kabuk veya ikili dosyayı yapılandırın</string>
+    <string name="setting_custom_authorizer_configure">Yapılandır</string>
+    <string name="setting_custom_authorizer_presets">Hızlı Şablonlar</string>
+    <string name="setting_custom_authorizer_save">Kaydet ve Uygula</string>
+    <string name="setting_custom_authorizer_cmd_label">Yetkilendirici komutu</string>
+    <string name="setting_custom_authorizer_cmd_hint">ör. su -c {command} veya su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">{command} yer tutucusunu veya stdin terminal modunu destekler (ör. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Test Et</string>
+    <string name="setting_custom_authorizer_test_success">Bağlandı: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Başarısız: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Komut boş olamaz</string>
+    <string name="setting_custom_authorizer_err_dangerous">Tehlikeli komut algılandı (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' bir yetkilendirici değil (su, ksu, rish, sh vb. kullanın)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">%1$s bayrağı için {command} yer tutucusu eksik</string>
+    <string name="setting_custom_authorizer_reset_default">Varsayılana sıfırla</string>
+    <string name="installer_mode_custom">Özel</string>
+    <string name="installer_engine_custom_desc">Özel yetkilendirici komutuyla yükleyin</string>
 </resources>

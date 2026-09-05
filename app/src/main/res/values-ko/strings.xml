@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">탭하여 Dhizuku 권한 부여</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku가 프로필 소유자로 설정되어 있습니다. 자동 설치에는 기기 소유자 권한이 필요합니다.</string>
     <string name="installer_engine_dhizuku_desc">기기 소유자를 통해 자동 설치</string>
+    <string name="setting_install_mode_custom">사용자 지정</string>
+    <string name="setting_install_mode_custom_sub">사용자 지정 셸 또는 인증 명령을 통해 설치</string>
+    <string name="setting_custom_authorizer_title">사용자 지정 인증 도구</string>
+    <string name="setting_custom_authorizer_subtitle">설치를 승인할 사용자 지정 셸 또는 바이너리 구성</string>
+    <string name="setting_custom_authorizer_configure">구성</string>
+    <string name="setting_custom_authorizer_presets">빠른 프리셋</string>
+    <string name="setting_custom_authorizer_save">저장 및 적용</string>
+    <string name="setting_custom_authorizer_cmd_label">인증 명령</string>
+    <string name="setting_custom_authorizer_cmd_hint">예: su -c {command} 또는 su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">{command} 자리표시자 또는 stdin 터미널 모드 지원 (예: su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">테스트</string>
+    <string name="setting_custom_authorizer_test_success">연결됨: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">실패: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">명령어를 비워둘 수 없습니다</string>
+    <string name="setting_custom_authorizer_err_dangerous">위험한 명령어 감지됨 (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\'은(는) 인증 도구가 아닙니다 (su, ksu, rish, sh 등을 사용하세요)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">%1$s 플래그에 필요한 {command} 자리표시자가 없습니다</string>
+    <string name="setting_custom_authorizer_reset_default">기본값으로 초기화</string>
+    <string name="installer_mode_custom">사용자 지정</string>
+    <string name="installer_engine_custom_desc">사용자 지정 인증 명령을 통해 설치</string>
 </resources>

@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Toca para conceder el permiso de Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku está configurado como Propietario de perfil. La instalación silenciosa requiere Propietario del dispositivo.</string>
     <string name="installer_engine_dhizuku_desc">Instalar silenciosamente mediante el Propietario del dispositivo</string>
+    <string name="setting_install_mode_custom">Personalizado</string>
+    <string name="setting_install_mode_custom_sub">Instalar mediante shell personalizado o comando de autorización</string>
+    <string name="setting_custom_authorizer_title">Autorizador personalizado</string>
+    <string name="setting_custom_authorizer_subtitle">Configurar shell o binario personalizado para autorizar instalaciones</string>
+    <string name="setting_custom_authorizer_configure">Configurar</string>
+    <string name="setting_custom_authorizer_presets">Plantillas rápidas</string>
+    <string name="setting_custom_authorizer_save">Guardar y aplicar</string>
+    <string name="setting_custom_authorizer_cmd_label">Comando autorizador</string>
+    <string name="setting_custom_authorizer_cmd_hint">ej. su -c {command} o su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Admite el marcador de posición {command} o modo terminal stdin (ej. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Probar</string>
+    <string name="setting_custom_authorizer_test_success">Conectado: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Falló: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">El comando no puede estar vacío</string>
+    <string name="setting_custom_authorizer_err_dangerous">Comando peligroso detectado (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' no es un autorizador (use su, ksu, rish, sh, etc.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Falta el marcador de posición {command} para el parámetro %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Restablecer a predeterminado</string>
+    <string name="installer_mode_custom">Personalizado</string>
+    <string name="installer_engine_custom_desc">Instalar mediante comando de autorización personalizado</string>
 </resources>

@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">اضغط لمنح إذن Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">تم تعيين Dhizuku كمالك ملف شخصي. يتطلب التثبيت الصامت مالك الجهاز.</string>
     <string name="installer_engine_dhizuku_desc">تثبيت صامت عبر مالك الجهاز</string>
+    <string name="setting_install_mode_custom">مخصص</string>
+    <string name="setting_install_mode_custom_sub">التثبيت عبر أوامر shell أو تفويض مخصص</string>
+    <string name="setting_custom_authorizer_title">المفوض المخصص</string>
+    <string name="setting_custom_authorizer_subtitle">تكوين أمر shell أو برنامج ثنائي لتفويض عمليات التثبيت</string>
+    <string name="setting_custom_authorizer_configure">تهيئة</string>
+    <string name="setting_custom_authorizer_presets">نماذج جاهزة</string>
+    <string name="setting_custom_authorizer_save">حفظ وتطبيق</string>
+    <string name="setting_custom_authorizer_cmd_label">أمر التفويض</string>
+    <string name="setting_custom_authorizer_cmd_hint">مثال: su -c {command} أو su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">يدعم العنصر النائب {command} أو وضع موجه أوامر stdin (مثل su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">اختبار</string>
+    <string name="setting_custom_authorizer_test_success">متصل: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">فشل: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">لا يمكن ترك الأمر فارغاً</string>
+    <string name="setting_custom_authorizer_err_dangerous">تم اكتشاف أمر خطير (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' ليس أداة تفويض (استخدم su, ksu, rish, sh, إلخ)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">العنصر النائب {command} مفقود لعلامة %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">إعادة الضبط إلى الافتراضي</string>
+    <string name="installer_mode_custom">مخصص</string>
+    <string name="installer_engine_custom_desc">التثبيت عبر أمر تفويض مخصص</string>
 </resources>

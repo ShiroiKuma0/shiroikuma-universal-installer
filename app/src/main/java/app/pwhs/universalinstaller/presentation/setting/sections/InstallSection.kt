@@ -26,6 +26,7 @@ import app.pwhs.universalinstaller.presentation.setting.InstallMode
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.setting.SettingUiState
 import app.pwhs.universalinstaller.presentation.setting.ShizukuState
+import app.pwhs.universalinstaller.presentation.setting.components.CustomAuthorizerCard
 import app.pwhs.universalinstaller.presentation.setting.components.InstallModeSelector
 import app.pwhs.universalinstaller.presentation.setting.components.OptionGroupHeader
 import app.pwhs.universalinstaller.presentation.setting.components.SearchableItem
@@ -44,16 +45,19 @@ internal fun LazyListScope.InstallSection(
     onRootRetry: () -> Unit,
     onDeleteApkChanged: (Boolean) -> Unit,
     onAutoOpenAfterInstallChanged: (Boolean) -> Unit,
-    onDefaultInstallerChanged: (Boolean) -> Unit
+    onDefaultInstallerChanged: (Boolean) -> Unit,
+    onCustomAuthorizerCommandChange: (String) -> Unit = {},
+    onTestCustomAuthorizerCommand: suspend (String) -> Result<String> = { Result.success("") },
 ) {
     if (matchesQuery(q, installLabels)) item {
         SettingsSection(title = stringResource(R.string.setting_section_installation), icon = Icons.Rounded.SettingsApplications) {
             // Group headers only while unfiltered: a header whose items were all
             // searched away is a label over nothing. Same rule the divider below uses.
             if (q.isBlank()) OptionGroupHeader(stringResource(R.string.setting_group_installing))
-            SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku dhizuku root default") {
+            SearchableItem(q, stringResource(R.string.setting_install_mode_title), "shizuku dhizuku root default custom") {
+                val currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot, useDhizuku, uiState.useCustomAuthorizer)
                 InstallModeSelector(
-                    currentMode = InstallMode.from(uiState.useShizuku, uiState.useRoot, useDhizuku),
+                    currentMode = currentMode,
                     shizukuState = uiState.shizukuState,
                     rootSupported = uiState.rootSupported,
                     rootState = uiState.rootState,
@@ -61,6 +65,13 @@ internal fun LazyListScope.InstallSection(
                     dhizukuState = dhizukuState,
                     onModeChange = onInstallModeChanged,
                 )
+                if (currentMode == InstallMode.CUSTOM) {
+                    CustomAuthorizerCard(
+                        command = uiState.customAuthorizerCommand,
+                        onCommandChange = onCustomAuthorizerCommandChange,
+                        onTestCommand = onTestCustomAuthorizerCommand,
+                    )
+                }
                 if (uiState.rootSupported && uiState.useRoot && uiState.rootState == RootState.DENIED) {
                     ListItem(
                         headlineContent = { Text(stringResource(R.string.setting_retry_root)) },

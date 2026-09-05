@@ -17,16 +17,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DriveFileRenameOutline
+import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Layers
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.rounded.SettingsApplications
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -283,25 +291,49 @@ private fun ProfileEditUi(
                     val rootSelectable = rootState == app.pwhs.universalinstaller.presentation.install.controller.RootState.READY ||
                         rootState == app.pwhs.universalinstaller.presentation.install.controller.RootState.DENIED ||
                         rootState == app.pwhs.universalinstaller.presentation.install.controller.RootState.UNKNOWN
-                    val options = if (rootSupported) listOf("Default", "Shizuku", "Root")
-                        else listOf("Default", "Shizuku")
+                    val options = if (rootSupported) listOf("Default", "Shizuku", "Root", "Custom")
+                        else listOf("Default", "Shizuku", "Custom")
                     Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                            options.forEachIndexed { index, b ->
-                                SegmentedButton(
-                                    selected = backend == b,
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            options.forEach { b ->
+                                val enabled = b != "Root" || rootSelectable
+                                val selected = backend == b
+                                FilterChip(
+                                    selected = selected,
                                     onClick = { if (backend != b) onBackendChange(b) },
-                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                                    enabled = b != "Root" || rootSelectable,
+                                    enabled = enabled,
                                     label = {
                                         Text(
                                             text = when (b) {
                                                 "Default" -> stringResource(R.string.setting_install_mode_default)
                                                 "Shizuku" -> stringResource(R.string.setting_install_mode_shizuku)
-                                                else -> stringResource(R.string.setting_install_mode_root)
+                                                "Root" -> stringResource(R.string.setting_install_mode_root)
+                                                else -> stringResource(R.string.setting_install_mode_custom)
                                             },
                                         )
                                     },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = when (b) {
+                                                "Default" -> Icons.Rounded.Android
+                                                "Shizuku" -> Icons.Rounded.Key
+                                                "Root" -> Icons.Rounded.Shield
+                                                else -> Icons.Rounded.Terminal
+                                            },
+                                            contentDescription = null,
+                                            modifier = Modifier.size(FilterChipDefaults.IconSize),
+                                        )
+                                    },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    ),
                                 )
                             }
                         }

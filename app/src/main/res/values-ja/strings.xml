@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">タップして Dhizuku に権限を付与</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku はプロファイルオーナーとして設定されています。サイレントインストールにはデバイスオーナーが必要です。</string>
     <string name="installer_engine_dhizuku_desc">デバイスオーナーによるサイレントインストール</string>
+    <string name="setting_install_mode_custom">カスタム</string>
+    <string name="setting_install_mode_custom_sub">カスタムシェルまたは認証コマンド経由でインストール</string>
+    <string name="setting_custom_authorizer_title">カスタム認証機能</string>
+    <string name="setting_custom_authorizer_subtitle">インストールの承認に使用するシェルまたはバイナリを設定します</string>
+    <string name="setting_custom_authorizer_configure">設定</string>
+    <string name="setting_custom_authorizer_presets">クイックプリセット</string>
+    <string name="setting_custom_authorizer_save">保存して適用</string>
+    <string name="setting_custom_authorizer_cmd_label">認証コマンド</string>
+    <string name="setting_custom_authorizer_cmd_hint">例: su -c {command} または su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">{command} プレースホルダーまたは stdin ターミナルモード（例: su, su 1000, rish -c {command}）をサポート。</string>
+    <string name="setting_custom_authorizer_test">テスト</string>
+    <string name="setting_custom_authorizer_test_success">接続成功: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">失敗: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">コマンドを入力してください</string>
+    <string name="setting_custom_authorizer_err_dangerous">危険なコマンドが検出されました (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">「%1$s」は認証ツールではありません (su, ksu, rish, sh などを使用してください)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">%1$s フラグに必要な {command} プレースホルダーがありません</string>
+    <string name="setting_custom_authorizer_reset_default">デフォルトに戻す</string>
+    <string name="installer_mode_custom">カスタム</string>
+    <string name="installer_engine_custom_desc">カスタム認証コマンド経由でインストール</string>
 </resources>

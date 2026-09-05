@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Торкніться, щоб надати дозвіл Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku налаштовано як власника профілю. Для тихого встановлення потрібен власник пристрою.</string>
     <string name="installer_engine_dhizuku_desc">Тихе встановлення через власника пристрою</string>
+    <string name="setting_install_mode_custom">Користувацький</string>
+    <string name="setting_install_mode_custom_sub">Встановлення через власну оболонку або команду авторизації</string>
+    <string name="setting_custom_authorizer_title">Користувацький авторизатор</string>
+    <string name="setting_custom_authorizer_subtitle">Налаштування оболонки або виконуваного файлу для авторизації встановлення</string>
+    <string name="setting_custom_authorizer_configure">Налаштувати</string>
+    <string name="setting_custom_authorizer_presets">Швидкі шаблони</string>
+    <string name="setting_custom_authorizer_save">Зберегти та застосувати</string>
+    <string name="setting_custom_authorizer_cmd_label">Команда авторизатора</string>
+    <string name="setting_custom_authorizer_cmd_hint">наприклад: su -c {command} або su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Підтримує заповнювач {command} або термінальний режим stdin (наприклад: su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Перевірити</string>
+    <string name="setting_custom_authorizer_test_success">Підключено: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Помилка: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Команда не може бути порожньою</string>
+    <string name="setting_custom_authorizer_err_dangerous">Виявлено небезпечну команду (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' не є авторизатором (використовуйте su, ksu, rish, sh тощо)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Відсутній заповнювач {command} для прапорця %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Скинути до типового</string>
+    <string name="installer_mode_custom">Користувацький</string>
+    <string name="installer_engine_custom_desc">Встановлення через власну команду авторизатора</string>
 </resources>

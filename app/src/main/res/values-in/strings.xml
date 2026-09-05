@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Ketuk untuk memberikan izin Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku disetel sebagai Pemilik Profil. Pemasangan diam-diam memerlukan Pemilik Perangkat.</string>
     <string name="installer_engine_dhizuku_desc">Instal diam-diam melalui Pemilik Perangkat</string>
+    <string name="setting_install_mode_custom">Kustom</string>
+    <string name="setting_install_mode_custom_sub">Instal melalui shell kustom atau perintah pengesah</string>
+    <string name="setting_custom_authorizer_title">Pengesah Kustom</string>
+    <string name="setting_custom_authorizer_subtitle">Konfigurasikan shell atau biner kustom untuk mengotorisasi pemasangan</string>
+    <string name="setting_custom_authorizer_configure">Konfigurasi</string>
+    <string name="setting_custom_authorizer_presets">Preset Cepat</string>
+    <string name="setting_custom_authorizer_save">Simpan &amp; Terapkan</string>
+    <string name="setting_custom_authorizer_cmd_label">Perintah pengesah</string>
+    <string name="setting_custom_authorizer_cmd_hint">cth. su -c {command} atau su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Mendukung placeholder {command} atau mode terminal stdin (cth. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Uji</string>
+    <string name="setting_custom_authorizer_test_success">Terhubung: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Gagal: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Perintah tidak boleh kosong</string>
+    <string name="setting_custom_authorizer_err_dangerous">Perintah berbahaya terdeteksi (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' bukan pengesah (gunakan su, ksu, rish, sh, dll.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Placeholder {command} tidak ditemukan untuk flag %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Atur ulang ke default</string>
+    <string name="installer_mode_custom">Kustom</string>
+    <string name="installer_engine_custom_desc">Instal melalui perintah pengesah kustom</string>
 </resources>

@@ -50,6 +50,8 @@ object SettingUiStateBuilder {
         val autoApproveCount = extractorAndProfiles.getOrNull(4)?.toIntOrNull() ?: 0
         val selectedLang = flows[13] as String
         val isDefault = flows[14] as Boolean
+        val useCustomAuthorizer = flows.getOrNull(15) as? Boolean ?: false
+        val customAuthorizerCommand = flows.getOrNull(16) as? String ?: ""
 
         val versionName = try {
             application.packageManager
@@ -93,6 +95,8 @@ object SettingUiStateBuilder {
             appProfileMapping = ProfileManager.parseMapping(mappingJson),
             selectedLanguage = selectedLang,
             isDefaultInstaller = isDefault,
+            useCustomAuthorizer = useCustomAuthorizer,
+            customAuthorizerCommand = customAuthorizerCommand,
         )
     }
 }

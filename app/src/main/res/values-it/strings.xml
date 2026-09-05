@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Tocca per concedere l\'autorizzazione a Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku è impostato come proprietario del profilo. L\'installazione silenziosa richiede il proprietario del dispositivo.</string>
     <string name="installer_engine_dhizuku_desc">Installazione silenziosa tramite il proprietario del dispositivo</string>
+    <string name="setting_install_mode_custom">Personalizzato</string>
+    <string name="setting_install_mode_custom_sub">Installa tramite shell personalizzata o comando autorizzatore</string>
+    <string name="setting_custom_authorizer_title">Autorizzatore personalizzato</string>
+    <string name="setting_custom_authorizer_subtitle">Configura una shell o un binario personalizzato per autorizzare le installazioni</string>
+    <string name="setting_custom_authorizer_configure">Configura</string>
+    <string name="setting_custom_authorizer_presets">Modelli rapidi</string>
+    <string name="setting_custom_authorizer_save">Salva e applica</string>
+    <string name="setting_custom_authorizer_cmd_label">Comando autorizzatore</string>
+    <string name="setting_custom_authorizer_cmd_hint">es. su -c {command} o su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Supporta il segnaposto {command} o la modalità terminale stdin (es. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Verifica</string>
+    <string name="setting_custom_authorizer_test_success">Connesso: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Non riuscito: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Il comando non può essere vuoto</string>
+    <string name="setting_custom_authorizer_err_dangerous">Rilevato comando pericoloso (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' non è un autorizzatore (usa su, ksu, rish, sh, ecc.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Segnaposto {command} mancante per il flag %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Ripristina predefinito</string>
+    <string name="installer_mode_custom">Personalizzato</string>
+    <string name="installer_engine_custom_desc">Installa tramite comando autorizzatore personalizzato</string>
 </resources>

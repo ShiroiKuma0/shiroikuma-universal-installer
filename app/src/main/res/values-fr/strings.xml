@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Appuyez pour accorder la permission Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku est défini comme propriétaire de profil. L\'installation silencieuse nécessite le propriétaire de l\'appareil.</string>
     <string name="installer_engine_dhizuku_desc">Installation silencieuse via le propriétaire de l\'appareil</string>
+    <string name="setting_install_mode_custom">Personnalisé</string>
+    <string name="setting_install_mode_custom_sub">Installer via un shell ou une commande d\'autorisation personnalisée</string>
+    <string name="setting_custom_authorizer_title">Autorisateur personnalisé</string>
+    <string name="setting_custom_authorizer_subtitle">Configurer un shell ou un binaire personnalisé pour autoriser les installations</string>
+    <string name="setting_custom_authorizer_configure">Configurer</string>
+    <string name="setting_custom_authorizer_presets">Modèles rapides</string>
+    <string name="setting_custom_authorizer_save">Enregistrer et appliquer</string>
+    <string name="setting_custom_authorizer_cmd_label">Commande d\'autorisation</string>
+    <string name="setting_custom_authorizer_cmd_hint">ex. su -c {command} ou su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Prend en charge l\'espace réservé {command} ou le mode terminal stdin (ex. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Tester</string>
+    <string name="setting_custom_authorizer_test_success">Connecté : %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Échec : %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">La commande ne peut pas être vide</string>
+    <string name="setting_custom_authorizer_err_dangerous">Commande dangereuse détectée (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' n\'est pas un autorisateur (utilisez su, ksu, rish, sh, etc.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Espace réservé {command} manquant pour l\'option %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Rétablir par défaut</string>
+    <string name="installer_mode_custom">Personnalisé</string>
+    <string name="installer_engine_custom_desc">Installer via une commande d\'autorisation personnalisée</string>
 </resources>

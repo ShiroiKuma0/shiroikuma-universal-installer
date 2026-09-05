@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Нажмите, чтобы предоставить разрешение Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku настроен как владелец профиля. Для тихой установки требуется владелец устройства.</string>
     <string name="installer_engine_dhizuku_desc">Тихая установка через владельца устройства</string>
+    <string name="setting_install_mode_custom">Пользовательский</string>
+    <string name="setting_install_mode_custom_sub">Установка через кастомную оболочку или команду авторизации</string>
+    <string name="setting_custom_authorizer_title">Пользовательский авторизатор</string>
+    <string name="setting_custom_authorizer_subtitle">Настройка оболочки или бинарного файла для авторизации установки</string>
+    <string name="setting_custom_authorizer_configure">Настроить</string>
+    <string name="setting_custom_authorizer_presets">Быстрые шаблоны</string>
+    <string name="setting_custom_authorizer_save">Сохранить и применить</string>
+    <string name="setting_custom_authorizer_cmd_label">Команда авторизатора</string>
+    <string name="setting_custom_authorizer_cmd_hint">например: su -c {command} или su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Поддерживает заполнитель {command} или терминальный режим stdin (например: su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Проверить</string>
+    <string name="setting_custom_authorizer_test_success">Подключено: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Ошибка: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Команда не может быть пустой</string>
+    <string name="setting_custom_authorizer_err_dangerous">Обнаружена опасная команда (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' не является авторизатором (используйте su, ksu, rish, sh и т.д.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Отсутствует заполнитель {command} для флага %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">По умолчанию</string>
+    <string name="installer_mode_custom">Пользовательский</string>
+    <string name="installer_engine_custom_desc">Установка через пользовательскую команду авторизатора</string>
 </resources>

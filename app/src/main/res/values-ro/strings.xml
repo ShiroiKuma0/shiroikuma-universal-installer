@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Atinge pentru a acorda permisiunea Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">Dhizuku este setat ca proprietar de profil. Instalarea silențioasă necesită proprietarul dispozitivului.</string>
     <string name="installer_engine_dhizuku_desc">Instalare silențioasă prin proprietarul dispozitivului</string>
+    <string name="setting_install_mode_custom">Personalizat</string>
+    <string name="setting_install_mode_custom_sub">Instalați prin shell personalizat sau comandă de autorizare</string>
+    <string name="setting_custom_authorizer_title">Autorizator personalizat</string>
+    <string name="setting_custom_authorizer_subtitle">Configurați un shell sau binar personalizat pentru autorizarea instalărilor</string>
+    <string name="setting_custom_authorizer_configure">Configurare</string>
+    <string name="setting_custom_authorizer_presets">Presetări rapide</string>
+    <string name="setting_custom_authorizer_save">Salvați și aplicați</string>
+    <string name="setting_custom_authorizer_cmd_label">Comandă de autorizare</string>
+    <string name="setting_custom_authorizer_cmd_hint">ex. su -c {command} sau su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Acceptă substituentul {command} sau modul terminal stdin (ex. su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Testare</string>
+    <string name="setting_custom_authorizer_test_success">Conectat: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Eșuat: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Comanda nu poate fi goală</string>
+    <string name="setting_custom_authorizer_err_dangerous">Comandă periculoasă detectată (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' nu este un autorizator (folosiți su, ksu, rish, sh etc.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Lipsește substituentul {command} pentru parametrul %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Resetare la valorile implicite</string>
+    <string name="installer_mode_custom">Personalizat</string>
+    <string name="installer_engine_custom_desc">Instalați prin comandă de autorizare personalizată</string>
 </resources>

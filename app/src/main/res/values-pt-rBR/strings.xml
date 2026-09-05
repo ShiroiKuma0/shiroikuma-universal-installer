@@ -871,4 +871,24 @@
     <string name="setting_dhizuku_no_permission">Toque para conceder permissão ao Dhizuku</string>
     <string name="setting_dhizuku_profile_owner_unsupported">O Dhizuku está configurado como Proprietário do perfil. A instalação silenciosa requer o Proprietário do dispositivo.</string>
     <string name="installer_engine_dhizuku_desc">Instalar silenciosamente pelo Proprietário do dispositivo</string>
+    <string name="setting_install_mode_custom">Personalizado</string>
+    <string name="setting_install_mode_custom_sub">Instalar via shell personalizada ou comando autorizador</string>
+    <string name="setting_custom_authorizer_title">Autorizador personalizado</string>
+    <string name="setting_custom_authorizer_subtitle">Configurar shell ou binário personalizado para autorizar instalações</string>
+    <string name="setting_custom_authorizer_configure">Configurar</string>
+    <string name="setting_custom_authorizer_presets">Modelos rápidos</string>
+    <string name="setting_custom_authorizer_save">Salvar e aplicar</string>
+    <string name="setting_custom_authorizer_cmd_label">Comando autorizador</string>
+    <string name="setting_custom_authorizer_cmd_hint">ex: su -c {command} ou su 1000</string>
+    <string name="setting_custom_authorizer_cmd_desc">Suporta marcador {command} ou modo terminal stdin (ex: su, su 1000, rish -c {command}).</string>
+    <string name="setting_custom_authorizer_test">Testar</string>
+    <string name="setting_custom_authorizer_test_success">Conectado: %1$s</string>
+    <string name="setting_custom_authorizer_test_failed">Falhou: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">O comando não pode estar em branco</string>
+    <string name="setting_custom_authorizer_err_dangerous">Comando perigoso detectado (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' não é um autorizador (use su, ksu, rish, sh, etc.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Marcador {command} ausente para o parâmetro %1$s</string>
+    <string name="setting_custom_authorizer_reset_default">Restaurar padrão</string>
+    <string name="installer_mode_custom">Personalizado</string>
+    <string name="installer_engine_custom_desc">Instalar via comando autorizador personalizado</string>
 </resources>

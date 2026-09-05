@@ -1,8 +1,5 @@
 package app.pwhs.universalinstaller.presentation.install.dialog
 
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Warning
@@ -30,22 +26,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.VtStatus
-import app.pwhs.universalinstaller.util.SignatureCheck
 import app.pwhs.universalinstaller.ui.theme.surfaceBorder
-import kotlinx.coroutines.launch
 
 /**
  * A risk the user must explicitly confirm before installing. We surface only items
@@ -106,16 +97,14 @@ fun RiskConfirmDialog(
     risks: List<InstallRisk>,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
-    /** The conflicting app was actually removed — the caller should drop the risks it caused. */
-    onExistingAppUninstalled: () -> Unit = {},
-    /**
-     * Remove the conflicting app through the backend this install will use. Returns false when no
-     * privileged backend is active, in which case we fall back to the system uninstaller.
-     */
-    onPrivilegedUninstall: (suspend (String) -> Boolean)? = null,
 ) {
     if (risks.isEmpty()) return
     val severe = risks.any { it is InstallRisk.VtMalicious }
+    // A signature mismatch is not a risk to weigh, it is a wall. PackageManagerService compares the
+    // signatures itself and fails the session with UPDATE_INCOMPATIBLE no matter who asked — Shizuku
+    // installs as shell, root as uid 0, and neither is a party to that check. So "Install anyway"
+    // offered an install that could only ever fail, and the dialog says so instead.
+    val blocked = risks.any { it is InstallRisk.SignatureMismatch }
     val titleRes = if (severe) R.string.dialog_risk_title_severe else R.string.dialog_risk_title_warn
     val proceedRes = if (severe) R.string.dialog_risk_proceed_severe else R.string.dialog_risk_proceed_warn
 
@@ -142,36 +131,50 @@ fun RiskConfirmDialog(
         },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Keyed: the list is mutated at runtime (resolving the mismatch removes entries),
-                // and without an identity Compose would reuse a card's slot — and its remembered
-                // activity-result launcher — for a different risk.
+                // Keyed so each card keeps its own identity in the column rather than being
+                // matched to its neighbour by position.
                 risks.forEach { risk ->
-                    key(risk) { RiskCard(risk, onExistingAppUninstalled, onPrivilegedUninstall) }
+                    key(risk) { RiskCard(risk) }
                 }
-                Text(
-                    text = stringResource(R.string.dialog_risk_footer),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp),
-                )
+                // The footer qualifies a decision to proceed. Blocked, there is no such decision.
+                if (!blocked) {
+                    Text(
+                        text = stringResource(R.string.dialog_risk_footer),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp),
+                    )
+                }
             }
         },
         // Filled for the action that carries the risk, outlined for the safe one: two flat text
         // buttons gave equal visual weight to "back out" and "do it anyway".
         confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError,
-                ),
-            ) {
-                Text(text = stringResource(proceedRes), fontWeight = FontWeight.SemiBold)
+            if (blocked) {
+                // Backing out is the only thing left to do, so it takes the primary slot instead of
+                // sitting beside a button that promises an install the platform will refuse.
+                Button(onClick = onCancel) {
+                    Text(text = stringResource(R.string.dialog_cancel_btn), fontWeight = FontWeight.SemiBold)
+                }
+            } else {
+                Button(
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
+                ) {
+                    Text(text = stringResource(proceedRes), fontWeight = FontWeight.SemiBold)
+                }
             }
         },
-        dismissButton = {
-            OutlinedButton(onClick = onCancel) {
-                Text(stringResource(R.string.dialog_cancel_btn))
+        dismissButton = if (blocked) {
+            null
+        } else {
+            {
+                OutlinedButton(onClick = onCancel) {
+                    Text(stringResource(R.string.dialog_cancel_btn))
+                }
             }
         },
     )
@@ -184,11 +187,7 @@ fun RiskConfirmDialog(
  * particular line — with two risks showing it was ambiguous which one it applied to.
  */
 @Composable
-private fun RiskCard(
-    risk: InstallRisk,
-    onExistingAppUninstalled: () -> Unit,
-    onPrivilegedUninstall: (suspend (String) -> Boolean)?,
-) {
+private fun RiskCard(risk: InstallRisk) {
     val severe = risk is InstallRisk.VtMalicious
     val (icon: ImageVector, line: String) = when (risk) {
         is InstallRisk.SignatureMismatch -> Icons.Rounded.Key to
@@ -222,7 +221,7 @@ private fun RiskCard(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            RiskAction(risk, onExistingAppUninstalled, onPrivilegedUninstall)
+            RiskAction(risk)
         }
     }
 }
@@ -231,50 +230,19 @@ private fun RiskCard(
  * The way out of this particular risk, when there is one. Indented to line up with the risk text
  * above it (icon 20dp + gap 10dp, less the button's own 8dp content padding).
  *
- * Resolved from LocalContext here rather than hoisted, so both InstallScreen and
- * DialogInstallActivity get the actions without either having to pass anything in.
+ * The only remaining action is the VirusTotal report link, resolved from LocalUriHandler here
+ * rather than hoisted, so both InstallScreen and DialogInstallActivity get it without either
+ * having to pass anything in.
  */
 @Composable
-private fun RiskAction(
-    risk: InstallRisk,
-    onExistingAppUninstalled: () -> Unit,
-    onPrivilegedUninstall: (suspend (String) -> Boolean)?,
-) {
-    val context = LocalContext.current
+private fun RiskAction(risk: InstallRisk) {
     val uriHandler = LocalUriHandler.current
-    val scope = rememberCoroutineScope()
-    val uninstallLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        // The result code is not dependable here — some OEM uninstallers report RESULT_CANCELED
-        // even on success, and the user can also uninstall and then back out. Ask PackageManager
-        // what actually happened instead of trusting the code.
-        if (risk is InstallRisk.SignatureMismatch &&
-            !SignatureCheck.isInstalled(context, risk.packageName)
-        ) {
-            onExistingAppUninstalled()
-        }
-    }
     val report = { sha: String -> uriHandler.openUri("$VT_FILE_REPORT_URL$sha") }
 
     val label: Int
     val actionIcon: ImageVector
     val onClick: () -> Unit
     when (risk) {
-        is InstallRisk.SignatureMismatch -> {
-            label = R.string.dialog_risk_action_uninstall_existing
-            actionIcon = Icons.Rounded.DeleteOutline
-            onClick = {
-                // ACTION_DELETE shows the platform's own uninstall confirmation — we are not
-                // removing anyone's app behind their back, and it needs no extra permission.
-                runCatching {
-                    uninstallLauncher.launch(
-                        Intent(Intent.ACTION_DELETE, "package:${risk.packageName}".toUri())
-                    )
-                }
-                Unit
-            }
-        }
         is InstallRisk.VtMalicious -> {
             if (risk.sha256.isBlank()) return
             label = R.string.dialog_risk_action_view_report
@@ -287,9 +255,13 @@ private fun RiskAction(
             actionIcon = Icons.AutoMirrored.Rounded.OpenInNew
             onClick = { report(risk.sha256) }
         }
+        // The mismatch is stated, not acted on. Upstream put an "Uninstall existing app" button
+        // here, one tap from turning an install into the deletion of the installed app's data —
+        // an offer this dialog has no business making next to the sentence explaining that the
+        // data will be lost. Whoever decides the data is expendable uninstalls it themselves.
         // Unscanned has no action beyond running the scan, which the install screen already
         // offers. (Downgrade is not a risk in this fork — see detectInstallRisks.)
-        InstallRisk.VtUnscanned -> return
+        is InstallRisk.SignatureMismatch, InstallRisk.VtUnscanned -> return
     }
 
     Spacer(modifier = Modifier.height(4.dp))

@@ -129,7 +129,6 @@ class MainActivity : ComponentActivity() {
                             // there is no sink, so the page would be a question about nothing.
                             showAnalyticsConsent = Telemetry.isCollecting,
                             onRestoreBackup = { openRestorePicker?.invoke() },
-                            onBackup = { backupViewModel.showExportSheet(true) },
                         )
 
                         app.pwhs.universalinstaller.presentation.setting.backup.BackupSheetsHost(

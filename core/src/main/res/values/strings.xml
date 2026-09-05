@@ -3,8 +3,9 @@
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_get_started">Get Started</string>
-    <string name="onboarding_restore_backup">Restore</string>
-    <string name="onboarding_backup">Backup</string>
+    <string name="onboarding_restore_title">Restore your data</string>
+    <string name="onboarding_restore_desc">Switching from another device or Obtainium? You can restore your settings, tracked applications, and API tokens right now.</string>
+    <string name="onboarding_restore_action">Restore from Backup</string>
     <string name="onboarding_permission_granted">Permission granted</string>
     <string name="onboarding_grant_permission">Grant Permission</string>
     <string name="onboarding_page1_title">Install Any Package</string>

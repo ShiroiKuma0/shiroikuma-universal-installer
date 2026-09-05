@@ -220,7 +220,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             val silentEnabled by context.dataStore.data
                 .map { it[SharedPrefsKeys.ROOT_SILENT_INSTALL] ?: true }
                 .collectAsState(initial = true)
-            SettingsCard(onClick = {
+            SettingsCard(enabled = rootAvailable == true, onClick = {
                 scope.launch {
                     context.dataStore.edit { it[SharedPrefsKeys.ROOT_SILENT_INSTALL] = !silentEnabled }
                 }
@@ -406,10 +406,11 @@ private fun ThemeOptionCard(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun SettingsCard(onClick: () -> Unit, content: @Composable () -> Unit) {
+internal fun SettingsCard(enabled: Boolean = true, onClick: () -> Unit, content: @Composable () -> Unit) {
     val shape = RoundedCornerShape(20.dp)
     Surface(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape),

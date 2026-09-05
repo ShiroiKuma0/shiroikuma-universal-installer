@@ -280,13 +280,15 @@ private fun SettingUi(
             // gates below — which aren't composable — can decide section visibility without
             // calling stringResource. `matchesQuery` returns true on a blank query, so the
             // full list renders when search is empty.
-            val installLabels = listOf(stringResource(R.string.setting_use_dhizuku_title), "dhizuku", 
+            val installLabels = listOf(stringResource(R.string.setting_use_dhizuku_title), "dhizuku",
                 stringResource(R.string.setting_install_mode_title), "shizuku", "root", "default",
                 stringResource(R.string.setting_delete_apk_title),
                 stringResource(R.string.setting_auto_open_title),
                 stringResource(R.string.setting_auto_confirm_title),
                 stringResource(R.string.setting_show_download_tab_title),
                 stringResource(R.string.setting_default_installer_title),
+                stringResource(R.string.setting_auto_approve_title),
+                "auto approve", "whitelist", "trusted",
             )
             val privilegedLabels = listOf(
                 stringResource(R.string.setting_section_install_options),

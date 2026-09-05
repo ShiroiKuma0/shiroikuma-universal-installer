@@ -39,6 +39,8 @@ import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallUriH
 import app.pwhs.universalinstaller.presentation.install.dialog.InsufficientStorageDialog
 import app.pwhs.universalinstaller.presentation.install.dialog.HeadlessNotificationInstall
 import app.pwhs.universalinstaller.presentation.install.util.SourceFileDeleter
+import app.pwhs.universalinstaller.presentation.install.util.CallerAppDetector
+import app.pwhs.universalinstaller.domain.manager.AutoApproveApps
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import app.pwhs.universalinstaller.util.LocaleHelper
@@ -195,6 +197,9 @@ class DialogInstallActivity : ComponentActivity() {
         viewModel.dialogStartLoading()
         skipInitialParse = restoredEntry != null
 
+        // Detect which app triggered this install intent.
+        val callerPackage = CallerAppDetector.detectCallerPackage(this, intent)
+
         setContent {
             val mode by produceState<ExternalOpenMode?>(null) { value = readExternalOpenMode() }
             val forcedToDialog by forceDialogUi.collectAsState()
@@ -208,6 +213,7 @@ class DialogInstallActivity : ComponentActivity() {
                     uri = incomingUri,
                     viewModel = viewModel,
                     promptNotifier = promptNotifier,
+                    callerPackage = callerPackage,
                     onFallbackToDialog = { skip ->
                         skipInitialParse = skip
                         fallbackToDialog()
@@ -248,6 +254,7 @@ class DialogInstallActivity : ComponentActivity() {
             val prefs by context.dataStore.data.collectAsState(initial = null)
             val autoOpenAfterInstall = prefs?.get(PreferencesKeys.AUTO_OPEN_AFTER_INSTALL) ?: false
             val autoConfirmExternalInstall = prefs?.get(PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL) ?: false
+            val isCallerAutoApproved = AutoApproveApps.isAutoApproved(prefs, callerPackage)
             val deleteApkAfterInstall = prefs?.get(PreferencesKeys.DELETE_APK_AFTER_INSTALL) ?: false
             var keepApk by remember(dialogTarget?.sessionId) { mutableStateOf(false) }
             val strictVirusTotalCheck = SecurityLevel.from(
@@ -300,10 +307,12 @@ class DialogInstallActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall, autoOpenAfterInstall) {
-                if (uiState.dialogStage == DialogStage.Prepare && autoConfirmExternalInstall) {
+            LaunchedEffect(uiState.dialogStage, autoConfirmExternalInstall, isCallerAutoApproved, autoOpenAfterInstall) {
+                val shouldAutoInstall = autoConfirmExternalInstall || isCallerAutoApproved
+                if (uiState.dialogStage == DialogStage.Prepare && shouldAutoInstall) {
+                    Timber.i("Auto-approving install: autoConfirm=$autoConfirmExternalInstall, callerApproved=$isCallerAutoApproved (caller=$callerPackage)")
                     proceedInstall()
-                } else if (uiState.dialogStage == DialogStage.Success && autoConfirmExternalInstall) {
+                } else if (uiState.dialogStage == DialogStage.Success && shouldAutoInstall) {
                     if (autoOpenAfterInstall) {
                         dialogTarget?.packageName?.takeIf { it.isNotBlank() }?.let { pkg ->
                             viewModel.getAppLaunchIntent(pkg)?.let { intent ->

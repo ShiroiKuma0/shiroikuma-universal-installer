@@ -40,12 +40,14 @@ object SettingUiStateBuilder {
         val autoOpen = interfaceFlags[1]
         val autoConfirm = interfaceFlags[2]
         val showDownload = interfaceFlags[3]
+        val autoApprove = interfaceFlags.getOrElse(5) { false }
         @Suppress("UNCHECKED_CAST")
         val extractorAndProfiles = flows[12] as List<String>
         val extractorPath = extractorAndProfiles[0]
         val extractorTemplate = extractorAndProfiles[1]
         val profilesJson = extractorAndProfiles[2]
         val mappingJson = extractorAndProfiles[3]
+        val autoApproveCount = extractorAndProfiles.getOrNull(4)?.toIntOrNull() ?: 0
         val selectedLang = flows[13] as String
         val isDefault = flows[14] as Boolean
 
@@ -82,6 +84,8 @@ object SettingUiStateBuilder {
             biometricEnrolmentAvailable = BiometricGate.canAuthenticate(application),
             dialogInstallMode = dialogMode,
             autoConfirmExternalInstall = autoConfirm,
+            autoApproveCallerApps = autoApprove,
+            autoApproveCount = autoApproveCount,
             showDownloadTab = showDownload,
             extractorOutputPath = extractorPath,
             extractorFilenameTemplate = extractorTemplate,

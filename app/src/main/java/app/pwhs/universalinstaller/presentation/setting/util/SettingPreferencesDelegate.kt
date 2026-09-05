@@ -9,6 +9,7 @@ import app.pwhs.core.data.local.dataStore
 import app.pwhs.core.domain.AppThemePreset
 import app.pwhs.core.domain.ThemeMode
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.domain.manager.AutoApproveApps
 import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.domain.model.InstallUiStyle
@@ -49,6 +50,14 @@ class SettingPreferencesDelegate(
     val blacklist: StateFlow<List<String>> = dataStore.data
         .map { InstallBlacklist.read(it).sorted() }
         .stateIn(scope, SharingStarted.Lazily, emptyList())
+
+    val autoApproveEnabled: StateFlow<Boolean> = dataStore.data
+        .map { AutoApproveApps.isEnabled(it) }
+        .stateIn(scope, SharingStarted.WhileSubscribed(5_000), false)
+
+    val autoApprovePackages: StateFlow<Set<String>> = dataStore.data
+        .map { AutoApproveApps.read(it) }
+        .stateIn(scope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     val analyticsEnabled: StateFlow<Boolean> = dataStore.data
         .map { prefs -> prefs[SharedPrefsKeys.ANALYTICS_ENABLED] ?: true }
@@ -180,6 +189,34 @@ class SettingPreferencesDelegate(
     fun setAutoConfirmExternalInstall(enabled: Boolean) {
         scope.launch {
             dataStore.edit { it[PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL] = enabled }
+        }
+    }
+
+    fun setAutoApproveEnabled(enabled: Boolean) {
+        scope.launch {
+            dataStore.edit { it[PreferencesKeys.AUTO_APPROVE_CALLER_APPS] = enabled }
+        }
+    }
+
+    fun toggleAutoApprovePackage(packageName: String, approved: Boolean) {
+        scope.launch {
+            dataStore.edit { prefs ->
+                val current = AutoApproveApps.read(prefs)
+                val updated = if (approved) {
+                    AutoApproveApps.add(current, packageName)
+                } else {
+                    AutoApproveApps.remove(current, packageName)
+                }
+                prefs[PreferencesKeys.AUTO_APPROVE_PACKAGES] = updated
+            }
+        }
+    }
+
+    fun setAutoApprovePackages(packages: Set<String>) {
+        scope.launch {
+            dataStore.edit { prefs ->
+                prefs[PreferencesKeys.AUTO_APPROVE_PACKAGES] = packages
+            }
         }
     }
 

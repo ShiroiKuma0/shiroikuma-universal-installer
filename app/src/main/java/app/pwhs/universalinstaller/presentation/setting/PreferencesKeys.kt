@@ -98,6 +98,16 @@ object PreferencesKeys {
      */
     val AUTO_CONFIRM_EXTERNAL_INSTALL = booleanPreferencesKey("auto_confirm_external_install")
 
+    /**
+     * Automatically approve installation requests from selected applications without prompting.
+     */
+    val AUTO_APPROVE_CALLER_APPS = booleanPreferencesKey("auto_approve_caller_apps")
+
+    /**
+     * Set of package names permitted to trigger auto-approved installs.
+     */
+    val AUTO_APPROVE_PACKAGES = stringSetPreferencesKey("auto_approve_packages")
+
     /** Whether to show the "Download" tab in the source picker on the main screen. */
     val SHOW_DOWNLOAD_TAB = booleanPreferencesKey("show_download_tab")
 

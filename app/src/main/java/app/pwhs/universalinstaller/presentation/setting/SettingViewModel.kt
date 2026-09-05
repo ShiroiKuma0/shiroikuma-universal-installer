@@ -125,6 +125,8 @@ class SettingViewModel(
     val externalOpenMode: StateFlow<ExternalOpenMode> = preferencesDelegate.externalOpenMode
     val installUiStyle: StateFlow<InstallUiStyle> = preferencesDelegate.installUiStyle
     val blacklist: StateFlow<List<String>> = preferencesDelegate.blacklist
+    val autoApproveEnabled: StateFlow<Boolean> = preferencesDelegate.autoApproveEnabled
+    val autoApprovePackages: StateFlow<Set<String>> = preferencesDelegate.autoApprovePackages
     val analyticsEnabled: StateFlow<Boolean> = preferencesDelegate.analyticsEnabled
 
     private val _selectedLanguage = MutableStateFlow(LocaleHelper.getStoredLanguage(application))
@@ -201,6 +203,7 @@ class SettingViewModel(
                 prefs[PreferencesKeys.AUTO_CONFIRM_EXTERNAL_INSTALL] ?: false,
                 prefs[PreferencesKeys.SHOW_DOWNLOAD_TAB] ?: true,
                 prefs[PreferencesKeys.STRICT_VIRUSTOTAL_CHECK] ?: false,
+                prefs[PreferencesKeys.AUTO_APPROVE_CALLER_APPS] ?: false,
             )
         },
         dataStore.data.map { prefs ->
@@ -209,6 +212,7 @@ class SettingViewModel(
                 prefs[PreferencesKeys.APK_EXTRACTOR_FILENAME_TEMPLATE] ?: "{name}-{version}",
                 prefs[PreferencesKeys.INSTALLER_PROFILES] ?: "",
                 prefs[PreferencesKeys.APP_PROFILE_MAPPING] ?: "",
+                (prefs[PreferencesKeys.AUTO_APPROVE_PACKAGES]?.size ?: 0).toString(),
             )
         },
         _selectedLanguage,
@@ -260,6 +264,10 @@ class SettingViewModel(
     fun setBiometricLockUninstall(enabled: Boolean) = preferencesDelegate.setBiometricLockUninstall(enabled)
     fun setDialogInstallMode(enabled: Boolean) = preferencesDelegate.setDialogInstallMode(enabled)
     fun setAutoConfirmExternalInstall(enabled: Boolean) = preferencesDelegate.setAutoConfirmExternalInstall(enabled)
+    fun setAutoApproveEnabled(enabled: Boolean) = preferencesDelegate.setAutoApproveEnabled(enabled)
+    fun toggleAutoApprovePackage(packageName: String, approved: Boolean) =
+        preferencesDelegate.toggleAutoApprovePackage(packageName, approved)
+    fun setAutoApprovePackages(packages: Set<String>) = preferencesDelegate.setAutoApprovePackages(packages)
     fun setShowDownloadTab(enabled: Boolean) = preferencesDelegate.setShowDownloadTab(enabled)
     fun setShizukuOption(key: Preferences.Key<Boolean>, value: Boolean) = preferencesDelegate.setShizukuOption(key, value)
     fun setShizukuInstallerPackageName(name: String) = preferencesDelegate.setShizukuInstallerPackageName(name)

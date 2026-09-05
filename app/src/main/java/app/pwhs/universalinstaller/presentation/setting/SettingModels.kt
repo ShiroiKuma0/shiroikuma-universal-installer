@@ -158,6 +158,8 @@ data class SettingUiState(
     val biometricLockUninstall: Boolean = false,
     val dialogInstallMode: Boolean = true,
     val autoConfirmExternalInstall: Boolean = false,
+    val autoApproveCallerApps: Boolean = false,
+    val autoApproveCount: Int = 0,
     val showDownloadTab: Boolean = true,
     val extractorOutputPath: String = "",
     val extractorFilenameTemplate: String = "{name}-{version}",

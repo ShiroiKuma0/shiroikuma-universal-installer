@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import app.pwhs.core.data.local.dataStore
+import app.pwhs.universalinstaller.domain.manager.AutoApproveApps
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.presentation.install.InstallPromptNotifier
 import app.pwhs.universalinstaller.presentation.install.InstallViewModel
@@ -23,13 +25,14 @@ fun HeadlessNotificationInstall(
     uri: Uri,
     viewModel: InstallViewModel,
     promptNotifier: InstallPromptNotifier,
+    callerPackage: String? = null,
     onFallbackToDialog: (skipParse: Boolean) -> Unit,
     onInstallFromNotificationAction: () -> Unit,
     onFinish: () -> Unit,
 ) {
     val context = LocalContext.current
     LaunchedEffect(uri) {
-        Timber.i("$LOG: mode=$mode, parsing $uri")
+        Timber.i("$LOG: mode=$mode, caller=$callerPackage, parsing $uri")
         runCatching {
             DialogInstallUriHelper.parseAndPush(context, uri, viewModel)
         }.onFailure { e ->
@@ -50,8 +53,13 @@ fun HeadlessNotificationInstall(
         Timber.i("$LOG: parsed ${apkInfo.packageName}, ${apkInfo.splitEntries.size} split(s)")
 
         val risks = detectInstallRisks(apkInfo)
-        if (mode == ExternalOpenMode.AutoNotification && risks.isEmpty()) {
-            Timber.i("$LOG: auto mode, no risks - installing without asking")
+
+        // Check auto-approve whitelist for this caller app
+        val prefs = runCatching { context.dataStore.data.first() }.getOrNull()
+        val isCallerAutoApproved = AutoApproveApps.isAutoApproved(prefs, callerPackage)
+
+        if ((mode == ExternalOpenMode.AutoNotification || isCallerAutoApproved) && risks.isEmpty()) {
+            Timber.i("$LOG: auto mode/approved, no risks - installing without asking (caller=$callerPackage, mode=$mode)")
             onInstallFromNotificationAction()
             return@LaunchedEffect
         }

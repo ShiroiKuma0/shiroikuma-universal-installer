@@ -19,15 +19,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -78,10 +82,13 @@ fun InstallUiScreen(
         mode = externalOpenMode,
         style = installUiStyle,
         autoConfirm = uiState.autoConfirmExternalInstall,
+        autoApprove = uiState.autoApproveCallerApps,
+        autoApproveCount = uiState.autoApproveCount,
         showDownloadTab = uiState.showDownloadTab,
         onModeChange = viewModel::setExternalOpenMode,
         onStyleChange = viewModel::setInstallUiStyle,
         onAutoConfirmChange = viewModel::setAutoConfirmExternalInstall,
+        onAutoApproveChange = viewModel::setAutoApproveEnabled,
         onShowDownloadTabChange = viewModel::setShowDownloadTab,
         onBack = { (context as? android.app.Activity)?.finish() },
     )
@@ -94,10 +101,13 @@ private fun InstallUiContent(
     mode: ExternalOpenMode = ExternalOpenMode.Dialog,
     style: InstallUiStyle = InstallUiStyle.Dialog,
     autoConfirm: Boolean = false,
+    autoApprove: Boolean = false,
+    autoApproveCount: Int = 0,
     showDownloadTab: Boolean = true,
     onModeChange: (ExternalOpenMode) -> Unit = {},
     onStyleChange: (InstallUiStyle) -> Unit = {},
     onAutoConfirmChange: (Boolean) -> Unit = {},
+    onAutoApproveChange: (Boolean) -> Unit = {},
     onShowDownloadTabChange: (Boolean) -> Unit = {},
     onBack: () -> Unit = {},
 ) {
@@ -184,7 +194,50 @@ private fun InstallUiContent(
                 )
             }
 
-            item { SectionLabel(stringResource(R.string.install_ui_main_screen_group)) }
+            // Auto-approve section — always visible regardless of mode
+            item { SectionLabel(stringResource(R.string.setting_auto_approve_title)) }
+
+            item {
+                SwitchRow(
+                    title = stringResource(R.string.setting_auto_approve_title),
+                    description = stringResource(R.string.setting_auto_approve_subtitle),
+                    checked = autoApprove,
+                    onCheckedChange = onAutoApproveChange,
+                )
+            }
+
+            item {
+                AnimatedVisibility(visible = autoApprove) {
+                    val context = LocalContext.current
+                    val subtitle = if (autoApproveCount > 0) {
+                        stringResource(R.string.setting_auto_approve_count, autoApproveCount)
+                    } else {
+                        stringResource(R.string.setting_auto_approve_none)
+                    }
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.setting_auto_approve_apps_title)) },
+                        supportingContent = { Text(subtitle) },
+                        leadingContent = {
+                            Icon(
+                                imageVector = Icons.Rounded.TaskAlt,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 24.dp)
+                            .clickable {
+                                context.startActivity(
+                                    android.content.Intent(
+                                        context,
+                                        app.pwhs.universalinstaller.presentation.setting.autoapprove.AutoApproveActivity::class.java,
+                                    )
+                                )
+                            },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    )
+                }
+            }
 
             item {
                 SwitchRow(
@@ -292,186 +345,4 @@ private fun SwitchRow(
     }
 }
 
-/**
- * A phone-shaped frame with the install card drawn where it will actually land, or a notification
- * shade line when the chosen mode never draws a card.
- *
- * This is the part that answers "what does this look like" without the user having to pick an
- * option and go install something to find out.
- */
-@Composable
-private fun InstallUiPreview(mode: ExternalOpenMode, style: InstallUiStyle) {
-    val accent = MaterialTheme.colorScheme.primary
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Surface(
-            modifier = Modifier.size(width = 150.dp, height = 264.dp),
-            shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        ) {
-            Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-                when (mode) {
-                    // No window at all: what the user sees is a notification, so draw that.
-                    ExternalOpenMode.Notification,
-                    ExternalOpenMode.AutoNotification -> MiniNotification(
-                        modifier = Modifier.align(Alignment.TopCenter),
-                        accent = accent,
-                    )
 
-                    ExternalOpenMode.Dialog -> MiniCard(
-                        modifier = Modifier.align(
-                            if (style == InstallUiStyle.Sheet) Alignment.BottomCenter else Alignment.Center,
-                        ),
-                        widthFraction = if (style == InstallUiStyle.Sheet) 1f else 0.86f,
-                        accent = accent,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MiniCard(modifier: Modifier, widthFraction: Float, accent: Color) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth(widthFraction)
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 8.dp, vertical = 9.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-    ) {
-        MiniLine(0.7f, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f))
-        MiniLine(1f, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-        Spacer(Modifier.height(2.dp))
-        MiniLine(0.45f, accent, height = 7.dp)
-    }
-}
-
-@Composable
-private fun MiniNotification(modifier: Modifier, accent: Color) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(14.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(accent),
-        )
-        Spacer(Modifier.width(6.dp))
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            MiniLine(0.8f, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f))
-            MiniLine(1f, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
-        }
-    }
-}
-
-/** One bar standing in for a line of text or a button. */
-@Composable
-private fun MiniLine(widthFraction: Float, color: Color, height: Dp = 4.dp) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(widthFraction)
-            .height(height)
-            .clip(RoundedCornerShape(2.dp))
-            .background(color),
-    )
-}
-
-/**
- * Centered or bottom, as two thumbnails.
- *
- * Kept from the Settings screen this moved out of: naming the two Material components asked the
- * user to picture them, where a drawing just shows it.
- */
-@Composable
-private fun CardPositionPicker(
-    current: InstallUiStyle,
-    onChange: (InstallUiStyle) -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(start = 40.dp, end = 24.dp, top = 4.dp, bottom = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        listOf(
-            InstallUiStyle.Dialog to R.string.setting_install_ui_style_dialog,
-            InstallUiStyle.Sheet to R.string.setting_install_ui_style_sheet,
-        ).forEach { (style, labelRes) ->
-            PositionThumbnail(
-                style = style,
-                label = stringResource(labelRes),
-                selected = style == current,
-                onClick = { if (style != current) onChange(style) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun PositionThumbnail(
-    style: InstallUiStyle,
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    val accent = MaterialTheme.colorScheme.primary
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Surface(
-            modifier = Modifier
-                .size(width = 84.dp, height = 112.dp)
-                .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            border = BorderStroke(
-                width = if (selected) 2.dp else 1.dp,
-                color = if (selected) accent else MaterialTheme.colorScheme.outlineVariant,
-            ),
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(9.dp),
-                contentAlignment = if (style == InstallUiStyle.Sheet) {
-                    Alignment.BottomCenter
-                } else {
-                    Alignment.Center
-                },
-            ) {
-                MiniCard(
-                    modifier = Modifier,
-                    widthFraction = if (style == InstallUiStyle.Sheet) 1f else 0.82f,
-                    accent = accent,
-                )
-            }
-        }
-        Spacer(Modifier.height(6.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (selected) {
-                Icon(
-                    imageVector = Icons.Rounded.CheckCircle,
-                    contentDescription = null,
-                    tint = accent,
-                    modifier = Modifier.size(14.dp),
-                )
-                Spacer(Modifier.width(4.dp))
-            }
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (selected) accent else MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}

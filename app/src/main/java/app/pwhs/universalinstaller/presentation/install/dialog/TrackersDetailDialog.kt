@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.TrackerInfo
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -46,6 +47,7 @@ fun TrackersDetailDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         icon = {
             Icon(
                 imageVector = Icons.Rounded.Shield,

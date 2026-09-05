@@ -50,6 +50,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.composable.QrCode
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 
@@ -81,6 +83,7 @@ fun SyncScreen(
     if (showStorageDialog) {
         AlertDialog(
             onDismissRequest = { showStorageDialog = false },
+            modifier = Modifier.surfaceBorder(),
             icon = {
                 Icon(
                     Icons.Rounded.FolderOpen,
@@ -206,6 +209,7 @@ private fun SyncUi(
             Surface(
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.surface,
+                border = LocalSurfaceBorder.current,
                 tonalElevation = 6.dp,
             ) {
                 Column(

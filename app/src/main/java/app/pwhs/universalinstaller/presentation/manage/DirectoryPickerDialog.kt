@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import java.io.File
 
 /**
@@ -64,6 +65,7 @@ fun DirectoryPickerDialog(
     if (needsAllFiles) {
         AlertDialog(
             onDismissRequest = onDismiss,
+            modifier = Modifier.surfaceBorder(),
             icon = { Icon(Icons.Rounded.Folder, contentDescription = null) },
             title = { Text(stringResource(R.string.dir_picker_grant_title)) },
             text = { Text(stringResource(R.string.dir_picker_grant_message)) },
@@ -98,6 +100,7 @@ fun DirectoryPickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (canGoUp) {
@@ -177,6 +180,7 @@ fun DirectoryPickerDialog(
         var folderName by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { showNewFolder = false },
+            modifier = Modifier.surfaceBorder(),
             title = { Text(stringResource(R.string.dir_picker_new_folder)) },
             text = {
                 OutlinedTextField(

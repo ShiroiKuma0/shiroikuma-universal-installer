@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.LocalSurfaceBorder
 import kotlinx.coroutines.delay
 
 /**
@@ -82,6 +83,7 @@ fun ManualConnectDialog(
                 .imePadding(),
             shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surface,
+            border = LocalSurfaceBorder.current,
             tonalElevation = 6.dp
         ) {
             Column(

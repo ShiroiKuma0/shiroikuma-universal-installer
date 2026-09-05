@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 
 private data class InstallerPreset(val packageName: String, val labelRes: Int)
 
@@ -53,6 +54,7 @@ fun PackageNamePickerDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         confirmButton = {
             TextButton(onClick = { onConfirm(text.trim()) }) {
                 Text(stringResource(android.R.string.ok))

@@ -28,6 +28,7 @@ import app.pwhs.universalinstaller.domain.model.InstalledApp
 import app.pwhs.universalinstaller.presentation.manage.BatchExtractState
 import app.pwhs.universalinstaller.presentation.manage.ExtractState
 import app.pwhs.universalinstaller.presentation.install.controller.SystemAppMethod
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 
 @Composable
 internal fun ManageDialogHost(
@@ -63,6 +64,7 @@ internal fun ManageDialogHost(
     confirmClearDataTarget?.let { target ->
         AlertDialog(
             onDismissRequest = onDismissClearData,
+            modifier = Modifier.surfaceBorder(),
             icon = {
                 Icon(
                     Icons.Rounded.DeleteForever,
@@ -96,6 +98,7 @@ internal fun ManageDialogHost(
         val runningState = extractState
         AlertDialog(
             onDismissRequest = { /* Cannot dismiss, it's running */ },
+            modifier = Modifier.surfaceBorder(),
             title = { Text(stringResource(R.string.extract_progress_title, runningState.appName)) },
             text = {
                 Column(
@@ -125,6 +128,7 @@ internal fun ManageDialogHost(
     (batchExtractState as? BatchExtractState.Running)?.let { batch ->
         AlertDialog(
             onDismissRequest = { /* running — not dismissable */ },
+            modifier = Modifier.surfaceBorder(),
             title = {
                 Text(stringResource(R.string.manage_batch_extract_title, batch.completed + 1, batch.total))
             },
@@ -155,6 +159,7 @@ internal fun ManageDialogHost(
     if (showBatchConfirm) {
         AlertDialog(
             onDismissRequest = onDismissBatchConfirm,
+            modifier = Modifier.surfaceBorder(),
             confirmButton = {
                 TextButton(onClick = onConfirmBatchUninstall) {
                     Text(stringResource(R.string.uninstall), color = MaterialTheme.colorScheme.error)
@@ -182,6 +187,7 @@ internal fun ManageDialogHost(
     if (showBatchClearDataConfirm) {
         AlertDialog(
             onDismissRequest = onDismissBatchClearDataConfirm,
+            modifier = Modifier.surfaceBorder(),
             confirmButton = {
                 TextButton(onClick = onConfirmBatchClearData) {
                     Text(

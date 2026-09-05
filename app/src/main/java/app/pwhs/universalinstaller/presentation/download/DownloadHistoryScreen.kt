@@ -63,6 +63,7 @@ import app.pwhs.universalinstaller.data.local.DownloadHistoryEntity
 
 
 
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 import java.text.DateFormat
@@ -306,6 +307,7 @@ private fun ConfirmDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         title = { Text(title) },
         text = { Text(message) },
         confirmButton = {

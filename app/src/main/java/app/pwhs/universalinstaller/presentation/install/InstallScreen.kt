@@ -138,6 +138,18 @@ fun InstallScreen(
         }
     }
 
+    val watchName by viewModel.watchName.collectAsState()
+    val isLookingUpWatch by viewModel.isLookingUpWatch.collectAsState()
+    val watchApkScanState by viewModel.watchApkScanState.collectAsState()
+    // Re-checked on every resume so putting the watch on after opening the app still registers.
+    if (WearApkSender.isAvailable) {
+        LifecycleResumeEffect(Unit) {
+            viewModel.refreshWatch()
+            onPauseOrDispose {}
+        }
+    }
+
+    ThemedSurface(AppSurface.Main) {
     if (pendingRisks.isNotEmpty()) {
         app.pwhs.universalinstaller.presentation.install.dialog.RiskConfirmDialog(
             risks = pendingRisks,
@@ -166,18 +178,6 @@ fun InstallScreen(
         )
     }
 
-    val watchName by viewModel.watchName.collectAsState()
-    val isLookingUpWatch by viewModel.isLookingUpWatch.collectAsState()
-    val watchApkScanState by viewModel.watchApkScanState.collectAsState()
-    // Re-checked on every resume so putting the watch on after opening the app still registers.
-    if (WearApkSender.isAvailable) {
-        LifecycleResumeEffect(Unit) {
-            viewModel.refreshWatch()
-            onPauseOrDispose {}
-        }
-    }
-
-    ThemedSurface(AppSurface.Main) {
     InstallUi(
         modifier = modifier,
         uiState = uiState,

@@ -75,6 +75,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.presentation.install.components.StatusChip
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import app.pwhs.core.ui.ApkFileIconData
 import app.pwhs.core.util.PermissionMonitor
 import coil3.compose.SubcomposeAsyncImage
@@ -490,6 +491,7 @@ private fun ResultsBody(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
+            modifier = Modifier.surfaceBorder(),
             title = {
                 Text(stringResource(R.string.find_auto_delete_title, selectedFiles.size))
             },

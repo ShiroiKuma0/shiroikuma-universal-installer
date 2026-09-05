@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.ui.theme.UniversalInstallerTheme
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 
 @Composable
 fun WatchSendDialog(
@@ -42,6 +43,7 @@ fun WatchSendDialog(
     AlertDialog(
         // An in-flight transfer must not be dismissed by tapping outside.
         onDismissRequest = { if (state !is WatchSendState.Sending) onDismiss() },
+        modifier = Modifier.surfaceBorder(),
         icon = {
             Icon(
                 imageVector = state.icon(),

@@ -44,6 +44,7 @@ import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.VtStatus
 import app.pwhs.universalinstaller.util.SignatureCheck
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import kotlinx.coroutines.launch
 
 /**
@@ -120,6 +121,7 @@ fun RiskConfirmDialog(
 
     AlertDialog(
         onDismissRequest = onCancel,
+        modifier = Modifier.surfaceBorder(),
         // This dialog opens on top of the install dialog, which is dark and rounded too. Without
         // a distinct container the two overlapping surfaces read as one notched shape.
         containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,

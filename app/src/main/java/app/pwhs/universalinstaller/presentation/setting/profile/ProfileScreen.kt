@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import app.pwhs.universalinstaller.R
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.presentation.setting.SettingViewModel
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -88,6 +89,7 @@ fun ProfileScreen(
     if (showDeleteConfirm != null) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = null },
+            modifier = Modifier.surfaceBorder(),
             title = { Text(stringResource(R.string.profile_delete_confirm_title)) },
             text = { Text(stringResource(R.string.profile_delete_confirm_msg)) },
             confirmButton = {

@@ -55,7 +55,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
+import app.pwhs.universalinstaller.ui.theme.AppSurface
 import app.pwhs.universalinstaller.ui.theme.ForkUiDefaults
+import app.pwhs.universalinstaller.ui.theme.ThemedSurface
 
 class DialogInstallActivity : ComponentActivity() {
 
@@ -401,10 +403,14 @@ class DialogInstallActivity : ComponentActivity() {
 
             val storageWarning by viewModel.storageWarningInfo.collectAsState()
             storageWarning?.let { warning ->
-                InsufficientStorageDialog(
-                    warningInfo = warning,
-                    onDismiss = viewModel::dismissStorageWarning,
-                )
+                // Its own ThemedSurface: this dialog is a sibling of DialogInstallContent rather
+                // than a child, so it would otherwise miss the dialog surface's theme and border.
+                ThemedSurface(AppSurface.Dialog) {
+                    InsufficientStorageDialog(
+                        warningInfo = warning,
+                        onDismiss = viewModel::dismissStorageWarning,
+                    )
+                }
             }
         }
     }

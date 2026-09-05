@@ -61,6 +61,7 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.DirectionsCar
 import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.Stop
+import app.pwhs.universalinstaller.ui.theme.surfaceBorder
 import app.pwhs.universalinstaller.util.AndroidAutoCompat
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.Share
@@ -200,6 +201,7 @@ internal fun SystemAppMethodDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         icon = {
             Icon(
                 imageVector = Icons.Rounded.DeleteOutline,
@@ -328,6 +330,7 @@ internal fun SystemAppPrivilegedRequiredDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.surfaceBorder(),
         icon = {
             Icon(
                 imageVector = Icons.Rounded.DeleteOutline,

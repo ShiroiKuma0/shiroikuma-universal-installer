@@ -393,6 +393,11 @@
     <string name="setting_custom_authorizer_test">Test</string>
     <string name="setting_custom_authorizer_test_success">Connected: %1$s</string>
     <string name="setting_custom_authorizer_test_failed">Failed: %1$s</string>
+    <string name="setting_custom_authorizer_err_blank">Command cannot be blank</string>
+    <string name="setting_custom_authorizer_err_dangerous">Dangerous command detected (%1$s)</string>
+    <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' is not an authorizer (use su, ksu, rish, sh, etc.)</string>
+    <string name="setting_custom_authorizer_err_missing_placeholder">Missing {command} placeholder for %1$s flag</string>
+    <string name="setting_custom_authorizer_reset_default">Reset to default</string>
     <string name="setting_shizuku_not_installed">Shizuku not installed</string>
     <string name="setting_shizuku_not_running">Shizuku installed but not running</string>
     <string name="setting_shizuku_unsupported">Shizuku version too old (pre-v11)</string>

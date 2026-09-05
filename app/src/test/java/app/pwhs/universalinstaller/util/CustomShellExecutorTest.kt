@@ -45,4 +45,53 @@ class CustomShellExecutorTest {
         val text = testRes.getOrNull().orEmpty()
         assertTrue(text.isNotBlank())
     }
+
+    @Test
+    fun validateCommand_detectsDangerousCommands() {
+        val res1 = CustomShellExecutor.validateCommand("rm -rf /")
+        assertTrue(res1 is CustomShellExecutor.ValidationResult.Error)
+        assertEquals(CustomShellExecutor.ValidationErrorReason.DANGEROUS_COMMAND, (res1 as CustomShellExecutor.ValidationResult.Error).reason)
+
+        val res2 = CustomShellExecutor.validateCommand("su -c 'rm -rf {command}'")
+        assertTrue(res2 is CustomShellExecutor.ValidationResult.Error)
+        assertEquals(CustomShellExecutor.ValidationErrorReason.DANGEROUS_COMMAND, (res2 as CustomShellExecutor.ValidationResult.Error).reason)
+
+        val res3 = CustomShellExecutor.validateCommand("reboot")
+        assertTrue(res3 is CustomShellExecutor.ValidationResult.Error)
+        assertEquals(CustomShellExecutor.ValidationErrorReason.DANGEROUS_COMMAND, (res3 as CustomShellExecutor.ValidationResult.Error).reason)
+    }
+
+    @Test
+    fun validateCommand_detectsNonAuthorizerUtilities() {
+        val res1 = CustomShellExecutor.validateCommand("ls -la")
+        assertTrue(res1 is CustomShellExecutor.ValidationResult.Error)
+        assertEquals(CustomShellExecutor.ValidationErrorReason.NOT_AUTHORIZER_BINARY, (res1 as CustomShellExecutor.ValidationResult.Error).reason)
+
+        val res2 = CustomShellExecutor.validateCommand("cat /etc/hosts")
+        assertTrue(res2 is CustomShellExecutor.ValidationResult.Error)
+        assertEquals(CustomShellExecutor.ValidationErrorReason.NOT_AUTHORIZER_BINARY, (res2 as CustomShellExecutor.ValidationResult.Error).reason)
+    }
+
+    @Test
+    fun validateCommand_detectsMissingPlaceholder() {
+        val res = CustomShellExecutor.validateCommand("su -c")
+        assertTrue(res is CustomShellExecutor.ValidationResult.Error)
+        assertEquals(CustomShellExecutor.ValidationErrorReason.MISSING_PLACEHOLDER, (res as CustomShellExecutor.ValidationResult.Error).reason)
+    }
+
+    @Test
+    fun validateCommand_acceptsValidAuthorizerCommands() {
+        assertTrue(CustomShellExecutor.validateCommand("su -c {command}") is CustomShellExecutor.ValidationResult.Valid)
+        assertTrue(CustomShellExecutor.validateCommand("su 1000") is CustomShellExecutor.ValidationResult.Valid)
+        assertTrue(CustomShellExecutor.validateCommand("ksu -c {command}") is CustomShellExecutor.ValidationResult.Valid)
+        assertTrue(CustomShellExecutor.validateCommand("rish -c {command}") is CustomShellExecutor.ValidationResult.Valid)
+        assertTrue(CustomShellExecutor.validateCommand("/system/bin/sh -c {command}") is CustomShellExecutor.ValidationResult.Valid)
+    }
+
+    @Test
+    fun execWithTemplate_rejectsDangerousCommands() = runBlocking {
+        val res = CustomShellExecutor.execWithTemplate("rm -rf {command}", "id")
+        assertTrue(!res.isSuccess)
+        assertTrue(res.err.any { it.contains("Unsafe or invalid authorizer command") })
+    }
 }

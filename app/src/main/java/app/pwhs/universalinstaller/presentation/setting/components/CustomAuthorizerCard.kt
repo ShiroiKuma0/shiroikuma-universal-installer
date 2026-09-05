@@ -35,6 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.automirrored.rounded.RotateLeft
+import androidx.compose.material3.IconButton
+import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.universalinstaller.util.CustomShellExecutor
 import app.pwhs.universalinstaller.R
 import kotlinx.coroutines.launch
 
@@ -48,6 +52,22 @@ fun CustomAuthorizerCard(
     val scope = rememberCoroutineScope()
     var isTesting by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<Result<String>?>(null) }
+
+    val validation = remember(command) { CustomShellExecutor.validateCommand(command) }
+    val isError = validation is CustomShellExecutor.ValidationResult.Error
+    val errorMessage = when (validation) {
+        is CustomShellExecutor.ValidationResult.Error -> when (validation.reason) {
+            CustomShellExecutor.ValidationErrorReason.BLANK ->
+                stringResource(R.string.setting_custom_authorizer_err_blank)
+            CustomShellExecutor.ValidationErrorReason.DANGEROUS_COMMAND ->
+                stringResource(R.string.setting_custom_authorizer_err_dangerous, validation.detail)
+            CustomShellExecutor.ValidationErrorReason.NOT_AUTHORIZER_BINARY ->
+                stringResource(R.string.setting_custom_authorizer_err_not_authorizer, validation.detail)
+            CustomShellExecutor.ValidationErrorReason.MISSING_PLACEHOLDER ->
+                stringResource(R.string.setting_custom_authorizer_err_missing_placeholder, validation.detail)
+        }
+        else -> null
+    }
 
     Card(
         modifier = modifier
@@ -70,16 +90,41 @@ fun CustomAuthorizerCard(
                     testResult = null
                 },
                 modifier = Modifier.fillMaxWidth(),
+                isError = isError,
                 label = { Text(stringResource(R.string.setting_custom_authorizer_cmd_label)) },
                 placeholder = { Text(stringResource(R.string.setting_custom_authorizer_cmd_hint)) },
                 leadingIcon = {
                     Icon(Icons.Rounded.Terminal, contentDescription = null)
                 },
+                trailingIcon = {
+                    if (command != PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND) {
+                        IconButton(
+                            onClick = {
+                                onCommandChange(PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND)
+                                testResult = null
+                            },
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Rounded.RotateLeft,
+                                contentDescription = stringResource(R.string.setting_custom_authorizer_reset_default),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                },
                 supportingText = {
-                    Text(
-                        text = stringResource(R.string.setting_custom_authorizer_cmd_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(R.string.setting_custom_authorizer_cmd_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 },
                 singleLine = false,
                 maxLines = 3,
@@ -101,7 +146,7 @@ fun CustomAuthorizerCard(
                             isTesting = false
                         }
                     },
-                    enabled = !isTesting && command.isNotBlank(),
+                    enabled = !isTesting && !isError && command.isNotBlank(),
                 ) {
                     if (isTesting) {
                         CircularProgressIndicator(

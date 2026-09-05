@@ -23,6 +23,65 @@ object CustomShellExecutor {
 
     const val COMMAND_PLACEHOLDER = "{command}"
 
+    sealed class ValidationResult {
+        data object Valid : ValidationResult()
+        data class Error(val reason: ValidationErrorReason, val detail: String = "") : ValidationResult()
+    }
+
+    enum class ValidationErrorReason {
+        BLANK,
+        DANGEROUS_COMMAND,
+        NOT_AUTHORIZER_BINARY,
+        MISSING_PLACEHOLDER,
+    }
+
+    private val DANGEROUS_BINARIES = setOf(
+        "rm", "rmdir", "dd", "mkfs", "format", "wipe", "reboot", "shutdown",
+        "halt", "poweroff", "fastboot", "recovery"
+    )
+
+    private val NON_AUTHORIZER_UTILITIES = setOf(
+        "ls", "cat", "echo", "mkdir", "touch", "cp", "mv", "grep", "sed", "awk",
+        "find", "sleep", "kill", "killall", "ps", "top", "df", "du", "tail", "head",
+        "tar", "zip", "unzip", "gzip", "curl", "wget"
+    )
+
+    fun validateCommand(command: String): ValidationResult {
+        val trimmed = command.trim()
+        if (trimmed.isBlank()) {
+            return ValidationResult.Error(ValidationErrorReason.BLANK)
+        }
+
+        val tokens = parseCommand(trimmed)
+        if (tokens.isEmpty()) {
+            return ValidationResult.Error(ValidationErrorReason.BLANK)
+        }
+
+        val allWords = tokens.flatMap { it.split(Regex("[\\s'\"`|;&]+")) }
+            .map { it.lowercase().substringAfterLast('/') }
+            .filter { it.isNotBlank() }
+
+        // 1. Destructive commands check
+        val dangerousWord = allWords.firstOrNull { it in DANGEROUS_BINARIES }
+        if (dangerousWord != null) {
+            return ValidationResult.Error(ValidationErrorReason.DANGEROUS_COMMAND, dangerousWord)
+        }
+
+        // 2. Common non-authorizer shell utilities check
+        val baseBinary = tokens.first().lowercase().substringAfterLast('/')
+        if (baseBinary in NON_AUTHORIZER_UTILITIES) {
+            return ValidationResult.Error(ValidationErrorReason.NOT_AUTHORIZER_BINARY, baseBinary)
+        }
+
+        // 3. Flags like -c, --command, /c require {command} placeholder
+        val flag = tokens.firstOrNull { it in listOf("-c", "/c", "--command", "-command") }
+        if (flag != null && !trimmed.contains(COMMAND_PLACEHOLDER)) {
+            return ValidationResult.Error(ValidationErrorReason.MISSING_PLACEHOLDER, flag)
+        }
+
+        return ValidationResult.Valid
+    }
+
     data class Result(
         val code: Int,
         val out: List<String>,
@@ -49,6 +108,10 @@ object CustomShellExecutor {
 
     suspend fun testCommand(template: String): kotlin.Result<String> = withContext(Dispatchers.IO) {
         runCatching {
+            val validation = validateCommand(template)
+            if (validation is ValidationResult.Error) {
+                throw IllegalArgumentException("Invalid command: ${validation.reason} (${validation.detail})")
+            }
             val result = execWithTemplate(template, "id", timeoutSeconds = 8L)
             if (result.isSuccess) {
                 val line = result.out.firstOrNull { it.contains("uid=", ignoreCase = true) }
@@ -68,6 +131,12 @@ object CustomShellExecutor {
         timeoutSeconds: Long = 60L,
     ): Result = withContext(Dispatchers.IO) {
         val cleanTemplate = template.trim().ifBlank { PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND }
+        val validation = validateCommand(cleanTemplate)
+        if (validation is ValidationResult.Error) {
+            val msg = "Unsafe or invalid authorizer command: ${validation.reason} (${validation.detail})"
+            Timber.e(msg)
+            return@withContext Result(-1, emptyList(), listOf(msg))
+        }
         val parts = parseCommand(cleanTemplate)
         if (parts.isEmpty()) {
             return@withContext Result(-1, emptyList(), listOf("Empty custom authorizer command"))

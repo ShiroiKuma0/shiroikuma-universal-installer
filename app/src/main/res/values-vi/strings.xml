@@ -619,6 +619,11 @@
   <string name="setting_custom_authorizer_test">Kiểm tra</string>
   <string name="setting_custom_authorizer_test_success">Kết nối thành công: %1$s</string>
   <string name="setting_custom_authorizer_test_failed">Thất bại: %1$s</string>
+  <string name="setting_custom_authorizer_err_blank">Lệnh authorizer không được để trống</string>
+  <string name="setting_custom_authorizer_err_dangerous">Phát hiện lệnh nguy hiểm (%1$s)</string>
+  <string name="setting_custom_authorizer_err_not_authorizer">\'%1$s\' không phải công cụ cấp quyền (hãy dùng su, ksu, rish, sh,...)</string>
+  <string name="setting_custom_authorizer_err_missing_placeholder">Thiếu {command} cho tham số %1$s (ví dụ: su -c {command})</string>
+  <string name="setting_custom_authorizer_reset_default">Khôi phục mặc định</string>
   <string name="setting_show_download_tab_title">Hiển thị Tab Tải xuống</string>
   <string name="setting_show_download_tab_subtitle">Hiển thị tab Tải xuống trên màn hình chính để cài đặt APK từ xa</string>
   <string name="manage_batch_action_force_stop">Buộc dừng</string>

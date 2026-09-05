@@ -236,6 +236,128 @@ tasks.register("buildFork") {
     }
 }
 
+// === Fork launcher label guard ===================================================================
+// Android resolves `app_name` by the device locale at runtime, so the fork's label only holds if
+// EVERY values*/strings.xml declares it: overriding values/ alone leaves a phone set to French
+// showing "Universal Installer". Upstream ships its own app_name in all ~19 locale files and
+// re-adds or rewrites them most releases — 1.14.0 rewrote values-fr and values-hi wholesale — so a
+// rebase replays our override only where the file still merged cleanly.
+//
+// The regression is invisible by construction: it compiles, it runs, every test passes, and it is
+// wrong only on a device set to whichever locale upstream happened to touch. Nothing but a device
+// in that language would ever report it, which is why it has now slipped through four releases in
+// a row. So the build asserts it instead.
+val forkAppLabel = "白い熊 Universal installer"
+val forkAppLabelResDir = file("src/main/res")
+// One canonical declaration. `translatable="false"` is part of it, not decoration: without it a
+// translation import is entitled to replace the label with a localized string again.
+val forkAppLabelDecl = """<string name="app_name" translatable="false">$forkAppLabel</string>"""
+// `.*?` must span newlines — a rewritten locale file may wrap a long value across lines.
+val forkAppLabelPattern = Regex("""<string\s+name="app_name"([^>]*)>(.*?)</string>""", RegexOption.DOT_MATCHES_ALL)
+
+val checkForkAppLabel = tasks.register("checkForkAppLabel") {
+    group = "verification"
+    description = "Fail the build unless every values*/strings.xml carries the fork's app_name."
+
+    // Captured as plain values so the task action touches no project state at execution time.
+    val resDir = forkAppLabelResDir
+    val expected = forkAppLabel
+    val pattern = forkAppLabelPattern
+    val stringsFiles = fileTree(resDir) { include("values*/strings.xml") }
+
+    inputs.files(stringsFiles).withPropertyName("localeStrings")
+    inputs.property("expectedLabel", expected)
+    // A stamp file, so the check re-runs when a strings.xml changes and is skipped when none did.
+    outputs.file(layout.buildDirectory.file("fork/app-label-verified.txt"))
+
+    doLast {
+        val problems = mutableListOf<String>()
+        val checked = stringsFiles.files.sortedBy { it.path }
+        stringsFiles.files.sortedBy { it.path }.forEach { file ->
+            val rel = file.relativeTo(resDir).path
+            val matches = pattern.findAll(file.readText()).toList()
+            when {
+                matches.isEmpty() ->
+                    problems += "$rel — declares no app_name at all"
+                matches.size > 1 ->
+                    problems += "$rel — declares app_name ${matches.size} times"
+                else -> {
+                    val (attrs, value) = matches[0].destructured
+                    if (value != expected) {
+                        problems += "$rel — app_name is \"$value\", expected \"$expected\""
+                    } else if (!attrs.contains("""translatable="false"""")) {
+                        problems += "$rel — app_name lacks translatable=\"false\""
+                    }
+                }
+            }
+        }
+
+        if (problems.isNotEmpty()) {
+            throw GradleException(
+                buildString {
+                    appendLine("The fork launcher label has regressed in ${problems.size} of ${checked.size} locale files.")
+                    appendLine()
+                    problems.forEach { appendLine("  • $it") }
+                    appendLine()
+                    appendLine("Android picks app_name by device locale, so every values*/strings.xml must carry")
+                    appendLine("the fork label — upstream re-adds its own on most releases and a rebase only")
+                    appendLine("replays ours where the file merged cleanly.")
+                    appendLine()
+                    append("Repair them with:  ./gradlew :app:fixForkAppLabel")
+                }
+            )
+        }
+
+        val stamp = layout.buildDirectory.file("fork/app-label-verified.txt").get().asFile
+        stamp.parentFile.mkdirs()
+        stamp.writeText("${checked.size} locale files carry \"$expected\"\n")
+    }
+}
+
+// The check's counterpart, in the spirit of the repo's existing check_escapes.py / fix_strings.py
+// pair: after a rebase this rewrites whatever upstream re-added, instead of editing 19 files by
+// hand. Deliberately NOT wired into the build — a build that silently repairs its own branding
+// hides exactly the drift the check exists to surface.
+tasks.register("fixForkAppLabel") {
+    group = "verification"
+    description = "Rewrite app_name in every values*/strings.xml to the fork label."
+
+    val resDir = forkAppLabelResDir
+    val decl = forkAppLabelDecl
+    val pattern = forkAppLabelPattern
+    val stringsFiles = fileTree(resDir) { include("values*/strings.xml") }
+
+    doLast {
+        var repaired = 0
+        stringsFiles.files.sortedBy { it.path }.forEach { file ->
+            val rel = file.relativeTo(resDir).path
+            val text = file.readText()
+            // Replacing only the matched element leaves the file's own indentation untouched,
+            // which differs between locale files (upstream rewrites some at two spaces, some four).
+            val updated = when {
+                pattern.containsMatchIn(text) -> pattern.replace(text) { Regex.escapeReplacement(decl) }
+                // Never seen in practice, but a file upstream rewrote without app_name at all
+                // would otherwise fall back to values/ and read "白い熊 Universal installer"
+                // anyway — insert it so the file states the label rather than inheriting it.
+                text.contains("</resources>") ->
+                    text.replaceFirst("</resources>", "    $decl\n</resources>")
+                else -> text
+            }
+            if (updated != text) {
+                file.writeText(updated)
+                println("  fixed  $rel")
+                repaired++
+            }
+        }
+        println(if (repaired == 0) "app_name already correct in every locale file." else "Repaired $repaired locale file(s).")
+    }
+}
+
+// Every assemble runs the check — preBuild is the one task the debug, release and buildFork paths
+// all go through, so the label cannot regress into an APK without the build saying so.
+tasks.named("preBuild") { dependsOn(checkForkAppLabel) }
+tasks.named("check") { dependsOn(checkForkAppLabel) }
+
 dependencies {
     implementation(project(":core"))
     implementation(libs.androidx.core.ktx)

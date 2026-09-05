@@ -70,7 +70,7 @@ all exceed the previous line's (`160001`, …), keeping upgrades monotonic.
    | --- | --- | --- |
    | Installed app ID | `shiroikuma.universalinstaller` | `gradle.properties` → `APP_ID` (applied as `applicationId`) |
    | Code namespace (UNCHANGED) | `app.pwhs.universalinstaller` | `app/build.gradle.kts` → `namespace` |
-   | App launcher label | `白い熊 Universal installer` | `app_name` in `values/strings.xml` **and** `values-ro/strings.xml` (both `translatable="false"`) |
+   | App launcher label | `白い熊 Universal installer` | `app_name`, `translatable="false"`, in **every** `app/src/main/res/values*/strings.xml` (~19) — do not check this by hand, run `:app:checkForkAppLabel` |
    | Fork version logic | `forkVersionName` / `forkVersionCode`, `base { archivesName = "shiroikuma-universal-installer_…" }`, `buildFork` task | `app/build.gradle.kts` |
    | Upstream version pins | `VERSION_NAME`/`VERSION_CODE` = new upstream; `BUILD_NUMBER=1` | `gradle.properties` |
    | We build the single release | task `:app:buildFork` → `assembleRelease` | `app/build.gradle.kts` |
@@ -85,6 +85,20 @@ all exceed the previous line's (`160001`, …), keeping upgrades monotonic.
      only update the string if upstream **moves/renames** that activity.
    - `ManualTargetedInstaller`'s internal broadcast action `app.pwhs.universalinstaller.INSTALL_STATUS_<id>`
      is a self-contained sender+receiver pair — harmless, left as-is.
+
+   **Re-assert the launcher label — upstream takes it back almost every release.** Android picks
+   `app_name` by device locale, and upstream ships its own in all ~19 locale files, rewriting whole
+   files at a time (1.14.0 rewrote `values-fr` and `values-hi` from scratch). Wherever the rebase
+   could not replay our override, the label silently reverts for devices in that language — it
+   compiles and tests clean, so nothing else catches it:
+
+   ```bash
+   JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:checkForkAppLabel   # names every drifted file
+   JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:fixForkAppLabel     # rewrites them
+   ```
+
+   The check also runs off `preBuild`, so a build cannot ship a regressed label — but run it here,
+   while resolving the rebase, rather than discovering it at build time.
 
    Sanity check: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew :app:assembleRelease --dry-run`
    to confirm the build script still evaluates after the rebase.

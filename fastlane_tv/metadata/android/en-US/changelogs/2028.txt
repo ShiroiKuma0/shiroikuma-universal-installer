@@ -1,4 +1,0 @@
-• Shizuku installation support: install apps directly via Shizuku on Android TV
-• Privileged install options: streamlined backend readiness checks
-• Focus navigation improvements: better contrast and clear selection cues
-• Enhanced D-pad responsiveness across settings and dialogs

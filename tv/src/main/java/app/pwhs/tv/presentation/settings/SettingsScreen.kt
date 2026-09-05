@@ -29,6 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.foundation.border
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -350,10 +352,15 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun AccentSwatch(color: Color, selected: Boolean, onClick: () -> Unit) {
     val shape = CircleShape
+    var focused by remember { mutableStateOf(false) }
     Surface(
         onClick = onClick,
-        modifier = Modifier.size(64.dp).clip(shape),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.12f),
+        modifier = Modifier
+            .size(64.dp)
+            .onFocusChanged { focused = it.isFocused }
+            .border(if (focused) 3.dp else 0.dp, Color.White, shape)
+            .clip(shape),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
         shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(containerColor = color, focusedContainerColor = color),
     ) {

@@ -4,6 +4,42 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.14.0+004
+
+**New in this build:** every dialog in the app is outlined in the fork accent. Same upstream
+**1.14.0** (versionCode 38) as `+001`; this is fork UI work only. Builds `+002` and `+003` were
+intermediate steps of the same change and were never released.
+
+### 🟡 A border on every dialog
+- **The bug this fixes.** Material's `AlertDialog` paints a card in `surfaceContainerHigh`, which
+  the fork's palette sets to pure black, on a black scrim. Nothing marked its edge — the trackers
+  pop-up over the install dialog read as floating text with no card at all, and the same was true of
+  every confirmation in manage, settings, sync and download.
+- **All 32 dialogs now carry the stroke**: 5 in the install flow (trackers, risk consent,
+  insufficient storage, send-to-watch, found-APK delete), 14 in manage (clear data, extract
+  progress, batch extract, batch uninstall, batch clear data, delete-all and delete-one backup,
+  uninstall logs, two system-app removals, storage grant, directory picker, new folder, uninstall
+  confirm), 9 in settings (color picker, font picker, profile delete, package-name picker,
+  auto-approve, diagnostics, device info, export/import panel and its result), 3 in sync (storage
+  grant, QR code, manual connect) and the download-history confirmation.
+- **It is the surface's own border, not a second hard-coded yellow.** A new
+  `Modifier.surfaceBorder()` reads `LocalSurfaceBorder`, so the color and width configured on the
+  Installer UI page drive every dialog, and setting a surface's border width to `0` removes it
+  everywhere rather than in one place.
+- **`UniversalInstallerTheme` now provides that border itself**, from `colorScheme.primary`, so
+  screens outside the two configurable surfaces have a stroke to inherit; `ThemedSurface` still
+  overrides it per surface. Under any preset but 白い熊 Yellow the outline follows that preset's
+  accent instead of being stuck yellow.
+- **Two dialogs were being emitted outside any themed surface**, where the border would have stayed
+  null however it was requested: the risk-consent dialog moved inside `InstallScreen`'s
+  `ThemedSurface`, and `DialogInstallActivity`'s storage warning — a sibling of the install content
+  rather than a child — got its own. Both now inherit the surface theme in full, not just the
+  border.
+- **Three dialogs are not `AlertDialog`s** — the sync QR code, manual connect and the font picker
+  build their own `Dialog { Surface { … } }` — and take the stroke directly as a `Surface` border.
+- **The two hand-rolled borders in the export/import panel** fold onto the same source, so the fork
+  now has exactly one definition of what a dialog border is.
+
 ## 1.14.0+001
 
 **New in this build:** the fork moves from upstream **1.13.0** to **1.14.0**, skipping straight past

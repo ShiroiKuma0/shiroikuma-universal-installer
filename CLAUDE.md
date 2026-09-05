@@ -15,7 +15,7 @@ side-by-side with the official app. The fork follows the same model as 白い熊
 | Dev branch | `custom` — carries all our commits, rebased onto each new upstream release |
 | Fork applicationId | `shiroikuma.universalinstaller` (`APP_ID` in `gradle.properties`) |
 | Code namespace (UNCHANGED) | `app.pwhs.universalinstaller` (R/BuildConfig/AIDL/FileProvider class names — never touch) |
-| App label | `白い熊 Universal installer` (`app_name`, `translatable="false"`, in **every** `app/src/main/res/values*/strings.xml`) |
+| App label | `白い熊 Universal installer` (`app_name`, `translatable="false"`, in **every** `app/src/main/res/values*/strings.xml`) — enforced by `:app:checkForkAppLabel`, repaired by `:app:fixForkAppLabel` |
 | What we build | single release (root + all features, no telemetry) → task `:app:buildFork` (`assembleOpensourceRelease`) |
 | Fork version | `versionName = "<VERSION_NAME>+<BUILD_NUMBER zero-padded to 3, e.g. 1.9.11+013>"`, `versionCode = VERSION_CODE*10000+BUILD_NUMBER` (`gradle.properties`) |
 | Signing keystore | `~/.android-keystores/shiroikuma-universalinstaller.jks` (alias `universalinstaller`), via gitignored `key.properties` |
@@ -35,6 +35,26 @@ Keep our customizations a small, legible layer on top of upstream (rebase, don't
 the APK to `/sdcard/tmp/` after asking, and 白い熊 installs it manually. See the two skills in
 `.claude/skills/`: **build-apk** (build + optional push) and **upstream-new-version** (rebase onto a new
 upstream release). These plus this section are fork infrastructure and live on `custom` only.
+
+## The launcher label is build-enforced
+
+Android resolves `app_name` by **device locale**, so the fork label only holds if *every*
+`app/src/main/res/values*/strings.xml` declares it — overriding `values/` alone leaves a phone set to
+French reading "Universal Installer". Upstream ships its own `app_name` in all ~19 locale files and
+re-adds or rewrites them most releases (1.14.0 rewrote `values-fr` and `values-hi` wholesale), so a
+rebase replays our override only where the file merged cleanly. The regression compiles, runs and
+passes every test; it is wrong only on a device in the affected language, which is how it reached
+four releases in a row.
+
+So the build asserts it. **`:app:checkForkAppLabel`** fails the build unless every locale file
+declares `app_name` exactly once, as `白い熊 Universal installer`, with `translatable="false"` (without
+which a translation import may replace it). It hangs off `preBuild`, so debug, release and
+`buildFork` all run it, and it is incremental — it re-runs only when a `strings.xml` changes.
+
+**`:app:fixForkAppLabel`** rewrites whatever drifted, in the spirit of the repo's existing
+`check_escapes.py` / `fix_strings.py` pair. It is deliberately **not** wired into the build: a build
+that silently repairs its own branding hides the drift the check exists to surface. Run it by hand
+after a rebase, then re-check.
 
 The rest of this document describes the upstream architecture (unchanged by the fork).
 

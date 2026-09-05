@@ -1,7 +1,9 @@
 package app.pwhs.tv.presentation.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,6 +22,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Surface
+import androidx.tv.material3.Switch
 import app.pwhs.core.data.local.SharedPrefsKeys
 import app.pwhs.core.data.local.dataStore
 import androidx.compose.ui.platform.LocalContext
@@ -61,7 +64,13 @@ fun InstallOptionsScreen(onBack: () -> Unit) {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun OptionRow(label: String, checked: Boolean, onClick: () -> Unit) {
-    Surface(onClick = onClick, modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp)), colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .45f))) {
-        Text(if (checked) "✓  $label: On" else "$label: Off", modifier = Modifier.padding(20.dp), style = MaterialTheme.typography.titleLarge)
+    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)), colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .45f))) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(label, style = MaterialTheme.typography.titleLarge)
+            Switch(checked = checked, onCheckedChange = { onClick() })
+        }
     }
 }

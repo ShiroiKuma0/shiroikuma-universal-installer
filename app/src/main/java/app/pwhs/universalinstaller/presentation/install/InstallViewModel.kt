@@ -18,6 +18,7 @@ import app.pwhs.universalinstaller.domain.manager.InstallBlacklist
 import app.pwhs.universalinstaller.domain.model.InstallerProfile
 import app.pwhs.universalinstaller.domain.repository.SessionDataRepository
 import app.pwhs.universalinstaller.presentation.install.controller.BaseInstallController
+import app.pwhs.universalinstaller.presentation.install.controller.CustomInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.DefaultInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.DhizukuInstallController
 import app.pwhs.universalinstaller.presentation.install.controller.InstallerBackendFactory
@@ -83,6 +84,9 @@ class InstallViewModel(
         else DhizukuInstallController(application, packageInstaller, sessionDataRepository, historyDao)
     }
     private val rootController: BaseInstallController? = backendFactory.createRootController(
+        application, packageInstaller, sessionDataRepository, historyDao,
+    )
+    private val customController = CustomInstallController(
         application, packageInstaller, sessionDataRepository, historyDao,
     )
 
@@ -170,6 +174,7 @@ class InstallViewModel(
             shizukuController = shizukuController,
             rootController = rootController,
             dhizukuController = dhizukuController,
+            customController = customController,
             backendFactory = backendFactory,
         )
 
@@ -471,6 +476,7 @@ class InstallViewModel(
             shizukuController = shizukuController,
             rootController = rootController,
             dhizukuController = dhizukuController,
+            customController = customController,
             backendFactory = backendFactory,
             packageUninstaller = packageUninstaller,
         )

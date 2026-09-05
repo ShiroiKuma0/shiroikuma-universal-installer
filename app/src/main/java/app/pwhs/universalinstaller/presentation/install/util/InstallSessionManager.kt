@@ -19,6 +19,7 @@ import app.pwhs.universalinstaller.presentation.install.controller.ManualInstall
 import app.pwhs.universalinstaller.presentation.install.controller.RootState
 import app.pwhs.universalinstaller.presentation.install.controller.ShizukuInstallController
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
+import app.pwhs.universalinstaller.util.CustomShellExecutor
 import app.pwhs.universalinstaller.util.DhizukuCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -41,6 +42,7 @@ object InstallSessionManager {
         shizukuController: ShizukuInstallController,
         rootController: BaseInstallController?,
         dhizukuController: BaseInstallController?,
+        customController: BaseInstallController? = null,
         backendFactory: InstallerBackendFactory,
     ): BaseInstallController {
         val prefs = try { context.dataStore.data.first() } catch (_: Exception) { null }
@@ -50,6 +52,7 @@ object InstallSessionManager {
         val preferredBackend = profile?.preferredBackend
         if (preferredBackend != null) {
             when (preferredBackend) {
+                "Custom" -> customController?.let { return it }
                 "Root" -> if (rootController != null) {
                     val state = backendFactory.probeRootState()
                     val finalState = if (state == RootState.READY) state
@@ -63,6 +66,11 @@ object InstallSessionManager {
                 }
                 "Default" -> return defaultController
             }
+        }
+
+        val useCustomAuthorizer = prefs?.get(PreferencesKeys.USE_CUSTOM_AUTHORIZER) ?: false
+        if (useCustomAuthorizer && customController != null) {
+            return customController
         }
 
         val useRoot = prefs?.get(PreferencesKeys.USE_ROOT) ?: false
@@ -140,20 +148,41 @@ object InstallSessionManager {
         shizukuController: ShizukuInstallController,
         rootController: BaseInstallController?,
         dhizukuController: BaseInstallController?,
+        customController: BaseInstallController? = null,
         backendFactory: InstallerBackendFactory,
         packageUninstaller: PackageUninstaller,
     ): Boolean {
         if (packageName.isBlank()) return false
         val controller = runCatching {
             activeController(
-                context, profileId, defaultController, shizukuController, rootController, dhizukuController, backendFactory
+                context = context,
+                profileId = profileId,
+                defaultController = defaultController,
+                shizukuController = shizukuController,
+                rootController = rootController,
+                dhizukuController = dhizukuController,
+                customController = customController,
+                backendFactory = backendFactory,
             )
         }.getOrNull()
 
         return when {
+            customController != null && controller === customController -> uninstallViaCustom(context, packageName)
             controller === shizukuController -> uninstallViaShizuku(packageName, packageUninstaller)
             rootController != null && controller === rootController -> uninstallViaRoot(packageName)
             else -> false
+        }
+    }
+
+    private suspend fun uninstallViaCustom(
+        context: Context,
+        packageName: String,
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            CustomShellExecutor.exec(context, "pm uninstall $packageName").isSuccess
+        } catch (e: Exception) {
+            Timber.e(e, "Custom authorizer uninstall of $packageName failed")
+            false
         }
     }
 

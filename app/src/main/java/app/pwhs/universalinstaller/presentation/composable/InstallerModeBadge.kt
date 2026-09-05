@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.AdminPanelSettings
 import androidx.compose.material.icons.rounded.Android
 import androidx.compose.material.icons.rounded.Key
 import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +61,7 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     val modeFlow = remember(context) {
         context.dataStore.data.map { prefs ->
             when {
+                prefs[PreferencesKeys.USE_CUSTOM_AUTHORIZER] == true -> Mode.Custom
                 prefs[PreferencesKeys.USE_ROOT] == true -> Mode.Root
                 prefs[PreferencesKeys.USE_SHIZUKU] == true -> Mode.Shizuku
                 prefs[PreferencesKeys.USE_DHIZUKU] == true -> Mode.Dhizuku
@@ -79,18 +81,20 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
     }
 
     val label = when (mode) {
+        Mode.Custom -> stringResource(R.string.installer_mode_custom)
         Mode.Root -> stringResource(R.string.installer_mode_root)
         Mode.Shizuku -> stringResource(R.string.installer_mode_shizuku)
         Mode.Dhizuku -> stringResource(R.string.installer_mode_dhizuku)
         Mode.Default -> stringResource(R.string.installer_mode_package_installer)
     }
     val icon = when (mode) {
+        Mode.Custom -> Icons.Rounded.Terminal
         Mode.Root -> Icons.Rounded.Key
         Mode.Shizuku -> Icons.Rounded.AdminPanelSettings
         Mode.Dhizuku -> Icons.Rounded.Shield
         Mode.Default -> Icons.Rounded.Android
     }
-    val privileged = mode == Mode.Root || mode == Mode.Shizuku || mode == Mode.Dhizuku
+    val privileged = mode == Mode.Root || mode == Mode.Shizuku || mode == Mode.Dhizuku || mode == Mode.Custom
     val container = if (privileged)
         MaterialTheme.colorScheme.primaryContainer
     else
@@ -128,6 +132,7 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
             useShizuku = mode == Mode.Shizuku,
             useRoot = mode == Mode.Root,
             useDhizuku = mode == Mode.Dhizuku,
+            useCustomAuthorizer = mode == Mode.Custom,
         )
         // Root stays tappable whenever this build ships su support — tapping it when not yet
         // ready fires the root request (su prompt). It's only greyed (dimmed) to signal it
@@ -222,6 +227,16 @@ fun InstallerModeBadge(modifier: Modifier = Modifier) {
                             showPicker = false
                         },
                     )
+                    EngineOption(
+                        title = stringResource(R.string.installer_mode_custom),
+                        subtitle = stringResource(R.string.installer_engine_custom_desc),
+                        selected = current == InstallMode.CUSTOM,
+                        enabled = true,
+                        onClick = {
+                            settingViewModel.setInstallMode(InstallMode.CUSTOM)
+                            showPicker = false
+                        },
+                    )
                 }
             },
             confirmButton = {
@@ -264,4 +279,4 @@ private fun EngineOption(
     }
 }
 
-private enum class Mode { Default, Shizuku, Dhizuku, Root }
+private enum class Mode { Default, Shizuku, Dhizuku, Root, Custom }

@@ -49,6 +49,14 @@ class SettingPrivilegeDelegate(
         .map { it[PreferencesKeys.USE_DHIZUKU] ?: false }
         .stateIn(scope, SharingStarted.Eagerly, false)
 
+    val useCustomAuthorizer: StateFlow<Boolean> = dataStore.data
+        .map { it[PreferencesKeys.USE_CUSTOM_AUTHORIZER] ?: false }
+        .stateIn(scope, SharingStarted.Eagerly, false)
+
+    val customAuthorizerCommand: StateFlow<String> = dataStore.data
+        .map { it[PreferencesKeys.CUSTOM_AUTHORIZER_COMMAND] ?: PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND }
+        .stateIn(scope, SharingStarted.Eagerly, PreferencesKeys.DEFAULT_CUSTOM_AUTHORIZER_COMMAND)
+
     private val _rootState = MutableStateFlow(
         if (backendFactory.rootSupportCompiledIn) RootState.UNKNOWN else RootState.UNAVAILABLE,
     )
@@ -79,6 +87,7 @@ class SettingPrivilegeDelegate(
                     dataStore.edit { prefs ->
                         prefs[PreferencesKeys.USE_ROOT] = false
                         prefs[PreferencesKeys.USE_DHIZUKU] = false
+                        prefs[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
                         prefs[PreferencesKeys.USE_SHIZUKU] = true
                     }
                 }
@@ -124,6 +133,7 @@ class SettingPrivilegeDelegate(
                     p[PreferencesKeys.USE_SHIZUKU] = false
                     p[PreferencesKeys.USE_ROOT] = false
                     p[PreferencesKeys.USE_DHIZUKU] = false
+                    p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
                 }
             }
             InstallMode.SHIZUKU -> {
@@ -131,6 +141,7 @@ class SettingPrivilegeDelegate(
                     dataStore.edit { p ->
                         p[PreferencesKeys.USE_ROOT] = false
                         p[PreferencesKeys.USE_DHIZUKU] = false
+                        p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
                     }
                 }
                 setUseShizuku(true)
@@ -140,6 +151,7 @@ class SettingPrivilegeDelegate(
                     dataStore.edit { p ->
                         p[PreferencesKeys.USE_SHIZUKU] = false
                         p[PreferencesKeys.USE_ROOT] = false
+                        p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
                     }
                 }
                 setUseDhizuku(true)
@@ -151,8 +163,17 @@ class SettingPrivilegeDelegate(
                     dataStore.edit { p ->
                         p[PreferencesKeys.USE_SHIZUKU] = false
                         p[PreferencesKeys.USE_DHIZUKU] = false
+                        p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
                         p[PreferencesKeys.USE_ROOT] = true
                     }
+                }
+            }
+            InstallMode.CUSTOM -> scope.launch {
+                dataStore.edit { p ->
+                    p[PreferencesKeys.USE_SHIZUKU] = false
+                    p[PreferencesKeys.USE_ROOT] = false
+                    p[PreferencesKeys.USE_DHIZUKU] = false
+                    p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = true
                 }
             }
         }
@@ -236,7 +257,14 @@ class SettingPrivilegeDelegate(
         dataStore.edit { p ->
             p[PreferencesKeys.USE_SHIZUKU] = false
             p[PreferencesKeys.USE_ROOT] = false
+            p[PreferencesKeys.USE_CUSTOM_AUTHORIZER] = false
             p[PreferencesKeys.USE_DHIZUKU] = true
+        }
+    }
+
+    fun setCustomAuthorizerCommand(command: String) = scope.launch {
+        dataStore.edit { p ->
+            p[PreferencesKeys.CUSTOM_AUTHORIZER_COMMAND] = command
         }
     }
 

@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">Par défaut (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Stockage interne</string>
     <string name="backup_output_path_selected_folder">Dossier sélectionné</string>
+    <string name="setting_auto_approve_title">Approbation automatique des applications sélectionnées</string>
+    <string name="setting_auto_approve_subtitle">Les demandes d\'installation des applications choisies s\'exécutent automatiquement via Shizuku ou Root sans confirmation</string>
+    <string name="setting_auto_approve_apps_title">Applications approuvées</string>
+    <string name="setting_auto_approve_apps_subtitle">Sélectionner les applications autorisées à installer des APK en arrière-plan</string>
+    <string name="setting_auto_approve_count">%1$d approuvée(s)</string>
+    <string name="setting_auto_approve_none">Aucune sélectionnée</string>
+    <string name="setting_auto_approve_empty">Aucune application trouvée</string>
+    <string name="setting_auto_approve_empty_hint">Aucune application installée correspondante trouvée.</string>
+    <string name="setting_auto_approve_search_hint">Rechercher des applications installées…</string>
+    <string name="setting_auto_approve_preset_header">Sources populaires</string>
+    <string name="setting_auto_approve_all_apps_header">Applications installées</string>
+    <string name="setting_auto_approve_notice">L\'installation automatique silencieuse nécessite Root, Shizuku ou Dhizuku. Les paquets présentant des risques de sécurité (tels que rétrogradations ou conflits de signature) nécessiteront toujours une confirmation manuelle.</string>
+    <string name="setting_auto_approve_add_custom">Ajouter un nom de paquet personnalisé</string>
+    <string name="setting_auto_approve_custom_dialog_title">Ajouter une application</string>
+    <string name="setting_auto_approve_custom_dialog_hint">ex. org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Ajouter</string>
 </resources>

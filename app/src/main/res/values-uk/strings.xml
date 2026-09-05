@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">За замовчуванням (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Внутрішня пам’ять</string>
     <string name="backup_output_path_selected_folder">Вибрана папка</string>
+    <string name="setting_auto_approve_title">Автопідтвердження для вибраних додатків</string>
+    <string name="setting_auto_approve_subtitle">Запити на встановлення від вибраних додатків виконуються автоматично через Shizuku або Root без підтвердження</string>
+    <string name="setting_auto_approve_apps_title">Схвалені додатки</string>
+    <string name="setting_auto_approve_apps_subtitle">Виберіть додатки, яким дозволено встановлювати APK у фоновому режимі</string>
+    <string name="setting_auto_approve_count">%1$d схвалено</string>
+    <string name="setting_auto_approve_none">Не вибрано</string>
+    <string name="setting_auto_approve_empty">Додатків не знайдено</string>
+    <string name="setting_auto_approve_empty_hint">Відповідних встановлених додатків не знайдено.</string>
+    <string name="setting_auto_approve_search_hint">Пошук встановлених додатків…</string>
+    <string name="setting_auto_approve_preset_header">Популярні джерела</string>
+    <string name="setting_auto_approve_all_apps_header">Встановлені додатки</string>
+    <string name="setting_auto_approve_notice">Для тихого автовстановлення потрібен Root, Shizuku або Dhizuku. Пакунки з ризиками безпеки (наприклад, пониження версії чи конфлікт підписів) все одно вимагатимуть підтвердження вручну.</string>
+    <string name="setting_auto_approve_add_custom">Додати назву пакета вручну</string>
+    <string name="setting_auto_approve_custom_dialog_title">Додати додаток</string>
+    <string name="setting_auto_approve_custom_dialog_hint">наприклад, org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Додати</string>
 </resources>

@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">Implicit (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Stocare internă</string>
     <string name="backup_output_path_selected_folder">Dosar selectat</string>
+    <string name="setting_auto_approve_title">Aprobare automată din aplicațiile selectate</string>
+    <string name="setting_auto_approve_subtitle">Solicitările de instalare din aplicațiile alese continuă automat prin Shizuku sau Root fără confirmare</string>
+    <string name="setting_auto_approve_apps_title">Aplicații aprobate</string>
+    <string name="setting_auto_approve_apps_subtitle">Selectați aplicațiile permise să instaleze APK-uri în fundal</string>
+    <string name="setting_auto_approve_count">%1$d aprobate</string>
+    <string name="setting_auto_approve_none">Niciuna selectată</string>
+    <string name="setting_auto_approve_empty">Nu s-au găsit aplicații</string>
+    <string name="setting_auto_approve_empty_hint">Nu s-au găsit aplicații instalate potrivite.</string>
+    <string name="setting_auto_approve_search_hint">Căutați aplicații instalate…</string>
+    <string name="setting_auto_approve_preset_header">Surse populare</string>
+    <string name="setting_auto_approve_all_apps_header">Aplicații instalate</string>
+    <string name="setting_auto_approve_notice">Instalarea automată silențioasă necesită Root, Shizuku sau Dhizuku. Pachetele care prezintă riscuri de securitate (cum ar fi downgrade sau conflicte de semnătură) vor cere în continuare confirmare manuală.</string>
+    <string name="setting_auto_approve_add_custom">Adăugați nume de pachet personalizat</string>
+    <string name="setting_auto_approve_custom_dialog_title">Adăugare aplicație</string>
+    <string name="setting_auto_approve_custom_dialog_hint">de ex. org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Adăugare</string>
 </resources>

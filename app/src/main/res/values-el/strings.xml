@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">Προεπιλογή (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Εσωτερικός χώρος αποθήκευσης</string>
     <string name="backup_output_path_selected_folder">Επιλεγμένος φάκελος</string>
+    <string name="setting_auto_approve_title">Αυτόματη έγκριση από επιλεγμένες εφαρμογές</string>
+    <string name="setting_auto_approve_subtitle">Τα αιτήματα εγκατάστασης από επιλεγμένες εφαρμογές προχωρούν αυτόματα μέσω Shizuku ή Root χωρίς επιβεβαίωση</string>
+    <string name="setting_auto_approve_apps_title">Εγκεκριμένες εφαρμογές</string>
+    <string name="setting_auto_approve_apps_subtitle">Επιλέξτε εφαρμογές που επιτρέπεται να εγκαθιστούν APK αθόρυβα</string>
+    <string name="setting_auto_approve_count">%1$d εγκεκριμένα</string>
+    <string name="setting_auto_approve_none">Κανένα επιλεγμένο</string>
+    <string name="setting_auto_approve_empty">Δεν βρέθηκαν εφαρμογές</string>
+    <string name="setting_auto_approve_empty_hint">Δεν βρέθηκαν αντίστοιχες εγκατεστημένες εφαρμογές.</string>
+    <string name="setting_auto_approve_search_hint">Αναζήτηση εγκατεστημένων εφαρμογών…</string>
+    <string name="setting_auto_approve_preset_header">Δημοφιλείς πηγές</string>
+    <string name="setting_auto_approve_all_apps_header">Εγκατεστημένες εφαρμογές</string>
+    <string name="setting_auto_approve_notice">Η αθόρυβη αυτόματη εγκατάσταση απαιτεί Root, Shizuku ή Dhizuku. Τα πακέτα με κινδύνους ασφαλείας (όπως υποβάθμιση έκδοσης ή διένεξη υπογραφής) θα εξακολουθούν να ζητούν χειροκίνητη επιβεβαίωση.</string>
+    <string name="setting_auto_approve_add_custom">Προσθήκη προσαρμοσμένου ονόματος πακέτου</string>
+    <string name="setting_auto_approve_custom_dialog_title">Προσθήκη εφαρμογής</string>
+    <string name="setting_auto_approve_custom_dialog_hint">π.χ. org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Προσθήκη</string>
 </resources>

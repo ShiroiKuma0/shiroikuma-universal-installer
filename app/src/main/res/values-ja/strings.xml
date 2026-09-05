@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">デフォルト (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">内部ストレージ</string>
     <string name="backup_output_path_selected_folder">選択したフォルダ</string>
+    <string name="setting_auto_approve_title">選択したアプリからの自動承認</string>
+    <string name="setting_auto_approve_subtitle">選択したアプリからのインストール要求は、確認画面なしで Shizuku または Root 経由で自動的に実行されます</string>
+    <string name="setting_auto_approve_apps_title">承認されたアプリ</string>
+    <string name="setting_auto_approve_apps_subtitle">APK のサイレントインストールを許可するアプリを選択します</string>
+    <string name="setting_auto_approve_count">%1$d 個承認済み</string>
+    <string name="setting_auto_approve_none">未選択</string>
+    <string name="setting_auto_approve_empty">アプリが見つかりません</string>
+    <string name="setting_auto_approve_empty_hint">一致するインストール済みアプリが見つかりませんでした。</string>
+    <string name="setting_auto_approve_search_hint">インストール済みアプリを検索…</string>
+    <string name="setting_auto_approve_preset_header">よく使われるソース</string>
+    <string name="setting_auto_approve_all_apps_header">インストール済みアプリ</string>
+    <string name="setting_auto_approve_notice">サイレント自動インストールには Root、Shizuku、または Dhizuku が必要です。セキュリティ上のリスクがあるパッケージ（ダウングレードや署名の不一致など）は、引き続き手動での確認が必要です。</string>
+    <string name="setting_auto_approve_add_custom">カスタムパッケージ名を追加</string>
+    <string name="setting_auto_approve_custom_dialog_title">アプリの追加</string>
+    <string name="setting_auto_approve_custom_dialog_hint">例: org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">追加</string>
 </resources>

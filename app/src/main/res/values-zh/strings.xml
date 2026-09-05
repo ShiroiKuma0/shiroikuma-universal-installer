@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">默认 (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">内部存储</string>
     <string name="backup_output_path_selected_folder">所选文件夹</string>
+    <string name="setting_auto_approve_title">自动批准选定应用</string>
+    <string name="setting_auto_approve_subtitle">来自选定应用的安装请求将通过 Shizuku 或 Root 自动执行，无需弹窗确认</string>
+    <string name="setting_auto_approve_apps_title">已批准的应用</string>
+    <string name="setting_auto_approve_apps_subtitle">选择允许静默安装 APK 的应用</string>
+    <string name="setting_auto_approve_count">已批准 %1$d 个</string>
+    <string name="setting_auto_approve_none">未选择</string>
+    <string name="setting_auto_approve_empty">未找到应用</string>
+    <string name="setting_auto_approve_empty_hint">未找到匹配的已安装应用。</string>
+    <string name="setting_auto_approve_search_hint">搜索已安装应用…</string>
+    <string name="setting_auto_approve_preset_header">常见来源</string>
+    <string name="setting_auto_approve_all_apps_header">已安装应用</string>
+    <string name="setting_auto_approve_notice">静默自动安装需要 Root、Shizuku 或 Dhizuku。存在安全风险的软件包（如版本降级或签名冲突）仍会提示手动确认。</string>
+    <string name="setting_auto_approve_add_custom">添加自定义包名</string>
+    <string name="setting_auto_approve_custom_dialog_title">添加应用</string>
+    <string name="setting_auto_approve_custom_dialog_hint">例如 org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">添加</string>
 </resources>

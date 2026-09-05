@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">Padrão (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Armazenamento interno</string>
     <string name="backup_output_path_selected_folder">Pasta selecionada</string>
+    <string name="setting_auto_approve_title">Aprovação automática de apps selecionados</string>
+    <string name="setting_auto_approve_subtitle">Solicitações de instalação de apps selecionados prosseguem automaticamente via Shizuku ou Root sem confirmação</string>
+    <string name="setting_auto_approve_apps_title">Aplicativos aprovados</string>
+    <string name="setting_auto_approve_apps_subtitle">Selecione aplicativos autorizados a instalar APKs silenciosamente</string>
+    <string name="setting_auto_approve_count">%1$d aprovados</string>
+    <string name="setting_auto_approve_none">Nenhum selecionado</string>
+    <string name="setting_auto_approve_empty">Nenhum aplicativo encontrado</string>
+    <string name="setting_auto_approve_empty_hint">Nenhum aplicativo instalado correspondente encontrado.</string>
+    <string name="setting_auto_approve_search_hint">Pesquisar aplicativos instalados…</string>
+    <string name="setting_auto_approve_preset_header">Fontes populares</string>
+    <string name="setting_auto_approve_all_apps_header">Aplicativos instalados</string>
+    <string name="setting_auto_approve_notice">A autoinstalação silenciosa requer Root, Shizuku ou Dhizuku. Pacotes com riscos de segurança (como downgrade ou conflito de assinaturas) ainda exigirão confirmação manual.</string>
+    <string name="setting_auto_approve_add_custom">Adicionar nome de pacote personalizado</string>
+    <string name="setting_auto_approve_custom_dialog_title">Adicionar aplicativo</string>
+    <string name="setting_auto_approve_custom_dialog_hint">ex: org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Adicionar</string>
 </resources>

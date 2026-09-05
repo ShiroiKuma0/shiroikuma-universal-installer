@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">Predeterminado (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Almacenamiento interno</string>
     <string name="backup_output_path_selected_folder">Carpeta seleccionada</string>
+    <string name="setting_auto_approve_title">Aprobación automática de apps seleccionadas</string>
+    <string name="setting_auto_approve_subtitle">Las solicitudes de instalación de las aplicaciones seleccionadas se procesan automáticamente mediante Shizuku o Root sin confirmación</string>
+    <string name="setting_auto_approve_apps_title">Aplicaciones aprobadas</string>
+    <string name="setting_auto_approve_apps_subtitle">Seleccione aplicaciones autorizadas a instalar APKs silenciosamente</string>
+    <string name="setting_auto_approve_count">%1$d aprobadas</string>
+    <string name="setting_auto_approve_none">Ninguna seleccionada</string>
+    <string name="setting_auto_approve_empty">No se encontraron aplicaciones</string>
+    <string name="setting_auto_approve_empty_hint">No se encontraron aplicaciones instaladas que coincidan.</string>
+    <string name="setting_auto_approve_search_hint">Buscar aplicaciones instaladas…</string>
+    <string name="setting_auto_approve_preset_header">Fuentes populares</string>
+    <string name="setting_auto_approve_all_apps_header">Aplicaciones instaladas</string>
+    <string name="setting_auto_approve_notice">La autoinstalación silenciosa requiere Root, Shizuku o Dhizuku. Los paquetes con riesgos de seguridad (como degradaciones o conflictos de firmas) seguirán solicitando confirmación manual.</string>
+    <string name="setting_auto_approve_add_custom">Añadir nombre de paquete personalizado</string>
+    <string name="setting_auto_approve_custom_dialog_title">Añadir aplicación</string>
+    <string name="setting_auto_approve_custom_dialog_hint">p. ej., org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Añadir</string>
 </resources>

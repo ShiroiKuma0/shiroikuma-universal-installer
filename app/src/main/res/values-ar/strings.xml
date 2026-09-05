@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">افتراضي (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">وحدة التخزين الداخلية</string>
     <string name="backup_output_path_selected_folder">المجلد المحدد</string>
+    <string name="setting_auto_approve_title">الموافقة التلقائية للتطبيقات المحددة</string>
+    <string name="setting_auto_approve_subtitle">طلبات التثبيت من التطبيقات المحددة تتم تلقائيًا عبر Shizuku أو Root دون المطالبة بالتأكيد</string>
+    <string name="setting_auto_approve_apps_title">التطبيقات المعتمدة</string>
+    <string name="setting_auto_approve_apps_subtitle">حدد التطبيقات المسموح لها بتثبيت ملفات APK بصمت</string>
+    <string name="setting_auto_approve_count">%1$d معتمد</string>
+    <string name="setting_auto_approve_none">لم يتم تحديد أي منها</string>
+    <string name="setting_auto_approve_empty">لم يتم العثور على تطبيقات</string>
+    <string name="setting_auto_approve_empty_hint">لم يتم العثور على تطبيقات مثبتة مطابقة.</string>
+    <string name="setting_auto_approve_search_hint">البحث في التطبيقات المثبتة…</string>
+    <string name="setting_auto_approve_preset_header">مصادر شائعة</string>
+    <string name="setting_auto_approve_all_apps_header">التطبيقات المثبتة</string>
+    <string name="setting_auto_approve_notice">يتطلب التثبيت التلقائي الصامت Root أو Shizuku أو Dhizuku. ستستمر الحزم التي تنطوي على مخاطر أمنية (مثل الرجوع إلى إصدار أقدم أو تعارض التوقيع) في طلب تأكيد يدوي.</string>
+    <string name="setting_auto_approve_add_custom">إضافة اسم حزمة مخصص</string>
+    <string name="setting_auto_approve_custom_dialog_title">إضافة تطبيق</string>
+    <string name="setting_auto_approve_custom_dialog_hint">مثل org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">إضافة</string>
 </resources>

@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">Varsayılan (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Dahili depolama</string>
     <string name="backup_output_path_selected_folder">Seçilen klasör</string>
+    <string name="setting_auto_approve_title">Seçilen uygulamalardan otomatik onaylama</string>
+    <string name="setting_auto_approve_subtitle">Seçilen uygulamalardan gelen yükleme istekleri, onay istemi olmadan Shizuku veya Root aracılığıyla otomatik olarak gerçekleşir</string>
+    <string name="setting_auto_approve_apps_title">Onaylanan uygulamalar</string>
+    <string name="setting_auto_approve_apps_subtitle">APK\'ları sessizce yüklemesine izin verilen uygulamaları seçin</string>
+    <string name="setting_auto_approve_count">%1$d onaylandı</string>
+    <string name="setting_auto_approve_none">Hiçbiri seçilmedi</string>
+    <string name="setting_auto_approve_empty">Uygulama bulunamadı</string>
+    <string name="setting_auto_approve_empty_hint">Eşleşen yüklü uygulama bulunamadı.</string>
+    <string name="setting_auto_approve_search_hint">Yüklü uygulamaları ara…</string>
+    <string name="setting_auto_approve_preset_header">Popüler kaynaklar</string>
+    <string name="setting_auto_approve_all_apps_header">Yüklü uygulamalar</string>
+    <string name="setting_auto_approve_notice">Sessiz otomatik yükleme için Root, Shizuku veya Dhizuku gereklidir. Güvenlik riski taşıyan paketler (sürüm düşürme veya imza çakışması gibi) yine de manuel onay gerektirecektir.</string>
+    <string name="setting_auto_approve_add_custom">Özel paket adı ekle</string>
+    <string name="setting_auto_approve_custom_dialog_title">Uygulama ekle</string>
+    <string name="setting_auto_approve_custom_dialog_hint">örn. org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Ekle</string>
 </resources>

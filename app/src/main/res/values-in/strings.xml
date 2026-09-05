@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">Default (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">Penyimpanan internal</string>
     <string name="backup_output_path_selected_folder">Folder yang dipilih</string>
+    <string name="setting_auto_approve_title">Setujui otomatis dari aplikasi yang dipilih</string>
+    <string name="setting_auto_approve_subtitle">Permintaan penginstalan dari aplikasi yang dipilih akan diproses otomatis melalui Shizuku atau Root tanpa dialog konfirmasi</string>
+    <string name="setting_auto_approve_apps_title">Aplikasi yang disetujui</string>
+    <string name="setting_auto_approve_apps_subtitle">Pilih aplikasi yang diizinkan untuk menginstal APK secara senyap</string>
+    <string name="setting_auto_approve_count">%1$d disetujui</string>
+    <string name="setting_auto_approve_none">Belum ada yang dipilih</string>
+    <string name="setting_auto_approve_empty">Aplikasi tidak ditemukan</string>
+    <string name="setting_auto_approve_empty_hint">Tidak ada aplikasi terinstal yang cocok.</string>
+    <string name="setting_auto_approve_search_hint">Cari aplikasi terinstal…</string>
+    <string name="setting_auto_approve_preset_header">Sumber populer</string>
+    <string name="setting_auto_approve_all_apps_header">Aplikasi terinstal</string>
+    <string name="setting_auto_approve_notice">Penginstalan otomatis senyap memerlukan Root, Shizuku, atau Dhizuku. Paket yang membawa risiko keamanan (seperti penurunan versi atau konflik tanda tangan) tetap memerlukan konfirmasi manual.</string>
+    <string name="setting_auto_approve_add_custom">Tambah nama paket kustom</string>
+    <string name="setting_auto_approve_custom_dialog_title">Tambah aplikasi</string>
+    <string name="setting_auto_approve_custom_dialog_hint">cth. org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">Tambah</string>
 </resources>

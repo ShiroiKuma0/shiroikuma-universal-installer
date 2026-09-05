@@ -852,4 +852,20 @@
     <string name="backup_output_path_default">डिफ़ॉल्ट (Download/UniversalInstaller/Extracted)</string>
     <string name="backup_output_path_internal_storage">आंतरिक संग्रहण</string>
     <string name="backup_output_path_selected_folder">चुना गया फ़ोल्डर</string>
+    <string name="setting_auto_approve_title">चयनित ऐप्स से स्वतः स्वीकृति</string>
+    <string name="setting_auto_approve_subtitle">चुने गए ऐप्स से इंस्टॉलेशन अनुरोध बिना किसी पुष्टि के Shizuku या Root के माध्यम से स्वचालित रूप से आगे बढ़ते हैं</string>
+    <string name="setting_auto_approve_apps_title">स्वीकृत एप्लिकेशन</string>
+    <string name="setting_auto_approve_apps_subtitle">वे एप्लिकेशन चुनें जिन्हें बैकग्राउंड में एपीके इंस्टॉल करने की अनुमति है</string>
+    <string name="setting_auto_approve_count">%1$d स्वीकृत</string>
+    <string name="setting_auto_approve_none">कोई चयनित नहीं</string>
+    <string name="setting_auto_approve_empty">कोई एप्लिकेशन नहीं मिला</string>
+    <string name="setting_auto_approve_empty_hint">कोई मेल खाता इंस्टॉल किया गया ऐप नहीं मिला।</string>
+    <string name="setting_auto_approve_search_hint">इंस्टॉल किए गए ऐप्स खोजें…</string>
+    <string name="setting_auto_approve_preset_header">लोकप्रिय स्रोत</string>
+    <string name="setting_auto_approve_all_apps_header">इंस्टॉल किए गए एप्लिकेशन</string>
+    <string name="setting_auto_approve_notice">साइलेंट ऑटो-इंस्टॉलेशन के लिए Root, Shizuku या Dhizuku की आवश्यकता होती है। सुरक्षा जोखिम वाले पैकेज (जैसे डाउनग्रेड या हस्ताक्षर विरोध) अभी भी मैन्युअल पुष्टि मांगेंगे।</string>
+    <string name="setting_auto_approve_add_custom">कस्टम पैकेज नाम जोड़ें</string>
+    <string name="setting_auto_approve_custom_dialog_title">एप्लिकेशन जोड़ें</string>
+    <string name="setting_auto_approve_custom_dialog_hint">उदा. org.fdroid.fdroid</string>
+    <string name="setting_auto_approve_custom_dialog_add">जोड़ें</string>
 </resources>

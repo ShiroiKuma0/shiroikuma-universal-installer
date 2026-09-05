@@ -75,20 +75,15 @@ fun InstallOptionsScreen(onBack: () -> Unit) {
 @Composable
 private fun OptionRow(label: String, checked: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val surface = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .45f)
-    Surface(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f),
-        colors = ClickableSurfaceDefaults.colors(
+    val colors = ClickableSurfaceDefaults.colors(
             containerColor = surface,
             focusedContainerColor = surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
             focusedContentColor = MaterialTheme.colorScheme.onSurface,
             disabledContainerColor = surface.copy(alpha = .22f),
             disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = .42f),
-        ),
-    ) {
+        )
+    val content: @Composable () -> Unit = {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -96,5 +91,10 @@ private fun OptionRow(label: String, checked: Boolean, enabled: Boolean, onClick
             Text(label, style = MaterialTheme.typography.titleLarge, color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = .45f))
             Switch(checked = checked, enabled = enabled, onCheckedChange = { onClick() })
         }
+    }
+    if (enabled) {
+        Surface(onClick = onClick, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)), scale = ClickableSurfaceDefaults.scale(focusedScale = 1.05f), colors = colors) { content() }
+    } else {
+        Surface(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))) { content() }
     }
 }

@@ -74,7 +74,20 @@ fun InstallOptionsScreen(onBack: () -> Unit) {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun OptionRow(label: String, checked: Boolean, enabled: Boolean, onClick: () -> Unit) {
-    Surface(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)), colors = ClickableSurfaceDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .45f))) {
+    val surface = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .45f)
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = surface,
+            focusedContainerColor = surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            focusedContentColor = MaterialTheme.colorScheme.onSurface,
+            disabledContainerColor = surface.copy(alpha = .22f),
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = .42f),
+        ),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,

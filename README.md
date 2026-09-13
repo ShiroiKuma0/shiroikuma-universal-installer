@@ -10,7 +10,7 @@ A fork of [pass-with-high-score/universal-installer](https://github.com/pass-wit
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.14.0+005`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.17.0+001`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -109,7 +109,7 @@ Upstream 1.9.12 added Firebase Analytics and Crashlytics, kept to a `play` build
 
 ## Built on Universal Installer
 
-A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) (app id `shiroikuma.universalinstaller`, so it coexists with the official build), currently tracking upstream **1.14.0**. Upstream is a modern Material 3 package manager that installs **APK / APK+ / APKS / XAPK / APKM** (with split APKs and OBB), downloads and streams packages from URLs, manages installed apps, and silent-installs via **Shizuku, Dhizuku, microG, a custom shell authorizer or root** — with an Obtainium-style **app updater** (GitHub / GitLab / Codeberg / F-Droid / direct APK), **Android TV** and **Wear OS** companions, an encrypted whole-app backup, an embedded-tracker scanner, a package blacklist, VirusTotal scanning and installs confirmed straight from a notification. All credit for the core app goes to the upstream authors; this fork only layers the theming engine and branding on top. The code remains under the **GNU GPL v3**.
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) (app id `shiroikuma.universalinstaller`, so it coexists with the official build), currently tracking upstream **1.17.0**. Upstream is a modern Material 3 package manager that installs **APK / APK+ / APKS / XAPK / APKM** (with split APKs and OBB), downloads and streams packages from URLs, manages installed apps, and silent-installs via **Shizuku, Dhizuku, microG, a custom shell authorizer or root** — with an Obtainium-style **app updater** (GitHub / GitLab / Codeberg / F-Droid / direct APK) in its own Updates tab, **Android TV** and **Wear OS** companions, an encrypted whole-app backup, a PIN lock with parental controls, an embedded-tracker scanner, a package blacklist, VirusTotal scanning and upload, optional Dex2oat after install, and installs confirmed straight from a notification. All credit for the core app goes to the upstream authors; this fork only layers the theming engine and branding on top. The code remains under the **GNU GPL v3**.
 
 ## Building
 

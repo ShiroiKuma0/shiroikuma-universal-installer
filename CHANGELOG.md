@@ -4,6 +4,86 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.17.0+001
+
+**New in this build:** the fork moves from upstream **1.14.0** to **1.17.0**, taking 1.15.0 and
+1.16.0 in the same step — 61 upstream commits, the widest jump yet, bringing a PIN lock, an Updates
+tab, VirusTotal uploads, Dex2oat, and a wholesale re-cut of every string file. The 90-commit fork
+layer was replayed on top in full. No new fork features; everything below is either upstream's or
+the work of keeping ours intact across it.
+
+### ⬆️ What upstream brought (1.15.0 + 1.16.0 + 1.17.0, versionCode 41)
+- **PIN lock and parental controls** (1.15.0). App access and install actions can sit behind a PIN
+  (encrypted at rest, biometrics optional), and a parental mode forces a safety confirmation before
+  any high-risk package goes on. A **System Installer Manager** can freeze or bypass Android's
+  default package installer; the engine badge and picker know when it is frozen and say so.
+- **A dedicated Updates tab** (1.16.0) in the bottom bar with a live badge count, backed by smarter
+  tracking: custom regex for GitHub tag versions and for the *installed* version (so an app with a
+  version prefix no longer reports a perpetual update), Obtainium-style match groups and title
+  detection, correct pre-release semver ordering, an APK picker for multi-asset releases with ABI
+  detection, per-app spinners, batch-check progress and completion toasts.
+- **VirusTotal uploads actually work** — the multipart request was fixed, the chip in the compact
+  sheet uploads or opens the report, and a network failure is handled instead of surfacing raw.
+- **Faster device scanning** with real-time stage and percentage progress, MediaStore-first
+  lookup with a pruned filesystem walk, root-assisted scans of `Android/data` and `Android/obb`,
+  staging of APKs from root-restricted caches (Aptoide and friends), and filter chips over the
+  results.
+- **Bottom sheets for install options and sync settings**, transfer **speed and ETA** on every
+  transfer path (LAN sync, URL install, TV, Wear OS), a redesigned trackers dialog with category
+  icons and stats, a clearer incompatible-SDK error, and target-user names in the install dialog.
+- **Optional Dex2oat compilation after install** (1.17.0), installer engine options synchronized
+  between Settings, profiles and the picker dialog, Dhizuku no longer reverting to the default
+  engine, and Obtainium exports that parse again on restore.
+- **Every string file re-cut.** The 1,000-line `strings.xml` is split into five domain files
+  (`strings_install`, `strings_manage`, `strings_settings`, `strings_sync`, plus the core file) in
+  all 18 locales, then exported, audited and re-imported — most locale files were rewritten
+  wholesale in the process.
+- Android TV: an install dialog for external APKs, a file picker, an Updates tab with JSON import,
+  auto-delete after install, and a fix for the add-app dialog freezing on the IME. Wear OS: watch
+  shape clipping, dialog layout and badge overflow fixes.
+
+### 🧩 Keeping the fork layer on top of it
+- **All 90 fork commits replayed**, fifteen of them with conflicts, each resolved by porting our
+  change into upstream's new structure rather than forcing the old diff back in:
+- **Strings follow the split.** Every key the fork adds now lives beside its upstream siblings —
+  the Shizuku-manager strings and the **白い熊 Yellow (Default)** preset in `strings_settings.xml`
+  (the "(Default)" wording carried over for all 18 translations), the **Reinstall** / **Same
+  version** strings in `strings_install.xml`, and the retired *"data may be wiped"* string removed
+  from each locale's `strings_install.xml` in turn. The fork's own Installer UI page strings stay
+  in the slimmed core `strings.xml`.
+- **The launcher label survived a fifth rewrite.** Upstream touched all 18 locale `strings.xml`
+  files again (the string re-cut and two i18n audits) and re-added its own `app_name` to each; the
+  **白い熊 Universal installer** label was re-asserted across all **19** during the rebase, and
+  `:app:checkForkAppLabel` — added last release for exactly this — confirms it before every build.
+- **Bottom bar: badge plus long-press.** Upstream's Updates badge and reflective
+  `AppUpdateRepository` lookup are merged with the fork's long-press-for-Installer-UI on the
+  Settings cog, the app-wide bottom-bar theme and the accent divider; the Updates tab picks up the
+  fork's icon and text colours like every other tab.
+- **Engine picker and tab row moved house.** `InstallModeSelector` is its own file now, and carries
+  the fork's *"白い熊 雫 installed but not running"* wording there; the install dialog's tab row
+  became upstream's pill-style `DialogMenuTabRow`, and the fork's per-text **`tab`** category is
+  applied inside it, so the new pills honour the Installer UI page.
+- **Outlines on the redesigned dialogs.** The trackers dialog is a `BasicAlertDialog` over a 28 dp
+  surface now; the fork's accent border sits on that surface with the matching shape. The
+  found-APKs delete confirmation keeps its outline through upstream's component extraction.
+- **One compile fix.** Upstream leaves the install dialog early with a labelled return when there
+  is no stage to show; inside the fork's `ThemedSurface` wrapper that label no longer compiles,
+  and the return now targets the wrapper — same effect, one level down.
+- **Surface colour, badge colours, TV icon.** Upstream unified the sheet/dialog container colour
+  (taken as is; the fork adds only its border), the engine badge keeps its black-and-yellow pill
+  through upstream's `effectiveMode` rewrite, and the yellow gradient was re-applied to upstream's
+  redrawn TV launcher icon.
+- The same-version **Reinstall** state, the stacked long-version-name layout, the Shizuku binder
+  fix, the automation contract, the export/import pages and the whole theming engine all survive
+  unchanged.
+
+### 📦 Unchanged
+- **arm64-v8a only**, `shiroikuma-universal-installer_<version>_arm64-v8a.apk`, as since `1.13.0+003`.
+- **No telemetry.** Upstream's `play` flavor still needs a `google-services.json` this fork does not
+  ship, so every `play` variant is disabled at configuration time and `buildFork` stays pinned to
+  the `opensource` flavor.
+- versionCode `410001` (`VERSION_CODE 41 × 10000 + 1`), so this line sits above every 1.14.0 build.
+
 ## 1.14.0+005
 
 **New in this build:** the signature-mismatch warning stops offering to install past a wall it

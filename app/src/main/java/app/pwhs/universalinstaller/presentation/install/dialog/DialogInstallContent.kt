@@ -195,7 +195,7 @@ fun DialogInstallContent(
             )
         }
 
-        if (uiState.dialogStage == DialogStage.None) return@UniversalInstallerTheme
+        if (uiState.dialogStage == DialogStage.None) return@ThemedSurface
 
         val isSheet = uiStyle == InstallUiStyle.Sheet
         Box(

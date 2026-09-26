@@ -4,6 +4,91 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.18.0+001
+
+**New in this build:** the fork moves from upstream **1.17.0** to **1.18.0** — 19 upstream commits
+that rebuilt the engine picker into a priority list, gave the manage screen a new action sheet and
+uninstall flow, and added Bengali. All 94 fork commits were replayed on top; six needed porting into
+structures upstream had rewritten underneath them. No new fork features — everything below is either
+upstream's or the work of keeping ours intact across it.
+
+### ⬆️ What upstream brought (1.18.0, versionCode 42)
+- **Install engines are a priority list now.** The single-choice engine selector became an ordered
+  **Install engine priority** list — engines are tried top-down and fall through to the next when one
+  is unavailable — and it can be reordered and toggled per engine. A combined **Shizuku + Dhizuku**
+  mode comes with it: Shizuku when its service is up, Dhizuku as the fallback when it is not.
+- **Official brand icons** for Shizuku, Dhizuku and microG in the badge and the picker, in place of
+  the stand-in Material glyphs.
+- **A Shizuku promotion banner** on the home screen that reads the actual state — running but
+  unconnected, installed but stopped, or absent — and offers the one matching action.
+- **OBB and media data can go into the backup.** A `.xapk` backup can now archive `/Android/obb`
+  expansion files alongside the APKs, behind an opt-in in the backup settings sheet.
+- **A revamped app action sheet** with block/unblock install, a direct **Sync & Share** hand-off to
+  the LAN server, and VirusTotal opening in a Custom Tab.
+- **Default-uninstaller integration**: the fork's own uninstall dialog can register as the system's
+  package uninstaller, and the uninstall flow gained *keep data*, *for all users* and *delete system
+  app* options.
+- **The risk dialog covers more ground**: it now appears when a silent install is blocked, and an
+  optional gate can hold an install that Exodus Privacy found trackers in.
+- **Install reliability fixes**: external package URIs are staged before install so a content-URI
+  permission denial can't kill the session, the `REQUEST_INSTALL_PACKAGES` check is bypassed when a
+  privileged backend is doing the work, an FRP `SecurityException` now explains itself instead of
+  surfacing raw, the file picker validates package formats, and scanning/install notifications no
+  longer stick around after the work finishes.
+- **Updater polish**: download progress no longer jumps, transfer speed is shown, a shimmer skeleton
+  covers the loading list, installed-app state stays in sync, and a failed download falls back to
+  app-specific storage.
+- **Bengali (bn)** across mobile, TV and Wear OS; Wear OS telemetry and a standardized set of install
+  error states; TV no longer crashes requesting all-files access.
+
+### 🧩 Keeping the fork layer on top of it
+- **All 94 fork commits replayed**, six with conflicts, each resolved by porting our change into
+  upstream's new structure rather than forcing the old diff back:
+- **The engine badge survived the `InstallBackend` rewrite.** Upstream replaced `InstallMode` with
+  `InstallBackend` and the icon `when` with a `BackendIcon` composable; the fork's black pill with
+  yellow text and border now sits on that, and the yellow outline on the engine-picker dialog with it.
+- **The Shizuku "open the installed manager" button moved to the priority list.** Upstream swapped
+  `InstallModeSelector` for `InstallPriorityList` in the install section; the fork's *"白い熊 雫 is
+  installed but its service isn't running"* button follows it there, while upstream's old custom-
+  authorizer card — now folded into the priority list itself — was dropped rather than duplicated.
+- **The storage card's theming followed its new header.** Upstream rebuilt that row around a
+  clear-cache button; the fork's per-text `storage_label` category re-applies to the new title, and
+  the progress-line colour and thickness overrides are untouched.
+- **Dialog outlines follow upstream's rewrites.** Three manage dialogs became hand-rolled
+  `Dialog { Surface { … } }` cards, so they take the fork's accent stroke as a `Surface` border — the
+  same route the sync and font-picker cards already use — instead of the `AlertDialog` modifier. The
+  app action sheet needed nothing: the dialog the fork outlined there no longer exists.
+- **Both risk-dialog divergences held** through upstream's own edits to the same lines. The dropped
+  *"data may be wiped"* downgrade warning and the dropped signature-mismatch actions are intact, now
+  alongside upstream's new `blockOnTrackers` gate and tracker risk — which the fork treats as
+  informational, with no action of its own.
+
+### 🇧🇩 A new locale is a new place for fork decisions to be lost
+A brand-new locale file arrives as pure upstream: a rebase has nothing of ours to replay into it.
+Both of the fork's string decisions had to be re-asserted in `values-bn/` by hand, and both were
+invisible until exactly the wrong moment.
+
+- **The launcher label** was missing there, so a phone set to Bengali would have read *"Universal
+  Installer"*. `:app:checkForkAppLabel` failed the build and named the file; `:app:fixForkAppLabel`
+  wrote it. That guard, added in `1.14.0+004`, has now caught its second regression.
+- **`dialog_risk_downgrade` came back.** The fork deleted that string from the default locale and all
+  17 translations when it dropped the downgrade warning; Bengali translated it anyway, and a string
+  with no default-locale counterpart is a *fatal* lint error — `lintVitalOpensourceRelease` failed
+  the release build on `ExtraTranslation`. Removed to match every other locale. Worth noting the
+  asymmetry: the label has a build-time guard, this class does not. Any string the fork deletes can
+  be reintroduced by a new upstream locale, and only a release lint will say so.
+
+### 📦 Unchanged
+- **arm64-v8a only**, `shiroikuma-universal-installer_<version>_arm64-v8a.apk`, as since `1.13.0+003`.
+- **No telemetry.** Upstream's `play` flavor still needs a `google-services.json` this fork does not
+  ship, so every `play` variant is disabled at configuration time and `buildFork` stays pinned to
+  the `opensource` flavor — which matters more this release, since upstream added Wear OS analytics
+  and an onboarding funnel to the `play` side.
+- The theming engine, the Installer UI page, the export/import pages, the automation contract, the
+  Shizuku binder fix, the same-version **Reinstall** state and the stacked long-version-name layout
+  all survive unchanged.
+- versionCode `420001` (`VERSION_CODE 42 × 10000 + 1`), so this line sits above every 1.17.0 build.
+
 ## 1.17.0+001
 
 **New in this build:** the fork moves from upstream **1.14.0** to **1.17.0**, taking 1.15.0 and

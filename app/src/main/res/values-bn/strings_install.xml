@@ -284,7 +284,6 @@
     <string name="dialog_risk_title_severe">এই APKটি বিপজ্জনক মনে হচ্ছে</string>
     <string name="dialog_risk_proceed_warn">তবুও ইনস্টল করুন</string>
     <string name="dialog_risk_proceed_severe">নিজের ঝুঁকিতে ইনস্টল করুন</string>
-    <string name="dialog_risk_downgrade">ডাউনগ্রেড: %1$s → %2$s। বিদ্যমান অ্যাপের ডেটা মুছে যেতে পারে।</string>
     <string name="dialog_risk_vt_malicious">VirusTotal: %1$dটি ইঞ্জিন এই ফাইলটিকে ক্ষতিকারক হিসেবে চিহ্নিত করেছে।</string>
     <string name="dialog_risk_vt_suspicious">VirusTotal: %1$dটি ইঞ্জিন এই ফাইলটিকে সন্দেহজনক হিসেবে চিহ্নিত করেছে।</string>
     <string name="dialog_risk_signature_mismatch">ইনস্টল করা অ্যাপটি একটি ভিন্ন কী দিয়ে স্বাক্ষরিত। Android এই ফাইলটিকে আপডেট হিসেবে গ্রহণ করবে না — বিদ্যমান অ্যাপটি প্রথমে আনইনস্টল করতে হবে এবং এর ডেটা মুছে যাবে।</string>

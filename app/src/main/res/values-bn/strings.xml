@@ -34,4 +34,5 @@
     <string name="dir_picker_grant_action">অনুমতি দিন</string>
     <string name="error_cannot_open_app">অ্যাপ খুলতে অক্ষম</string>
     <string name="error_no_file_picker">ফাইল নির্বাচনের জন্য কোনো ফাইল ম্যানেজার অ্যাপ পাওয়া যায়নি</string>
+    <string name="app_name" translatable="false">白い熊 Universal installer</string>
 </resources>

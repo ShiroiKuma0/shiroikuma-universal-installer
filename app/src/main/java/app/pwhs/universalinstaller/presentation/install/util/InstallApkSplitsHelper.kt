@@ -207,6 +207,27 @@ object InstallApkSplitsHelper {
             onPendingUrisResolved(splitEntries.filter { it.selected }.map { it.uri })
         } catch (e: Exception) {
             Timber.e(e, "Error reading SplitPackage entries")
+            // Ackpine's manifest parser rejects some valid manifests (e.g. a float-typed
+            // <meta-data android:value>, which old Adobe AIR builds carry). A plain APK is
+            // installed whole anyway, so hand the original file on instead of nothing —
+            // PackageManager below still fills in the metadata, and the system installer has
+            // the final say on whether the package is valid.
+            if (extension == "apk" || extension.isBlank()) {
+                Timber.w("Falling back to installing $fileName as a single unparsed APK")
+                splitEntries.clear()
+                supportedAbis.clear()
+                splitEntries.add(
+                    SplitEntry(
+                        name = "Base APK (Unparsed)",
+                        type = SplitType.Base,
+                        uri = originalUri,
+                        sizeBytes = fileSize.coerceAtLeast(0L),
+                    )
+                )
+                baseApkUri = originalUri
+                splitCount = 1
+                onPendingUrisResolved(listOf(originalUri))
+            }
         }
 
         val uriForParsing = baseApkUri ?: originalUri

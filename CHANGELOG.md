@@ -4,6 +4,29 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.18.0+002
+
+**New in this build:** a plain APK whose manifest the install library can't read is now installed
+whole instead of being rejected as corrupt. Same upstream **1.18.0** (versionCode 42) as `+001`;
+this is a fork fix only.
+
+### 🩹 Valid APKs no longer rejected as “corrupt”
+- **The bug this fixes.** Some perfectly valid APKs, from old Adobe AIR games for example, failed
+  with *“The package could not be parsed. The file may be corrupt, incomplete or incompatible with
+  this device.”* Android’s own installer accepted the same files, and they were zip-intact,
+  aligned and properly signed.
+- **The cause.** These manifests carry a **float-typed** `<meta-data android:value>`
+  (`android.max_aspect = 2.1`, or a Facebook app ID stored as a float). A float there is legal, and
+  Android reads it fine, but Ackpine’s manifest parser accepts only strings, integers, booleans and
+  references. It threw `Cannot coerce to string: value type 4`. The installer was then left with
+  nothing to install, and the install button reported the package as unparsable.
+- **The fix.** When that parser fails on a plain `.apk`, the original file is handed on as a single
+  base APK. The preview dialog still shows the app’s name, icon, version and permissions, which
+  Android’s own `PackageManager` reads. Android’s installer then has the final say on whether the
+  package is valid.
+- **Split bundles are unchanged.** A `.apks`, `.xapk` or `.apkm` the parser can’t read still stops
+  with an error, because installing a bundle blind could pick the wrong splits.
+
 ## 1.18.0+001
 
 **New in this build:** the fork moves from upstream **1.17.0** to **1.18.0** — 19 upstream commits

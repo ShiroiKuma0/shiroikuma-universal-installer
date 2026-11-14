@@ -57,6 +57,9 @@ class InstallParseDelegate(
      */
     var reviewedHandoffSha256: String? = null
 
+    /** The same for the install the user already confirmed in 応用管理. See [ApkInfo.installConfirmed]. */
+    var confirmedHandoffSha256: String? = null
+
     private var scanJob: Job? = null
     private var parseJob: Job? = null
     private var trackerScanJob: Job? = null
@@ -102,12 +105,37 @@ class InstallParseDelegate(
             )
             pendingApkUris = result.splitUris
             obbDelegate.setPendingEntries(result.obbEntries)
-            _pendingApkInfo.value = result.info
+            // A hand-off from 応用管理 is settled before the parse is published, so the dialog
+            // never shows a state the hash check would then take back: hash first, no network.
+            val reviewedSha = reviewedHandoffSha256
+            val confirmedSha = confirmedHandoffSha256
+            var info = result.info
+            var knownSha256: String? = null
+            if (!reviewedSha.isNullOrBlank() || !confirmedSha.isNullOrBlank()) {
+                val sha256 = InstallVirusTotalHelper.computeSha256(context, uri, virusTotalService)
+                fun matches(claimed: String?) =
+                    !claimed.isNullOrBlank() && sha256.isNotBlank() && sha256.equals(claimed, ignoreCase = true)
+                val reviewed = matches(reviewedSha)
+                val confirmed = matches(confirmedSha)
+                if ((!reviewedSha.isNullOrBlank() && !reviewed) || (!confirmedSha.isNullOrBlank() && !confirmed)) {
+                    Timber.w("Hand-off ignored: its SHA-256 does not match the file")
+                }
+                knownSha256 = sha256.takeIf { it.isNotBlank() }
+                info = info.copy(
+                    sha256 = sha256,
+                    vtReviewed = reviewed,
+                    installConfirmed = confirmed,
+                    // Already true when the parse is published, so a confirmed install that has
+                    // to wait for the tracker scan cannot slip in before the scan has started.
+                    isScanningTrackers = true,
+                )
+            }
+            _pendingApkInfo.value = info
             _isLoading.value = false
             if (result.matchingProfileId != null) {
                 onProfileMatched(result.matchingProfileId)
             }
-            launchHashLookupOnly(context, uri)
+            launchHashLookupOnly(context, uri, knownSha256)
             launchTrackerScan(context, uri, result.splitUris)
         }
     }
@@ -132,6 +160,7 @@ class InstallParseDelegate(
         pendingFileName = null
         pendingOriginalUri = null
         reviewedHandoffSha256 = null
+        confirmedHandoffSha256 = null
         obbDelegate.clear()
     }
 
@@ -196,21 +225,18 @@ class InstallParseDelegate(
         }
     }
 
-    private fun launchHashLookupOnly(context: Context, originalUri: Uri) {
+    private fun launchHashLookupOnly(context: Context, originalUri: Uri, knownSha256: String? = null) {
         scope.launch {
             _pendingApkInfo.value = _pendingApkInfo.value?.copy(
                 vtResult = VtResult(status = VtStatus.SCANNING),
             )
-            val result = InstallVirusTotalHelper.launchHashLookupOnly(context, originalUri, virusTotalService)
-            val reviewedSha = reviewedHandoffSha256
-            val reviewed = !reviewedSha.isNullOrBlank() && result.first.equals(reviewedSha, ignoreCase = true)
-            if (!reviewedSha.isNullOrBlank() && !reviewed) {
-                Timber.w("VT hand-off ignored: reviewed SHA-256 does not match the file")
-            }
+            val result = InstallVirusTotalHelper.launchHashLookupOnly(
+                context, originalUri, virusTotalService, knownSha256,
+            )
+            // vtReviewed / installConfirmed were settled against the hash in parseApkInfo.
             _pendingApkInfo.value = _pendingApkInfo.value?.copy(
-                sha256 = result.first,
+                sha256 = result.first.ifBlank { knownSha256.orEmpty() },
                 vtResult = result.second,
-                vtReviewed = reviewed,
             )
         }
     }

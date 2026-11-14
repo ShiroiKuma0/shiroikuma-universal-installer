@@ -27,16 +27,29 @@ object InstallVirusTotalHelper {
         }
     }
 
+    /** SHA-256 of [uri]'s content, or "" when it cannot be read. No network. */
+    suspend fun computeSha256(
+        context: Context,
+        uri: Uri,
+        virusTotalService: VirusTotalService,
+    ): String = withContext(Dispatchers.IO) {
+        runCatching {
+            context.contentResolver.openInputStream(uri)?.use { virusTotalService.computeSha256(it) }
+        }.onFailure { Timber.e(it, "Could not hash $uri") }.getOrNull().orEmpty()
+    }
+
     suspend fun launchHashLookupOnly(
         context: Context,
         originalUri: Uri,
         virusTotalService: VirusTotalService,
+        knownSha256: String? = null,
     ): Pair<String, VtResult> = withContext(Dispatchers.IO) {
         val apiKey = readVirusTotalApiKey(context)
         runCatching {
-            val sha256 = context.contentResolver.openInputStream(originalUri)?.use { input ->
-                virusTotalService.computeSha256(input)
-            } ?: ""
+            val sha256 = knownSha256?.takeIf { it.isNotBlank() }
+                ?: context.contentResolver.openInputStream(originalUri)?.use { input ->
+                    virusTotalService.computeSha256(input)
+                } ?: ""
 
             if (sha256.isBlank()) {
                 "" to VtResult(status = VtStatus.ERROR, errorMessage = "Could not hash file")

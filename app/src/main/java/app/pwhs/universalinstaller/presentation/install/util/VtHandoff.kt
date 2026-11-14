@@ -31,6 +31,14 @@ object VtHandoff {
     private const val EXTRA_VT_REVIEWED = "shiroikuma.extra.VT_REVIEWED"
     private const val EXTRA_VT_SHA256 = "shiroikuma.extra.VT_SHA256"
 
+    /**
+     * 応用管理 showed its user installed-version → new-version for this exact file and they pressed
+     * Install / Update / Reinstall / Downgrade there (白い熊, 2026-11-14; sent from 応用管理 +082).
+     * Honoured under the same two conditions as [EXTRA_VT_REVIEWED] — the system-recorded caller
+     * and the hash — and then only skips the "do you want to?" step: see `ConfirmedHandoff`.
+     */
+    private const val EXTRA_INSTALL_CONFIRMED = "shiroikuma.extra.INSTALL_CONFIRMED"
+
     private val SHA256_HEX = Regex("^[0-9a-fA-F]{64}$")
 
     /**
@@ -57,12 +65,23 @@ object VtHandoff {
      * the caller is not 応用管理, the reviewed flag is missing, or the hash is malformed. The hash
      * still has to match the file before anything changes — see `InstallParseDelegate`.
      */
-    fun reviewedSha256(activity: Activity, intent: Intent): String? {
-        if (!intent.getBooleanExtra(EXTRA_VT_REVIEWED, false)) return null
+    fun reviewedSha256(activity: Activity, intent: Intent): String? =
+        trustedSha256(activity, intent, EXTRA_VT_REVIEWED)
+
+    /**
+     * The SHA-256 of the file whose install the user already confirmed in 応用管理, or null when
+     * that claim is not to be honoured. Same trust conditions as [reviewedSha256], and likewise
+     * nothing changes until the hash matches the file.
+     */
+    fun confirmedSha256(activity: Activity, intent: Intent): String? =
+        trustedSha256(activity, intent, EXTRA_INSTALL_CONFIRMED)
+
+    private fun trustedSha256(activity: Activity, intent: Intent, flagExtra: String): String? {
+        if (!intent.getBooleanExtra(flagExtra, false)) return null
         val sha256 = intent.getStringExtra(EXTRA_VT_SHA256)?.trim()
         val caller = trustedLauncherPackage(activity, intent)
         if (caller != SCANNER_PACKAGE || sha256 == null || !SHA256_HEX.matches(sha256)) {
-            Timber.w("VT hand-off ignored: caller=$caller, sha256 well-formed=${sha256?.let(SHA256_HEX::matches)}")
+            Timber.w("Hand-off $flagExtra ignored: caller=$caller, sha256 well-formed=${sha256?.let(SHA256_HEX::matches)}")
             return null
         }
         return sha256.lowercase()

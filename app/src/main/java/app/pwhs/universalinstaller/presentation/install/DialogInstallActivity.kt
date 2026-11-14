@@ -42,6 +42,7 @@ import app.pwhs.universalinstaller.presentation.install.util.VtHandoff
 import app.pwhs.universalinstaller.presentation.install.dialog.LocalFullScanAction
 import androidx.compose.runtime.CompositionLocalProvider
 import app.pwhs.universalinstaller.presentation.install.dialog.detectInstallRisks
+import app.pwhs.universalinstaller.presentation.install.dialog.confirmedHandoffBlockers
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallUriHelper
 import app.pwhs.universalinstaller.presentation.install.dialog.InsufficientStorageDialog
@@ -213,9 +214,15 @@ class DialogInstallActivity : FragmentActivity() {
 
         // The APK vetting hand-off from 応用管理 (see VtHandoff). A restored prompt already carries
         // its verdict in the stashed ApkInfo.
+        val confirmedSha256 = if (restoredEntry == null) VtHandoff.confirmedSha256(this, intent) else null
         if (restoredEntry == null) {
             viewModel.setReviewedHandoffSha256(VtHandoff.reviewedSha256(this, intent))
+            viewModel.setConfirmedHandoffSha256(confirmedSha256)
         }
+        // An install already confirmed in 応用管理 always runs in the dialog, whatever the external
+        // open mode: the notification modes would either ask the same question again from the
+        // shade or install with no visible progress and result.
+        val confirmedHandoffClaimed = confirmedSha256 != null
         val realFile = VtHandoff.readableRealPath(this, intent, incomingUri)
         val originalPath = VtHandoff.originalPath(this, intent, incomingUri)
         val scannerAvailable = VtHandoff.isScannerAvailable(this)
@@ -242,7 +249,7 @@ class DialogInstallActivity : FragmentActivity() {
                 onCancel = cancelAndFinish,
             )
 
-            if (!forcedToDialog && restoredEntry == null && resolvedMode != ExternalOpenMode.Dialog && !securityGate.isPinRequired) {
+            if (!forcedToDialog && restoredEntry == null && resolvedMode != ExternalOpenMode.Dialog && !securityGate.isPinRequired && !confirmedHandoffClaimed) {
                 HeadlessNotificationInstall(
                     mode = resolvedMode!!,
                     uri = incomingUri,
@@ -328,8 +335,35 @@ class DialogInstallActivity : FragmentActivity() {
                 }
             }
 
-            LaunchedEffect(uiState.pendingApkInfo, uiState.dialogStage) {
-                if (uiState.pendingApkInfo != null && uiState.dialogStage == DialogStage.Loading) {
+            LaunchedEffect(uiState.pendingApkInfo, uiState.dialogStage, prefs != null) {
+                val apkInfo = uiState.pendingApkInfo ?: return@LaunchedEffect
+                if (uiState.dialogStage != DialogStage.Loading) return@LaunchedEffect
+                if (!apkInfo.installConfirmed) {
+                    viewModel.dialogShowPrepare()
+                    return@LaunchedEffect
+                }
+                // Already confirmed in 応用管理 (see ConfirmedHandoff): decide once, from the
+                // loading state, so the confirmation screen never flashes past. The settings and,
+                // when trackers can block, the tracker scan have to be in first.
+                val loadedPrefs = prefs ?: return@LaunchedEffect
+                if (blockOnTrackers && apkInfo.isScanningTrackers) return@LaunchedEffect
+                val blockers = confirmedHandoffBlockers(
+                    apkInfo = apkInfo,
+                    risks = detectInstallRisks(apkInfo, strictVirusTotalCheck, blockOnTrackers),
+                    unprivilegedBackend = InstallSessionManager.requiresInstallPermission(
+                        context, loadedPrefs, uiState.selectedProfileId,
+                    ),
+                    canInstallPackages = canInstallPackages(loadedPrefs, uiState.selectedProfileId),
+                    hasSufficientStorage = StorageUtil.hasSufficientStorage(apkInfo.fileSizeBytes),
+                )
+                // Consumed either way: once the normal screen is up, changing something in the
+                // Menu must not set an install off behind the user's back.
+                viewModel.consumeConfirmedHandoff()
+                if (blockers.isEmpty()) {
+                    Timber.i("Install confirmed in 応用管理 — installing ${apkInfo.packageName} without asking again")
+                    proceedInstall()
+                } else {
+                    Timber.i("Install confirmed in 応用管理, but asking here: $blockers")
                     viewModel.dialogShowPrepare()
                 }
             }
@@ -508,6 +542,7 @@ class DialogInstallActivity : FragmentActivity() {
         // getReferrer() reads the current intent's extras, so the hand-off check needs it set.
         setIntent(intent)
         viewModel.setReviewedHandoffSha256(VtHandoff.reviewedSha256(this, intent))
+        viewModel.setConfirmedHandoffSha256(VtHandoff.confirmedSha256(this, intent))
         val realFile = VtHandoff.readableRealPath(this, intent, uri)
         val context = this
         if (uri.scheme == "http" || uri.scheme == "https") {

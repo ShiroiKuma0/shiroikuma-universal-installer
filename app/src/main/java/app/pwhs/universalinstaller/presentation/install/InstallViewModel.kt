@@ -219,6 +219,13 @@ class InstallViewModel(
     fun setReviewedHandoffSha256(sha256: String?) {
         parseDelegate.reviewedHandoffSha256 = sha256
     }
+    fun setConfirmedHandoffSha256(sha256: String?) {
+        parseDelegate.confirmedHandoffSha256 = sha256
+    }
+    /** The confirmed hand-off is used up: decided once, never re-armed for this file. */
+    fun consumeConfirmedHandoff() {
+        parseDelegate.updatePendingApkInfo { it.copy(installConfirmed = false) }
+    }
     fun dialogShowPrepare() = dialogDelegate.showPrepare()
     fun dialogShowMenu() = dialogDelegate.showMenu()
     fun dialogBackToPrepare() = dialogDelegate.backToPrepare()

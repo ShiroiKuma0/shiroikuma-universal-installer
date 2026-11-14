@@ -34,6 +34,13 @@ data class ApkInfo(
      * the risk dialog; it never enables auto-approve. See [VtHandoff].
      */
     val vtReviewed: Boolean = false,
+    /**
+     * 応用管理 handed this file over after its user pressed Install on installed-version →
+     * new-version there, and the hash matches. The install dialog then skips its own confirmation
+     * unless a decision is left that 応用管理 did not put to the user. Consumed (set back to false)
+     * the moment that is decided, so it can never fire a second time. See `ConfirmedHandoff`.
+     */
+    val installConfirmed: Boolean = false,
     val obbFileNames: List<String> = emptyList(),
     val obbTotalBytes: Long = 0L,
     val splitEntries: List<SplitEntry> = emptyList(),

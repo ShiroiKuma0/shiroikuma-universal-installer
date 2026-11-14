@@ -239,6 +239,8 @@ object InstallVirusTotalHelper {
                     context.getString(R.string.apk_info_vt_suspicious, result.suspicious)
             VtStatus.NOT_FOUND -> context.getString(R.string.vt_notif_result_done) to
                     context.getString(R.string.apk_info_vt_not_found)
+            VtStatus.NOT_ANALYZED -> context.getString(R.string.vt_notif_result_done) to
+                    context.getString(R.string.apk_info_vt_not_analyzed)
             VtStatus.ERROR -> context.getString(R.string.vt_notif_result_error) to
                     (result.errorMessage.ifBlank { "" })
             else -> context.getString(R.string.vt_notif_result_done) to ""

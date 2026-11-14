@@ -212,6 +212,31 @@ fun VirusTotalInstallPrompt(
                 }
             }
 
+            currentStatus == VtStatus.NOT_ANALYZED -> {
+                // VirusTotal has the file but no engine has reported yet — tap to look again.
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .clickable(onClick = onScan)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Refresh,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.apk_info_vt_chip_not_analyzed),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
             currentStatus == VtStatus.ERROR -> {
                 Row(
                     modifier = Modifier

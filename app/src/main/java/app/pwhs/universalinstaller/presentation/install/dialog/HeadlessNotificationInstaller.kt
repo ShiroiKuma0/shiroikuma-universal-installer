@@ -12,6 +12,8 @@ import app.pwhs.universalinstaller.presentation.install.InstallViewModel
 import app.pwhs.universalinstaller.presentation.install.PendingInstallStore
 import app.pwhs.universalinstaller.domain.model.ApkInfo
 import app.pwhs.universalinstaller.domain.model.VtStatus
+import app.pwhs.universalinstaller.presentation.install.util.InstallVirusTotalHelper
+import app.pwhs.universalinstaller.domain.model.isPendingForAutoApprove
 import app.pwhs.universalinstaller.presentation.setting.PreferencesKeys
 import app.pwhs.universalinstaller.presentation.setting.SecurityLevel
 import kotlinx.coroutines.flow.filterNotNull
@@ -30,6 +32,7 @@ fun HeadlessNotificationInstall(
     viewModel: InstallViewModel,
     promptNotifier: InstallPromptNotifier,
     callerPackage: String? = null,
+    realFile: java.io.File? = null,
     onFallbackToDialog: (skipParse: Boolean) -> Unit,
     onInstallFromNotificationAction: () -> Unit,
     onFinish: () -> Unit,
@@ -38,7 +41,7 @@ fun HeadlessNotificationInstall(
     LaunchedEffect(uri) {
         Timber.i("$LOG: mode=$mode, caller=$callerPackage, parsing $uri")
         runCatching {
-            DialogInstallUriHelper.parseAndPush(context, uri, viewModel)
+            DialogInstallUriHelper.parseAndPush(context, uri, viewModel, realFile = realFile)
         }.onFailure { e ->
             Timber.e(e, "$LOG: parse threw - giving up")
             onFinish()
@@ -64,10 +67,11 @@ fun HeadlessNotificationInstall(
 
         // If VirusTotal hash lookup or tracker scanning is in progress, give it a brief window to complete so security flags aren't bypassed
         var currentApkInfo: ApkInfo = apkInfo
-        if (currentApkInfo.vtResult?.status == VtStatus.SCANNING || (blockOnTrackers && currentApkInfo.isScanningTrackers)) {
+        val vtTransient = { info: ApkInfo -> info.vtResult == null || info.vtResult.status == VtStatus.SCANNING }
+        if (vtTransient(currentApkInfo) || (blockOnTrackers && currentApkInfo.isScanningTrackers)) {
             val updated = withTimeoutOrNull(2500L) {
                 viewModel.uiState.map { it.pendingApkInfo }.filterNotNull().first {
-                    it.vtResult?.status != VtStatus.SCANNING && (!blockOnTrackers || !it.isScanningTrackers)
+                    !vtTransient(it) && (!blockOnTrackers || !it.isScanningTrackers)
                 }
             }
             if (updated != null) {
@@ -78,8 +82,13 @@ fun HeadlessNotificationInstall(
         val risks = detectInstallRisks(currentApkInfo, strictVirusTotal, blockOnTrackers)
         val hasVtFlags = currentApkInfo.vtResult?.let { it.malicious > 0 || it.suspicious > 0 } == true
         val isCallerAutoApproved = AutoApproveApps.isAutoApproved(prefs, callerPackage)
+        // No verdict yet (unknown to VirusTotal, still hashing past the window, uploading, not
+        // analysed) is not "no risk": ask instead of installing silently. Only with a key — without
+        // one VirusTotal plays no part, and the hash may simply still be running.
+        val vtEnabled = InstallVirusTotalHelper.readVirusTotalApiKey(context).isNotBlank()
+        val vtPending = vtEnabled && currentApkInfo.vtResult?.status.isPendingForAutoApprove()
 
-        if ((mode == ExternalOpenMode.AutoNotification || isCallerAutoApproved) && risks.isEmpty() && !hasVtFlags) {
+        if ((mode == ExternalOpenMode.AutoNotification || isCallerAutoApproved) && risks.isEmpty() && !hasVtFlags && !vtPending) {
             Timber.i("$LOG: auto mode/approved, no risks - installing without asking (caller=$callerPackage, mode=$mode)")
             onInstallFromNotificationAction()
             return@LaunchedEffect
@@ -87,6 +96,9 @@ fun HeadlessNotificationInstall(
 
         if (risks.isNotEmpty()) {
             Timber.i("$LOG: ${risks.size} risk(s) - asking rather than auto-installing")
+        }
+        if (vtPending) {
+            Timber.i("$LOG: no VirusTotal verdict (${currentApkInfo.vtResult?.status}) - asking rather than auto-installing")
         }
         val canPost = promptNotifier.canPost()
         if (!canPost) Timber.w("$LOG: notifications unavailable")

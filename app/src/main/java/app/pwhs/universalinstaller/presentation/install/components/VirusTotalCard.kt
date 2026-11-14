@@ -77,6 +77,7 @@ fun VirusTotalCard(
         VtStatus.MALICIOUS -> stringResource(R.string.apk_info_vt_malicious, vt.malicious)
         VtStatus.SUSPICIOUS -> stringResource(R.string.apk_info_vt_suspicious, vt.suspicious)
         VtStatus.NOT_FOUND -> stringResource(R.string.apk_info_vt_not_found)
+        VtStatus.NOT_ANALYZED -> stringResource(R.string.apk_info_vt_not_analyzed)
         VtStatus.NO_API_KEY -> stringResource(R.string.apk_info_vt_no_api_key)
         VtStatus.INVALID_API_KEY -> stringResource(R.string.apk_info_vt_invalid_key)
         VtStatus.RATE_LIMITED -> vt.errorMessage.takeIf { it.isNotBlank() }
@@ -408,6 +409,19 @@ fun VtStatusChip(
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Rounded.CloudUpload,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            },
+            contentColor = MaterialTheme.colorScheme.primary,
+            onClick = onClick,
+        )
+        VtStatus.NOT_ANALYZED -> InfoChip(
+            label = stringResource(R.string.apk_info_vt_chip_not_analyzed),
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Refresh,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.primary,

@@ -37,6 +37,10 @@ import app.pwhs.universalinstaller.IntentHandoff
 import app.pwhs.universalinstaller.domain.model.ExternalOpenMode
 import app.pwhs.universalinstaller.domain.model.InstallUiStyle
 import app.pwhs.universalinstaller.domain.model.VtStatus
+import app.pwhs.universalinstaller.domain.model.isPendingForAutoApprove
+import app.pwhs.universalinstaller.presentation.install.util.VtHandoff
+import app.pwhs.universalinstaller.presentation.install.dialog.LocalFullScanAction
+import androidx.compose.runtime.CompositionLocalProvider
 import app.pwhs.universalinstaller.presentation.install.dialog.detectInstallRisks
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallContent
 import app.pwhs.universalinstaller.presentation.install.dialog.DialogInstallUriHelper
@@ -207,6 +211,15 @@ class DialogInstallActivity : FragmentActivity() {
         viewModel.dialogStartLoading()
         skipInitialParse = restoredEntry != null
 
+        // The APK vetting hand-off from 応用管理 (see VtHandoff). A restored prompt already carries
+        // its verdict in the stashed ApkInfo.
+        if (restoredEntry == null) {
+            viewModel.setReviewedHandoffSha256(VtHandoff.reviewedSha256(this, intent))
+        }
+        val realFile = VtHandoff.readableRealPath(this, intent, incomingUri)
+        val originalPath = VtHandoff.originalPath(this, intent, incomingUri)
+        val scannerAvailable = VtHandoff.isScannerAvailable(this)
+
         // Detect which app triggered this install intent.
         val callerPackage = CallerAppDetector.detectCallerPackage(this, intent)
 
@@ -236,6 +249,7 @@ class DialogInstallActivity : FragmentActivity() {
                     viewModel = viewModel,
                     promptNotifier = promptNotifier,
                     callerPackage = callerPackage,
+                    realFile = realFile,
                     onFallbackToDialog = { skip ->
                         skipInitialParse = skip
                         fallbackToDialog()
@@ -263,7 +277,7 @@ class DialogInstallActivity : FragmentActivity() {
                     }
                 } else {
                     runCatching {
-                        DialogInstallUriHelper.parseAndPush(context, incomingUri, viewModel)
+                        DialogInstallUriHelper.parseAndPush(context, incomingUri, viewModel, realFile = realFile)
                     }.onFailure { e ->
                         Timber.e(e, "Parse failed for $incomingUri")
                         reportParseProblem(e)
@@ -337,10 +351,14 @@ class DialogInstallActivity : FragmentActivity() {
                 val apkInfo = uiState.pendingApkInfo
                 val isScanning = apkInfo?.vtResult?.status == VtStatus.SCANNING || (blockOnTrackers && apkInfo?.isScanningTrackers == true)
                 if (isScanning) return@LaunchedEffect
+                // A file VirusTotal has no verdict on (unknown, uploading, not analysed yet) is not
+                // "no risk": auto-approve waits, and the user can still install by hand. A reviewed
+                // hand-off does not change this — it only quiets the risk dialog.
+                val vtPending = apkInfo?.vtResult?.status.isPendingForAutoApprove()
 
                 val risks = if (apkInfo != null) detectInstallRisks(apkInfo, strictVirusTotalCheck, blockOnTrackers) else emptyList()
                 val hasSecurityFlags = risks.isNotEmpty() || (apkInfo?.vtResult?.let { it.malicious > 0 || it.suspicious > 0 } == true)
-                val shouldAutoInstall = (autoConfirmExternalInstall || isCallerAutoApproved) && !securityGate.isPinRequired && !hasSecurityFlags
+                val shouldAutoInstall = (autoConfirmExternalInstall || isCallerAutoApproved) && !securityGate.isPinRequired && !hasSecurityFlags && !vtPending
                 if (hasSecurityFlags && (autoConfirmExternalInstall || isCallerAutoApproved)) {
                     Timber.w("Auto-approve install blocked: security risks/VT flags present ($risks, vt=${apkInfo?.vtResult?.status})")
                     if (uiState.dialogStage == DialogStage.Prepare && autoBlockedRisks.isEmpty()) {
@@ -413,30 +431,46 @@ class DialogInstallActivity : FragmentActivity() {
             val presetName = prefs?.get(stringPreferencesKey("theme_preset")) ?: ForkUiDefaults.Preset.name
             val themePreset = AppThemePreset.entries.find { it.name == presetName } ?: ForkUiDefaults.Preset
 
-            DialogInstallContent(
-                uiState = uiState,
-                dialogTarget = dialogTarget,
-                uiStyle = uiStyle,
-                isApk = isApk,
-                themeMode = themeMode,
-                dynamicColor = dynamicColor,
-                amoledMode = amoledMode,
-                themePreset = themePreset,
-                autoOpenAfterInstall = autoOpenAfterInstall,
-                showKeepApkOption = deleteApkAfterInstall,
-                keepApk = keepApk,
-                onKeepApkChanged = { keepApk = it },
-                strictVirusTotalCheck = strictVirusTotalCheck,
-                blockOnTrackers = blockOnTrackers,
-                autoBlockedRisks = autoBlockedRisks,
-                canInstallPackages = { canInstallPackages(prefs, uiState.selectedProfileId) },
-                viewModel = viewModel,
-                onOpenInstallPermissionSettings = ::openInstallPermissionSettings,
-                onProceedInstall = proceedInstall,
-                onDismissAndFinish = dismissAndFinish,
-                onFinishAfterSuccess = finishAfterSuccess,
-                onScanVirusTotal = { viewModel.scanVirusTotal(it) },
-            )
+            val fullScanAction: (() -> Unit)? = if (scannerAvailable) {
+                {
+                    // This activity is noHistory: it finishes as 応用管理 comes up, and the
+                    // report's Install pill brings the same file back here.
+                    VtHandoff.startFullScan(
+                        context = context,
+                        incomingUri = incomingUri,
+                        localUri = viewModel.pendingSourceUri,
+                        realPath = originalPath,
+                        mimeType = runCatching { context.contentResolver.getType(incomingUri) }.getOrNull(),
+                    )
+                }
+            } else null
+
+            CompositionLocalProvider(LocalFullScanAction provides fullScanAction) {
+                DialogInstallContent(
+                    uiState = uiState,
+                    dialogTarget = dialogTarget,
+                    uiStyle = uiStyle,
+                    isApk = isApk,
+                    themeMode = themeMode,
+                    dynamicColor = dynamicColor,
+                    amoledMode = amoledMode,
+                    themePreset = themePreset,
+                    autoOpenAfterInstall = autoOpenAfterInstall,
+                    showKeepApkOption = deleteApkAfterInstall,
+                    keepApk = keepApk,
+                    onKeepApkChanged = { keepApk = it },
+                    strictVirusTotalCheck = strictVirusTotalCheck,
+                    blockOnTrackers = blockOnTrackers,
+                    autoBlockedRisks = autoBlockedRisks,
+                    canInstallPackages = { canInstallPackages(prefs, uiState.selectedProfileId) },
+                    viewModel = viewModel,
+                    onOpenInstallPermissionSettings = ::openInstallPermissionSettings,
+                    onProceedInstall = proceedInstall,
+                    onDismissAndFinish = dismissAndFinish,
+                    onFinishAfterSuccess = finishAfterSuccess,
+                    onScanVirusTotal = { viewModel.scanVirusTotal(it) },
+                )
+            }
 
             val storageWarning by viewModel.storageWarningInfo.collectAsState()
             storageWarning?.let { warning ->
@@ -471,6 +505,10 @@ class DialogInstallActivity : FragmentActivity() {
         val uri = uris.first()
         viewModel.dismissPendingInstall()
         viewModel.dialogStartLoading()
+        // getReferrer() reads the current intent's extras, so the hand-off check needs it set.
+        setIntent(intent)
+        viewModel.setReviewedHandoffSha256(VtHandoff.reviewedSha256(this, intent))
+        val realFile = VtHandoff.readableRealPath(this, intent, uri)
         val context = this
         if (uri.scheme == "http" || uri.scheme == "https") {
             viewModel.startDialogNetworkDownload(context, uri) { file, fileName ->
@@ -481,7 +519,7 @@ class DialogInstallActivity : FragmentActivity() {
         } else {
             lifecycleScope.launch {
                 runCatching {
-                    DialogInstallUriHelper.parseAndPush(context, uri, viewModel)
+                    DialogInstallUriHelper.parseAndPush(context, uri, viewModel, realFile = realFile)
                 }.onFailure { e ->
                     Timber.e(e, "Parse failed for new intent $uri")
                     reportParseProblem(e)

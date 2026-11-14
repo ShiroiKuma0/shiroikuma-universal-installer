@@ -115,6 +115,11 @@
     <string name="apk_info_vt_suspicious">%d engine(s) flagged as suspicious</string>
     <string name="apk_info_vt_not_found">File not found in VirusTotal database</string>
     <string name="apk_info_vt_upload_action">Upload &amp; scan</string>
+    <string name="apk_info_vt_not_analyzed">VirusTotal has the file but has not analysed it yet</string>
+    <string name="apk_info_vt_chip_not_analyzed">Not analysed yet — check again</string>
+    <string name="apk_info_vt_reviewed">Reviewed in 応用管理</string>
+    <string name="apk_info_vt_reviewed_desc">The scan report for this exact file (SHA-256 match) was reviewed in 応用管理</string>
+    <string name="apk_info_vt_full_scan">Full scan</string>
     <string name="apk_info_vt_no_api_key">No VirusTotal API key configured. Open Settings → Advanced → VirusTotal API Key to add one — free key at virustotal.com/gui/my-apikey.</string>
     <string name="apk_info_vt_uploading">Uploading to VirusTotal… %d%%</string>
     <string name="apk_info_vt_queued">Queued on VirusTotal…</string>

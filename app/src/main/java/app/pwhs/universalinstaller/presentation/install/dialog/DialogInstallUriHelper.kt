@@ -78,6 +78,7 @@ object DialogInstallUriHelper {
         uri: Uri,
         viewModel: InstallViewModel,
         onDownloadProgress: ((app.pwhs.core.network.DownloadProgress) -> Unit)? = null,
+        realFile: java.io.File? = null,
     ) {
         val originalDisplayName = context.contentResolver.getDisplayName(uri).ifBlank {
             uri.lastPathSegment?.substringAfterLast('/') ?: "package.apk"
@@ -97,7 +98,15 @@ object DialogInstallUriHelper {
                 }
             }
         } else if (uri.scheme == "content" && !isAppInternalUri(context, uri)) {
-            AppCacheManager.stageExternalUri(context, uri, originalDisplayName) ?: uri
+            // The sender named the file on disk and this app can read it: parse and install it in
+            // place instead of copying a possibly large APK into the cache first. Not when the APK
+            // is to be deleted after install — that deletes whatever this URI points at, which
+            // until now was only ever the staged copy, never the user's own file.
+            realFile
+                ?.takeIf { !app.pwhs.universalinstaller.presentation.install.util.InstallSessionManager.readDeleteApkPref(context) }
+                ?.let { Uri.fromFile(it) }
+                ?: AppCacheManager.stageExternalUri(context, uri, originalDisplayName)
+                ?: uri
         } else {
             uri
         }

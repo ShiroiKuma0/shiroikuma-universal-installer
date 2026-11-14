@@ -278,10 +278,15 @@ fun DialogPrepareContent(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             InstallerModeBadge()
-            VirusTotalInstallPrompt(
-                apkInfo = apkInfo,
-                onScan = onCheckVirusTotal,
-            )
+            if (apkInfo.vtReviewed) {
+                VtReviewedChip()
+            } else {
+                VirusTotalInstallPrompt(
+                    apkInfo = apkInfo,
+                    onScan = onCheckVirusTotal,
+                )
+                LocalFullScanAction.current?.let { FullScanPill(onClick = it) }
+            }
             if (apkInfo.isScanningTrackers) {
                 DialogPill(
                     label = stringResource(R.string.dialog_chip_trackers_scanning),

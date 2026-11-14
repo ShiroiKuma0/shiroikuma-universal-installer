@@ -24,6 +24,11 @@
     <string name="apk_info_vt_suspicious">%d エンジンが疑わしいとフラグを立てました</string>
     <string name="apk_info_vt_not_found">VirusTotal データベースにファイルが見つかりません</string>
     <string name="apk_info_vt_upload_action">アップロードしてスキャン</string>
+    <string name="apk_info_vt_not_analyzed">VirusTotal にファイルはありますが、まだ解析されていません</string>
+    <string name="apk_info_vt_chip_not_analyzed">未解析 — 再確認</string>
+    <string name="apk_info_vt_reviewed">応用管理で確認済み</string>
+    <string name="apk_info_vt_reviewed_desc">このファイル（SHA-256 一致）のスキャン結果は応用管理で確認済みです</string>
+    <string name="apk_info_vt_full_scan">フルスキャン</string>
     <string name="installer_mode_package_installer">Package Installer</string>
     <string name="installer_mode_using">%s を使用中</string>
     <string name="install_error_cancelled_title">インストールがキャンセルされました</string>

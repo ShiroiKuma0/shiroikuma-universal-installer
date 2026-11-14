@@ -93,6 +93,10 @@ fun detectInstallRisks(
     if (blockOnTrackers && apkInfo.trackers.isNotEmpty()) {
         risks += InstallRisk.TrackersDetected(apkInfo.trackers.size)
     }
+    // The user has just read 応用管理's full report for this exact file (hash-checked). Its verdict
+    // tells expected crack noise from severe detections; a raw "1 engine = malicious" here would
+    // only contradict it. Every other risk above still stands.
+    if (apkInfo.vtReviewed) return risks
     when (val status = apkInfo.vtResult?.status) {
         VtStatus.MALICIOUS -> risks += InstallRisk.VtMalicious(apkInfo.vtResult.malicious, apkInfo.sha256)
         VtStatus.SUSPICIOUS -> risks += InstallRisk.VtSuspicious(apkInfo.vtResult.suspicious, apkInfo.sha256)

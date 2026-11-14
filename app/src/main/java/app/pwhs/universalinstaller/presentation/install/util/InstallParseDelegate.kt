@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.solrudev.ackpine.splits.SplitPackage
+import timber.log.Timber
 
 class InstallParseDelegate(
     private val application: Application,
@@ -49,6 +50,12 @@ class InstallParseDelegate(
 
     var pendingOriginalUri: Uri? = null
         private set
+
+    /**
+     * SHA-256 that a trusted 応用管理 hand-off says its user reviewed, or null. Compared with the
+     * hash computed here once the lookup has run; only a match marks the file as reviewed.
+     */
+    var reviewedHandoffSha256: String? = null
 
     private var scanJob: Job? = null
     private var parseJob: Job? = null
@@ -124,6 +131,7 @@ class InstallParseDelegate(
         pendingApkUris = null
         pendingFileName = null
         pendingOriginalUri = null
+        reviewedHandoffSha256 = null
         obbDelegate.clear()
     }
 
@@ -194,9 +202,15 @@ class InstallParseDelegate(
                 vtResult = VtResult(status = VtStatus.SCANNING),
             )
             val result = InstallVirusTotalHelper.launchHashLookupOnly(context, originalUri, virusTotalService)
+            val reviewedSha = reviewedHandoffSha256
+            val reviewed = !reviewedSha.isNullOrBlank() && result.first.equals(reviewedSha, ignoreCase = true)
+            if (!reviewedSha.isNullOrBlank() && !reviewed) {
+                Timber.w("VT hand-off ignored: reviewed SHA-256 does not match the file")
+            }
             _pendingApkInfo.value = _pendingApkInfo.value?.copy(
                 sha256 = result.first,
                 vtResult = result.second,
+                vtReviewed = reviewed,
             )
         }
     }

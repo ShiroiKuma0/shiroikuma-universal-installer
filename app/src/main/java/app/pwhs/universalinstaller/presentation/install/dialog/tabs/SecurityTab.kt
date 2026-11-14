@@ -46,11 +46,12 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
         val vtResult = apkInfo.vtResult
         val vtErrorMsg = vtResult?.errorMessage?.takeIf { it.isNotBlank() }
         val extendedColors = LocalExtendedColors.current
-        val vtDesc = when (vtResult?.status) {
+        val vtDesc = if (apkInfo.vtReviewed) stringResource(R.string.apk_info_vt_reviewed_desc) else when (vtResult?.status) {
             VtStatus.CLEAN -> stringResource(R.string.apk_info_vt_clean)
             VtStatus.MALICIOUS -> stringResource(R.string.apk_info_vt_malicious, vtResult.malicious)
             VtStatus.SUSPICIOUS -> stringResource(R.string.apk_info_vt_suspicious, vtResult.suspicious)
             VtStatus.NOT_FOUND -> stringResource(R.string.apk_info_vt_not_found)
+            VtStatus.NOT_ANALYZED -> stringResource(R.string.apk_info_vt_not_analyzed)
             VtStatus.SCANNING -> stringResource(R.string.apk_info_vt_scanning)
             VtStatus.UPLOADING -> stringResource(R.string.apk_info_vt_uploading, vtResult.uploadProgress)
             VtStatus.QUEUED -> stringResource(R.string.apk_info_vt_queued)
@@ -69,7 +70,7 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
             }
             else -> stringResource(R.string.dialog_menu_virustotal_desc)
         }
-        val vtColor = when (vtResult?.status) {
+        val vtColor = if (apkInfo.vtReviewed) MaterialTheme.colorScheme.tertiary else when (vtResult?.status) {
             VtStatus.CLEAN -> MaterialTheme.colorScheme.tertiary
             VtStatus.MALICIOUS,
             VtStatus.ERROR -> MaterialTheme.colorScheme.error
@@ -83,41 +84,51 @@ internal fun androidx.compose.foundation.lazy.LazyListScope.securityTab(
             else -> MaterialTheme.colorScheme.onSurfaceVariant
         }
         val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-        MenuCard(
-            title = stringResource(R.string.dialog_menu_virustotal),
-            description = vtDesc,
-            descriptionColor = vtColor,
-            icon = {
-                Icon(
-                    imageVector = if (vtResult?.status == VtStatus.CLEAN)
-                        Icons.Rounded.CheckCircle else Icons.Rounded.Security,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = vtColor,
-                )
-            },
-            onClick = {
-                when {
-                    vtResult?.status in listOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS) -> {
-                        if (apkInfo.sha256.isNotBlank()) {
-                            uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
+        val fullScan = app.pwhs.universalinstaller.presentation.install.dialog.LocalFullScanAction.current
+            ?.takeIf { !apkInfo.vtReviewed }
+        Column {
+            MenuCard(
+                title = stringResource(R.string.dialog_menu_virustotal),
+                description = vtDesc,
+                descriptionColor = vtColor,
+                icon = {
+                    Icon(
+                        imageVector = if (apkInfo.vtReviewed || vtResult?.status == VtStatus.CLEAN)
+                            Icons.Rounded.CheckCircle else Icons.Rounded.Security,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = vtColor,
+                    )
+                },
+                onClick = {
+                    when {
+                        vtResult?.status in listOf(VtStatus.CLEAN, VtStatus.MALICIOUS, VtStatus.SUSPICIOUS) -> {
+                            if (apkInfo.sha256.isNotBlank()) {
+                                uriHandler.openUri("https://www.virustotal.com/gui/file/${apkInfo.sha256}/detection")
+                            }
                         }
+                        // Without a key, tapping Check only rewrites the same "no key" line the user
+                        // is already reading. Send them where the key is entered instead.
+                        vtResult?.status == VtStatus.NO_API_KEY ||
+                            vtResult?.status == VtStatus.INVALID_API_KEY -> {
+                            context.startActivity(
+                                android.content.Intent(
+                                    context,
+                                    app.pwhs.universalinstaller.presentation.setting.SettingActivity::class.java,
+                                ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                        else -> onCheckVirusTotal()
                     }
-                    // Without a key, tapping Check only rewrites the same "no key" line the user
-                    // is already reading. Send them where the key is entered instead.
-                    vtResult?.status == VtStatus.NO_API_KEY ||
-                        vtResult?.status == VtStatus.INVALID_API_KEY -> {
-                        context.startActivity(
-                            android.content.Intent(
-                                context,
-                                app.pwhs.universalinstaller.presentation.setting.SettingActivity::class.java,
-                            ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                        )
-                    }
-                    else -> onCheckVirusTotal()
-                }
-            },
-        )
+                },
+            )
+            if (fullScan != null) {
+                app.pwhs.universalinstaller.presentation.install.dialog.FullScanPill(
+                    onClick = fullScan,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
+                )
+            }
+        }
     }
 
     // 2. Permissions

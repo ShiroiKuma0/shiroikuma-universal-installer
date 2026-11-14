@@ -211,6 +211,14 @@ class InstallViewModel(
     // ── Dialog Delegates ────────────────────────────────────────────────────
 
     fun dialogStartLoading() = dialogDelegate.startLoading()
+
+    /** The URI actually parsed: the staged copy, the real file, or a URL download in the cache. */
+    val pendingSourceUri: android.net.Uri? get() = parseDelegate.pendingOriginalUri
+
+    /** Arms the 応用管理 hand-off check for the file about to be parsed; null disarms it. */
+    fun setReviewedHandoffSha256(sha256: String?) {
+        parseDelegate.reviewedHandoffSha256 = sha256
+    }
     fun dialogShowPrepare() = dialogDelegate.showPrepare()
     fun dialogShowMenu() = dialogDelegate.showMenu()
     fun dialogBackToPrepare() = dialogDelegate.backToPrepare()

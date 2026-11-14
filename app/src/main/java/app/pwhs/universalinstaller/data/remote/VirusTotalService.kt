@@ -246,7 +246,13 @@ class VirusTotalService(
         val attributes = JSONObject(body).getJSONObject("data").getJSONObject("attributes")
         val stats = attributes.getJSONObject("last_analysis_stats")
         val engines = parseEngineResults(attributes.optJSONObject("last_analysis_results"))
-        toResult(stats, engines)
+        // Right after an upload the file record exists before any engine has reported on it:
+        // 200, empty stats, no analysis date. That is "not analysed", not a clean bill.
+        if (!attributes.has("last_analysis_date")) {
+            VtResult(status = VtStatus.NOT_ANALYZED)
+        } else {
+            toResult(stats, engines)
+        }
     } catch (e: Exception) {
         Timber.e(e, "Error parsing VT file response")
         VtResult(status = VtStatus.ERROR, errorMessage = "Parse error: ${e.message}")
@@ -313,6 +319,8 @@ class VirusTotalService(
         val status = when {
             malicious > 0 -> VtStatus.MALICIOUS
             suspicious > 0 -> VtStatus.SUSPICIOUS
+            // Zero engines reporting is no verdict at all; calling it CLEAN showed "Clean (0/0)".
+            malicious + suspicious + harmless + undetected == 0 -> VtStatus.NOT_ANALYZED
             else -> VtStatus.CLEAN
         }
         return VtResult(

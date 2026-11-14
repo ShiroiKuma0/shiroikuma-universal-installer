@@ -28,6 +28,12 @@ data class ApkInfo(
     val supportedAbis: List<String> = emptyList(),
     val sha256: String = "",
     val vtResult: VtResult? = null,
+    /**
+     * 応用管理 handed this file over after its user read the full VirusTotal report, and the
+     * SHA-256 it reviewed matches the one computed here. Suppresses only the VirusTotal part of
+     * the risk dialog; it never enables auto-approve. See [VtHandoff].
+     */
+    val vtReviewed: Boolean = false,
     val obbFileNames: List<String> = emptyList(),
     val obbTotalBytes: Long = 0L,
     val splitEntries: List<SplitEntry> = emptyList(),

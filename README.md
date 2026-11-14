@@ -6,11 +6,11 @@
 
 **A package installer you can theme down to the last button, border and progress line.**
 
-A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine that is **black-and-yellow out of the box**, per-surface and per-element styling of the install dialog, custom imported fonts, a categorized **whole-app config export/import** with a one-tap export directory, **headless backup and restore for external automation** behind a verified-caller data door, and Shizuku that actually talks to **白い熊 雫**.
+A fork of [pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer) with **major additions**: a full font/color/shape theming engine that is **black-and-yellow out of the box**, per-surface and per-element styling of the install dialog, custom imported fonts, a categorized **whole-app config export/import** with a one-tap export directory, **headless backup and restore for external automation** behind a verified-caller data door, Shizuku that actually talks to **白い熊 雫**, and the install end of an **APK vetting chain** with 応用管理.
 
 Installs **side-by-side** with the official app (app id `shiroikuma.universalinstaller`).
 
-**📥 Latest release: [`1.18.0+002`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
+**📥 Latest release: [`1.18.0+003`](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases/latest)** — [all releases & APK downloads »](https://github.com/ShiroiKuma0/shiroikuma-universal-installer/releases)
 
 </div>
 
@@ -92,6 +92,12 @@ Silent installs authorize against **白い熊 雫** (`shiroikuma.shizuku`) as we
 ## 🔧 The install dialog tells you what it is about to do
 
 Re-installing the version you already have no longer looks like an upgrade. Stock drew the *"installed → new"* arrow between two identical version strings and offered an **Update** button; here a same-`versionCode` file reads **`1.9.12 (32) — already installed`**, carries a **Same version** chip and a **Reinstall** button, all in green — deliberately not one of the theme's accent roles, since in the black-and-yellow scheme every one of those is yellow. A downgrade still gets the red ⚠ line and a **Downgrade** button. Three states, three colours, no guessing.
+
+---
+
+## 🛡️ Part of an APK vetting chain
+
+Tap an APK in the file manager, read its **full VirusTotal report** in 応用管理, and that report's Install pill hands the file here. When the hash 応用管理 reviewed matches the file, the install dialog shows **Reviewed in 応用管理** and does not raise a VirusTotal warning that contradicts the report you just read — while signature, tracker and blocklist checks stay in force. The hand-off is honoured only from a caller Android itself vouches for. An APK opened here directly gets a **Full scan** pill that sends it the other way. A freshly uploaded file is no longer shown as “Clean (0/0)”, and auto-approve never installs a file VirusTotal has no verdict on.
 
 ---
 

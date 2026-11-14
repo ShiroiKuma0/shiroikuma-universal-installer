@@ -4,6 +4,52 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.18.0+003
+
+**New in this build:** the install end of the **APK vetting chain** — tap an APK in the file
+manager, read its full VirusTotal report in 応用管理, and that report’s Install pill hands the file
+here. Same upstream **1.18.0** (versionCode 42) as `+001`; this is fork work only. The scan, its
+result store and the report live in 応用管理 (`shiroikuma.oyokanri`); nothing of that is duplicated
+here.
+
+### 🛡️ A reviewed report is not contradicted
+- **The problem.** This app calls a file *malicious* on a single engine hit. A re-signed or patched
+  game the user has just reviewed in 応用管理 as “riskware only” would then be met here with the
+  severe risk dialog.
+- **The hand-off.** When 応用管理 starts the install dialog with `shiroikuma.extra.VT_REVIEWED` and
+  the `shiroikuma.extra.VT_SHA256` it reviewed, and that hash equals the SHA-256 computed here, the
+  VirusTotal risks are left out of the risk dialog. The status chip and the Security tab read
+  **Reviewed in 応用管理** instead of a contradicting verdict.
+- **Everything else still applies.** Signature mismatch, trackers, the blocklist and the
+  permissions list are untouched, and a reviewed file never enables auto-approve by itself.
+- **The caller cannot be forged.** The hand-off is honoured only when Android itself records
+  `shiroikuma.oyokanri` as the launching package: `launchedFromPackage` on Android 14+, the system
+  referrer below that, and never when the intent carries a referrer extra. The general caller
+  detection also trusts `EXTRA_REFERRER` and the content-URI authority, which any app or
+  `adb shell am start` can set, so it is not used for this.
+- **A wrong hash is ignored**, and the normal risk flow runs.
+
+### 📂 The real file instead of a second copy
+- With `shiroikuma.extra.REAL_PATH` naming a readable file of the same size as the URI’s content,
+  the APK is parsed and installed **in place** rather than copied into the cache first.
+- Staging stays the fallback. It also stays in use whenever *delete APK after install* is on, so
+  that setting keeps deleting only the staged copy and never the user’s own file.
+
+### 🔍 A “Full scan” pill for APKs opened here directly
+- Beside the VirusTotal status in the install dialog and in the Security tab: an outlined pill
+  that sends the file to 応用管理’s scan and report (`shiroikuma.oyokanri.action.VT_SCAN`), with
+  the original path when it is known.
+- **Hidden** when the installed 応用管理 has no scan entry, or when the file already arrived as a
+  reviewed hand-off — so the app behaves exactly as before without the scanner.
+
+### 🩹 VirusTotal fixes
+- **No more false “Clean (0/0)”.** Right after an upload VirusTotal can answer with an empty
+  record: no engines, no analysis date. That is now its own *not analysed yet* state, with a chip
+  to check again, instead of a clean verdict.
+- **Auto-approve no longer passes files without a verdict.** *Not found*, *not analysed*,
+  *uploading*, *queued* and *analysing* count as pending, in the dialog and in the notification-only
+  flow. Such a file waits for the user instead of installing silently.
+
 ## 1.18.0+002
 
 **New in this build:** a plain APK whose manifest the install library can't read is now installed

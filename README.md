@@ -97,7 +97,7 @@ Re-installing the version you already have no longer looks like an upgrade. Stoc
 
 ## 🛡️ Part of an APK vetting chain
 
-Tap an APK in the file manager, read its **full VirusTotal report** in 応用管理, and that report's Install pill hands the file here. When the hash 応用管理 reviewed matches the file, the install dialog shows **Reviewed in 応用管理** and does not raise a VirusTotal warning that contradicts the report you just read — while signature, tracker and blocklist checks stay in force. The hand-off is honoured only from a caller Android itself vouches for. An APK opened here directly gets a **Full scan** pill that sends it the other way. A freshly uploaded file is no longer shown as “Clean (0/0)”, and auto-approve never installs a file VirusTotal has no verdict on.
+Tap an APK in the file manager, read its **full VirusTotal report** in 応用管理, and that report's Install pill hands the file here. When the hash 応用管理 reviewed matches the file, the install dialog shows **Reviewed in 応用管理** and does not raise a VirusTotal warning that contradicts the report you just read — while signature, tracker and blocklist checks stay in force. The hand-off is honoured only from a caller Android itself vouches for. And when you already pressed Install on that report — which shows installed version → new version — the file **installs here without a second confirmation**; this app still stops and asks whenever something is left that 応用管理 did not put to you (a signature mismatch, a bundle whose splits need choosing, a downgrade the install method cannot do). An APK opened here directly gets a **Full scan** pill that sends it the other way. A freshly uploaded file is no longer shown as “Clean (0/0)”, and auto-approve never installs a file VirusTotal has no verdict on.
 
 ---
 

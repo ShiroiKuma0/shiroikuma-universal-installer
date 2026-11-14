@@ -4,6 +4,39 @@ Everything this fork adds on top of stock **Universal Installer**
 ([pass-with-high-score/universal-installer](https://github.com/pass-with-high-score/universal-installer)).
 Installs side-by-side with the official app (app id `shiroikuma.universalinstaller`).
 
+## 1.18.0+004
+
+**New in this build:** an install already confirmed in 応用管理 is **not asked about a second time**.
+Same upstream **1.18.0** (versionCode 42) as `+001`; this is fork work only.
+
+### ⏩ No second “do you want to?” after 応用管理
+- **The problem.** 応用管理’s VirusTotal dialog now shows the same facts as the install dialog here —
+  icon, label, package, installed version → new version, size, and whether this is a new install,
+  an update, the same version or a downgrade — and its main button is the install decision. Meeting
+  “Menu · Update · Cancel” here afterwards was the same question asked twice.
+- **The contract addition.** One new extra, `shiroikuma.extra.INSTALL_CONFIRMED` (boolean), beside
+  the unchanged `shiroikuma.extra.REAL_PATH`, `shiroikuma.extra.VT_REVIEWED` and
+  `shiroikuma.extra.VT_SHA256`. Sent by 応用管理 from `+082` on.
+- **Same trust as the review.** Honoured only when Android itself records `shiroikuma.oyokanri` as
+  the launching package **and** the SHA-256 computed here equals `VT_SHA256`. Otherwise the extra is
+  ignored and the normal confirmation screen shows.
+- **What is skipped.** Only the confirmation: the dialog goes from loading straight to installing
+  with the usual method, and still shows progress and the result — success, or failure with its
+  reason. A PIN or biometric gate set in this app still applies.
+- **What still stops and asks.** Anything 応用管理 did not put to the user: a signature mismatch,
+  the never-install list, trackers when they are set to block, a bundle whose splits can be chosen,
+  OBB data, a downgrade when the install would go through the system installer (which refuses
+  one), a missing install permission, too little storage. The normal screen then shows, exactly as
+  for any other install.
+- **Decided once.** After the normal screen is up, changing something in the Menu never sets the
+  install off by itself.
+- **Always in the dialog.** A confirmed hand-off ignores the notification open modes, which would
+  either ask again from the shade or install with no visible progress.
+- **The hash is settled before the dialog shows the file**, so *Reviewed in 応用管理* is there from
+  the first frame instead of appearing after the lookup.
+- Everything outside this hand-off — a file manager, a share, the picker, an older 応用管理 — behaves
+  exactly as before.
+
 ## 1.18.0+003
 
 **New in this build:** the install end of the **APK vetting chain** — tap an APK in the file
